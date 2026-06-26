@@ -51,8 +51,9 @@ export async function removeWorkbookProtection(
     // Some GL workbooks return 400 when protectedRanges is in the fields mask — fetch full metadata instead.
     const meta = await sheets.spreadsheets.get({ spreadsheetId });
     ids =
-      meta.data.protectedRanges
-        ?.map((range) => range.protectedRangeId)
+      meta.data.sheets
+        ?.flatMap((sheet) => sheet.protectedRanges ?? [])
+        .map((range) => range.protectedRangeId)
         .filter((id): id is number => typeof id === "number" && id >= 0) ?? [];
   } catch {
     return 0;
