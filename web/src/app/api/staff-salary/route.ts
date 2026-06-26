@@ -16,7 +16,10 @@ export async function GET(request: Request) {
     const now = new Date();
     const year = Number(searchParams.get("year")) || now.getFullYear();
     const month = Number(searchParams.get("month")) || now.getMonth() + 1;
-    const staffId = String(searchParams.get("staffId") || "jas").trim();
+    const staffId = String(searchParams.get("staffId") || "").trim();
+    if (!staffId) {
+      return NextResponse.json({ error: "Select a staff member on the Payroll roster." }, { status: 400 });
+    }
 
     const report = await withCache(accessToken, `staff-salary:${staffId}:${year}-${month}`, 5 * 60_000, () =>
       getStaffSalaryReport(accessToken, staffId, year, month)

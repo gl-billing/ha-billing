@@ -3,7 +3,6 @@ import {
   filterAdjustmentsForStaffMonth,
   filterFieldDispatchForStaffMonth,
   findStaff13thMonthAdjustment,
-  getStaffSalaryProfile,
   assertStaffSalaryAdjustmentEditable,
   inferAdjustmentKind,
   isStaffPayPeriodPaid,
@@ -51,6 +50,16 @@ import { GL } from "@/lib/gl-config";
 import { appendSheetValues, updateSheetValues } from "@/lib/sheets/client";
 import { listFieldDispatches } from "@/lib/sheets/field-dispatch";
 import { invalidateSettingsCache, readSettingsMap, readSettingsRowIndex } from "@/lib/sheets/settings";
+import { resolveStaffSalaryProfile } from "@/lib/sheets/staff-payroll-roster";
+import type { StaffSalaryProfile } from "@/lib/staff-salary";
+
+async function requireStaffProfile(accessToken: string, staffId: string): Promise<StaffSalaryProfile> {
+  const profile = await resolveStaffSalaryProfile(accessToken, staffId);
+  if (!profile) {
+    throw new Error("Unknown staff member. Add them on the Payroll roster first.");
+  }
+  return profile;
+}
 
 async function upsertSettingValue(
   accessToken: string,
@@ -110,10 +119,7 @@ export async function getStaffSalaryReport(
   year: number,
   month: number
 ): Promise<StaffSalaryReport> {
-  const profile = getStaffSalaryProfile(staffId);
-  if (!profile) {
-    throw new Error("Unknown staff member.");
-  }
+  const profile = await requireStaffProfile(accessToken, staffId);
 
   const [settingsMap, dispatches] = await Promise.all([
     readSettingsMap(accessToken),
@@ -144,8 +150,7 @@ export async function saveStaffBaseSalary(
   staffId: string,
   baseSalary: number
 ): Promise<number> {
-  const profile = getStaffSalaryProfile(staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, staffId);
 
   const amount = Math.round(Number(baseSalary) * 100) / 100;
   if (!Number.isFinite(amount) || amount < 0) {
@@ -170,8 +175,7 @@ export async function recordStaffSalaryAdjustment(
     overtime?: StaffSalaryOvertimeMeta;
   }
 ): Promise<StaffSalaryAdjustment[]> {
-  const profile = getStaffSalaryProfile(input.staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, input.staffId);
 
   const label = String(input.label || "").trim();
   if (!label) throw new Error("Enter a label for this adjustment.");
@@ -272,8 +276,7 @@ export async function updateStaffSalaryAdjustment(
     overtime?: StaffSalaryOvertimeMeta;
   }
 ): Promise<StaffSalaryAdjustment[]> {
-  const profile = getStaffSalaryProfile(input.staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, input.staffId);
 
   const settingsMap = await readSettingsMap(accessToken);
   const rowIndex = await readSettingsRowIndex(accessToken);
@@ -321,8 +324,7 @@ export async function deleteStaffSalaryAdjustment(
   staffId: string,
   id: string
 ): Promise<StaffSalaryAdjustment[]> {
-  const profile = getStaffSalaryProfile(staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, staffId);
 
   const settingsMap = await readSettingsMap(accessToken);
   const rowIndex = await readSettingsRowIndex(accessToken);
@@ -355,8 +357,7 @@ export async function recordStaffCashAdvance(
   accessToken: string,
   input: { staffId: string; amount: number; termMonths: StaffCashAdvanceTermMonths; date?: string; note?: string }
 ): Promise<StaffCashAdvance[]> {
-  const profile = getStaffSalaryProfile(input.staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, input.staffId);
 
   const amount = Math.round(Number(input.amount) * 100) / 100;
   if (!Number.isFinite(amount) || amount <= 0) {
@@ -393,8 +394,7 @@ export async function cancelStaffCashAdvance(
   staffId: string,
   advanceId: string
 ): Promise<StaffCashAdvance[]> {
-  const profile = getStaffSalaryProfile(staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, staffId);
 
   const settingsMap = await readSettingsMap(accessToken);
   const rowIndex = await readSettingsRowIndex(accessToken);
@@ -427,8 +427,7 @@ export async function updateStaffCashAdvance(
     note?: string;
   }
 ): Promise<StaffCashAdvance[]> {
-  const profile = getStaffSalaryProfile(input.staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, input.staffId);
 
   const settingsMap = await readSettingsMap(accessToken);
   const rowIndex = await readSettingsRowIndex(accessToken);
@@ -496,8 +495,7 @@ export async function markStaffSalaryPaid(
   month: number,
   period: StaffPayPeriod
 ): Promise<StaffSalaryReport> {
-  const profile = getStaffSalaryProfile(staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, staffId);
 
   const report = await getStaffSalaryReport(accessToken, staffId, year, month);
   const alreadyPaid = period === "mid" ? report.midMonthPaid : report.endMonthPaid;
@@ -536,8 +534,7 @@ export async function reopenStaffSalaryMonth(
   month: number,
   period: StaffPayPeriod
 ): Promise<StaffSalaryReport> {
-  const profile = getStaffSalaryProfile(staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, staffId);
 
   const report = await getStaffSalaryReport(accessToken, staffId, year, month);
   const isPaid = period === "mid" ? report.midMonthPaid : report.endMonthPaid;
@@ -575,8 +572,7 @@ export async function markStaffSalaryTransferred(
   period: StaffPayPeriod,
   transferRef: string
 ): Promise<StaffSalaryReport> {
-  const profile = getStaffSalaryProfile(staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, staffId);
 
   const report = await getStaffSalaryReport(accessToken, staffId, year, month);
   const isPaid = period === "mid" ? report.midMonthPaid : report.endMonthPaid;
@@ -635,8 +631,7 @@ export async function getStaff13thMonthReport(
   staffId: string,
   year: number
 ): Promise<Staff13thMonthReport> {
-  const profile = getStaffSalaryProfile(staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, staffId);
 
   const settingsMap = await readSettingsMap(accessToken);
   const includedMonths = read13thMonthIncludedMonths(settingsMap, staffId, year);
@@ -660,8 +655,7 @@ export async function saveStaff13thMonthIncludedMonths(
   year: number,
   months: number[]
 ): Promise<Staff13thMonthReport> {
-  const profile = getStaffSalaryProfile(staffId);
-  if (!profile) throw new Error("Unknown staff member.");
+  const profile = await requireStaffProfile(accessToken, staffId);
 
   const serialized = serialize13thMonthIncludedMonths(months);
   if (!serialized) throw new Error("Select at least one month to include.");

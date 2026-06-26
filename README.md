@@ -19,7 +19,8 @@ Letterhead and UI follow the **Hernandez & Associates** black-and-white logo:
 - Logo: `web/public/brand/logo.png`
 - Reference PDF: `web/public/brand/letterhead-reference.pdf`
 - Theme overrides: `web/src/app/ha-theme.css`
-- Firm contact: set `FIRM_ADDRESS`, `FIRM_SENDER_EMAIL`, phones, and website in `.env.local`
+- Firm contact (footer, letterhead): set `NEXT_PUBLIC_FIRM_ADDRESS`, `NEXT_PUBLIC_FIRM_EMAIL`, phones, and website in `.env.local`
+- Outbound Gmail address: set `FIRM_SENDER_EMAIL` (server-only; should match the public email)
 
 ## Setup
 

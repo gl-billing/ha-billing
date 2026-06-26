@@ -56,10 +56,7 @@ export function EventsDiagnosticsResults({
           Events dated today: <strong>{data.eventsToday?.length ?? 0}</strong>
         </li>
         <li>
-          GDCI events: <strong>{data.gdciEvents?.length ?? 0}</strong>
-        </li>
-        <li>
-          Hakola events: <strong>{data.hakolaEvents?.length ?? 0}</strong>
+          Events missing date: <strong>{data.eventsMissingDate?.length ?? 0}</strong>
         </li>
       </ul>
       {data.matchingRawRows?.length ? (
@@ -68,8 +65,8 @@ export function EventsDiagnosticsResults({
         </pre>
       ) : (data.rawEventRowCount ?? 0) > 0 ? (
         <p className="mt-3 text-sm text-amber-900">
-          No GDCI/Hakola on the sheet — the event save likely never finished. Use <strong>+ Event</strong> again and
-          look for &quot;Hearing/event added&quot;.
+          No events dated today and no blank dates in recent rows. If you expected a new hearing, use{" "}
+          <strong>+ Event</strong> again and look for &quot;Hearing/event added&quot;.
         </p>
       ) : (
         <p className="mt-3 text-sm text-amber-900">

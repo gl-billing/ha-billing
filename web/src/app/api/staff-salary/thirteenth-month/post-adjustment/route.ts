@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as { staffId?: string; year?: number };
     const now = new Date();
     const year = Number(body.year) || now.getFullYear();
-    const staffId = String(body.staffId || "jas").trim();
+    const staffId = String(body.staffId || "").trim();
 
     const accessToken = await requireSessionAccessToken();
     const result = await postStaff13thMonthAdjustment(accessToken, staffId, year);
@@ -54,7 +54,7 @@ export async function PATCH(request: Request) {
     const body = (await request.json()) as { staffId?: string; year?: number };
     const now = new Date();
     const year = Number(body.year) || now.getFullYear();
-    const staffId = String(body.staffId || "jas").trim();
+    const staffId = String(body.staffId || "").trim();
 
     const accessToken = await requireSessionAccessToken();
     const result = await syncStaff13thMonthPayrollAdjustment(accessToken, staffId, year);
@@ -84,7 +84,7 @@ export async function DELETE(request: Request) {
     const url = new URL(request.url);
     const now = new Date();
     const year = Number(url.searchParams.get("year")) || now.getFullYear();
-    const staffId = String(url.searchParams.get("staffId") || "jas").trim();
+    const staffId = String(url.searchParams.get("staffId") || "").trim();
 
     const accessToken = await requireSessionAccessToken();
     const result = await removeStaff13thMonthPayrollAdjustment(accessToken, staffId, year);

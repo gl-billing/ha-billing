@@ -33,6 +33,51 @@ async function listWorkbookSheets(accessToken: string, spreadsheetId: string): P
   );
 }
 
+function apiErrorMessage(error: unknown): string {
+  if (error && typeof error === "object" && "message" in error) {
+    return String((error as { message?: string }).message || error);
+  }
+  return String(error);
+}
+
+/** Drop sheet/range protection so scrub can clear rows and delete client tabs. */
+export async function removeWorkbookProtection(
+  accessToken: string,
+  spreadsheetId: string
+): Promise<number> {
+  const sheets = getSheetsClient(accessToken);
+  let ids: number[] = [];
+  try {
+    // Some GL workbooks return 400 when protectedRanges is in the fields mask — fetch full metadata instead.
+    const meta = await sheets.spreadsheets.get({ spreadsheetId });
+    ids =
+      meta.data.protectedRanges
+        ?.map((range) => range.protectedRangeId)
+        .filter((id): id is number => typeof id === "number" && id >= 0) ?? [];
+  } catch {
+    return 0;
+  }
+
+  if (!ids.length) return 0;
+
+  let removed = 0;
+  for (const protectedRangeId of ids) {
+    try {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId,
+        requestBody: {
+          requests: [{ deleteProtectedRange: { protectedRangeId } }]
+        }
+      });
+      removed += 1;
+    } catch {
+      // Owner-only protection on GL copies — skip and try clearing anyway.
+    }
+  }
+
+  return removed;
+}
+
 async function clearDataRows(
   accessToken: string,
   spreadsheetId: string,
@@ -49,15 +94,27 @@ async function deleteSheetsById(
   accessToken: string,
   spreadsheetId: string,
   sheetIds: number[]
-): Promise<void> {
-  if (!sheetIds.length) return;
+): Promise<{ deleted: number; failed: number }> {
+  if (!sheetIds.length) return { deleted: 0, failed: 0 };
   const sheets = getSheetsClient(accessToken);
-  await sheets.spreadsheets.batchUpdate({
-    spreadsheetId,
-    requestBody: {
-      requests: sheetIds.map((sheetId) => ({ deleteSheet: { sheetId } }))
+  let deleted = 0;
+  let failed = 0;
+
+  for (const sheetId of sheetIds) {
+    try {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId,
+        requestBody: {
+          requests: [{ deleteSheet: { sheetId } }]
+        }
+      });
+      deleted += 1;
+    } catch {
+      failed += 1;
     }
-  });
+  }
+
+  return { deleted, failed };
 }
 
 /** System tabs kept when scrubbing a copied billing workbook — structure + automation only. */
@@ -98,13 +155,23 @@ export const TASKS_SYSTEM_TABS = new Set(
 export async function scrubBillingWorkbook(
   accessToken: string,
   spreadsheetId: string
-): Promise<{ deletedClientTabs: number; clearedTabs: string[] }> {
+): Promise<{
+  deletedClientTabs: number;
+  failedClientTabs: number;
+  clearedTabs: string[];
+  removedProtection: number;
+}> {
+  const removedProtection = await removeWorkbookProtection(accessToken, spreadsheetId);
   const workbookSheets = await listWorkbookSheets(accessToken, spreadsheetId);
   const clientTabIds = workbookSheets
     .filter((sheet) => !BILLING_SYSTEM_TABS.has(sheet.title.toLowerCase()))
     .map((sheet) => sheet.sheetId);
 
-  await deleteSheetsById(accessToken, spreadsheetId, clientTabIds);
+  const { deleted: deletedClientTabs, failed: failedClientTabs } = await deleteSheetsById(
+    accessToken,
+    spreadsheetId,
+    clientTabIds
+  );
 
   const dataTabs = [
     GL.sheets.master,
@@ -122,16 +189,36 @@ export async function scrubBillingWorkbook(
 
   for (const tab of dataTabs) {
     if (!titles.has(tab)) continue;
-    await clearDataRows(accessToken, spreadsheetId, tab);
-    clearedTabs.push(tab);
+    try {
+      await clearDataRows(accessToken, spreadsheetId, tab);
+      clearedTabs.push(tab);
+    } catch (error) {
+      const message = apiErrorMessage(error);
+      if (/protected/i.test(message)) {
+        throw new Error(
+          `Could not clear "${tab}" — sheet is still protected. Use --copy-first (recommended) or remove protection manually in Google Sheets, then re-run.`
+        );
+      }
+      throw error;
+    }
   }
 
   if (titles.has(GL.sheets.dashboard)) {
-    await clearDataRows(accessToken, spreadsheetId, GL.sheets.dashboard);
-    clearedTabs.push(GL.sheets.dashboard);
+    try {
+      await clearDataRows(accessToken, spreadsheetId, GL.sheets.dashboard);
+      clearedTabs.push(GL.sheets.dashboard);
+    } catch (error) {
+      const message = apiErrorMessage(error);
+      if (/protected/i.test(message)) {
+        throw new Error(
+          `Could not clear Dashboard — sheet is still protected. Use --copy-first (recommended) or remove protection manually, then re-run.`
+        );
+      }
+      throw error;
+    }
   }
 
-  return { deletedClientTabs: clientTabIds.length, clearedTabs };
+  return { deletedClientTabs, failedClientTabs, clearedTabs, removedProtection };
 }
 
 async function countMasterListClients(accessToken: string, spreadsheetId: string): Promise<number> {
@@ -169,7 +256,8 @@ export async function assertBillingWorkbookIsBlank(
 export async function scrubTasksWorkbook(
   accessToken: string,
   spreadsheetId: string
-): Promise<{ clearedTabs: string[] }> {
+): Promise<{ clearedTabs: string[]; removedProtection: number }> {
+  const removedProtection = await removeWorkbookProtection(accessToken, spreadsheetId);
   const workbookSheets = await listWorkbookSheets(accessToken, spreadsheetId);
   const titles = new Set(workbookSheets.map((sheet) => sheet.title));
 
@@ -185,5 +273,5 @@ export async function scrubTasksWorkbook(
     clearedTabs.push(tab);
   }
 
-  return { clearedTabs };
+  return { clearedTabs, removedProtection };
 }

@@ -1,4 +1,5 @@
 import { monthCloseToken } from "@/lib/firm-allocation";
+import { findStaffSalaryProfileInRoster, type StaffPayrollRosterEntry } from "@/lib/staff-payroll-roster";
 import {
   fieldDispatchSalaryCreditForEntry,
   formatPeso,
@@ -27,32 +28,13 @@ export type StaffSalaryProfile = {
   matchNames: string[];
   payrollBank: string;
   payrollAccountNumber: string;
+  email?: string;
+  associatedLawyerName?: string;
+  associatedLawyerEmail?: string;
 };
 
-export const STAFF_SALARY_PROFILES: StaffSalaryProfile[] = [
-  {
-    id: "jas",
-    displayName: "James Bryan Aguilon",
-    shortName: "Jas",
-    role: "Liaison Officer",
-    includesFieldDispatch: true,
-    monthlyAllowance: DEFAULT_STAFF_MONTHLY_ALLOWANCE,
-    matchNames: ["jas", "james bryan", "james bryan aguilon"],
-    payrollBank: STAFF_PAYROLL_BANK,
-    payrollAccountNumber: "9839254943"
-  },
-  {
-    id: "andrea",
-    displayName: "Ellyza Andrea Aguanta",
-    shortName: "Andrea",
-    role: "Secretary",
-    includesFieldDispatch: false,
-    monthlyAllowance: DEFAULT_STAFF_MONTHLY_ALLOWANCE,
-    matchNames: ["andrea", "ellyza", "ellyza andrea", "ellyza andrea aguanta"],
-    payrollBank: STAFF_PAYROLL_BANK,
-    payrollAccountNumber: "9839254951"
-  }
-];
+/** @deprecated Payroll staff come from Settings → Staff Payroll Roster. */
+export const STAFF_SALARY_PROFILES: StaffSalaryProfile[] = [];
 
 export type StaffSalaryAdjustmentKind = "manual" | "overtime" | "thirteenthMonth";
 
@@ -114,6 +96,9 @@ export type StaffSalaryReport = {
   staffId: string;
   staffName: string;
   role: string;
+  staffEmail?: string;
+  associatedLawyerName?: string;
+  associatedLawyerEmail?: string;
   payrollBank: string;
   payrollAccountNumber: string;
   includesFieldDispatch: boolean;
@@ -321,7 +306,7 @@ export function buildStaffSalaryComputation(report: StaffSalaryReport): StaffSal
     if (report.totalFieldDispatchPaidEarly > 0) {
       monthlyRows.push({
         label: "Less · paid early (Field dispatch)",
-        detail: "Marked Paid Jas on dispatch register",
+        detail: "Marked paid early on dispatch register",
         amount: -report.totalFieldDispatchPaidEarly,
         tone: "deduct"
       });
@@ -571,7 +556,13 @@ export function buildStaffPayRuns(input: {
   ];
 }
 
-export function getStaffSalaryProfile(staffId: string): StaffSalaryProfile | undefined {
+export function getStaffSalaryProfile(
+  staffId: string,
+  roster?: StaffPayrollRosterEntry[]
+): StaffSalaryProfile | undefined {
+  if (roster?.length) {
+    return findStaffSalaryProfileInRoster(roster, staffId);
+  }
   return STAFF_SALARY_PROFILES.find((profile) => profile.id === staffId);
 }
 
@@ -579,7 +570,8 @@ export function formatStaffPayrollAccount(input: {
   payrollBank: string;
   payrollAccountNumber: string;
 }): string {
-  return `${input.payrollBank} · ${input.payrollAccountNumber}`;
+  const account = input.payrollAccountNumber.trim();
+  return account ? `${input.payrollBank} · ${account}` : `${input.payrollBank} · (set account in payroll profile)`;
 }
 
 export function staffSalaryPayslipReference(report: Pick<StaffSalaryReport, "staffId" | "year" | "month">): string {
@@ -805,6 +797,9 @@ export function buildStaffSalaryReport(input: {
     staffId: input.profile.id,
     staffName: input.profile.displayName,
     role: input.profile.role,
+    staffEmail: input.profile.email,
+    associatedLawyerName: input.profile.associatedLawyerName,
+    associatedLawyerEmail: input.profile.associatedLawyerEmail,
     payrollBank: input.profile.payrollBank,
     payrollAccountNumber: input.profile.payrollAccountNumber,
     includesFieldDispatch: input.profile.includesFieldDispatch,

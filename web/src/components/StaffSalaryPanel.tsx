@@ -16,7 +16,6 @@ import {
   inferAdjustmentKind,
   isSyntheticCashAdvanceAdjustmentId,
   staffPayPeriodForDate,
-  STAFF_SALARY_PROFILES,
   type StaffPayPeriod,
   type StaffSalaryAdjustment,
   type StaffSalaryComputeRow,
@@ -66,6 +65,10 @@ import {
   StaffSalaryEntryActions,
   type StaffSalaryToolTab
 } from "@/components/staff-salary/StaffSalaryComputeUI";
+import { StaffPayrollRosterPanel } from "@/components/staff-salary/StaffPayrollRosterPanel";
+import { FirmLawyersRosterPanel } from "@/components/staff-salary/FirmLawyersRosterPanel";
+import type { StaffPayrollRosterEntry } from "@/lib/staff-payroll-roster";
+import type { FirmLawyerRosterEntry } from "@/lib/firm-lawyers-roster";
 
 type Props = {
   busy: boolean;
@@ -108,7 +111,10 @@ function isPayrollLineLocked(report: StaffSalaryReport, entry: StaffSalaryAdjust
 
 export function StaffSalaryPanel({ busy, onStatus }: Props) {
   const now = new Date();
-  const [staffId, setStaffId] = useState("jas");
+  const [staffId, setStaffId] = useState("");
+  const [roster, setRoster] = useState<StaffPayrollRosterEntry[]>([]);
+  const [lawyers, setLawyers] = useState<FirmLawyerRosterEntry[]>([]);
+  const [rosterLoading, setRosterLoading] = useState(true);
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [report, setReport] = useState<StaffSalaryReport | null>(null);
@@ -153,7 +159,42 @@ export function StaffSalaryPanel({ busy, onStatus }: Props) {
   const [deletingOvertimeId, setDeletingOvertimeId] = useState("");
   const [editingCashAdvanceId, setEditingCashAdvanceId] = useState("");
 
+  const loadRoster = useCallback(async () => {
+    setRosterLoading(true);
+    try {
+      const [staffRes, lawyersRes] = await Promise.all([
+        fetch("/api/staff-salary/roster"),
+        fetch("/api/firm-lawyers/roster")
+      ]);
+      const staffJson = await staffRes.json();
+      const lawyersJson = await lawyersRes.json();
+      if (!staffRes.ok) throw new Error(staffJson.error || "Failed to load payroll roster.");
+      if (!lawyersRes.ok) throw new Error(lawyersJson.error || "Failed to load lawyers roster.");
+      const nextStaff = (staffJson.roster || []) as StaffPayrollRosterEntry[];
+      const nextLawyers = (lawyersJson.roster || []) as FirmLawyerRosterEntry[];
+      setRoster(nextStaff);
+      setLawyers(nextLawyers);
+      setStaffId((current) => {
+        if (current && nextStaff.some((entry) => entry.id === current)) return current;
+        return nextStaff[0]?.id || "";
+      });
+    } catch (error) {
+      onStatus(error instanceof Error ? error.message : "Failed to load team roster.", true);
+      setRoster([]);
+      setLawyers([]);
+      setStaffId("");
+    } finally {
+      setRosterLoading(false);
+    }
+  }, [onStatus]);
+
   const loadReport = useCallback(async () => {
+    if (!staffId) {
+      setReport(null);
+      setReportLoading(false);
+      setReportError("");
+      return;
+    }
     setReportLoading(true);
     setReportError("");
     try {
@@ -173,6 +214,10 @@ export function StaffSalaryPanel({ busy, onStatus }: Props) {
       setReportLoading(false);
     }
   }, [staffId, year, month]);
+
+  useEffect(() => {
+    void loadRoster();
+  }, [loadRoster]);
 
   useEffect(() => {
     void loadReport();
@@ -880,6 +925,27 @@ export function StaffSalaryPanel({ busy, onStatus }: Props) {
         ) : null}
       </header>
 
+      <FirmLawyersRosterPanel
+        roster={lawyers}
+        busy={busy || rosterLoading}
+        onSaved={setLawyers}
+        onStatus={onStatus}
+      />
+
+      <StaffPayrollRosterPanel
+        roster={roster}
+        lawyers={lawyers}
+        busy={busy || rosterLoading}
+        onSaved={(next) => {
+          setRoster(next);
+          setStaffId((current) => {
+            if (current && next.some((entry) => entry.id === current)) return current;
+            return next[0]?.id || "";
+          });
+        }}
+        onStatus={onStatus}
+      />
+
       <section className="staff-salary__panel staff-salary__panel--report">
         <div className="staff-salary__toolbar no-print">
           <div className="staff-salary__toolbar-copy">
@@ -893,15 +959,19 @@ export function StaffSalaryPanel({ busy, onStatus }: Props) {
             <select
               className="field firm-finances__select staff-salary__select staff-salary__select--staff"
               value={staffId}
-              disabled={busy || reportLoading}
+              disabled={busy || reportLoading || rosterLoading || !roster.length}
               onChange={(e) => setStaffId(e.target.value)}
               aria-label="Staff member"
             >
-              {STAFF_SALARY_PROFILES.map((profile) => (
-                <option key={profile.id} value={profile.id}>
-                  {profile.displayName}
-                </option>
-              ))}
+              {!roster.length ? (
+                <option value="">Add staff on the roster first</option>
+              ) : (
+                roster.map((entry) => (
+                  <option key={entry.id} value={entry.id}>
+                    {entry.displayName}
+                  </option>
+                ))
+              )}
             </select>
             <select
               className="field firm-finances__select staff-salary__select"
@@ -942,7 +1012,14 @@ export function StaffSalaryPanel({ busy, onStatus }: Props) {
 
         {reportError ? <p className="staff-salary__error">{reportError}</p> : null}
 
-        {reportLoading ? (
+        {!staffId && !rosterLoading ? (
+          <EmptyState
+            title="No payroll staff selected"
+            message="Add staff on the roster above, then choose a name to run payroll."
+          />
+        ) : null}
+
+        {reportLoading && staffId ? (
           <div className="staff-salary__loading">
             <Skeleton className="h-[28rem] w-full rounded-sm" />
           </div>

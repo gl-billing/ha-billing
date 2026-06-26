@@ -33,7 +33,7 @@ export function OfficeNav() {
     <div className="office-nav-wrap">
       <nav className="office-nav office-nav--lines no-print" aria-label="Workspaces">
         <div className="office-nav__track">
-        {links.map(({ href, label, description, match }) => {
+        {links.map(({ href, label, match }) => {
           const isMatter = pathname.startsWith("/matter");
           const active =
             pathname === match ||
@@ -45,7 +45,6 @@ export function OfficeNav() {
               href={href}
               className={`office-nav__link ${active ? "office-nav__link--active" : ""}`}
               aria-current={active ? "page" : undefined}
-              title={description}
             >
               {label}
             </SameWindowLink>

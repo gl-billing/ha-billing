@@ -1,7 +1,16 @@
 import { canonicalizeStaffName, resolveFirmOwnerAssignee } from "@/lib/staff-assignee";
 
-/** Handling lawyers who own court filing events — firm owner and other attorneys on the roster. */
-export function isHandlingLawyerStaff(name: string, roster: string[]): boolean {
+import { isFirmLawyerOnRoster } from "@/lib/firm-lawyers-roster";
+
+/** Handling lawyers who own court filing events — firm roster + attorneys on the employees list. */
+export function isHandlingLawyerStaff(
+  name: string,
+  roster: string[],
+  firmLawyers?: import("@/lib/firm-lawyers-roster").FirmLawyerRosterEntry[]
+): boolean {
+  if (firmLawyers?.length && isFirmLawyerOnRoster(name, firmLawyers)) {
+    return true;
+  }
   const target = canonicalizeStaffName(name, roster).trim().toLowerCase();
   if (!target) return false;
 

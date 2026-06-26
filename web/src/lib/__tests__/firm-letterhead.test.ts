@@ -23,7 +23,7 @@ describe("firm page sizes", () => {
 describe("firm letterhead contact", () => {
   it("includes address, landline, email, website, and mobile", () => {
     const contact = getFirmLetterheadContact();
-    expect(contact.address).toContain("configure FIRM_ADDRESS");
+    expect(contact.address).toContain("configure NEXT_PUBLIC_FIRM_ADDRESS");
     expect(contact.email).toContain("hernandezassociates.com");
     expect(contact.website).toContain("hernandezassociates.com");
   });

@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as { staffId?: string; year?: number };
     const now = new Date();
     const year = Number(body.year) || now.getFullYear();
-    const staffId = String(body.staffId || "jas").trim();
+    const staffId = String(body.staffId || "").trim();
 
     const accessToken = await requireSessionAccessToken();
     const report = await markStaff13thMonthPaid(accessToken, staffId, year);

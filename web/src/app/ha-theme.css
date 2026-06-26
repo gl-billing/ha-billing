@@ -1515,6 +1515,27 @@ a.btn-secondary,
   border-color: var(--ink) !important;
 }
 
+/* Shortcuts trigger sits on the white brand header — not the dark search hero */
+.firm-workspace .brand-header .keyboard-shortcuts-trigger {
+  width: auto !important;
+  min-width: calc(var(--ha-row-h) - 0.25rem) !important;
+  height: calc(var(--ha-row-h) - 0.25rem) !important;
+  padding: 0 0.55rem !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--ink) !important;
+  font-family: var(--font-ui), system-ui, sans-serif !important;
+  font-size: var(--ha-text-meta) !important;
+  font-weight: 700 !important;
+}
+
+.firm-workspace .brand-header .keyboard-shortcuts-trigger:hover {
+  border-color: var(--ink) !important;
+  background: var(--soft) !important;
+  color: var(--ink) !important;
+}
+
 .firm-workspace .section-title,
 .firm-workspace .view-hero__title {
   font-size: 1.125rem !important;

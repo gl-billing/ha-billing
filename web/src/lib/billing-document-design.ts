@@ -1,27 +1,19 @@
 /** Shared visual language for SOA, AR, and billing emails — Hernandez & Associates brand. */
 
+/** Client-visible contact fields — use NEXT_PUBLIC_* only so SSR and hydration match. */
 export const FIRM_LINE = "Hernandez & Associates Law Office";
 export const FIRM_NAME = "Hernandez & Associates";
 export const FIRM_SUBTITLE = "Law Office";
 export const FIRM_ADDRESS =
-  process.env.FIRM_ADDRESS?.trim() ||
   process.env.NEXT_PUBLIC_FIRM_ADDRESS?.trim() ||
-  "Office address — configure FIRM_ADDRESS in .env.local";
+  "Office address — configure NEXT_PUBLIC_FIRM_ADDRESS in .env.local";
 export const FIRM_EMAIL =
-  process.env.FIRM_SENDER_EMAIL?.trim() || "info@hernandezassociates.com";
-export const FIRM_LANDLINE =
-  process.env.FIRM_LANDLINE_PHONE?.trim() ||
-  process.env.NEXT_PUBLIC_FIRM_LANDLINE_PHONE?.trim() ||
-  "";
-/** Mobile — override via FIRM_MOBILE_PHONE in env. */
-export const FIRM_MOBILE =
-  process.env.FIRM_MOBILE_PHONE?.trim() ||
-  process.env.NEXT_PUBLIC_FIRM_MOBILE_PHONE?.trim() ||
-  "";
+  process.env.NEXT_PUBLIC_FIRM_EMAIL?.trim() || "info@hernandezassociates.com";
+export const FIRM_LANDLINE = process.env.NEXT_PUBLIC_FIRM_LANDLINE_PHONE?.trim() || "";
+/** Mobile — override via NEXT_PUBLIC_FIRM_MOBILE_PHONE in env. */
+export const FIRM_MOBILE = process.env.NEXT_PUBLIC_FIRM_MOBILE_PHONE?.trim() || "";
 export const FIRM_WEBSITE =
-  process.env.FIRM_WEBSITE?.trim() ||
-  process.env.NEXT_PUBLIC_FIRM_WEBSITE?.trim() ||
-  "www.hernandezassociates.com";
+  process.env.NEXT_PUBLIC_FIRM_WEBSITE?.trim() || "www.hernandezassociates.com";
 
 export const BILLING_DOC_COLORS = {
   gold: "#111111",

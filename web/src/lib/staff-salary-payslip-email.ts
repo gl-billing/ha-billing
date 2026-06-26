@@ -80,6 +80,16 @@ export function resolveStaffEmail(
   profile: StaffSalaryProfile,
   directory: EmployeeRecord[]
 ): EmployeeRecord | null {
+  const profileEmail = profile.email?.trim();
+  if (profileEmail) {
+    return {
+      name: profile.displayName,
+      email: profileEmail,
+      role: profile.role,
+      active: true
+    };
+  }
+
   const displayLower = profile.displayName.trim().toLowerCase();
   const exact = directory.find((employee) => employee.name.trim().toLowerCase() === displayLower);
   if (exact?.email.trim()) return exact;
@@ -99,6 +109,24 @@ export function buildStaffPayRunPayslipSubject(report: StaffSalaryReport, period
   return `Payslip · ${report.monthLabel} · ${label}`;
 }
 
+function resolveReportStaffEmail(
+  report: StaffSalaryReport,
+  directory: EmployeeRecord[]
+): EmployeeRecord | null {
+  const reportEmail = report.staffEmail?.trim();
+  if (reportEmail) {
+    return {
+      name: report.staffName,
+      email: reportEmail,
+      role: report.role,
+      active: true
+    };
+  }
+
+  const profile = getStaffSalaryProfile(report.staffId);
+  return profile ? resolveStaffEmail(profile, directory) : null;
+}
+
 export function buildStaffPayRunPayslipPreview(
   report: StaffSalaryReport,
   period: StaffPayPeriod,
@@ -111,13 +139,12 @@ export function buildStaffPayRunPayslipPreview(
   recipientName: string | null;
   recipientError: string | null;
 } {
-  const profile = getStaffSalaryProfile(report.staffId);
-  const employee = profile ? resolveStaffEmail(profile, directory) : null;
+  const employee = resolveReportStaffEmail(report, directory);
   const recipientEmail = employee?.email.trim() ? normalizeEmailAddress(employee.email) : null;
   let recipientError: string | null = null;
 
   if (!employee) {
-    recipientError = `No email on Employees sheet for ${report.staffName}. Add their address on the Employees tab.`;
+    recipientError = `No email for ${report.staffName}. Add their email on the Payroll roster.`;
   } else if (!recipientEmail || !isValidEmailAddress(recipientEmail)) {
     recipientError = `Invalid email on Employees sheet for ${employee.name}: ${employee.email}`;
   }
@@ -322,16 +349,11 @@ export async function sendStaffPayRunPayslipEmail(input: {
   period: StaffPayPeriod;
   directory: EmployeeRecord[];
 }): Promise<{ ok: boolean; message: string; recipient?: string }> {
-  const profile = getStaffSalaryProfile(input.report.staffId);
-  if (!profile) {
-    return { ok: false, message: "Unknown staff member." };
-  }
-
-  const employee = resolveStaffEmail(profile, input.directory);
+  const employee = resolveReportStaffEmail(input.report, input.directory);
   if (!employee) {
     return {
       ok: false,
-      message: `No email on Employees sheet for ${input.report.staffName}. Add their address on the Employees tab.`
+      message: `No email for ${input.report.staffName}. Add their email on the Payroll roster.`
     };
   }
 

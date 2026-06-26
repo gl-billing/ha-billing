@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     };
 
     const accessToken = await requireSessionAccessToken();
-    const staffId = String(body.staffId || "jas").trim();
+    const staffId = String(body.staffId || "").trim();
     const action = body.action === "cancel" ? "cancel" : body.action === "update" ? "update" : "record";
 
     if (action === "cancel") {

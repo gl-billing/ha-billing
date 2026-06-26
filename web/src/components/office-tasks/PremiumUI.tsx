@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { FIRM_LOGO_ASPECT } from "@/components/FirmLogoBanner";
 import { firmLogoPublicUrl } from "@/lib/firm-logo-url";
 
 export function ViewHero({
@@ -99,7 +100,8 @@ export function EmptyState({
   compact?: boolean;
   className?: string;
 }) {
-  const logoSize = compact ? 36 : 44;
+  const logoHeight = compact ? 36 : 44;
+  const logoWidth = Math.round(logoHeight * FIRM_LOGO_ASPECT);
 
   return (
     <div className={`empty-state ${compact ? "empty-state--compact" : ""} ${className}`.trim()}>
@@ -108,8 +110,8 @@ export function EmptyState({
           src={firmLogoPublicUrl()}
           alt=""
           className="empty-state__logo"
-          width={logoSize}
-          height={logoSize}
+          width={logoWidth}
+          height={logoHeight}
         />
       </div>
       {title ? <p className="empty-state__title">{title}</p> : null}

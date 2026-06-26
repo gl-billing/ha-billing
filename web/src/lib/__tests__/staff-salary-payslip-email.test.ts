@@ -7,15 +7,17 @@ import {
   resolveStaffEmail
 } from "@/lib/staff-salary-payslip-email";
 import { buildStaffSalaryReport, getStaffSalaryProfile } from "@/lib/staff-salary";
+import { findStaffSalaryProfileInRoster } from "@/lib/staff-payroll-roster";
+import { TEST_PAYROLL_ROSTER } from "@/lib/__tests__/fixtures/staff-payroll-roster";
 
 describe("staff salary payslip email", () => {
-  const jas = getStaffSalaryProfile("jas");
-  if (!jas) throw new Error("jas profile missing");
+  const hakola = getStaffSalaryProfile("hakola", TEST_PAYROLL_ROSTER);
+  if (!hakola) throw new Error("hakola profile missing");
 
   const report = buildStaffSalaryReport({
     year: 2026,
     month: 6,
-    profile: jas,
+    profile: hakola,
     baseSalary: 20_000,
     fieldDispatch: [
       {
@@ -54,7 +56,7 @@ describe("staff salary payslip email", () => {
     adjustments: [
       {
         id: "adj-1",
-        staffId: "jas",
+        staffId: "hakola",
         date: "2026-06-10",
         label: "Overtime",
         amount: 500,
@@ -62,7 +64,7 @@ describe("staff salary payslip email", () => {
       },
       {
         id: "adj-2",
-        staffId: "jas",
+        staffId: "hakola",
         date: "2026-06-25",
         label: "Reimbursement",
         amount: 200,
@@ -115,19 +117,19 @@ describe("staff salary payslip email", () => {
 
   it("resolves staff email from employee directory", () => {
     const directory = [
-      { name: "James Bryan Aguilon", email: "jas@example.com", role: "Staff", active: true },
+      { name: "James Bryan Hakola", email: "hakola@example.com", role: "Staff", active: true },
       { name: "Ellyza Andrea Aguanta", email: "andrea@example.com", role: "Staff", active: true }
     ];
-    expect(resolveStaffEmail(jas, directory)?.email).toBe("jas@example.com");
-    const andrea = getStaffSalaryProfile("andrea");
+    expect(resolveStaffEmail(hakola, directory)?.email).toBe("hakola@example.com");
+    const andrea = getStaffSalaryProfile("andrea", TEST_PAYROLL_ROSTER);
     expect(andrea && resolveStaffEmail(andrea, directory)?.email).toBe("andrea@example.com");
   });
 
   it("builds preview payload with subject, html, and recipient", () => {
-    const directory = [{ name: "James Bryan Aguilon", email: "jas@example.com", role: "Staff", active: true }];
+    const directory = [{ name: "James Bryan Hakola", email: "hakola@example.com", role: "Staff", active: true }];
     const preview = buildStaffPayRunPayslipPreview(report, "mid", directory);
     expect(preview.subject).toContain("June 2026");
-    expect(preview.recipientEmail).toBe("jas@example.com");
+    expect(preview.recipientEmail).toBe("hakola@example.com");
     expect(preview.html).toContain("/brand/logo.png");
     expect(preview.html).not.toContain("#166534");
     expect(preview.html).not.toContain("#f0fdf4");

@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const now = new Date();
     const year = Number(searchParams.get("year")) || now.getFullYear();
-    const staffId = String(searchParams.get("staffId") || "jas").trim();
+    const staffId = String(searchParams.get("staffId") || "").trim();
 
     const report = await withCache(accessToken, `staff-salary-13th:${staffId}:${year}`, 5 * 60_000, () =>
       getStaff13thMonthReport(accessToken, staffId, year)
@@ -52,7 +52,7 @@ export async function PUT(request: Request) {
     };
     const now = new Date();
     const year = Number(body.year) || now.getFullYear();
-    const staffId = String(body.staffId || "jas").trim();
+    const staffId = String(body.staffId || "").trim();
     const months = Array.isArray(body.months) ? body.months.map((month) => Number(month)) : [];
 
     const accessToken = await requireSessionAccessToken();

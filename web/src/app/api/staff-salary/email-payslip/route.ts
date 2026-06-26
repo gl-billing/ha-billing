@@ -22,7 +22,7 @@ function parseQueryParams(request: Request): PayRunParams {
   const { searchParams } = new URL(request.url);
   const now = new Date();
   return {
-    staffId: String(searchParams.get("staffId") || "jas").trim(),
+    staffId: String(searchParams.get("staffId") || "").trim(),
     year: Number(searchParams.get("year")) || now.getFullYear(),
     month: Number(searchParams.get("month")) || now.getMonth() + 1,
     period: searchParams.get("period") === "end" ? "end" : "mid"
@@ -37,7 +37,7 @@ function parseBodyParams(body: {
 }): PayRunParams {
   const now = new Date();
   return {
-    staffId: String(body.staffId || "jas").trim(),
+    staffId: String(body.staffId || "").trim(),
     year: Number(body.year) || now.getFullYear(),
     month: Number(body.month) || now.getMonth() + 1,
     period: body.period === "end" ? "end" : "mid"

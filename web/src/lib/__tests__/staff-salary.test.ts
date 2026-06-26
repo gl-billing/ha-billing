@@ -15,6 +15,8 @@ import {
   toYmdLocal
 } from "@/lib/staff-salary";
 import type { FieldDispatchEntry } from "@/lib/gl-config";
+import { findStaffSalaryProfileInRoster } from "@/lib/staff-payroll-roster";
+import { TEST_PAYROLL_ROSTER } from "@/lib/__tests__/fixtures/staff-payroll-roster";
 
 describe("staff salary", () => {
   it("credits service fee minus returned change", () => {
@@ -41,12 +43,16 @@ describe("staff salary", () => {
     ).toBe(1200);
   });
 
-  it("registers both firm staff profiles with allowance", () => {
-    expect(STAFF_SALARY_PROFILES).toHaveLength(2);
-    expect(getStaffSalaryProfile("jas")?.monthlyAllowance).toBe(DEFAULT_STAFF_MONTHLY_ALLOWANCE);
-    expect(getStaffSalaryProfile("andrea")?.monthlyAllowance).toBe(DEFAULT_STAFF_MONTHLY_ALLOWANCE);
-    expect(getStaffSalaryProfile("jas")?.payrollAccountNumber).toBe("9839254943");
-    expect(getStaffSalaryProfile("andrea")?.payrollAccountNumber).toBe("9839254951");
+  it("loads payroll profiles from roster entries", () => {
+    expect(STAFF_SALARY_PROFILES).toHaveLength(0);
+    expect(getStaffSalaryProfile("hakola", TEST_PAYROLL_ROSTER)?.monthlyAllowance).toBe(
+      DEFAULT_STAFF_MONTHLY_ALLOWANCE
+    );
+    expect(getStaffSalaryProfile("andrea", TEST_PAYROLL_ROSTER)?.monthlyAllowance).toBe(
+      DEFAULT_STAFF_MONTHLY_ALLOWANCE
+    );
+    expect(getStaffSalaryProfile("hakola", TEST_PAYROLL_ROSTER)?.displayName).toBe("James Bryan Hakola");
+    expect(getStaffSalaryProfile("andrea", TEST_PAYROLL_ROSTER)?.displayName).toBe("Ellyza Andrea Aguanta");
   });
 
   it("assigns items to the nearest semi-monthly payday by event date", () => {
@@ -80,7 +86,7 @@ describe("staff salary", () => {
   });
 
   it("builds semi-monthly pay runs with allowance on end pay only", () => {
-    const profile = getStaffSalaryProfile("andrea")!;
+    const profile = getStaffSalaryProfile("andrea", TEST_PAYROLL_ROSTER)!;
     const runs = buildStaffPayRuns({
       year: 2026,
       month: 6,
@@ -99,7 +105,7 @@ describe("staff salary", () => {
   });
 
   it("puts late-month field dispatch and adjustments on end-of-month pay", () => {
-    const profile = getStaffSalaryProfile("jas")!;
+    const profile = getStaffSalaryProfile("hakola", TEST_PAYROLL_ROSTER)!;
     const runs = buildStaffPayRuns({
       year: 2026,
       month: 6,
@@ -123,7 +129,7 @@ describe("staff salary", () => {
           payPeriod: "end"
         }
       ],
-      adjustments: [{ id: "adj-1", staffId: "jas", date: "2026-06-25", label: "Bonus", amount: 200, note: "" }],
+      adjustments: [{ id: "adj-1", staffId: "hakola", date: "2026-06-25", label: "Bonus", amount: 200, note: "" }],
       paidMid: false,
       paidEnd: false
     });
@@ -133,7 +139,7 @@ describe("staff salary", () => {
   });
 
   it("puts early-month field dispatch and adjustments on mid-month pay", () => {
-    const profile = getStaffSalaryProfile("jas")!;
+    const profile = getStaffSalaryProfile("hakola", TEST_PAYROLL_ROSTER)!;
     const runs = buildStaffPayRuns({
       year: 2026,
       month: 6,
@@ -157,7 +163,7 @@ describe("staff salary", () => {
           payPeriod: "mid"
         }
       ],
-      adjustments: [{ id: "adj-1", staffId: "jas", date: "2026-06-10", label: "Bonus", amount: 300, note: "" }],
+      adjustments: [{ id: "adj-1", staffId: "hakola", date: "2026-06-10", label: "Bonus", amount: 300, note: "" }],
       paidMid: false,
       paidEnd: false
     });
@@ -167,14 +173,14 @@ describe("staff salary", () => {
   });
 
   it("builds Jas field dispatch lines for the month", () => {
-    const profile = getStaffSalaryProfile("jas");
+    const profile = getStaffSalaryProfile("hakola", TEST_PAYROLL_ROSTER);
     const entries: FieldDispatchEntry[] = [
       {
         dispatchId: "FD-0001",
         date: "2026-06-05",
         days: 1,
         location: "Tagum",
-        staff: "James Bryan Aguilon (Jas)",
+        staff: "James Bryan Hakola (Liaison Officer)",
         clientCode: "RET-A",
         purpose: "Court filing",
         advanceGiven: 1500,
@@ -199,7 +205,7 @@ describe("staff salary", () => {
   });
 
   it("totals base, allowance, dispatch, and adjustments", () => {
-    const profile = STAFF_SALARY_PROFILES[0];
+    const profile = findStaffSalaryProfileInRoster(TEST_PAYROLL_ROSTER, "hakola")!;
     const report = buildStaffSalaryReport({
       year: 2026,
       month: 6,
@@ -223,7 +229,7 @@ describe("staff salary", () => {
           payPeriod: "mid"
         }
       ],
-      adjustments: [{ id: "adj-1", staffId: "jas", date: "2026-06-15", label: "Bonus", amount: 500, note: "" }],
+      adjustments: [{ id: "adj-1", staffId: "hakola", date: "2026-06-15", label: "Bonus", amount: 500, note: "" }],
       paidMid: false,
       paidEnd: false
     });
@@ -235,7 +241,7 @@ describe("staff salary", () => {
   });
 
   it("deducts field dispatch already paid to staff from payroll", () => {
-    const profile = STAFF_SALARY_PROFILES[0];
+    const profile = findStaffSalaryProfileInRoster(TEST_PAYROLL_ROSTER, "hakola")!;
     const report = buildStaffSalaryReport({
       year: 2026,
       month: 6,
@@ -273,7 +279,7 @@ describe("staff salary", () => {
   });
 
   it("builds a clear monthly and pay-run computation", () => {
-    const profile = getStaffSalaryProfile("jas")!;
+    const profile = getStaffSalaryProfile("hakola", TEST_PAYROLL_ROSTER)!;
     const report = buildStaffSalaryReport({
       year: 2026,
       month: 6,
@@ -297,7 +303,7 @@ describe("staff salary", () => {
           payPeriod: "mid"
         }
       ],
-      adjustments: [{ id: "adj-1", staffId: "jas", date: "2026-06-15", label: "Overtime", amount: 500, note: "" }],
+      adjustments: [{ id: "adj-1", staffId: "hakola", date: "2026-06-15", label: "Overtime", amount: 500, note: "" }],
       paidMid: false,
       paidEnd: false
     });

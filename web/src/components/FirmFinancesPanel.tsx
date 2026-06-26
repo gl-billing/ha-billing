@@ -12,9 +12,13 @@ import {
   monthCloseHasWarnings,
   type AllocationBucketKey,
   type AllocationSettings,
+  type AppearanceFeeAttorneySummary,
   type MonthlyAllocationReport,
   type UnclassifiedIncomeLine
 } from "@/lib/firm-allocation";
+import { lawyerFeeShareAmount } from "@/lib/firm-lawyers-roster";
+import type { FirmLawyerRosterEntry } from "@/lib/firm-lawyers-roster";
+import type { StaffPayrollRosterEntry } from "@/lib/staff-payroll-roster";
 import { formatPeso } from "@/lib/gl-config";
 import { matterHref } from "@/lib/matter-routes";
 import {
@@ -84,6 +88,8 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
   const [adjustAmount, setAdjustAmount] = useState("");
   const [adjustNote, setAdjustNote] = useState("");
   const [adjustingBucket, setAdjustingBucket] = useState(false);
+  const [lawyers, setLawyers] = useState<FirmLawyerRosterEntry[]>([]);
+  const [payrollStaff, setPayrollStaff] = useState<StaffPayrollRosterEntry[]>([]);
 
   const livePercents = useMemo(
     () => ({
@@ -135,6 +141,48 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
       cancelled = true;
     };
   }, [onStatus]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all([fetch("/api/firm-lawyers/roster"), fetch("/api/staff-salary/roster")])
+      .then(async ([lawyersRes, staffRes]) => {
+        const lawyersJson = await lawyersRes.json();
+        const staffJson = await staffRes.json();
+        if (cancelled) return;
+        if (lawyersRes.ok) setLawyers((lawyersJson.roster || []) as FirmLawyerRosterEntry[]);
+        if (staffRes.ok) setPayrollStaff((staffJson.roster || []) as StaffPayrollRosterEntry[]);
+      })
+      .catch(() => {
+        /* optional team roster for fee-share context */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function lawyerSharePercent(attorneyName: string): number {
+    const match = lawyers.find(
+      (lawyer) => lawyer.displayName.trim().toLowerCase() === attorneyName.trim().toLowerCase()
+    );
+    return match?.feeSharePercent ?? 100;
+  }
+
+  function attorneyShareLine(group: AppearanceFeeAttorneySummary): string {
+    const pct = lawyerSharePercent(group.assignedAttorney);
+    const share = lawyerFeeShareAmount(group.total, pct);
+    return `${pct}% share · ${formatPeso(share)}`;
+  }
+
+  const staffByLawyer = useMemo(() => {
+    const map = new Map<string, StaffPayrollRosterEntry[]>();
+    for (const staff of payrollStaff) {
+      const key = staff.associatedLawyerName.trim() || "Unassigned";
+      const bucket = map.get(key) || [];
+      bucket.push(staff);
+      map.set(key, bucket);
+    }
+    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  }, [payrollStaff]);
 
   const loadReport = useCallback(async () => {
     setReportLoading(true);
@@ -918,6 +966,9 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
                           <p className="firm-finances__attorney-name">{group.assignedAttorney}</p>
                           <p className="firm-finances__attorney-count">
                             {group.lines.length} appearance fee{group.lines.length === 1 ? "" : "s"}
+                            {group.assignedAttorney !== UNASSIGNED_ATTORNEY_LABEL
+                              ? ` · ${attorneyShareLine(group)}`
+                              : ""}
                           </p>
                         </div>
                         <p className="firm-finances__attorney-total amount-serif">{formatPeso(group.total)}</p>
@@ -955,6 +1006,25 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
                   message={`No appearance fee payments for ${report.monthLabel}.`}
                 />
               )}
+
+              {staffByLawyer.length ? (
+                <div className="firm-finances__team-roster">
+                  <p className="firm-finances__section-title">Payroll staff by supervising lawyer</p>
+                  <p className="firm-finances__section-desc">
+                    From Payroll roster — links staff compensation to associate lawyers.
+                  </p>
+                  <ul className="firm-finances__team-roster-list">
+                    {staffByLawyer.map(([lawyer, staff]) => (
+                      <li key={lawyer} className="firm-finances__team-roster-item">
+                        <strong>{lawyer}</strong>
+                        <span className="text-muted">
+                          {staff.map((person) => person.displayName).join(", ")}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
           </div>
         ) : null}

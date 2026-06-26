@@ -15,8 +15,10 @@ async function driveFetch(url: string, init: DriveFetchInit): Promise<Response> 
 export async function copyDriveFile(
   accessToken: string,
   sourceId: string,
-  name: string
+  name: string,
+  options?: { sourceLabel?: string }
 ): Promise<string> {
+  const sourceLabel = options?.sourceLabel?.trim() || "spreadsheet";
   const response = await driveFetch(
     `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(sourceId)}/copy?supportsAllDrives=true&fields=id`,
     {
@@ -31,13 +33,13 @@ export async function copyDriveFile(
     const detail = (await response.text()).slice(0, 240);
     if (response.status === 404) {
       throw new Error(
-        `Template spreadsheet not found or not shared with your HA Google account (${sourceId}). ` +
-          "Open the template in Drive while signed in as the HA cron account, use File → Make a copy, " +
-          "then set GOOGLE_BILLING_TEMPLATE_SPREADSHEET_ID / GOOGLE_TASKS_TEMPLATE_SPREADSHEET_ID to your copy's ID. " +
-          "Or use Option B in docs/CLEAN-SHEET-SETUP.md (manual copy)."
+        `Could not copy ${sourceLabel} (${sourceId}) — not found or not accessible via Drive for your HA Google account. ` +
+          "Drive copy needs the spreadsheets + drive OAuth scopes on CRON_GOOGLE_REFRESH_TOKEN and the file shared with that account. " +
+          "If you can edit the sheet in place, run scrub without --copy-first. " +
+          "Otherwise use File → Make a copy in Google Sheets (see docs/CLEAN-SHEET-SETUP.md Option B)."
       );
     }
-    throw new Error(`Could not copy template spreadsheet (${response.status}): ${detail}`);
+    throw new Error(`Could not copy ${sourceLabel} (${response.status}): ${detail}`);
   }
 
   const payload = (await response.json()) as { id?: string };

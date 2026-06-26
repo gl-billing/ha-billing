@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const now = new Date();
     const year = Number(body.year) || now.getFullYear();
     const month = Number(body.month) || now.getMonth() + 1;
-    const staffId = String(body.staffId || "jas").trim();
+    const staffId = String(body.staffId || "").trim();
     const period = body.period === "end" ? "end" : "mid";
 
     const accessToken = await requireSessionAccessToken();

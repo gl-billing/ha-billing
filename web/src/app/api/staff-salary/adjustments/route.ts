@@ -9,7 +9,7 @@ import {
   updateStaffSalaryAdjustment
 } from "@/lib/sheets/staff-salary";
 import { invalidateCache, isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
-import type { StaffSalaryOvertimeMeta } from "@/lib/staff-salary";
+import { type StaffSalaryOvertimeMeta } from "@/lib/staff-salary";
 
 function errorStatus(message: string): number {
   if (message.startsWith("Unauthorized") || message.includes("firm admins")) return 403;
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
     const accessToken = await requireSessionAccessToken();
     const adjustments = await recordStaffSalaryAdjustment(accessToken, {
-      staffId: String(body.staffId || "jas").trim(),
+      staffId: String(body.staffId || "").trim(),
       label: String(body.label || ""),
       amount: Number(body.amount),
       note: body.note,
@@ -86,7 +86,7 @@ export async function PATCH(request: Request) {
     const accessToken = await requireSessionAccessToken();
     const adjustments = await updateStaffSalaryAdjustment(accessToken, {
       id: String(body.id || "").trim(),
-      staffId: String(body.staffId || "jas").trim(),
+      staffId: String(body.staffId || "").trim(),
       label: body.label,
       amount: body.amount,
       note: body.note,
@@ -115,7 +115,7 @@ export async function DELETE(request: Request) {
     requireAdminEmail(session?.user?.email);
 
     const url = new URL(request.url);
-    const staffId = String(url.searchParams.get("staffId") || "jas").trim();
+    const staffId = String(url.searchParams.get("staffId") || "").trim();
     const id = String(url.searchParams.get("id") || "").trim();
     if (!id) {
       return NextResponse.json({ error: "Adjustment id is required." }, { status: 400 });

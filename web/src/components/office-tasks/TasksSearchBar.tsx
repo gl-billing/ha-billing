@@ -1,6 +1,6 @@
 "use client";
 
-import { GlobalSearchBar } from "@/components/GlobalSearchBar";
+import { GlobalSearchBar, DEFAULT_SEARCH_PLACEHOLDER } from "@/components/GlobalSearchBar";
 
 type Props = {
   value: string;
@@ -19,7 +19,7 @@ export function TasksSearchBar({ value, onChange, onSubmit, busy, className }: P
       onChange={onChange}
       onSubmit={onSubmit}
       busy={busy}
-      placeholder="Search tasks, hearings, clients, assignees…"
+      placeholder={DEFAULT_SEARCH_PLACEHOLDER}
     />
   );
 }

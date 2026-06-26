@@ -89,7 +89,7 @@ export function canonicalizeStaffName(input: string, roster: string[]): string {
     test: (value: string) => boolean;
     rosterMatch: (rosterNorm: string) => boolean;
   }> = [
-    { test: (value) => /^jas$/i.test(value), rosterMatch: (n) => n.includes("james") && n.includes("bryan") },
+    { test: (value) => /^jas$/i.test(value) || /^hakola$/i.test(value), rosterMatch: (n) => (n.includes("james") && n.includes("bryan")) || n.includes("hakola") },
     {
       test: (value) => /^(andrea|ellyza)$/i.test(value),
       rosterMatch: (n) => n.includes("andrea") || n.includes("ellyza")

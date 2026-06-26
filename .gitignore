@@ -12,3 +12,4 @@ web/sample-output/
 gl-env-backup.txt
 web/gl-env-backup.txt
 **/gl-env-backup.txt
+.env*

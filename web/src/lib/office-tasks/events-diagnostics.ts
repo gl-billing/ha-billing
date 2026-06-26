@@ -2,13 +2,12 @@ import { fetchJson } from "@/lib/fetch-json";
 
 export type EventsDiagnostics = {
   today?: string;
-    spreadsheetId?: string;
+  spreadsheetId?: string;
   sheetUrl?: string;
   hasEventsTab?: boolean;
   rawEventRowCount?: number;
   parsedEventCount?: number;
-  gdciEvents?: Array<{ id: string; clientCase: string; date: string | null; category: string }>;
-  hakolaEvents?: Array<{ id: string; clientCase: string; date: string | null; category: string }>;
+  parsedTaskCount?: number;
   eventsToday?: Array<{ id: string; clientCase: string; date: string | null }>;
   eventsMissingDate?: Array<{ id: string; clientCase: string; rowNumber: number }>;
   matchingRawRows?: Array<Record<string, string>>;
@@ -25,8 +24,7 @@ export function formatEventsDiagnosticsSummary(data: EventsDiagnostics): string 
     `${parsed} event(s) recognized by the app`,
     `${raw} row(s) on the Hearings & Events tab`,
     `${data.eventsToday?.length ?? 0} dated today`,
-    `GDCI: ${data.gdciEvents?.length ?? 0}`,
-    `Hakola: ${data.hakolaEvents?.length ?? 0}`
+    `${data.eventsMissingDate?.length ?? 0} missing event date`
   ];
   if (skipped > 50) {
     parts.push(

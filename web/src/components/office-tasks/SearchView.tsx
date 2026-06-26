@@ -192,7 +192,7 @@ export function SearchView({
             ? intentLabel
               ? `Showing ${intentLabel}. Adjust filters below or clear to browse everything.`
               : `Matches for “${trimmedQuery}”. Adjust filters below or clear to browse everything.`
-            : "Full list from your office sheet. Use the search bar above — try plain English like “hernandez hearings july”."
+            : "Full list from your office sheet. Use the search bar above — try searching for a client, hearing date, task, or assignee."
         }
       />
 

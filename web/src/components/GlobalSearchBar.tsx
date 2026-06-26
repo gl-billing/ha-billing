@@ -9,6 +9,9 @@ import { getPinnedMatters, getRecentMatters, type MatterPrefEntry } from "@/lib/
 import { VoiceQuickAddButton } from "@/components/VoiceQuickAddButton";
 import { readJsonResponse } from "@/lib/fetch-json";
 
+export const DEFAULT_SEARCH_PLACEHOLDER =
+  "Try searching for a client code, hearing date, task, assignee, or lawyer name…";
+
 type Props = {
   className?: string;
   placeholder?: string;
@@ -28,7 +31,7 @@ const KIND_LABELS: Record<FirmSearchResult["kind"], string> = {
 
 export function GlobalSearchBar({
   className = "",
-  placeholder = "Try: hernandez hearings july, james bryan tasks june 10…",
+  placeholder = DEFAULT_SEARCH_PLACEHOLDER,
   value: controlledValue,
   onChange,
   onSubmit,
@@ -282,18 +285,6 @@ export function GlobalSearchBar({
           </div>
         ) : null}
       </div>
-
-      <p className="search-bar-hint">
-        <kbd className="search-bar-kbd">⌘K</kbd> command palette · Ask in plain English · Press Enter to search
-        {onSubmit ? (
-          <>
-            {" "}
-            · Results open under <strong>All items</strong>
-          </>
-        ) : null}
-        {" "}
-        · Click a suggestion to jump there
-      </p>
     </section>
   );
 }

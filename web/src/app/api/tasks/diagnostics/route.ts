@@ -39,8 +39,8 @@ export async function GET(request: Request) {
 
     const rawEventRows = rawRows || [];
     const matchingRaw = rawEventRows.filter((row) => {
-      const hay = [row[0], row[5], row[8], row[10]].join(" ").toLowerCase();
-      return hay.includes("gdci") || hay.includes("hakola") || hay.includes("gdc-evt");
+      const eventDate = (row[2] ?? "").trim();
+      return eventDate === today || !eventDate;
     });
 
     const idLookup = lookupId ? await findEventRowById(token, lookupId) : null;
@@ -64,8 +64,6 @@ export async function GET(request: Request) {
         category: item.category,
         rowNumber: item.rowNumber
       })),
-      gdciEvents: events.filter((item) => /gdci/i.test(item.clientCase)),
-      hakolaEvents: events.filter((item) => /hakola/i.test(item.clientCase)),
       lastRawRows: rawEventRows.slice(-8).map(summarizeRaw),
       matchingRawRows: matchingRaw.slice(-8).map(summarizeRaw)
     });

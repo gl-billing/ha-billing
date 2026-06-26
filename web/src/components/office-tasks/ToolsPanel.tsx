@@ -84,12 +84,14 @@ export function ToolsPanel({
         <CalendarSyncStatus items={items} className="mb-3" />
         <p className="mb-3 text-sm text-muted">
           Events live in the <strong>Office Tasks</strong> spreadsheet (Hearings &amp; Events tab), not in Billing.
-          Adding and viewing events does <strong>not</strong> need Apps Script.
+          <strong>+ Event</strong>, <strong>My work</strong>, and <strong>Check events sheet</strong> work without Apps
+          Script. Calendar sync and legacy reminders are optional and stay disabled until{" "}
+          <code className="text-ink">TASKS_APPS_SCRIPT_*</code> is set.
         </p>
         <div className="tools-btn-grid">
           <ToolButton
             label="Check events sheet"
-            sub="GDCI / Hakola / today"
+            sub="Rows, parsing & today"
             disabled={busy || diagLoading}
             onClick={() => void runEventsCheck()}
             variant="primary"
@@ -103,20 +105,17 @@ export function ToolsPanel({
           />
           <ToolButton
             label="Refresh overviews"
-            sub={tasksAppsScriptConfigured ? undefined : "Set TASKS_APPS_SCRIPT_* on this server"}
-            disabled={busy}
+            disabled={busy || !tasksAppsScriptConfigured}
             onClick={() => onAction("refreshAllOverviews")}
           />
           <ToolButton
             label="Sync all open → Calendar"
-            sub={tasksAppsScriptConfigured ? undefined : "Set TASKS_APPS_SCRIPT_* on this server"}
-            disabled={busy}
+            disabled={busy || !tasksAppsScriptConfigured}
             onClick={() => onAction("syncAllOpenCalendar")}
           />
           <ToolButton
             label="Sync upcoming → Calendar"
-            sub={tasksAppsScriptConfigured ? undefined : "Set TASKS_APPS_SCRIPT_* on this server"}
-            disabled={busy}
+            disabled={busy || !tasksAppsScriptConfigured}
             onClick={() => onAction("syncUpcomingCalendar")}
           />
           <ToolButton
@@ -127,23 +126,13 @@ export function ToolsPanel({
           {isAdmin && (
             <ToolButton
               label="Legacy reminder run"
-              sub={tasksAppsScriptConfigured ? "Original Apps Script job" : "Set TASKS_APPS_SCRIPT_* on this server"}
-              disabled={busy}
+              sub={tasksAppsScriptConfigured ? "Original Apps Script job" : undefined}
+              disabled={busy || !tasksAppsScriptConfigured}
               onClick={() => onAction("sendRemindersNow")}
               variant="accent"
             />
           )}
         </div>
-        {!tasksAppsScriptConfigured ? (
-          <p className="mt-3 text-xs leading-relaxed text-amber-900">
-            Tasks Apps Script bridge is not configured <strong>on this server</strong> (missing{" "}
-            <code className="text-ink">TASKS_APPS_SCRIPT_WEB_APP_URL</code> /{" "}
-            <code className="text-ink">TASKS_APPS_SCRIPT_WEB_APP_SECRET</code>). The script itself is unchanged — add
-            those vars to <code className="text-ink">web/.env.local</code> for local dev or Vercel for production (see{" "}
-            <code className="text-ink">office-tasks/apps-script/README.md</code>). + Event and My Work do not need
-            them.
-          </p>
-        ) : null}
         {sheetUrl  ? (
           <a href={sheetUrl} target="_blank" rel="noreferrer" className="tool-sheet-link">
             Open Office Tasks spreadsheet →

@@ -9,9 +9,10 @@ import {
   staff13thMonthReference,
 } from "@/lib/staff-salary-13th-month";
 import { getStaffSalaryProfile } from "@/lib/staff-salary";
+import { TEST_PAYROLL_ROSTER } from "@/lib/__tests__/fixtures/staff-payroll-roster";
 
 describe("staff salary 13th month", () => {
-  const profile = getStaffSalaryProfile("jas")!;
+  const profile = getStaffSalaryProfile("hakola", TEST_PAYROLL_ROSTER)!;
 
   it("defaults included months through the current month for the current year", () => {
     expect(default13thMonthIncludedMonths(2026, new Date("2026-06-15"))).toEqual([1, 2, 3, 4, 5, 6]);
@@ -34,7 +35,7 @@ describe("staff salary 13th month", () => {
     expect(report.totalBasicSalary).toBe(120000);
     expect(report.thirteenthMonthPay).toBe(10000);
     expect(report.monthsWorked).toBe(12);
-    expect(staff13thMonthReference(report)).toBe("13TH-JAS-2026");
+    expect(staff13thMonthReference(report)).toBe("13TH-HAKOLA-2026");
   });
 
   it("pro-rates when only part of the year is included", () => {

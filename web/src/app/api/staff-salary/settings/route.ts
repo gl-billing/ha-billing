@@ -12,7 +12,7 @@ export async function PUT(request: Request) {
     requireAdminEmail(session?.user?.email);
 
     const body = (await request.json()) as { staffId?: string; baseSalary?: number };
-    const staffId = String(body.staffId || "jas").trim();
+    const staffId = String(body.staffId || "").trim();
     const accessToken = await requireSessionAccessToken();
     const baseSalary = await saveStaffBaseSalary(accessToken, staffId, Number(body.baseSalary));
 
