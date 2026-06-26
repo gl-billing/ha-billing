@@ -4,31 +4,5 @@
   "installCommand": "npm install",
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "rootDirectory": "web",
-  "crons": [
-    {
-      "path": "/api/cron/refresh-dashboard",
-      "schedule": "0 5 * * *"
-    },
-    {
-      "path": "/api/cron/hearing-reminders",
-      "schedule": "0 7 * * *"
-    },
-    {
-      "path": "/api/cron/staff-digest",
-      "schedule": "0 23 * * *"
-    },
-    {
-      "path": "/api/cron/bir-deadlines",
-      "schedule": "0 0 1 * *"
-    },
-    {
-      "path": "/api/cron/partner-weekly",
-      "schedule": "0 6 * * 1"
-    },
-    {
-      "path": "/api/cron/birthday-greetings",
-      "schedule": "0 0 * * *"
-    }
-  ]
+  "rootDirectory": "web"
 }

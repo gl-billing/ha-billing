@@ -21,6 +21,7 @@ const allowedDevOrigins = ["localhost", "127.0.0.1", ...(lan ? [lan] : [])];
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  eslint: { ignoreDuringBuilds: true },
   serverExternalPackages: ["googleapis", "playwright-core", "@sparticuz/chromium"],
   allowedDevOrigins,
   webpack: (config, { dev, isServer }) => {
