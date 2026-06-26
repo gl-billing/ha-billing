@@ -1,0 +1,11 @@
+# Placeholder icons — run `npm run icons` in desktop/ to regenerate from logo
+
+This folder must contain icon files before `npm run tauri build`.
+
+Generate them:
+
+```bash
+cd desktop
+npm install
+npm run icons
+```

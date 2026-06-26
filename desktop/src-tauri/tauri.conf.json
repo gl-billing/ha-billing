@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "HA Office",
+  "version": "1.0.0",
+  "identifier": "com.gllaw.billing",
+  "build": {
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "",
+    "frontendDist": "./static"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "HA Office · Hernandez & Associates",
+        "width": 440,
+        "height": 900,
+        "minWidth": 360,
+        "minHeight": 640,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true,
+        "url": "https://ha-billing.vercel.app/portal"
+      }
+    ],
+    "security": {
+      "csp": null,
+      "dangerousDisableAssetCspModification": true
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    },
+    "shortDescription": "Hernandez & Associates client billing",
+    "longDescription": "Desktop client for the HA Billing web application."
+  }
+}

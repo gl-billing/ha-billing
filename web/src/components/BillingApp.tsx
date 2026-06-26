@@ -1,0 +1,1173 @@
+"use client";
+
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useFocusOnMount } from "@/hooks/useFocusOnMount";
+import type { ClientSummary, NewClientPayload } from "@/lib/gl-config";
+import { GL, formatPeso } from "@/lib/gl-config";
+import { FirmWorkspaceShell } from "@/components/FirmWorkspaceShell";
+import { NavTabsScroll } from "@/components/NavTabsScroll";
+import { HomeDashboard, type HomeNavigate } from "@/components/HomeDashboard";
+import { MatterIntakeWizard } from "@/components/MatterIntakeWizard";
+import { ClientsDirectory } from "@/components/ClientsDirectory";
+import { DocumentsPanel } from "@/components/DocumentsPanel";
+import { NewClientForm } from "@/components/NewClientForm";
+import { ReportsPanel } from "@/components/ReportsPanel";
+import { FirmFinancesPanel } from "@/components/FirmFinancesPanel";
+import { StaffSalaryPanel } from "@/components/StaffSalaryPanel";
+import { WalkInClientsPanel } from "@/components/WalkInClientsPanel";
+import { SpotBillingPanel } from "@/components/SpotBillingPanel";
+import { NotarizationPanel } from "@/components/NotarizationPanel";
+import { FieldDispatchPanel } from "@/components/FieldDispatchPanel";
+import { BillingHistoryPanel } from "@/components/BillingHistoryPanel";
+import { ClientMatterProvider } from "@/components/office-tasks/ClientMatterPanel";
+import { SameWindowLink } from "@/components/SameWindowLink";
+import { setLastWorkspace } from "@/lib/office-hub/storage";
+import { firmAppHref } from "@/lib/firm-apps";
+import { useMatterNavigation } from "@/hooks/useMatterNavigation";
+import { getSavedBillingPage, saveBillingPage, type SavedBillingPage } from "@/lib/staff-prefs";
+import { parseBillingDeepLink } from "@/lib/billing-routes";
+import { correspondenceHref } from "@/lib/tasks-routes";
+import {
+  BILLING_PAGE_LABELS,
+  billingNavTabsForUser,
+  isAdminBillingPage,
+  isAllowedBillingPage,
+  resolveNavUserProfile
+} from "@/lib/workspace-labels";
+import { matterHref } from "@/lib/matter-routes";
+import { BillingTabGuide, BillingTabGuideText, TabPageHeader } from "@/components/BillingTabGuide";
+import { TabPageBody, TabPickerCard } from "@/components/TabPageLayout";
+import { PageTransition } from "@/components/PageTransition";
+import { useFirmStatusReport } from "@/hooks/useFirmStatusReport";
+import { formatSuccessReport } from "@/lib/firm-status-report";
+import { PaymentIncomeFields } from "@/components/PaymentIncomeFields";
+import { OpenChargePicker } from "@/components/OpenChargePicker";
+import { listOpenChargesFromLedger, type OpenChargeOption } from "@/lib/open-charges";
+import {
+  buildPaymentLedgerFields,
+  inferPaymentIncomeTypeFromLedger,
+  inferPaymentIncomeTypeFromPayment,
+  isGenericPaymentLabel,
+  type PaymentIncomeType
+} from "@/lib/payment-income";
+import { SmartLoadEmptyState } from "@/components/SmartLoadEmptyState";
+import { postJsonWithOfflineQueue } from "@/lib/fetch-json";
+import { WorkspaceIntroDialog } from "@/components/WorkspaceIntroDialog";
+import { getBillingIntroContent } from "@/lib/workspace-intro-content";
+import { clearWorkspaceIntroSeen, hasSeenWorkspaceIntro, markWorkspaceIntroSeen } from "@/lib/workspace-intro-storage";
+import { SheetsAccessErrorPanel } from "@/components/SheetsAccessErrorPanel";
+import { formatSheetsAccessHint, type SheetsAccessHint } from "@/lib/sheets-access-help";
+import { bindWorkspaceTabShortcuts, buildTabShortcutHelp } from "@/lib/workspace-tab-shortcuts";
+
+type Props = Record<string, never>;
+
+type AppPage =
+  | "home"
+  | "billing"
+  | "newClient"
+  | "clients"
+  | "walkIns"
+  | "spotBilling"
+  | "notarizations"
+  | "fieldDispatch"
+  | "documents"
+  | "reports"
+  | "firmFinances"
+  | "staffSalary"
+  | "history";
+
+type ClientsResponse = {
+  clients: ClientSummary[];
+  chargeCategories: string[];
+  paymentMethods: string[];
+};
+
+function todayLocal(): string {
+  const date = new Date();
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+  return date.toISOString().slice(0, 10);
+}
+
+type IntroState = "pending" | "open" | "closed";
+
+export function BillingApp() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [introState, setIntroState] = useState<IntroState>("pending");
+  const { goTo } = useMatterNavigation();
+  const [clients, setClients] = useState<ClientSummary[]>([]);
+  const [chargeCategories, setChargeCategories] = useState<string[]>([...GL.chargeCategories]);
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([...GL.paymentMethods]);
+  const [clientCode, setClientCode] = useState("");
+  const [page, setPage] = useState<AppPage>("home");
+  const [docTab, setDocTab] = useState<"soa" | "ar">("soa");
+  const [tab, setTab] = useState<"charge" | "payment">("charge");
+  const {
+    message: status,
+    variant: statusVariant,
+    reportProcessing,
+    reportSuccess,
+    reportError,
+    onStatus
+  } = useFirmStatusReport();
+  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [ledgerSaving, setLedgerSaving] = useState(false);
+  const [sheetsAccessHint, setSheetsAccessHint] = useState<SheetsAccessHint | null>(null);
+  const chargeAmountRef = useRef<HTMLInputElement>(null);
+  const paymentAmountRef = useRef<HTMLInputElement>(null);
+  const clientCodeRef = useRef<HTMLSelectElement>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminResolved, setAdminResolved] = useState(false);
+  const billingAccess = session?.user?.billingAccess !== false;
+  const navProfile = resolveNavUserProfile({
+    email: session?.user?.email,
+    billingAccess,
+    secretaryNav: session?.user?.secretaryNav
+  });
+  const email = session?.user?.email?.trim() || "";
+  const introOpen = introState === "open";
+  const introGate = introState !== "closed";
+
+  useFocusOnMount(clientCodeRef, page === "billing" && !introGate);
+
+  useEffect(() => {
+    if (hasSeenWorkspaceIntro("billing", email)) {
+      setIntroState("closed");
+    } else {
+      setIntroState("open");
+    }
+  }, [email]);
+
+  const goToPage = useCallback(
+    (next: AppPage) => {
+      if (adminResolved && !isAdmin && isAdminBillingPage(next)) {
+        onStatus("Only firm admins can open that tab.", true);
+        return;
+      }
+      if (
+        adminResolved &&
+        navProfile === "secretary" &&
+        !isAllowedBillingPage(next, isAdmin, navProfile, email)
+      ) {
+        onStatus("That tab is not in your desk view.", true);
+        return;
+      }
+      setPage(next);
+      saveBillingPage(next);
+    },
+    [adminResolved, email, isAdmin, navProfile, onStatus]
+  );
+
+  const billingNavTabs = useMemo(
+    () => (adminResolved ? billingNavTabsForUser(isAdmin, navProfile) : billingNavTabsForUser(false, navProfile)),
+    [adminResolved, isAdmin, navProfile]
+  );
+  const introContent = useMemo(() => getBillingIntroContent(billingNavTabs), [billingNavTabs]);
+  const tabShortcuts = useMemo(() => buildTabShortcutHelp(billingNavTabs), [billingNavTabs]);
+
+  const handleIntroClose = useCallback(() => {
+    markWorkspaceIntroSeen("billing", email);
+    setIntroState("closed");
+  }, [email]);
+
+  const handleIntroSelectTab = useCallback(
+    (tabId: string) => {
+      markWorkspaceIntroSeen("billing", email);
+      const allowed = billingNavTabs.some((tab) => tab.id === tabId);
+      goToPage(allowed ? (tabId as AppPage) : "billing");
+      router.replace("/billing", { scroll: false });
+      setIntroState("closed");
+    },
+    [billingNavTabs, email, goToPage, router]
+  );
+
+  const replayWorkspaceGuide = useCallback(() => {
+    clearWorkspaceIntroSeen("billing", email);
+    setIntroState("open");
+  }, [email]);
+
+  useEffect(() => {
+    setLastWorkspace("billing");
+  }, []);
+
+  useEffect(() => {
+    if (introGate) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const deepLink = parseBillingDeepLink(params);
+
+    if (params.get("page")?.trim() === "correspondence") {
+      router.replace(
+        correspondenceHref(params.get("client")?.trim() || deepLink?.clientCode),
+        { scroll: false }
+      );
+      return;
+    }
+
+    if (deepLink?.page) {
+      setPage(deepLink.page);
+      saveBillingPage(deepLink.page);
+    } else {
+      const saved = getSavedBillingPage();
+      if (saved) setPage(saved);
+    }
+
+    if (deepLink?.clientCode) setClientCode(deepLink.clientCode);
+    if (deepLink?.docTab) setDocTab(deepLink.docTab);
+    if (deepLink?.billingTab) setTab(deepLink.billingTab);
+
+    if (params.toString()) {
+      router.replace("/billing", { scroll: false });
+    }
+  }, [introGate, router]);
+
+  useEffect(() => {
+    
+    let cancelled = false;
+    void fetch("/api/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (cancelled) return;
+        if (json) setIsAdmin(Boolean(json.isAdmin));
+        setAdminResolved(true);
+      })
+      .catch(() => {
+        if (!cancelled) setAdminResolved(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (introGate || !adminResolved || isAdmin) return;
+    if (isAdminBillingPage(page)) {
+      setPage("billing");
+      saveBillingPage("billing");
+      return;
+    }
+    if (navProfile === "secretary" && !isAllowedBillingPage(page, isAdmin, navProfile, email)) {
+      setPage("billing");
+      saveBillingPage("billing");
+    }
+  }, [introGate, adminResolved, email, isAdmin, navProfile, page]);
+
+  useEffect(() => {
+    if (tab !== "payment" || !clientCode) return;
+    let cancelled = false;
+    void fetch(`/api/clients/${encodeURIComponent(clientCode)}/profile`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (cancelled || !json?.ledger?.entries) return;
+        const inferred = inferPaymentIncomeTypeFromLedger(json.ledger.entries);
+        setPaymentIncomeType(inferred);
+        setPaymentDefaultHint(`Suggested from latest charge · ${inferred}`);
+        setOpenCharges(listOpenChargesFromLedger(json.ledger.entries));
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [clientCode, tab]);
+
+  const [chargeDate, setChargeDate] = useState(todayLocal());
+  const [chargeAmount, setChargeAmount] = useState("");
+  const [chargeCategory, setChargeCategory] = useState<string>(GL.chargeCategories[1]);
+  const [chargeDescription, setChargeDescription] = useState("");
+
+  const [paymentDate, setPaymentDate] = useState(todayLocal());
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<string>(GL.paymentMethods[0]);
+  const [paymentDetails, setPaymentDetails] = useState("");
+  const [paymentDescription, setPaymentDescription] = useState("");
+  const [paymentIncomeType, setPaymentIncomeType] = useState<PaymentIncomeType>("Professional Fee");
+  const [paymentDefaultHint, setPaymentDefaultHint] = useState("");
+  const [openCharges, setOpenCharges] = useState<OpenChargeOption[]>([]);
+
+  const loadData = useCallback(async (options?: { quiet?: boolean }) => {
+    setLoading(true);
+    if (!options?.quiet) reportProcessing("Loading billing controls…");
+
+    try {
+      const clientsRes = await fetch("/api/clients");
+
+      if (!clientsRes.ok) {
+        const err = await clientsRes.json();
+        throw new Error(err.error || "Failed to load clients.");
+      }
+
+      const clientsData = (await clientsRes.json()) as ClientsResponse;
+      setClients(clientsData.clients);
+      setChargeCategories(clientsData.chargeCategories);
+      setPaymentMethods(clientsData.paymentMethods);
+
+      const params =
+        typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
+      const deepLink = parseBillingDeepLink(params);
+      const legacyClient = params.get("client")?.trim().toUpperCase();
+
+      if (legacyClient && !deepLink?.page && !params.get("doc")) {
+        router.replace(matterHref(legacyClient, undefined));
+      } else {
+        setClientCode((prev) => prev || deepLink?.clientCode || clientsData.clients[0]?.code || "");
+      }
+
+      if (!options?.quiet) {
+        reportSuccess(
+          clientsData.clients.length
+            ? "Ready."
+            : "No active clients found. Add clients in Master List."
+        );
+      }
+      setSheetsAccessHint(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to load data.";
+      setSheetsAccessHint(formatSheetsAccessHint(message, email));
+      reportError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, [email, reportError, reportProcessing, reportSuccess, router]);
+
+  useEffect(() => {
+    void loadData({ quiet: true });
+  }, [loadData]);
+
+  useEffect(() => {
+    if (introOpen) return;
+    return bindWorkspaceTabShortcuts(
+      billingNavTabs.map((tab) => tab.id),
+      (next) => goToPage(next)
+    );
+  }, [billingNavTabs, goToPage, introOpen]);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === "/") {
+        e.preventDefault();
+        document.querySelector<HTMLInputElement>('input[aria-label="Firm-wide search"]')?.focus();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  async function submitLedger(
+    payload: Record<string, unknown>,
+    successMessage: string,
+    addAnother = false
+  ) {
+    if (!clientCode) {
+      reportError("Choose a client first.");
+      return;
+    }
+
+    setBusy(true);
+    setLedgerSaving(true);
+    reportProcessing(tab === "charge" ? "Saving charge to ledger…" : "Saving payment to ledger…");
+
+    try {
+      const result = await postJsonWithOfflineQueue<{ message?: string; error?: string }>("/api/ledger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        offlineLabel: tab === "charge" ? "Charge entry" : "Payment entry"
+      });
+
+      if ("queued" in result) {
+        reportSuccess(result.message);
+        return;
+      }
+
+      if (!result.ok) {
+        const msg = result.data.error || "Failed to save entry.";
+        if (typeof msg === "string" && msg.includes("Client tab not found")) {
+          throw new Error(
+            `${msg} Open the matter page for this client and create a ledger tab, or re-register under New.`
+          );
+        }
+        throw new Error(msg);
+      }
+
+      if (addAnother) {
+        if (tab === "charge") {
+          setChargeAmount("");
+          setChargeDescription("");
+          reportSuccess(`${formatSuccessReport(result.data.message || successMessage, clientCode)} Add another below.`);
+          window.requestAnimationFrame(() => chargeAmountRef.current?.focus());
+        } else {
+          setPaymentAmount("");
+          setPaymentDetails("");
+          setPaymentDescription("");
+          reportSuccess(`${formatSuccessReport(result.data.message || successMessage, clientCode)} Add another below.`);
+          window.requestAnimationFrame(() => paymentAmountRef.current?.focus());
+        }
+      } else {
+        setChargeAmount("");
+        setChargeDescription("");
+        setPaymentAmount("");
+        setPaymentDetails("");
+        setPaymentDescription("");
+        reportSuccess(formatSuccessReport(result.data.message || successMessage, clientCode));
+      }
+      await loadData({ quiet: true });
+    } catch (error) {
+      reportError(error instanceof Error ? error.message : "Failed to save entry.");
+    } finally {
+      setBusy(false);
+      setLedgerSaving(false);
+    }
+  }
+
+  async function submitNewClient(payload: NewClientPayload) {
+    setBusy(true);
+    reportProcessing(`Creating client ${payload.clientCode} and ledger tab…`);
+
+    try {
+      const response = await fetch("/api/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to create client.");
+      }
+
+      const code = result.clientCode || payload.clientCode;
+      setClientCode(code);
+      goToPage("billing");
+      reportSuccess(formatSuccessReport(result.message || "Client created.", code));
+      await loadData({ quiet: true });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to create client.";
+      reportError(message);
+      throw error instanceof Error ? error : new Error(message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const selected = clients.find((c) => c.code === clientCode);
+
+  async function refreshSpreadsheetDashboard() {
+    setBusy(true);
+    setAppStatus("Refreshing spreadsheet dashboard…", false, true);
+    try {
+      const response = await fetch("/api/documents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "refreshDashboard" })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Refresh failed.");
+      setAppStatus(formatSuccessReport(result.message || "Dashboard refreshed."));
+      await loadData();
+    } catch (error) {
+      setAppStatus(error instanceof Error ? error.message : "Refresh failed.", true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function setAppStatus(message: string, isError = false, isProcessing = false) {
+    onStatus(message, isError, isProcessing);
+  }
+
+  function navigate(options: {
+    page: AppPage;
+    clientCode?: string;
+    billingTab?: "charge" | "payment";
+    docTab?: "soa" | "ar";
+  }) {
+    if (options.clientCode && options.page === "clients") {
+      goTo(options.clientCode);
+      return;
+    }
+    if (options.clientCode) setClientCode(options.clientCode);
+    if (options.billingTab) setTab(options.billingTab);
+    if (options.docTab) setDocTab(options.docTab);
+    goToPage(options.page);
+  }
+
+  function handleHomeNavigate(nav: HomeNavigate) {
+    navigate(nav);
+  }
+
+  return (
+    <>
+      <WorkspaceIntroDialog
+        open={introOpen}
+        content={introContent}
+        onSelectTab={handleIntroSelectTab}
+        onClose={handleIntroClose}
+      />
+    <ClientMatterProvider lazyLoadItems onNotice={setAppStatus}>
+      <FirmWorkspaceShell
+                signOutCallbackUrl={undefined}
+        workspace="billing"
+        wide
+        name={session?.user?.name}
+        email={session?.user?.email}
+        displayName={session?.user?.displayName}
+        billingAccess={billingAccess}
+        statusMessage={status}
+        statusVariant={status ? statusVariant : "ok"}
+        breadcrumbPage={BILLING_PAGE_LABELS[page as SavedBillingPage] ?? "Billing"}
+        chromeTopBanner={
+          sheetsAccessHint ? (
+            <SheetsAccessErrorPanel
+              hint={sheetsAccessHint}
+              reloadBusy={loading}
+              onReload={() => void loadData()}
+            />
+          ) : undefined
+        }
+        tabShortcuts={tabShortcuts}
+        tabShortcutsTitle="Billing tabs"
+        onReplayWorkspaceGuide={replayWorkspaceGuide}
+        navTabs={
+          <NavTabsScroll
+            tabs={billingNavTabs}
+            activeId={page}
+            onSelect={goToPage}
+            disabled={busy}
+            workspace="billing"
+            ariaLabel="Billing navigation"
+          />
+        }
+      >
+      <PageTransition pageKey={page}>
+      {page === "home" && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About firm dashboard">
+              <BillingTabGuideText>
+                Firm-wide snapshot of balances, collections, batch SOA, and recent documents.
+              </BillingTabGuideText>
+              <BillingTabGuideText>
+                Day-to-day charges and payments go on <strong>Billing</strong>; tasks and deadlines go in{" "}
+                <SameWindowLink
+                  href={firmAppHref("/app?tab=today")}
+                  className="font-bold text-gold-dark underline"
+                >
+                  Tasks → My work
+                </SameWindowLink>
+                .
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <HomeDashboard
+            busy={busy}
+            onNavigate={handleHomeNavigate}
+            onRefresh={loadData}
+            onNotify={setAppStatus}
+          />
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "newClient" && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About intake">
+              <BillingTabGuideText>
+                <strong>New matter intake</strong> — full retained matter: billing file, conflict review before registration, optional starter
+                tasks, hearing placeholder, document preview/send.
+              </BillingTabGuideText>
+              <BillingTabGuideText>
+                <strong>Quick register</strong> (expand at bottom) — Master List row and ledger tab only, when the matter is
+                already discussed or you are not sending letters/tasks yet.
+              </BillingTabGuideText>
+              <BillingTabGuideText>
+                Wizard: <strong>Client code *</strong> is surname in CAPS (e.g. <em>SMITH</em>); <strong>Client name *</strong> is
+                full name; <strong>Case title</strong> is optional; step 2 needs email or phone and address; step 3 picks{" "}
+                <strong>Contract of legal services</strong> or <strong>Retainership agreement</strong>.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <MatterIntakeWizard
+            busy={busy}
+            onStatus={setAppStatus}
+            onComplete={(code, options) => {
+              void loadData();
+              if (options?.highlightTaskId) {
+                goTo(code, "tasks", {
+                  highlightTask: options.highlightTaskId,
+                  intake: true
+                });
+                return;
+              }
+              goTo(code, undefined, { intake: true });
+            }}
+          />
+          <details className="card mt-4">
+            <summary className="cursor-pointer text-xs font-bold text-muted">Quick register (single form)</summary>
+            <div className="mt-3">
+              <NewClientForm busy={busy} onSubmit={submitNewClient} onStatus={setAppStatus} />
+            </div>
+          </details>
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "clients" && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About client directory">
+              <BillingTabGuideText>
+                Search and browse every client by code or name; view contacts here and open the <strong>matter page</strong>{" "}
+                for tasks, billing, and documents.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <ClientsDirectory busy={busy} />
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "walkIns" && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About walk-ins">
+              <BillingTabGuideText>
+                Log one-time visits with a <strong>charge</strong>, <strong>payment</strong>, or <strong>retainer
+                visit</strong>. <strong>Promote &amp; open matter</strong> creates the billing file, copies walk-in
+                billing to the ledger, adds starter tasks, and opens the matter page.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <WalkInClientsPanel
+            busy={busy}
+            onBusy={setBusy}
+            onStatus={setAppStatus}
+            onPromoted={(code, walkInId) => {
+              setClientCode(code);
+              void loadData();
+              goTo(code, undefined, { intake: true, walkin: walkInId });
+            }}
+            onOpenBilling={(code) => {
+              goTo(code, "billing");
+            }}
+          />
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "spotBilling" && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About spot billing">
+              <BillingTabGuideText>
+                Record charges and payments for <strong>occasional payers</strong> — people with only one or two
+                transactions who are not same-day walk-ins and do not need a full client file on Master List.
+              </BillingTabGuideText>
+              <BillingTabGuideText>
+                Open a spot record, record <strong>charges</strong> (fees/expenses) and <strong>payments</strong> as
+                separate transactions, then email each on firm letterhead with the assigned lawyer. Close when done. Use{" "}
+                <strong>Walk-ins</strong> for consult visits you may promote to a matter, or <strong>Intake</strong> for
+                full clients.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <SpotBillingPanel busy={busy} onBusy={setBusy} onStatus={setAppStatus} paymentMethods={paymentMethods} />
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "notarizations" && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About notarizations">
+              <BillingTabGuideText>
+                Log each notarized document with book, page, and document numbers, record the fee and payment method, then
+                print an <strong>acknowledgment receipt</strong>.
+              </BillingTabGuideText>
+              <BillingTabGuideText>
+                Visitors not yet on the Master List can use the <strong>Walk-ins</strong> tab instead.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <NotarizationPanel
+          busy={busy}
+          onBusy={setBusy}
+          onStatus={setAppStatus}
+          paymentMethods={paymentMethods}
+        />
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "fieldDispatch" && adminResolved && isAdmin && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About out-of-town liaison">
+              <BillingTabGuideText>
+                Admin only: record advance and service fee, enter returned change when Jas is back, then use{" "}
+                <strong>Bill client</strong> to post expenses and liaison fee to the client ledger in one step.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <FieldDispatchPanel
+            busy={busy}
+            onBusy={setBusy}
+            onStatus={setAppStatus}
+            clients={clients}
+            onOpenBilling={(code) => {
+              setClientCode(code);
+              goTo(code, "billing");
+            }}
+          />
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "documents" && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About SOA & receipts">
+              <BillingTabGuideText>
+                Pick a client and generate a <strong>Statement of Account (SOA)</strong> to send or print, or issue an{" "}
+                <strong>Acknowledgment Receipt (AR)</strong> for a payment already on their ledger.
+              </BillingTabGuideText>
+              <BillingTabGuideText>
+                Enter new charges and payments on the <strong>Billing</strong> tab first.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <TabPickerCard label="Client for documents">
+            <select
+              className="field"
+              value={clientCode}
+              disabled={ledgerSaving}
+              onChange={(e) => setClientCode(e.target.value)}
+            >
+              {clients.map((client) => (
+                <option key={client.code} value={client.code}>
+                  {client.code} — {client.name || "Unnamed"}
+                </option>
+              ))}
+            </select>
+          </TabPickerCard>
+          <DocumentsPanel
+            clientCode={clientCode}
+            clientName={selected?.name || ""}
+            caseTitle={selected?.caseTitle || ""}
+            clientEmail={selected?.email || ""}
+            clientBalance={selected?.balance || 0}
+            preferredGreeting={undefined}
+            initialDocTab={docTab}
+            paymentMethods={paymentMethods}
+            onBusy={setBusy}
+            onStatus={setAppStatus}
+          />
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "reports" && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About reports">
+              <BillingTabGuideText>
+                AR aging and monthly collections, partner weekly summary, admin <strong>data health checks</strong>, and
+                maintenance (refresh cache, verify Apps Script, run sheet checks).
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <ReportsPanel busy={busy} onStatus={setAppStatus} onBusy={setBusy} />
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "firmFinances" && adminResolved && isAdmin && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About firm finances">
+              <BillingTabGuideText>
+                Split acceptance, professional, and notarial income (plus Notarizations tab) into expense, savings,
+                travel, and emergency buckets. Appearance fees are shown separately by assigned attorney.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <FirmFinancesPanel busy={busy} onStatus={setAppStatus} />
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "staffSalary" && adminResolved && isAdmin && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About staff salary">
+              <BillingTabGuideText>
+                Semi-monthly payroll for James Bryan and Ellyza Andrea — pay on the 15th and last day (prior business
+                day if weekend). Each gets ₱500 allowance on the end-of-month pay; Jas also gets field dispatch on that
+                second pay.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <StaffSalaryPanel busy={busy} onStatus={setAppStatus} />
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "history" && (
+        <>
+          <TabPageHeader resetKey={page}>
+            <BillingTabGuide title="About history">
+              <BillingTabGuideText>
+                Office-wide audit log of charges, payments, SOAs, receipts, and client record changes — filter by type or
+                open a client from any entry.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+          <BillingHistoryPanel
+            busy={busy}
+            onOpenClient={(code) => {
+              goTo(code);
+            }}
+          />
+          </TabPageBody>
+        </>
+      )}
+
+      {page === "billing" && (
+        <>
+      <TabPageHeader resetKey={page}>
+        <BillingTabGuide title="About billing">
+          <BillingTabGuideText>
+            Pick a retained client, post <strong>charges</strong> or <strong>payments</strong> to their ledger tab, and save.
+          </BillingTabGuideText>
+          <BillingTabGuideText>
+            One-time walk-in visits belong on <strong>Walk-ins</strong>, not here.
+          </BillingTabGuideText>
+        </BillingTabGuide>
+      </TabPageHeader>
+      <TabPageBody className="tab-workspace tab-workspace--billing">
+      <TabPickerCard
+        label="Client"
+        htmlFor="clientCode"
+        hint={
+          selected ? (
+            <p>
+              {selected.caseTitle} · {selected.accountStatus || "—"} · {selected.email || "No email"}
+            </p>
+          ) : undefined
+        }
+      >
+        <select
+          ref={clientCodeRef}
+          id="clientCode"
+          value={clientCode}
+          disabled={ledgerSaving}
+          onChange={(e) => setClientCode(e.target.value)}
+          className="field"
+        >
+          {clients.map((client) => (
+            <option key={client.code} value={client.code}>
+              {client.code} — {client.name || "Unnamed"} ({formatPeso(client.balance)})
+            </option>
+          ))}
+        </select>
+      </TabPickerCard>
+
+      <section className="tab-workspace__block">
+        <p className="section-label">Input transaction</p>
+        <div className="tab-subnav nav-tabs">
+        <button
+          type="button"
+          className={`nav-tab ${tab === "charge" ? "nav-tab-active" : "nav-tab-idle"}`}
+          onClick={() => {
+            setTab("charge");
+            window.requestAnimationFrame(() => chargeAmountRef.current?.focus());
+          }}
+          disabled={ledgerSaving}
+        >
+          Charge
+        </button>
+        <button
+          type="button"
+          className={`nav-tab ${tab === "payment" ? "nav-tab-active" : "nav-tab-idle"}`}
+          onClick={() => {
+            setTab("payment");
+            window.requestAnimationFrame(() => paymentAmountRef.current?.focus());
+          }}
+          disabled={ledgerSaving}
+        >
+          Payment
+        </button>
+        </div>
+      </section>
+
+      <section className="card tab-form-panel">
+        {tab === "charge" ? (
+          <>
+            <div className="form-grid-pair">
+              <Field label="Date">
+                <input
+                  type="date"
+                  value={chargeDate}
+                  disabled={ledgerSaving}
+                  onChange={(e) => setChargeDate(e.target.value)}
+                  className="field"
+                />
+              </Field>
+              <Field label="Amount">
+                <input
+                  ref={chargeAmountRef}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={chargeAmount}
+                  disabled={ledgerSaving}
+                  onChange={(e) => setChargeAmount(e.target.value)}
+                  className="field"
+                />
+              </Field>
+            </div>
+            <Field label="Category">
+              <select
+                value={chargeCategory}
+                disabled={ledgerSaving}
+                onChange={(e) => setChargeCategory(e.target.value)}
+                className="field"
+              >
+                {chargeCategories.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Description">
+              <textarea
+                value={chargeDescription}
+                disabled={ledgerSaving}
+                onChange={(e) => setChargeDescription(e.target.value)}
+                placeholder="Charge description"
+                className="field min-h-[86px]"
+              />
+            </Field>
+            <div className="tab-action-bar">
+              <div className="btn-row form-save-bar--sticky-mobile">
+              <button
+                type="button"
+                disabled={ledgerSaving}
+                onClick={() =>
+                  void submitLedger(
+                    {
+                      clientCode,
+                      type: "Charge",
+                      date: chargeDate,
+                      charge: chargeAmount,
+                      category: chargeCategory,
+                      description: chargeDescription
+                    },
+                    "Charge added."
+                  )
+                }
+                className="btn-primary"
+              >
+                {ledgerSaving ? "Saving…" : "Add Charge"}
+              </button>
+              <button
+                type="button"
+                disabled={ledgerSaving}
+                onClick={() =>
+                  void submitLedger(
+                    {
+                      clientCode,
+                      type: "Charge",
+                      date: chargeDate,
+                      charge: chargeAmount,
+                      category: chargeCategory,
+                      description: chargeDescription
+                    },
+                    "Charge added.",
+                    true
+                  )
+                }
+                className="btn-secondary"
+              >
+                Save &amp; add another
+              </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="form-grid-pair">
+              <Field label="Date">
+                <input
+                  type="date"
+                  value={paymentDate}
+                  disabled={ledgerSaving}
+                  onChange={(e) => setPaymentDate(e.target.value)}
+                  className="field"
+                />
+              </Field>
+              <Field label="Amount">
+                <input
+                  ref={paymentAmountRef}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={paymentAmount}
+                  disabled={ledgerSaving}
+                  onChange={(e) => setPaymentAmount(e.target.value)}
+                  className="field"
+                />
+              </Field>
+            </div>
+            <Field label="Method">
+              <select
+                value={paymentMethod}
+                disabled={ledgerSaving}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="field"
+              >
+                {paymentMethods.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Reference / Details">
+              <input
+                value={paymentDetails}
+                disabled={ledgerSaving}
+                onChange={(e) => setPaymentDetails(e.target.value)}
+                placeholder="Bank reference, OR number, etc."
+                className="field"
+              />
+            </Field>
+            <OpenChargePicker
+              charges={openCharges}
+              disabled={ledgerSaving}
+              onPick={(charge) => {
+                setPaymentAmount(String(charge.amount));
+                setPaymentIncomeType(charge.incomeType);
+                setPaymentDescription(charge.description || charge.category);
+                setPaymentDefaultHint(`Matched open charge · ${charge.incomeType}`);
+              }}
+            />
+            <PaymentIncomeFields
+              incomeType={paymentIncomeType}
+              onIncomeTypeChange={setPaymentIncomeType}
+              description={paymentDescription}
+              onDescriptionChange={setPaymentDescription}
+              disabled={ledgerSaving}
+              hint={paymentDefaultHint || undefined}
+            />
+            <div className="tab-action-bar">
+              <div className="btn-row form-save-bar--sticky-mobile">
+              <button
+                type="button"
+                disabled={ledgerSaving}
+                onClick={() => {
+                  const paymentFields = buildPaymentLedgerFields(paymentIncomeType, paymentDescription);
+                  void submitLedger(
+                    {
+                      clientCode,
+                      type: "Payment",
+                      date: paymentDate,
+                      payment: paymentAmount,
+                      category: paymentFields.category,
+                      description: paymentFields.description,
+                      method: paymentMethod,
+                      details: paymentDetails
+                    },
+                    "Payment added."
+                  );
+                }}
+                className="btn-primary"
+              >
+                {ledgerSaving ? "Saving…" : "Add Payment"}
+              </button>
+              <button
+                type="button"
+                disabled={ledgerSaving}
+                onClick={() => {
+                  const paymentFields = buildPaymentLedgerFields(paymentIncomeType, paymentDescription);
+                  void submitLedger(
+                    {
+                      clientCode,
+                      type: "Payment",
+                      date: paymentDate,
+                      payment: paymentAmount,
+                      category: paymentFields.category,
+                      description: paymentFields.description,
+                      method: paymentMethod,
+                      details: paymentDetails
+                    },
+                    "Payment added.",
+                    true
+                  );
+                }}
+                className="btn-secondary"
+              >
+                Save &amp; add another
+              </button>
+              </div>
+            </div>
+          </>
+        )}
+      </section>
+
+      <aside className="tab-utility-panel">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void refreshSpreadsheetDashboard()}
+          className="btn-gold"
+        >
+          Refresh spreadsheet dashboard
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void loadData()}
+          className="btn-gold"
+        >
+          Reload
+        </button>
+      </aside>
+      </TabPageBody>
+        </>
+      )}
+      </PageTransition>
+
+      </FirmWorkspaceShell>
+    </ClientMatterProvider>
+    </>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="mt-2.5">
+      <label className="mb-1.5 block text-xs font-bold text-[#4a4339]">{label}</label>
+      {children}
+    </div>
+  );
+}

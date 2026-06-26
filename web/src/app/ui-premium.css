@@ -1,0 +1,512 @@
+/**
+ * HA Office — premium typography, spacing, and responsive polish.
+ * Loaded after globals.css; targets app-wide readability on all screen sizes.
+ */
+
+/* ---- App shell text safety ---- */
+.app-shell,
+.firm-workspace,
+.tasks-app,
+.matter-page,
+.office-hub-page,
+.firm-auth-main {
+  min-width: 0;
+  text-rendering: optimizeLegibility;
+}
+
+.app-shell *,
+.firm-workspace *,
+.tasks-app *,
+.matter-page * {
+  overflow-wrap: break-word;
+}
+
+button,
+.nav-tab,
+.my-work-list__btn,
+.event-segmented__pill,
+.item-action-btn,
+.btn-primary,
+.btn-secondary,
+.btn-gold,
+.office-nav__link {
+  overflow-wrap: normal;
+}
+
+/* ---- Lift cramped inline Tailwind sizes across the app ---- */
+.app-shell .text-\[8px\],
+.firm-workspace .text-\[8px\],
+.tasks-app .text-\[8px\],
+.matter-page .text-\[8px\],
+.app-shell .text-\[9px\],
+.firm-workspace .text-\[9px\],
+.tasks-app .text-\[9px\],
+.matter-page .text-\[9px\] {
+  font-size: var(--type-caption) !important;
+  line-height: var(--line-height-ui) !important;
+}
+
+.app-shell .text-\[10px\],
+.firm-workspace .text-\[10px\],
+.tasks-app .text-\[10px\],
+.matter-page .text-\[10px\],
+.client-portal .text-\[10px\] {
+  font-size: var(--type-caption) !important;
+  line-height: var(--line-height-ui) !important;
+  letter-spacing: 0.02em !important;
+}
+
+.app-shell .text-\[11px\],
+.firm-workspace .text-\[11px\],
+.tasks-app .text-\[11px\],
+.matter-page .text-\[11px\],
+.client-portal .text-\[11px\] {
+  font-size: var(--type-body-sm) !important;
+  line-height: var(--line-height-ui) !important;
+}
+
+/* ---- Form & control rhythm ---- */
+.form-field {
+  margin-bottom: 0.125rem;
+}
+
+.form-section {
+  gap: 0.875rem;
+}
+
+.form-section__title,
+.form-panel__eyebrow {
+  font-size: var(--type-label) !important;
+  letter-spacing: var(--tracking-label) !important;
+  line-height: var(--line-height-ui) !important;
+}
+
+.field-input--textarea,
+.field-input--large {
+  min-height: 5.5rem;
+  line-height: var(--line-height-relaxed) !important;
+}
+
+select.field-input,
+textarea.field-input {
+  line-height: var(--line-height-ui);
+}
+
+.form-check {
+  min-height: var(--touch-min);
+  padding: 0.625rem 0.75rem;
+  gap: 0.75rem;
+}
+
+/* ---- Buttons & tabs ---- */
+.btn-primary,
+.btn-secondary {
+  min-height: var(--touch-min);
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  font-size: var(--type-ui);
+  line-height: var(--line-height-ui);
+}
+
+.item-action-btn {
+  min-height: var(--touch-min);
+  font-size: var(--type-ui);
+  line-height: var(--line-height-ui);
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.nav-tabs {
+  gap: 0.45rem;
+}
+
+.nav-tabs-scroll .nav-tab {
+  flex-shrink: 0;
+  padding-left: 0.875rem;
+  padding-right: 0.875rem;
+}
+
+.office-nav__link {
+  font-size: var(--type-ui);
+  letter-spacing: var(--tracking-caps);
+  line-height: var(--line-height-ui);
+}
+
+.header-app-link {
+  min-height: var(--touch-min);
+  font-size: var(--type-body-sm);
+  padding-left: 0.875rem;
+  padding-right: 0.875rem;
+}
+
+/* ---- Cards & list items ---- */
+.card {
+  padding: 1.25rem 1.35rem;
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 1.5rem 1.65rem;
+  }
+}
+
+.item-card {
+  padding: 1rem 1.1rem;
+}
+
+.item-card__title {
+  font-size: var(--type-ui);
+  line-height: var(--line-height-ui);
+}
+
+.item-card__body,
+.item-card__compact-body {
+  font-size: var(--type-body-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+.item-card__sub,
+.item-card__foot,
+.item-card__status {
+  font-size: var(--type-caption);
+  line-height: var(--line-height-ui);
+}
+
+.item-card__toolbar .item-actions {
+  gap: 0.5rem;
+}
+
+/* ---- Event & checklist forms ---- */
+.event-segmented__track {
+  gap: 0.35rem;
+  padding: 0.4rem;
+}
+
+.event-segmented--compact .event-segmented__pill {
+  min-height: 2.5rem;
+  font-size: var(--type-caption);
+  padding: 0.45rem 0.75rem;
+}
+
+.event-assignee-toggle {
+  min-height: var(--touch-min);
+  padding: 0.5rem 1rem;
+}
+
+.event-assignee-toggle__name {
+  font-size: var(--type-ui);
+}
+
+.hearing-prep-checklist__item,
+.task-prep-checklist__item {
+  min-height: var(--touch-min);
+  padding: 0.5rem 0.65rem;
+  font-size: var(--type-body-sm);
+  line-height: var(--line-height-ui);
+}
+
+.task-prep-checklist__title,
+.task-prep-checklist-create__lede {
+  font-size: var(--type-body-sm);
+  line-height: var(--line-height-ui);
+}
+
+.prep-checklist-block__btn {
+  min-height: var(--touch-min);
+  font-size: var(--type-caption);
+  padding: 0.45rem 0.85rem;
+}
+
+/* ---- My Work feed ---- */
+.my-work-list__row {
+  gap: 0.55rem 0.85rem;
+  padding: 1rem 1.1rem 1rem 1.2rem;
+}
+
+.my-work-list__client {
+  font-size: var(--type-ui);
+  line-height: var(--line-height-ui);
+}
+
+.my-work-list__priority {
+  font-size: var(--type-caption);
+}
+
+.my-work-list__bottom {
+  gap: 0.55rem;
+  padding-top: 0.65rem;
+}
+
+.my-work-list__actions {
+  gap: 0.45rem;
+}
+
+/* ---- Billing & matter panels ---- */
+.stat-tile__label,
+.stat-tile__sub {
+  font-size: var(--type-caption);
+  line-height: var(--line-height-ui);
+}
+
+.stat-tile__value {
+  line-height: 1.2;
+}
+
+.view-hero__subtitle,
+.empty-state__message,
+.hint-bar,
+.status-bar {
+  font-size: var(--type-body-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+.section-label {
+  font-size: var(--type-label);
+  line-height: var(--line-height-ui);
+  margin-bottom: 0.75rem;
+}
+
+/* ---- Tables & dense data (prevent overflow) ---- */
+table {
+  font-size: var(--type-body-sm);
+}
+
+th,
+td {
+  padding: 0.55rem 0.65rem;
+  line-height: var(--line-height-ui);
+}
+
+/* ---- Mobile: stack controls, enlarge touch targets ---- */
+@media (max-width: 640px) {
+  .app-shell {
+    padding-left: max(0.875rem, env(safe-area-inset-left));
+    padding-right: max(0.875rem, env(safe-area-inset-right));
+  }
+
+  .form-grid--2,
+  .form-grid--3 {
+    gap: 1rem;
+  }
+
+  .event-segmented__pill {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: 0;
+    white-space: normal;
+    hyphens: auto;
+  }
+
+  .event-assignee-toggles {
+    gap: 0.5rem;
+  }
+
+  .event-assignee-toggle {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: 0;
+  }
+
+  .item-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .item-action-btn,
+  .item-action-btn--primary,
+  .item-action-btn--secondary {
+    width: 100%;
+    max-width: none;
+    flex: none;
+  }
+
+  .btn-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-row .btn-primary,
+  .btn-row .btn-secondary {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .nav-tabs-scroll {
+    padding-bottom: 0.25rem;
+  }
+
+  .nav-tab {
+    min-height: var(--touch-min);
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .entry-form__title {
+    font-size: 1.125rem !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .entry-form__section-title {
+    font-size: var(--type-ui) !important;
+    letter-spacing: 0.03em !important;
+  }
+
+  .client-matter-panel__items .my-work-list__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 380px) {
+  .event-segmented__pill {
+    flex-basis: 100%;
+  }
+
+  .my-work-list__btn {
+    flex: 1 1 auto;
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+/* ---- Formal elegance: balanced weight, spacing, and rhythm ---- */
+.app-shell,
+.firm-workspace,
+.tasks-app,
+.matter-page,
+.office-hub-page,
+.firm-auth-main,
+.client-portal {
+  font-weight: var(--weight-ui);
+  letter-spacing: var(--tracking-body);
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* Display headers & titles — bold and open, but capped */
+.font-display,
+.section-title,
+.view-hero__title,
+.entry-form__title,
+.brand-header__title,
+.client-matter-panel__name,
+.client-matter-panel__section-title,
+.client-matter-panel__profile-name,
+.client-matter-panel__column-title,
+.firm-auth-title,
+.office-hub__brand-name,
+.office-hub__greeting,
+.office-hub__launcher-title,
+.office-hub__announcement-panel-title,
+.portal-page__title,
+.empty-state__title,
+.login-premium__path-title,
+.login-premium__greeting,
+.page-loading__title,
+.my-work-panel__card-title {
+  font-weight: var(--weight-display-bold);
+  letter-spacing: var(--tracking-display-wide);
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+.font-display.font-semibold,
+.section-title.font-semibold,
+.view-hero__title.font-semibold {
+  font-weight: var(--weight-display-emphasis);
+}
+
+.brand-header__tagline,
+.view-eyebrow,
+.login-premium__motto,
+.firm-auth-eyebrow,
+.office-hub__greeting-label {
+  font-weight: var(--weight-display-bold);
+  letter-spacing: var(--tracking-display-caps);
+}
+
+/* UI labels & controls — medium weight, restrained caps spacing */
+.section-label,
+.form-field__label,
+.form-section__title,
+.form-panel__eyebrow,
+.entry-form__eyebrow,
+.matter-page__section-title,
+.matter-page__flow-title,
+.matter-items-column__title,
+.stat-tile__label,
+.event-segmented__pill,
+.item-card__meta-pill,
+.form-check__text {
+  font-weight: var(--weight-ui-semibold);
+  letter-spacing: var(--tracking-label);
+}
+
+.nav-tab,
+.nav-tab-active,
+.nav-tab-idle,
+.office-nav__link,
+.home-dashboard-tabs__label,
+.portal-system-card__title,
+.office-hub__launcher-title {
+  font-weight: 700;
+}
+
+.app-shell .font-extrabold:not(.font-display):not(.brand-header__title):not(.brand-header__tagline),
+.firm-workspace .font-extrabold:not(.font-display),
+.tasks-app .font-extrabold:not(.font-display):not(.entry-form__title),
+.matter-page .font-extrabold:not(.font-display),
+.office-hub-page .font-extrabold:not(.font-display),
+.client-portal .font-extrabold:not(.font-display) {
+  font-weight: var(--weight-ui-semibold);
+}
+
+.app-shell .uppercase:not(.font-display):not(.brand-header *):not(.view-hero *):not(.view-eyebrow):not(.login-premium__path-title):not(.login-premium__greeting):not(.office-hub__brand-name),
+.firm-workspace .uppercase:not(.font-display):not(.brand-header *),
+.tasks-app .uppercase:not(.font-display):not(.brand-header *):not(.view-hero *),
+.matter-page .uppercase:not(.font-display):not(.brand-header *) {
+  letter-spacing: var(--tracking-caps);
+}
+
+.field-input,
+.field-input--textarea,
+.field-input--compact,
+.field-input--highlight,
+.field-input--large,
+select.field-input,
+textarea.field-input {
+  font-weight: var(--weight-ui);
+  letter-spacing: var(--tracking-ui);
+  line-height: var(--line-height-ui);
+}
+
+.item-card__title,
+.my-work-list__client,
+.view-hero__subtitle,
+.empty-state__message,
+.hint-bar,
+.status-bar,
+.form-check__hint {
+  letter-spacing: var(--tracking-ui);
+}
+
+.stat-tile__value,
+.amount-serif,
+.client-matter-panel__stat-value--balance {
+  font-weight: var(--weight-display-bold);
+  letter-spacing: var(--tracking-display);
+}
+
+@media (max-width: 640px) {
+  .entry-form__title,
+  .tasks-app .entry-form__title {
+    letter-spacing: 0.04em !important;
+  }
+
+  .entry-form__section-title,
+  .tasks-app .entry-form__section-title {
+    letter-spacing: 0.035em !important;
+  }
+
+  .font-display,
+  .view-hero__title,
+  .section-title,
+  .brand-header__title {
+    letter-spacing: 0.06em !important;
+  }
+}
