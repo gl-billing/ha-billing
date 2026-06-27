@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
-  CONTENT_PROTECTION_CONTACT_EMAIL,
+  CONTENT_PROTECTION_NOTICE_BODY,
   CONTENT_PROTECTION_NOTICE_TITLE
 } from "@/lib/content-protection-notice";
 
@@ -61,10 +61,7 @@ export function ContentProtectionNotice({ open, onClose }: Props) {
           </button>
         </div>
         <p id="content-protection-notice-body" className="content-protection-notice__body">
-          This system is copyrighted under Atty. Maria Hernandez. Any unauthorized copying or
-          distribution is prohibited. You may contact us at{" "}
-          <a href={`mailto:${CONTENT_PROTECTION_CONTACT_EMAIL}`}>{CONTENT_PROTECTION_CONTACT_EMAIL}</a> for
-          pricing and setting up if interested.
+          {CONTENT_PROTECTION_NOTICE_BODY}
         </p>
         <div className="content-protection-notice__foot">
           <div className="content-protection-notice__ornament" aria-hidden="true">

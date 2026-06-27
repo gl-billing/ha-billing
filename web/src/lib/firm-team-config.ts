@@ -42,11 +42,21 @@ export const SECRETARY = {
   email: FIRM_INBOX_EMAIL
 };
 
-/** Associate lawyers — fee-sharing roster (managing partner is not listed here). */
+/** Firm lawyers — fee-sharing roster (managing partner listed first). */
 export const DEFAULT_FIRM_LAWYERS_ROSTER: FirmLawyerRosterEntry[] = [
+  {
+    id: "atty-robert-hernandez",
+    displayName: MANAGING_PARTNER.displayName,
+    designation: "Founding / Managing Partner",
+    email: MANAGING_PARTNER.emails[0],
+    feeSharePercent: APPEARANCE_FEE_LAWYER_SHARE_PERCENT,
+    overseesTasks: true,
+    active: true
+  },
   {
     id: "atty-april-liz-parreno",
     displayName: "Atty. April Liz Parreno",
+    designation: "Associate Lawyer",
     email: "lizparreno595@gmail.com",
     feeSharePercent: 50,
     overseesTasks: true,
@@ -55,6 +65,7 @@ export const DEFAULT_FIRM_LAWYERS_ROSTER: FirmLawyerRosterEntry[] = [
   {
     id: "atty-jeff-pasagui",
     displayName: "Atty. Jeff Pasagui",
+    designation: "Associate Lawyer",
     email: "jlppasagui@gmail.com",
     feeSharePercent: 50,
     overseesTasks: true,
@@ -80,10 +91,9 @@ export const DEFAULT_STAFF_PAYROLL_ROSTER: StaffPayrollRosterEntry[] = [
   }
 ];
 
-/** Employees sheet rows beyond associate lawyers synced from the roster. */
+/** Employees sheet rows beyond lawyers synced from the roster. */
 export const DEFAULT_FIRM_EMPLOYEE_ROWS: Array<[string, string, string, string]> = [
-  [SECRETARY.rosterName, SECRETARY.email, "Secretary", "TRUE"],
-  [MANAGING_PARTNER.displayName, MANAGING_PARTNER.emails[0], "Managing Partner", "TRUE"]
+  [SECRETARY.rosterName, SECRETARY.email, "Secretary", "TRUE"]
 ];
 
 export function defaultAdminEmails(): string[] {

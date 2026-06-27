@@ -4,12 +4,12 @@ import { FirmPublicContactDetails } from "@/components/FirmPublicContactDetails"
 
 export function AppFooter() {
   return (
-    <footer className="brand-footer mt-8">
+    <footer className="brand-footer mt-5">
       <p className="brand-footer__firm">Hernandez &amp; Associates</p>
       <p className="brand-footer__tagline">Law Office</p>
       <div className="brand-footer__rule" aria-hidden />
 
-      <FirmPublicContactDetails className="brand-footer__contact" layout="stacked" />
+      <FirmPublicContactDetails className="brand-footer__contact" />
 
       <div className="brand-footer__legal">
         <Link href="/privacy">Privacy &amp; confidentiality</Link>

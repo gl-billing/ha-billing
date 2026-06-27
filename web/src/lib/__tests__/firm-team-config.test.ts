@@ -7,11 +7,13 @@ import {
 } from "@/lib/firm-team-config";
 
 describe("firm team config", () => {
-  it("lists associate lawyers for fee sharing", () => {
+  it("lists managing partner first, then associate lawyers for fee sharing", () => {
     expect(DEFAULT_FIRM_LAWYERS_ROSTER.map((entry) => entry.displayName)).toEqual([
+      MANAGING_PARTNER.displayName,
       "Atty. April Liz Parreno",
       "Atty. Jeff Pasagui"
     ]);
+    expect(DEFAULT_FIRM_LAWYERS_ROSTER[0]?.designation).toBe("Founding / Managing Partner");
     expect(DEFAULT_FIRM_LAWYERS_ROSTER.every((entry) => entry.overseesTasks)).toBe(true);
   });
 

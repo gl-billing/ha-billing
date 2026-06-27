@@ -57,12 +57,15 @@ async function main() {
     throw new Error("Set CRON_GOOGLE_REFRESH_TOKEN in web/.env.local.");
   }
 
-  console.log("Saving associate lawyers roster…");
+  console.log("Saving firm lawyers roster…");
   const lawyers = await saveFirmLawyersRoster(accessToken, DEFAULT_FIRM_LAWYERS_ROSTER);
   console.log(
     `  ${activeFirmLawyersRoster(lawyers)
-      .map((entry) => `${entry.displayName} (${entry.feeSharePercent}% share)`)
-      .join(", ")}`
+      .map((entry) => {
+        const label = entry.designation ? `${entry.displayName} (${entry.designation})` : entry.displayName;
+        return `${label} — ${entry.feeSharePercent}% appearance share`;
+      })
+      .join("; ")}`
   );
 
   console.log("Saving staff payroll roster…");
@@ -71,7 +74,12 @@ async function main() {
 
   const lawyerRows = activeFirmLawyersRoster(lawyers)
     .filter((entry) => entry.overseesTasks)
-    .map((lawyer) => [lawyer.displayName, lawyer.email, "Lawyer", "TRUE"]);
+    .map((lawyer) => [
+      lawyer.displayName,
+      lawyer.email,
+      /managing partner/i.test(lawyer.designation || "") ? "Managing Partner" : "Lawyer",
+      "TRUE"
+    ]);
   const employeeRows = [...DEFAULT_FIRM_EMPLOYEE_ROWS, ...lawyerRows];
 
   console.log("Writing Employees sheet…");

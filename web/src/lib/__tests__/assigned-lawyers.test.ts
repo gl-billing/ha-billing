@@ -11,6 +11,15 @@ import type { FirmLawyerRosterEntry } from "@/lib/firm-lawyers-roster";
 
 const ROSTER: FirmLawyerRosterEntry[] = [
   {
+    id: "atty-robert-hernandez",
+    displayName: MANAGING_PARTNER.displayName,
+    designation: "Founding / Managing Partner",
+    email: MANAGING_PARTNER.emails[0],
+    feeSharePercent: 100,
+    overseesTasks: true,
+    active: true
+  },
+  {
     id: "atty-april-liz-parreno",
     displayName: "Atty. April Liz Parreno",
     email: "lizparreno595@gmail.com",
@@ -29,7 +38,7 @@ const ROSTER: FirmLawyerRosterEntry[] = [
 ];
 
 describe("assigned lawyers", () => {
-  it("builds dropdown options from payroll associate lawyers plus managing partner", () => {
+  it("builds dropdown options from payroll lawyers with managing partner first", () => {
     expect(buildFirmLawyerDropdownOptions(ROSTER)).toEqual([
       MANAGING_PARTNER.displayName,
       "Atty. April Liz Parreno",

@@ -2,16 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ALLOCATION_BUCKET_LABELS,
-  ALLOCATION_BUCKET_ORDER,
-  DEFAULT_ALLOCATION_PERCENTS,
   UNASSIGNED_ATTORNEY_LABEL,
   formatMonthlyStatementText,
   formatAppearanceFeeStatementText,
   monthCloseHasBlockers,
   monthCloseHasWarnings,
-  type AllocationBucketKey,
-  type AllocationSettings,
   type AppearanceFeeAttorneySummary,
   type MonthlyAllocationReport,
   type UnclassifiedIncomeLine
@@ -32,19 +27,12 @@ import {
   buildPaymentLedgerFields,
   type PaymentIncomeType
 } from "@/lib/payment-income";
-import { MetricSkeleton, Skeleton } from "@/components/Skeleton";
+import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 
 type Props = {
   busy: boolean;
   onStatus: (message: string, isError?: boolean) => void;
-};
-
-const BUCKET_SHORT: Record<AllocationBucketKey, string> = {
-  expenses: "Expenses",
-  savings: "Savings",
-  travel: "Travel",
-  emergency: "Reserve"
 };
 
 function attorneyInitials(name: string): string {
@@ -75,78 +63,11 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
   const [report, setReport] = useState<MonthlyAllocationReport | null>(null);
   const [reportLoading, setReportLoading] = useState(true);
   const [reportError, setReportError] = useState("");
-  const [settingsLoading, setSettingsLoading] = useState(true);
-  const [settingsSaving, setSettingsSaving] = useState(false);
   const [closingMonth, setClosingMonth] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [expensesPct, setExpensesPct] = useState(String(DEFAULT_ALLOCATION_PERCENTS.expenses));
-  const [savingsPct, setSavingsPct] = useState(String(DEFAULT_ALLOCATION_PERCENTS.savings));
-  const [travelPct, setTravelPct] = useState(String(DEFAULT_ALLOCATION_PERCENTS.travel));
-  const [emergencyPct, setEmergencyPct] = useState(String(DEFAULT_ALLOCATION_PERCENTS.emergency));
-  const [openingExpenses, setOpeningExpenses] = useState("0");
-  const [openingSavings, setOpeningSavings] = useState("0");
-  const [openingTravel, setOpeningTravel] = useState("0");
-  const [openingEmergency, setOpeningEmergency] = useState("0");
-  const [settingsMeta, setSettingsMeta] = useState<AllocationSettings | null>(null);
   const [reclassifyBusyId, setReclassifyBusyId] = useState("");
   const [reopeningMonth, setReopeningMonth] = useState(false);
-  const [adjustBucket, setAdjustBucket] = useState<AllocationBucketKey>("expenses");
-  const [adjustAmount, setAdjustAmount] = useState("");
-  const [adjustNote, setAdjustNote] = useState("");
-  const [adjustingBucket, setAdjustingBucket] = useState(false);
   const [lawyers, setLawyers] = useState<FirmLawyerRosterEntry[]>([]);
   const [payrollStaff, setPayrollStaff] = useState<StaffPayrollRosterEntry[]>([]);
-
-  const livePercents = useMemo(
-    () => ({
-      expenses: Number(expensesPct) || 0,
-      savings: Number(savingsPct) || 0,
-      travel: Number(travelPct) || 0,
-      emergency: Number(emergencyPct) || 0
-    }),
-    [expensesPct, savingsPct, travelPct, emergencyPct]
-  );
-
-  const percentTotal =
-    Math.round(
-      (livePercents.expenses + livePercents.savings + livePercents.travel + livePercents.emergency) * 100
-    ) / 100;
-  const percentValid = Math.abs(percentTotal - 100) < 0.01;
-
-  function applySettings(settings: AllocationSettings) {
-    setSettingsMeta(settings);
-    setExpensesPct(String(settings.percents.expenses));
-    setSavingsPct(String(settings.percents.savings));
-    setTravelPct(String(settings.percents.travel));
-    setEmergencyPct(String(settings.percents.emergency));
-  }
-
-  function applyBucketOpening(reportData: MonthlyAllocationReport) {
-    setOpeningExpenses(String(reportData.bucketBalances.opening.expenses));
-    setOpeningSavings(String(reportData.bucketBalances.opening.savings));
-    setOpeningTravel(String(reportData.bucketBalances.opening.travel));
-    setOpeningEmergency(String(reportData.bucketBalances.opening.emergency));
-  }
-
-  useEffect(() => {
-    let cancelled = false;
-    setSettingsLoading(true);
-    void fetch("/api/firm-finances/settings")
-      .then((res) => res.json())
-      .then((json) => {
-        if (cancelled) return;
-        if (json.settings) applySettings(json.settings as AllocationSettings);
-      })
-      .catch(() => {
-        if (!cancelled) onStatus("Could not load allocation settings.", true);
-      })
-      .finally(() => {
-        if (!cancelled) setSettingsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [onStatus]);
 
   useEffect(() => {
     let cancelled = false;
@@ -193,8 +114,6 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
       if (!res.ok) throw new Error(json.error || "Failed to load income split.");
       const nextReport = json as MonthlyAllocationReport;
       setReport(nextReport);
-      if (json.settings) applySettings(json.settings as AllocationSettings);
-      applyBucketOpening(nextReport);
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Failed to load income split.";
       setReportError(msg);
@@ -226,45 +145,10 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [year, month]);
 
-  async function saveSettings() {
-    if (!percentValid) {
-      onStatus(`Percentages must add up to 100% (currently ${percentTotal}%).`, true);
-      return;
-    }
-    setSettingsSaving(true);
-    try {
-      const res = await fetch("/api/firm-finances/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          expensesPct: Number(expensesPct),
-          savingsPct: Number(savingsPct),
-          travelPct: Number(travelPct),
-          emergencyPct: Number(emergencyPct),
-          bucketOpening: {
-            expenses: Number(openingExpenses),
-            savings: Number(openingSavings),
-            travel: Number(openingTravel),
-            emergency: Number(openingEmergency)
-          }
-        })
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Could not save settings.");
-      if (json.settings) applySettings(json.settings as AllocationSettings);
-      onStatus(json.message || "Treasury settings saved.");
-      await loadReport();
-    } catch (error) {
-      onStatus(error instanceof Error ? error.message : "Could not save settings.", true);
-    } finally {
-      setSettingsSaving(false);
-    }
-  }
-
   async function closeMonth(force = false) {
     if (!report || report.monthClosed) return;
     if (monthCloseHasBlockers(report.closeChecklist)) {
-      onStatus("Fix allocation policy (must total 100%) before closing.", true);
+      onStatus("Resolve month-end checklist errors before closing.", true);
       return;
     }
     if (!force && monthCloseHasWarnings(report.closeChecklist)) {
@@ -272,8 +156,8 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
       return;
     }
     const msg = force
-      ? `Close ${report.monthLabel} despite checklist warnings? Bucket balances will roll forward.`
-      : `Mark ${report.monthLabel} as closed? This adds the month's bucket splits to your running balances.`;
+      ? `Close ${report.monthLabel} despite checklist warnings?`
+      : `Mark ${report.monthLabel} as reviewed and closed?`;
     if (!window.confirm(msg)) return;
 
     setClosingMonth(true);
@@ -297,9 +181,7 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
   async function reopenMonth() {
     if (!report?.monthClosed) return;
     if (
-      !window.confirm(
-        `Reopen ${report.monthLabel}? You can relabel payments again. Bucket balances will not be reversed.`
-      )
+      !window.confirm(`Reopen ${report.monthLabel}? You can relabel payments in this period again.`)
     ) {
       return;
     }
@@ -318,36 +200,6 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
       onStatus(error instanceof Error ? error.message : "Could not reopen month.", true);
     } finally {
       setReopeningMonth(false);
-    }
-  }
-
-  async function submitBucketAdjustment() {
-    const amount = Number(adjustAmount);
-    if (!adjustNote.trim()) {
-      onStatus("Enter a note for this withdrawal or adjustment.", true);
-      return;
-    }
-    if (!amount) {
-      onStatus("Enter a non-zero amount (negative for withdrawal).", true);
-      return;
-    }
-    setAdjustingBucket(true);
-    try {
-      const res = await fetch("/api/firm-finances/adjustments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bucket: adjustBucket, amount, note: adjustNote.trim() })
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Could not record adjustment.");
-      setAdjustAmount("");
-      setAdjustNote("");
-      onStatus(json.message || "Bucket adjustment recorded.");
-      await loadReport();
-    } catch (error) {
-      onStatus(error instanceof Error ? error.message : "Could not record adjustment.", true);
-    } finally {
-      setAdjustingBucket(false);
     }
   }
 
@@ -412,11 +264,11 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
       <header className="firm-finances__hero">
         <div className="firm-finances__hero-copy">
           <p className="firm-finances__eyebrow">Partner treasury</p>
-          <h2 className="firm-finances__title">Income allocation</h2>
+          <h2 className="firm-finances__title">Firm income &amp; fee sharing</h2>
           <p className="firm-finances__lede">
-            Professional and notarial receipts, plus the firm share of acceptance fees, flow into office buckets.
-            Acceptance fees: {acceptanceFeeSharingSummary()}. Drafting pleading fees: {pleadingFeeSharingSummary()}
-            . Appearance fees: {appearanceFeeSharingSummary()} when payment is recorded on the client ledger.
+            Office receipts and lawyer fee splits by month. Acceptance fees: {acceptanceFeeSharingSummary()}.
+            Drafting pleading fees: {pleadingFeeSharingSummary()}. Appearance fees:{" "}
+            {appearanceFeeSharingSummary()} when payment is recorded on the client ledger.
           </p>
         </div>
         <div className="firm-finances__hero-meta">
@@ -428,132 +280,6 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
           )}
         </div>
       </header>
-
-      <section className="firm-finances__panel">
-        <button
-          type="button"
-          className="firm-finances__panel-toggle"
-          aria-expanded={settingsOpen}
-          onClick={() => setSettingsOpen((open) => !open)}
-        >
-          <span>
-            <span className="firm-finances__panel-toggle-label">Allocation policy & opening balances</span>
-            <span className="firm-finances__panel-toggle-hint">60 · 10 · 20 · 10 default</span>
-          </span>
-          <span className="firm-finances__panel-toggle-icon" aria-hidden>
-            {settingsOpen ? "−" : "+"}
-          </span>
-        </button>
-
-        {settingsOpen ? (
-          <div className="firm-finances__settings-body">
-            {settingsLoading ? (
-              <Skeleton className="h-28 w-full rounded-xl" />
-            ) : (
-              <>
-                <div className="firm-finances__allocation-bar" aria-hidden>
-                  {ALLOCATION_BUCKET_ORDER.map((key) => (
-                    <span
-                      key={key}
-                      className={`firm-finances__allocation-segment firm-finances__allocation-segment--${key}`}
-                      style={{ width: `${Math.max(0, livePercents[key])}%` }}
-                      title={`${ALLOCATION_BUCKET_LABELS[key]} ${livePercents[key]}%`}
-                    />
-                  ))}
-                </div>
-
-                <div className="firm-finances__percent-grid">
-                  {ALLOCATION_BUCKET_ORDER.map((key) => {
-                    const valueMap = {
-                      expenses: expensesPct,
-                      savings: savingsPct,
-                      travel: travelPct,
-                      emergency: emergencyPct
-                    };
-                    const setMap = {
-                      expenses: setExpensesPct,
-                      savings: setSavingsPct,
-                      travel: setTravelPct,
-                      emergency: setEmergencyPct
-                    };
-                    return (
-                      <label key={key} className={`firm-finances__percent-field firm-finances__percent-field--${key}`}>
-                        <span className="firm-finances__percent-name">{ALLOCATION_BUCKET_LABELS[key]}</span>
-                        <div className="firm-finances__percent-input">
-                          <input
-                            className="field firm-finances__percent-control"
-                            type="number"
-                            min={0}
-                            max={100}
-                            step={0.5}
-                            disabled={busy || settingsSaving}
-                            value={valueMap[key]}
-                            onChange={(e) => setMap[key](e.target.value)}
-                          />
-                          <span className="firm-finances__percent-suffix">%</span>
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
-
-                <p className="firm-finances__settings-subhead">Opening bucket balances</p>
-                <div className="firm-finances__opening-grid">
-                  {ALLOCATION_BUCKET_ORDER.map((key) => {
-                    const valueMap = {
-                      expenses: openingExpenses,
-                      savings: openingSavings,
-                      travel: openingTravel,
-                      emergency: openingEmergency
-                    };
-                    const setMap = {
-                      expenses: setOpeningExpenses,
-                      savings: setOpeningSavings,
-                      travel: setOpeningTravel,
-                      emergency: setOpeningEmergency
-                    };
-                    return (
-                      <label key={key} className={`firm-finances__opening-field firm-finances__opening-field--${key}`}>
-                        <span className="firm-finances__percent-name">{BUCKET_SHORT[key]}</span>
-                        <input
-                          className="field firm-finances__percent-control"
-                          type="number"
-                          min={0}
-                          step={0.01}
-                          disabled={busy || settingsSaving}
-                          value={valueMap[key]}
-                          onChange={(e) => setMap[key](e.target.value)}
-                        />
-                      </label>
-                    );
-                  })}
-                </div>
-
-                <div className="firm-finances__settings-footer">
-                  <p className={`firm-finances__total ${percentValid ? "is-valid" : "is-invalid"}`}>
-                    Total allocation · {percentTotal}%
-                    {!percentValid ? " · must equal 100%" : ""}
-                  </p>
-                  <button
-                    type="button"
-                    className="btn-gold firm-finances__save-btn"
-                    disabled={busy || settingsSaving || !percentValid}
-                    onClick={() => void saveSettings()}
-                  >
-                    {settingsSaving ? "Saving…" : "Save treasury settings"}
-                  </button>
-                </div>
-
-                {settingsMeta && !settingsMeta.percentValid ? (
-                  <p className="firm-finances__settings-warning">
-                    Saved policy totals {settingsMeta.percentTotal}%. Adjust and save to restore valid splits.
-                  </p>
-                ) : null}
-              </>
-            )}
-          </div>
-        ) : null}
-      </section>
 
       <section className="firm-finances__panel firm-finances__panel--report">
         <div className="firm-finances__toolbar">
@@ -604,16 +330,7 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
 
         {reportError ? <p className="firm-finances__error">{reportError}</p> : null}
 
-        {reportLoading ? (
-          <div className="firm-finances__loading-grid">
-            <Skeleton className="h-36 w-full rounded-2xl" />
-            <div className="firm-finances__bucket-grid">
-              {ALLOCATION_BUCKET_ORDER.map((key) => (
-                <MetricSkeleton key={key} />
-              ))}
-            </div>
-          </div>
-        ) : null}
+        {reportLoading ? <Skeleton className="h-36 w-full rounded-2xl" /> : null}
 
         {report && !reportLoading ? (
           <div className="firm-finances__report-inner">
@@ -653,7 +370,7 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
               <div>
                 <p className="firm-finances__close-title">Month-end ceremony</p>
                 <p className="firm-finances__close-desc">
-                  Review the checklist, copy a partner statement, then close the month to roll balances forward.
+                  Review the checklist, copy a partner statement, then mark the month reviewed when ready.
                 </p>
                 {report.monthClosed ? (
                   <p className="firm-finances__closed-note">
@@ -716,15 +433,6 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
               </div>
             </div>
 
-            <div className="firm-finances__sticky-summary no-print" aria-hidden={false}>
-              <span className="firm-finances__sticky-total amount-serif">{formatPeso(report.totalIncome)}</span>
-              {ALLOCATION_BUCKET_ORDER.map((key) => (
-                <span key={key} className={`firm-finances__sticky-bucket firm-finances__sticky-bucket--${key}`}>
-                  {BUCKET_SHORT[key]} {formatPeso(report.splits[key])}
-                </span>
-              ))}
-            </div>
-
             <div className="firm-finances__income-hero">
               <div className="firm-finances__income-hero-accent" aria-hidden />
               <div className="firm-finances__income-hero-body">
@@ -746,98 +454,6 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
                   <span>Notarial {formatPeso(report.sourceBreakdown.notarial)}</span>
                 </div>
               </div>
-            </div>
-
-            <div className="firm-finances__bucket-grid">
-              {ALLOCATION_BUCKET_ORDER.map((key: AllocationBucketKey) => (
-                <article key={key} className={`firm-finances__bucket firm-finances__bucket--${key}`}>
-                  <p className="firm-finances__bucket-short">{BUCKET_SHORT[key]}</p>
-                  <p className="firm-finances__bucket-label">{ALLOCATION_BUCKET_LABELS[key]}</p>
-                  <p className="firm-finances__bucket-value amount-serif">{formatPeso(report.splits[key])}</p>
-                  <p className="firm-finances__bucket-pct">{report.settings.percents[key]}% this month</p>
-                  <p className="firm-finances__bucket-balance">
-                    Balance {formatPeso(report.bucketBalances.current[key])}
-                  </p>
-                </article>
-              ))}
-            </div>
-
-            <div className="firm-finances__bucket-withdraw no-print">
-              <div className="firm-finances__section-head">
-                <p className="firm-finances__section-title">Bucket withdrawals & adjustments</p>
-                <p className="firm-finances__section-desc">
-                  Record spending from a bucket · use negative amounts for withdrawals
-                </p>
-              </div>
-              <div className="firm-finances__withdraw-form">
-                <label className="firm-finances__withdraw-field">
-                  <span>Bucket</span>
-                  <select
-                    className="field"
-                    value={adjustBucket}
-                    disabled={busy || adjustingBucket}
-                    onChange={(e) => setAdjustBucket(e.target.value as AllocationBucketKey)}
-                  >
-                    {ALLOCATION_BUCKET_ORDER.map((key) => (
-                      <option key={key} value={key}>
-                        {ALLOCATION_BUCKET_LABELS[key]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="firm-finances__withdraw-field">
-                  <span>Amount</span>
-                  <input
-                    className="field"
-                    type="number"
-                    step="0.01"
-                    placeholder="-5000"
-                    value={adjustAmount}
-                    disabled={busy || adjustingBucket}
-                    onChange={(e) => setAdjustAmount(e.target.value)}
-                  />
-                </label>
-                <label className="firm-finances__withdraw-field firm-finances__withdraw-field--wide">
-                  <span>Note</span>
-                  <input
-                    className="field"
-                    value={adjustNote}
-                    disabled={busy || adjustingBucket}
-                    placeholder="Office rent · June"
-                    onChange={(e) => setAdjustNote(e.target.value)}
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="btn-secondary firm-finances__withdraw-btn"
-                  disabled={busy || adjustingBucket}
-                  onClick={() => void submitBucketAdjustment()}
-                >
-                  {adjustingBucket ? "Saving…" : "Record adjustment"}
-                </button>
-              </div>
-              {report.bucketAdjustments.length ? (
-                <ul className="firm-finances__withdraw-log">
-                  {[...report.bucketAdjustments].reverse().slice(0, 12).map((entry) => (
-                    <li key={entry.id} className="firm-finances__withdraw-row">
-                      <span className="firm-finances__withdraw-date">{entry.date}</span>
-                      <span className={`firm-finances__withdraw-bucket firm-finances__withdraw-bucket--${entry.bucket}`}>
-                        {BUCKET_SHORT[entry.bucket]}
-                      </span>
-                      <span className="firm-finances__withdraw-note">{entry.note}</span>
-                      <span
-                        className={`firm-finances__withdraw-amount amount-serif ${
-                          entry.amount < 0 ? "is-negative" : ""
-                        }`}
-                      >
-                        {formatPeso(entry.amount)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <EmptyState compact message="No bucket adjustments recorded yet." />
-              )}
             </div>
 
             {report.unclassifiedIncome.length ? (
@@ -969,7 +585,7 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
                       <div>
                         <p className="firm-finances__attorney-name">Firm share</p>
                         <p className="firm-finances__attorney-count">
-                          {ACCEPTANCE_FEE_SHARE_PERCENTS.firm}% · included in office buckets above
+                          {ACCEPTANCE_FEE_SHARE_PERCENTS.firm}% · firm share
                         </p>
                       </div>
                       <p className="firm-finances__attorney-total amount-serif">
@@ -1055,7 +671,7 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
                       <div>
                         <p className="firm-finances__attorney-name">Firm share</p>
                         <p className="firm-finances__attorney-count">
-                          {PLEADING_FEE_SHARE_PERCENTS.firm}% · included in office buckets above
+                          {PLEADING_FEE_SHARE_PERCENTS.firm}% · firm share
                         </p>
                       </div>
                       <p className="firm-finances__attorney-total amount-serif">

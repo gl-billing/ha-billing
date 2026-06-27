@@ -9,7 +9,7 @@ export function FirmContactFooter({ guestFriendly = false }: { guestFriendly?: b
       <p className="firm-auth-footer__title">Hernandez &amp; Associates</p>
       <p className="firm-auth-footer__tagline">Law Office</p>
 
-      <FirmPublicContactDetails className="firm-auth-footer__contact" layout="inline" />
+      <FirmPublicContactDetails className="firm-auth-footer__contact" />
 
       <div className="firm-auth-footer__legal">
         <Link href="/privacy">Privacy</Link>

@@ -4,7 +4,7 @@ import {
   formatBillingPeso
 } from "@/lib/billing-document-design";
 import { buildClientEmailHtml, buildClientEmailPlain } from "@/lib/firm-email-signature";
-import { billingEmailLetterheadBannerHtml } from "@/lib/firm-print-brand";
+import { buildFirmFormalEmailShell } from "@/lib/firm-email-shell";
 import type { EmployeeRecord } from "@/lib/office-tasks/sheets/employees";
 import {
   isValidEmailAddress,
@@ -271,21 +271,12 @@ function renderPayslipPaymentStatusBlock(report: StaffSalaryReport, run: StaffPa
 }
 
 function payslipEmailShell(title: string, subtitle: string, innerHtml: string): string {
-  return (
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="max-width:580px;margin:0 auto;width:100%;">` +
-    `<tr><td style="padding:0 4px 10px;">` +
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%" style="background:${cream};border:1px solid ${goldPale};box-shadow:0 12px 32px rgba(26,22,18,0.08);">` +
-    `<tr><td style="height:4px;background:linear-gradient(90deg, ${goldLight} 0%, ${gold} 50%, ${goldLight} 100%);font-size:0;line-height:0;">&nbsp;</td></tr>` +
-    `<tr><td style="padding:28px 28px 26px;">` +
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%">` +
-    `<tr><td style="border-bottom:1px solid ${goldPale};padding-bottom:18px;">` +
-    billingEmailLetterheadBannerHtml() +
-    `<p style="margin:18px 0 0;font-family:${SANS};font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:${gold};font-weight:700;">${escapeHtml(title)}</p>` +
-    `<p style="margin:8px 0 0;font-family:${SERIF};font-size:22px;line-height:1.25;color:${ink};font-weight:700;">${escapeHtml(subtitle)}</p>` +
-    `</td></tr>` +
-    `<tr><td style="padding-top:24px;">${innerHtml}</td></tr>` +
-    `</table></td></tr></table></td></tr></table>`
-  );
+  return buildFirmFormalEmailShell({
+    sectionLabel: title,
+    documentTitle: subtitle,
+    innerHtml,
+    maxWidth: 580
+  });
 }
 
 export function buildStaffPayRunPayslipHtml(report: StaffSalaryReport, period: StaffPayPeriod): string {

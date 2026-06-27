@@ -1,5 +1,13 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { buildClientEmailHtml, buildClientEmailPlain } from "@/lib/firm-email-signature";
+import {
+  buildFirmEmailBodyParagraph,
+  buildFirmEmailClosingLine,
+  buildFirmEmailGreetingLine,
+  buildFirmFormalEmailShell,
+  escapeFirmEmailHtml,
+  wrapFirmClientEmailDocument
+} from "@/lib/firm-email-shell";
 import { buildFirmLetterBodyCss, buildFirmLetterheadCss, buildFirmLetterheadFontLinkHtml, buildFirmLetterheadHtml, buildFirmPageFooterHtml, buildFirmStationeryCss, drawFirmLetterheadPdf, drawFirmPageFooterPdf, firmPageFooterReservePt, FIRM_LETTER_BODY_LINE_GAP_PT, FIRM_LETTER_BODY_SIZE_PT, type FirmPageSize } from "@/lib/firm-letterhead";
 import { getFirmPageSpec, type FirmPageSpec } from "@/lib/firm-page-sizes";
 import { formatPeso } from "@/lib/gl-config";
@@ -368,17 +376,26 @@ Kindly sign and return a copy at your earliest convenience. Should you have any 
 
 Thank you.`;
 
-  const bodyHtml =
-    `<p>${escapeHtml(engagementDearSalutation(input))},</p>` +
-    `<p>Good day.</p>` +
-    `<p>Please find attached our <strong>${escapeHtml(docLabel.toLowerCase())}</strong> for your review and signature concerning <strong>${escapeHtml(input.caseTitle)}</strong>.</p>` +
-    `<p>Kindly sign and return a copy at your earliest convenience. Should you have any questions or require further clarification, please do not hesitate to contact our office.</p>` +
-    `<p>Thank you.</p>`;
+  const bodyHtml = buildFirmFormalEmailShell({
+    sectionLabel: "Engagement",
+    documentTitle: docLabel,
+    innerHtml:
+      `<p style="margin:0 0 4px;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.7;color:#0a0a0a;">${escapeFirmEmailHtml(engagementDearSalutation(input))},</p>` +
+      buildFirmEmailGreetingLine() +
+      buildFirmEmailBodyParagraph(
+        `Please find attached our <strong>${escapeFirmEmailHtml(docLabel.toLowerCase())}</strong> for your review and signature concerning <strong>${escapeFirmEmailHtml(input.caseTitle)}</strong>.`
+      ) +
+      buildFirmEmailBodyParagraph(
+        "Kindly sign and return a copy at your earliest convenience. Should you have any questions or require further clarification, please do not hesitate to contact our office.",
+        { marginBottom: 0 }
+      ) +
+      buildFirmEmailClosingLine()
+  });
 
   return {
     subject,
     body: buildClientEmailPlain(body),
-    html: buildClientEmailHtml(bodyHtml)
+    html: buildClientEmailHtml(wrapFirmClientEmailDocument(bodyHtml))
   };
 }
 

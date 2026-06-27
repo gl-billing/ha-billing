@@ -2,18 +2,26 @@ import { MANAGING_PARTNER } from "@/lib/firm-team-config";
 import { activeFirmLawyersRoster, type FirmLawyerRosterEntry } from "@/lib/firm-lawyers-roster";
 import { isManagingPartnerAttorney, UNASSIGNED_ATTORNEY_LABEL } from "@/lib/firm-allocation";
 
-/** Lawyer names for client assignment dropdowns — managing partner first, then roster lawyers. */
+/** Lawyer names for client assignment dropdowns — roster order, managing partner first. */
 export function buildFirmLawyerDropdownOptions(roster: FirmLawyerRosterEntry[]): string[] {
-  const names = new Set<string>();
-  names.add(MANAGING_PARTNER.displayName);
-  for (const entry of activeFirmLawyersRoster(roster)) {
-    if (entry.displayName.trim()) names.add(entry.displayName.trim());
-  }
-  return [...names].sort((a, b) => {
-    if (a === MANAGING_PARTNER.displayName) return -1;
-    if (b === MANAGING_PARTNER.displayName) return 1;
-    return a.localeCompare(b);
-  });
+  const active = activeFirmLawyersRoster(roster);
+  const names: string[] = [];
+  const seen = new Set<string>();
+
+  const add = (name: string) => {
+    const trimmed = name.trim();
+    const key = trimmed.toLowerCase();
+    if (!trimmed || seen.has(key)) return;
+    seen.add(key);
+    names.push(trimmed);
+  };
+
+  const managingPartnerOnRoster = active.find((entry) => isManagingPartnerAttorney(entry.displayName));
+  if (managingPartnerOnRoster) add(managingPartnerOnRoster.displayName);
+  else add(MANAGING_PARTNER.displayName);
+
+  for (const entry of active) add(entry.displayName);
+  return names;
 }
 
 export function mergeLawyerDropdownOption(options: string[], current: string): string[] {

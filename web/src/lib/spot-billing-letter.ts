@@ -1,6 +1,12 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { amountToWords } from "@/lib/amount-to-words";
 import { buildClientEmailHtml, buildClientEmailPlain } from "@/lib/firm-email-signature";
+import {
+  buildFirmEmailBodyParagraph,
+  buildFirmFormalEmailShell,
+  escapeFirmEmailHtml,
+  wrapFirmClientEmailDocument
+} from "@/lib/firm-email-shell";
 import { FIRM_NAME, formatBillingDate } from "@/lib/billing-document-design";
 import {
   buildFirmLetterBodyCss,
@@ -231,12 +237,21 @@ ${input.entry.assignedAttorney.trim() || FIRM_NAME}
 ${FIRM_NAME}`;
 
   const inner =
-    `<p style="margin:0 0 16px;">Dear Sir/Ma'am,</p>` +
-    paragraphs.map((paragraph) => `<p style="margin:0 0 14px;">${escapeHtml(paragraph)}</p>`).join("") +
-    `<p style="margin:18px 0 0;">Very truly yours,<br/>${escapeHtml(input.entry.assignedAttorney.trim() || FIRM_NAME)}</p>`;
+    `<p style="margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.65;color:#0a0a0a;">Dear Sir/Ma'am,</p>` +
+    paragraphs.map((paragraph) => buildFirmEmailBodyParagraph(escapeFirmEmailHtml(paragraph), { marginBottom: 14 })).join("") +
+    buildFirmEmailBodyParagraph(
+      `Very truly yours,<br/><strong>${escapeFirmEmailHtml(input.entry.assignedAttorney.trim() || FIRM_NAME)}</strong>`,
+      { marginBottom: 0, color: "#0a0a0a" }
+    );
 
   const html = buildClientEmailHtml(
-    `<div style="font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.65;color:#1a1612;">${inner}</div>`
+    wrapFirmClientEmailDocument(
+      buildFirmFormalEmailShell({
+        sectionLabel: "Billing",
+        documentTitle: title,
+        innerHtml: inner
+      })
+    )
   );
 
   return { subject, body: buildClientEmailPlain(body), html };

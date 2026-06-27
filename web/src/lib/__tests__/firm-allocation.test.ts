@@ -110,23 +110,20 @@ describe("firm allocation", () => {
     expect(isOfficeSplitPayment("Transportation", "Bus fare", "")).toBe(false);
   });
 
-  it("splits income across buckets totaling 100%", () => {
+  it("no longer splits office income into expense buckets", () => {
     const splits = computeAllocationSplits(1000, {
       expenses: 60,
       savings: 10,
       travel: 20,
       emergency: 10
     });
-    expect(splits.expenses).toBe(600);
-    expect(splits.savings).toBe(100);
-    expect(splits.travel).toBe(200);
-    expect(splits.emergency).toBe(100);
+    expect(splits).toEqual({ expenses: 0, savings: 0, travel: 0, emergency: 0 });
   });
 
-  it("reads defaults from empty settings map", () => {
+  it("reads zero bucket defaults from empty settings map", () => {
     const settings = readAllocationSettings(new Map());
-    expect(settings.percentValid).toBe(true);
-    expect(settings.percents.expenses).toBe(60);
+    expect(settings.percentValid).toBe(false);
+    expect(settings.percents.expenses).toBe(0);
   });
 
   it("groups appearance fees by assigned attorney", () => {

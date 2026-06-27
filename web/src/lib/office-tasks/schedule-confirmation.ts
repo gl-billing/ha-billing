@@ -1,7 +1,22 @@
 import { BILLING_DOC_COLORS, formatBillingDate } from "@/lib/billing-document-design";
 import { formatClientSalutation, formatClientSalutationHtml } from "@/lib/client-greeting";
-import { billingEmailLetterheadBannerHtml } from "@/lib/firm-print-brand";
 import { buildClientEmailHtml, buildClientEmailPlain } from "@/lib/firm-email-signature";
+import {
+  buildFirmEmailBodyParagraph,
+  buildFirmEmailClosingLine,
+  buildFirmEmailGreetingLine,
+  buildFirmFormalEmailShell,
+  escapeFirmEmailHtml,
+  wrapFirmClientEmailDocument,
+  cream,
+  goldLight,
+  goldPale,
+  ink,
+  muted,
+  white,
+  FIRM_EMAIL_SANS,
+  FIRM_EMAIL_SERIF
+} from "@/lib/firm-email-shell";
 import { resolveExistingMeetUrl } from "@/lib/calendar/meet-link";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import {
@@ -17,10 +32,6 @@ export {
   SCHEDULE_CONFIRMATION_CATEGORIES,
   SCHEDULE_CONFIRMATION_PLATFORMS
 } from "@/lib/office-tasks/event-form-utils";
-
-const { gold, goldLight, goldPale, cream, ink, muted, white } = BILLING_DOC_COLORS;
-const SERIF = "Georgia,'Times New Roman',serif";
-const SANS = "Arial,Helvetica,sans-serif";
 
 export type ScheduleConfirmationEmailInput = {
   item: Pick<
@@ -43,11 +54,7 @@ export type ScheduleConfirmationEmailInput = {
 };
 
 function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  return escapeFirmEmailHtml(value);
 }
 
 function eventDateYmd(item: Pick<OfficeItem, "date" | "eventDate">): string {
@@ -100,9 +107,9 @@ function joinBlockHtml(platform: string, meetLink: string | null | undefined, ve
     return (
       `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%" style="margin:20px 0 0;">` +
       `<tr><td align="center" style="padding:18px 16px;background:${cream};border:1px solid ${goldPale};">` +
-      `<p style="margin:0 0 12px;font-family:${SANS};font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${gold};font-weight:700;">${escapeHtml(platformJoinLabel(platform))}</p>` +
-      `<a href="${escapeHtml(link)}" style="display:inline-block;padding:12px 22px;background:${goldLight};color:#fffefd;font-family:${SERIF};font-size:14px;font-weight:700;text-decoration:none;border-radius:999px;letter-spacing:0.02em;">Open meeting link</a>` +
-      `<p style="margin:12px 0 0;font-family:${SANS};font-size:11px;line-height:1.5;color:${muted};word-break:break-all;">${escapeHtml(link)}</p>` +
+      `<p style="margin:0 0 12px;font-family:${FIRM_EMAIL_SANS};font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${muted};font-weight:700;">${escapeFirmEmailHtml(platformJoinLabel(platform))}</p>` +
+      `<a href="${escapeFirmEmailHtml(link)}" style="display:inline-block;padding:12px 28px;background:${BILLING_DOC_COLORS.headerBg};color:${white};font-family:${FIRM_EMAIL_SERIF};font-size:13px;font-weight:700;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;">Open meeting link</a>` +
+      `<p style="margin:12px 0 0;font-family:${FIRM_EMAIL_SANS};font-size:11px;line-height:1.5;color:${muted};word-break:break-all;">${escapeFirmEmailHtml(link)}</p>` +
       `</td></tr></table>`
     );
   }
@@ -111,8 +118,8 @@ function joinBlockHtml(platform: string, meetLink: string | null | undefined, ve
     return (
       `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%" style="margin:20px 0 0;background:${cream};border:1px solid ${goldPale};">` +
       `<tr><td style="padding:16px 18px;">` +
-      `<p style="margin:0 0 8px;font-family:${SANS};font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${gold};font-weight:700;">Connection details</p>` +
-      `<p style="margin:0;font-family:${SERIF};font-size:14px;line-height:1.65;color:${ink};white-space:pre-wrap;">${escapeHtml(venue.trim())}</p>` +
+      `<p style="margin:0 0 8px;font-family:${FIRM_EMAIL_SANS};font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${muted};font-weight:700;">Connection details</p>` +
+      `<p style="margin:0;font-family:${FIRM_EMAIL_SERIF};font-size:14px;line-height:1.65;color:${ink};white-space:pre-wrap;">${escapeFirmEmailHtml(venue.trim())}</p>` +
       `</td></tr></table>`
     );
   }
@@ -123,27 +130,9 @@ function joinBlockHtml(platform: string, meetLink: string | null | undefined, ve
 function detailRow(label: string, value: string): string {
   return (
     `<tr>` +
-    `<td style="padding:10px 14px 10px 0;font-family:${SANS};font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:${muted};width:34%;vertical-align:top;border-bottom:1px solid ${goldPale};">${escapeHtml(label)}</td>` +
-    `<td style="padding:10px 0;font-family:${SERIF};font-size:14px;line-height:1.55;color:${ink};font-weight:600;vertical-align:top;border-bottom:1px solid ${goldPale};">${escapeHtml(value)}</td>` +
+    `<td style="padding:10px 14px 10px 0;font-family:${FIRM_EMAIL_SANS};font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:${muted};width:34%;vertical-align:top;border-bottom:1px solid ${goldPale};">${escapeFirmEmailHtml(label)}</td>` +
+    `<td style="padding:10px 0;font-family:${FIRM_EMAIL_SERIF};font-size:14px;line-height:1.55;color:${ink};font-weight:600;vertical-align:top;border-bottom:1px solid ${goldPale};">${escapeFirmEmailHtml(value)}</td>` +
     `</tr>`
-  );
-}
-
-function scheduleEmailShell(title: string, subtitle: string, innerHtml: string): string {
-  return (
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="max-width:580px;margin:0 auto;width:100%;">` +
-    `<tr><td style="padding:0 4px 10px;">` +
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%" style="background:${cream};border:1px solid ${goldPale};box-shadow:0 10px 28px rgba(26,22,18,0.08);">` +
-    `<tr><td style="height:4px;background:linear-gradient(90deg, ${goldLight} 0%, ${gold} 50%, ${goldLight} 100%);font-size:0;line-height:0;">&nbsp;</td></tr>` +
-    `<tr><td style="padding:28px 28px 26px;">` +
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%">` +
-    `<tr><td style="border-bottom:1px solid ${goldPale};padding-bottom:18px;">` +
-    billingEmailLetterheadBannerHtml() +
-    `<p style="margin:18px 0 0;font-family:${SANS};font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:${gold};font-weight:700;">${escapeHtml(title)}</p>` +
-    `<p style="margin:8px 0 0;font-family:${SERIF};font-size:20px;line-height:1.25;color:${ink};font-weight:700;">${escapeHtml(subtitle)}</p>` +
-    `</td></tr>` +
-    `<tr><td style="padding-top:24px;">${innerHtml}</td></tr>` +
-    `</table></td></tr></table></td></tr></table>`
   );
 }
 
@@ -192,10 +181,13 @@ export function buildScheduleConfirmationEmailPreview(input: ScheduleConfirmatio
     `Thank you.`;
 
   const innerHtml =
-    formatClientSalutationHtml(input.preferredGreeting, input.clientName, escapeHtml) +
-    `<p style="margin:0 0 14px;font-family:${SERIF};font-size:15px;line-height:1.7;color:${ink};">Good day.</p>` +
-    `<p style="margin:0 0 14px;font-family:${SERIF};font-size:15px;line-height:1.7;color:${ink};">This email confirms your scheduled <strong>${escapeHtml(category.toLowerCase())}</strong> with <strong>Hernandez &amp; Associates Law Office</strong>.</p>` +
-    `<p style="margin:0 0 4px;font-family:${SERIF};font-size:14px;line-height:1.65;color:${muted};">${escapeHtml(plainIntro)}</p>` +
+    formatClientSalutationHtml(input.preferredGreeting, input.clientName, escapeFirmEmailHtml) +
+    buildFirmEmailGreetingLine() +
+    buildFirmEmailBodyParagraph(
+      `This email confirms your scheduled <strong>${escapeFirmEmailHtml(category.toLowerCase())}</strong> with <strong>Hernandez &amp; Associates Law Office</strong>.`,
+      { color: ink, size: 15, marginBottom: 14 }
+    ) +
+    buildFirmEmailBodyParagraph(escapeFirmEmailHtml(plainIntro), { marginBottom: 4 }) +
     `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%" style="margin:20px 0 0;background:${white};border:1px solid ${goldPale};border-radius:2px;">` +
     [
       detailRow("Appointment", category),
@@ -211,12 +203,22 @@ export function buildScheduleConfirmationEmailPreview(input: ScheduleConfirmatio
     `</table>` +
     joinBlockHtml(platform, input.meetLink, input.item.venue || "") +
     (note
-      ? `<p style="margin:18px 0 0;padding:14px 16px;background:${cream};border-left:3px solid ${goldLight};font-family:${SERIF};font-size:13px;line-height:1.65;color:${ink};">${escapeHtml(note)}</p>`
+      ? `<p style="margin:18px 0 0;padding:14px 16px;background:${cream};border-left:3px solid ${goldLight};font-family:${FIRM_EMAIL_SERIF};font-size:13px;line-height:1.65;color:${ink};">${escapeFirmEmailHtml(note)}</p>`
       : "") +
-    `<p style="margin:18px 0 0;font-family:${SERIF};font-size:14px;line-height:1.7;color:${ink};">If you need to reschedule or have questions before the appointment, please reply to this email or contact our office.</p>` +
-    `<p style="margin:14px 0 0;font-family:${SERIF};font-size:14px;line-height:1.7;color:${ink};">Thank you.</p>`;
+    buildFirmEmailBodyParagraph(
+      "If you need to reschedule or have questions before the appointment, please reply to this email or contact our office.",
+      { marginBottom: 14 }
+    ) +
+    buildFirmEmailClosingLine();
 
-  const htmlBody = scheduleEmailShell("Schedule confirmation", `${category} · ${dateLabel}`, innerHtml);
+  const htmlBody = wrapFirmClientEmailDocument(
+    buildFirmFormalEmailShell({
+      sectionLabel: "Schedule confirmation",
+      documentTitle: `${category} · ${dateLabel}`,
+      innerHtml,
+      maxWidth: 580
+    })
+  );
 
   return {
     subject: scheduleConfirmationSubject(input),

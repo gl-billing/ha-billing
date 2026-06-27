@@ -3,6 +3,8 @@ import { triggerTaskOnArSent, triggerTaskOnSoaSent } from "@/lib/billing-task-tr
 import { callAppsScriptWebApp } from "@/lib/apps-script";
 import { requireSessionAccessToken } from "@/lib/api-auth";
 import { sanitizeSheetName, type BatchSoaPayload, type GenerateArPayload, type GenerateSoaPayload } from "@/lib/gl-config";
+import { generateClientArReceiptNative } from "@/lib/sheets/client-ar-receipt";
+import { generateClientSoaNative } from "@/lib/sheets/client-soa-receipt";
 import { getClientDetail } from "@/lib/sheets/master";
 import { checkSoaDuplicateWarning, handleSoaSentFollowUp } from "@/lib/soa-follow-up";
 
@@ -27,41 +29,35 @@ export async function POST(request: Request) {
         client?.balance ?? 0
       );
 
-      const result = await callAppsScriptWebApp("generateSOAHeadless", {
-        clientCode,
-        statusReport: payload.statusReport ?? null,
-        preferredGreeting: payload.preferredGreeting || "",
-        deliveryAction: payload.deliveryAction || "Send Now"
+      const result = await generateClientSoaNative(accessToken, {
+        ...payload,
+        clientCode
       });
 
-      if (result?.ok !== false) {
-        const followUp = await handleSoaSentFollowUp(
-          accessToken,
-          clientCode,
-          client?.balance ?? 0,
-          priorCheck,
-          () => triggerTaskOnSoaSent(accessToken, clientCode)
-        ).catch(() => ({
-          followUpsClosed: 0,
-          followUpTaskCreated: false,
-          note: null as string | null
-        }));
+      const followUp = await handleSoaSentFollowUp(
+        accessToken,
+        clientCode,
+        client?.balance ?? 0,
+        priorCheck,
+        () => triggerTaskOnSoaSent(accessToken, clientCode)
+      ).catch(() => ({
+        followUpsClosed: 0,
+        followUpTaskCreated: false,
+        note: null as string | null
+      }));
 
-        const baseMessage = String(result.message || "SOA completed.");
-        const parts = [baseMessage];
-        if (followUp.note) parts.push(followUp.note);
-        if (followUp.followUpsClosed > 0) {
-          parts.push(`Closed ${followUp.followUpsClosed} open SOA follow-up reminder(s).`);
-        }
-
-        return NextResponse.json({
-          ...result,
-          message: parts.join(" "),
-          soaFollowUp: followUp
-        });
+      const baseMessage = String(result.message || "SOA completed.");
+      const parts = [baseMessage];
+      if (followUp.note) parts.push(followUp.note);
+      if (followUp.followUpsClosed > 0) {
+        parts.push(`Closed ${followUp.followUpsClosed} open SOA follow-up reminder(s).`);
       }
 
-      return NextResponse.json(result);
+      return NextResponse.json({
+        ...result,
+        message: parts.join(" "),
+        soaFollowUp: followUp
+      });
     }
 
     if (action === "generateARHeadless") {
@@ -69,17 +65,11 @@ export async function POST(request: Request) {
       if (!payload.sheetRow) {
         return NextResponse.json({ error: "Payment row is required." }, { status: 400 });
       }
-      const result = await callAppsScriptWebApp("generateARHeadless", {
-        clientCode,
-        sheetRow: payload.sheetRow,
-        method: payload.method,
-        details: payload.details,
-        description: payload.description,
-        extraNote: payload.extraNote || "",
-        preferredGreeting: payload.preferredGreeting || "",
-        deliveryAction: payload.deliveryAction || "Send Now"
+      const result = await generateClientArReceiptNative(accessToken, {
+        ...payload,
+        clientCode
       });
-      if (result?.ok !== false) await triggerTaskOnArSent(accessToken, clientCode).catch(() => null);
+      if (result?.ok) await triggerTaskOnArSent(accessToken, clientCode).catch(() => null);
       return NextResponse.json(result);
     }
 

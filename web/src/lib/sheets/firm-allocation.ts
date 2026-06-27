@@ -465,7 +465,7 @@ export async function closeAllocationMonth(
     throw new Error(`${report.monthLabel} is already marked closed.`);
   }
   if (monthCloseHasBlockers(report.closeChecklist)) {
-    throw new Error("Fix allocation policy (must total 100%) before closing this month.");
+    throw new Error("Resolve month-end checklist errors before closing this month.");
   }
   if (!options?.force && monthCloseHasWarnings(report.closeChecklist)) {
     throw new Error(
@@ -491,20 +491,6 @@ export async function closeAllocationMonth(
     new Date().toISOString().slice(0, 10),
     rowIndex
   );
-
-  const current = report.bucketBalances.current;
-  for (const key of ALLOCATION_BUCKET_ORDER) {
-    const balanceKey =
-      key === "expenses"
-        ? ALLOCATION_SETTING_KEYS.bucketBalanceExpenses
-        : key === "savings"
-          ? ALLOCATION_SETTING_KEYS.bucketBalanceSavings
-          : key === "travel"
-            ? ALLOCATION_SETTING_KEYS.bucketBalanceTravel
-            : ALLOCATION_SETTING_KEYS.bucketBalanceEmergency;
-    const next = Math.round((current[key] + report.splits[key]) * 100) / 100;
-    await upsertSettingValue(accessToken, balanceKey, String(next), rowIndex);
-  }
 
   invalidateSettingsCache(accessToken);
   return getMonthlyAllocationReport(accessToken, year, month);

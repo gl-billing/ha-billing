@@ -78,7 +78,7 @@ export async function syncFirmLawyersToEmployeesSheet(
   const lawyerRows = lawyers.map((lawyer) => [
     lawyer.displayName,
     lawyer.email,
-    "Lawyer",
+    /managing partner/i.test(lawyer.designation || "") ? "Managing Partner" : "Lawyer",
     "TRUE"
   ]);
 

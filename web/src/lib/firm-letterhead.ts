@@ -4,7 +4,7 @@ import {
   FIRM_NAME,
   FIRM_SUBTITLE
 } from "@/lib/billing-document-design";
-import { drawWrappedText, pdfColor } from "@/lib/billing-document-pdf/common";
+import { drawWrappedText, pdfColor, wrapText } from "@/lib/billing-document-pdf/common";
 import {
   FIRM_PAGE_SIZE_ORDER,
   firmPageContentWidth,
@@ -25,6 +25,7 @@ import {
   formatFirmPhoneLine,
   formatFirmWebsiteLabel,
   formatLetterheadFooterAddressLine,
+  formatLetterheadFooterAddressLines,
   formatLetterheadFooterDigitalLine,
   formatLetterheadFooterPhoneLine,
   getFirmLetterheadContact,
@@ -41,6 +42,7 @@ export {
   formatFirmPhoneLine,
   formatFirmWebsiteLabel,
   formatLetterheadFooterAddressLine,
+  formatLetterheadFooterAddressLines,
   formatLetterheadFooterDigitalLine,
   formatLetterheadFooterPhoneLine,
   getFirmLetterheadContact
@@ -147,38 +149,87 @@ function drawSpacedCapsFirmBlock(
   );
 }
 
+function drawCenteredWrappedText(options: {
+  page: PDFPage;
+  text: string;
+  y: number;
+  pageWidth: number;
+  maxWidth: number;
+  font: PDFFont;
+  size: number;
+  color: ReturnType<typeof pdfColor>;
+  lineGap?: number;
+}): number {
+  const lines = wrapText(options.text, options.maxWidth, options.font, options.size);
+  const gap = options.lineGap ?? options.size + 1.5;
+  let y = options.y;
+  for (const line of lines) {
+    const width = options.font.widthOfTextAtSize(line, options.size);
+    options.page.drawText(line, {
+      x: (options.pageWidth - width) / 2,
+      y: y - options.size,
+      size: options.size,
+      font: options.font,
+      color: options.color
+    });
+    y -= gap;
+  }
+  return y;
+}
+
 function footerTextLines(contact: FirmLetterheadContact): {
   text: string;
   size: number;
   tone?: "ink" | "gold" | "muted";
+  bold?: boolean;
+  wrap?: boolean;
 }[] {
-  const addressLine = formatLetterheadFooterAddressLine(contact);
   const phoneText = formatLetterheadFooterPhoneLine(contact);
   const digitalText = formatLetterheadFooterDigitalLine(contact);
-  const lines: { text: string; size: number; tone?: "ink" | "gold" | "muted" }[] = [
-    { text: FIRM_LETTER_SPACED_CAPS_NAME, size: 8.25, tone: "ink" },
-    { text: FIRM_LETTER_SPACED_CAPS_SUBTITLE, size: 7.25, tone: "gold" },
-    { text: addressLine, size: 6.75, tone: "muted" }
+  const lines: {
+    text: string;
+    size: number;
+    tone?: "ink" | "gold" | "muted";
+    bold?: boolean;
+    wrap?: boolean;
+  }[] = [
+    { text: FIRM_LETTER_SPACED_CAPS_NAME, size: 8.5, tone: "ink", bold: true },
+    { text: FIRM_LETTER_SPACED_CAPS_SUBTITLE, size: 7.35, tone: "gold", bold: true }
   ];
-  if (phoneText) lines.push({ text: phoneText, size: 6.75, tone: "muted" });
-  if (digitalText) lines.push({ text: digitalText, size: 6.75, tone: "muted" });
+
+  for (const addressLine of formatLetterheadFooterAddressLines(contact)) {
+    lines.push({ text: addressLine, size: 6.5, tone: "muted", wrap: true });
+  }
+
+  if (phoneText) lines.push({ text: phoneText, size: 6.5, tone: "muted", wrap: true });
+  if (digitalText) lines.push({ text: digitalText, size: 6.5, tone: "muted", wrap: true });
   return lines;
 }
 
-function footerBandMetrics(contact: FirmLetterheadContact): {
+function estimateWrappedRows(text: string, maxWidth: number, fontSize: number): number {
+  const charsPerLine = Math.max(18, Math.floor(maxWidth / (fontSize * 0.52)));
+  return Math.max(1, Math.ceil(text.length / charsPerLine));
+}
+
+function footerBandMetrics(
+  contact: FirmLetterheadContact,
+  contentWidth = firmPageContentWidth(getFirmPageSpec("legal"))
+): {
   textHeight: number;
   ruleBlock: number;
   padding: number;
   lineGap: number;
 } {
-  const lineGap = 3;
+  const lineGap = 2;
   const ruleBlock = 9;
   const padding = 10;
   const lines = footerTextLines(contact);
-  const textHeight = lines.reduce(
-    (sum, line, index) => sum + line.size + (index < lines.length - 1 ? lineGap : 0),
-    0
-  );
+  let textHeight = 0;
+  lines.forEach((line, index) => {
+    const rows = line.wrap ? estimateWrappedRows(line.text, contentWidth, line.size) : 1;
+    textHeight += rows * line.size + Math.max(0, rows - 1) * lineGap;
+    if (index < lines.length - 1) textHeight += lineGap;
+  });
   return { textHeight, ruleBlock, padding, lineGap };
 }
 
@@ -188,12 +239,15 @@ export function drawFirmPageFooterPdf(options: {
   pageWidth: number;
   pageSpec: FirmPageSpec;
   regular: PDFFont;
+  bold?: PDFFont;
   contact?: FirmLetterheadContact;
 }): void {
   const contact = options.contact ?? getFirmLetterheadContact();
+  const bold = options.bold ?? options.regular;
+  const contentWidth = firmPageContentWidth(options.pageSpec);
   const x1 = options.pageSpec.margins.left;
-  const x2 = options.pageSpec.margins.left + firmPageContentWidth(options.pageSpec);
-  const { textHeight, ruleBlock, padding, lineGap } = footerBandMetrics(contact);
+  const x2 = options.pageSpec.margins.left + contentWidth;
+  const { textHeight, ruleBlock, padding, lineGap } = footerBandMetrics(contact, contentWidth);
   const lines = footerTextLines(contact);
   const bandTop = options.pageSpec.margins.bottom + textHeight + ruleBlock + padding;
 
@@ -219,11 +273,29 @@ export function drawFirmPageFooterPdf(options: {
         : line.tone === "gold"
           ? pdfColor(BILLING_DOC_RGB.gold)
           : pdfColor(BILLING_DOC_RGB.muted);
+    const font = line.bold ? bold : options.regular;
+
+    if (line.wrap) {
+      y = drawCenteredWrappedText({
+        page: options.page,
+        text: line.text,
+        y,
+        pageWidth: options.pageWidth,
+        maxWidth: contentWidth,
+        font,
+        size: line.size,
+        color,
+        lineGap: line.size + lineGap
+      });
+      y -= lineGap;
+      continue;
+    }
+
     options.page.drawText(line.text, {
-      x: (options.pageWidth - options.regular.widthOfTextAtSize(line.text, line.size)) / 2,
+      x: (options.pageWidth - font.widthOfTextAtSize(line.text, line.size)) / 2,
       y: y - line.size,
       size: line.size,
-      font: options.regular,
+      font,
       color
     });
     y -= line.size + lineGap;
@@ -235,7 +307,10 @@ export function firmPageFooterReservePt(
   pageSpec: FirmPageSpec,
   contact: FirmLetterheadContact = getFirmLetterheadContact()
 ): number {
-  const { textHeight, ruleBlock, padding } = footerBandMetrics(contact);
+  const { textHeight, ruleBlock, padding } = footerBandMetrics(
+    contact,
+    firmPageContentWidth(pageSpec)
+  );
   return pageSpec.margins.bottom + textHeight + ruleBlock + padding + 8;
 }
 

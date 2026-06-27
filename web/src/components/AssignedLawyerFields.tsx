@@ -77,7 +77,7 @@ export function AssignedLawyerFields({
     <>
       <Field
         label={`${primaryLabel}${requirePrimary ? " *" : ""}`}
-        hint="From Payroll → Associate lawyers, plus the managing partner."
+        hint="From Payroll → Firm lawyers (managing partner listed first)."
       >
         <select
           className="field"

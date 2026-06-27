@@ -2,6 +2,16 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { formatPeso } from "@/lib/gl-config";
 import { buildClientEmailHtml, buildClientEmailPlain } from "@/lib/firm-email-signature";
 import { formatClientSalutation, formatClientSalutationHtml } from "@/lib/client-greeting";
+import {
+  buildFirmEmailBodyParagraph,
+  buildFirmEmailClosingLine,
+  buildFirmEmailCtaButton,
+  buildFirmEmailDetailsTable,
+  buildFirmEmailGreetingLine,
+  buildFirmFormalEmailShell,
+  escapeFirmEmailHtml,
+  wrapFirmClientEmailDocument
+} from "@/lib/firm-email-shell";
 
 export type PaymentRequestPayload = {
   clientCode: string;
@@ -108,19 +118,31 @@ Should you have any questions or require further clarification, please do not he
 Thank you.`;
 
   const bodyHtml =
-    formatClientSalutationHtml(payload.preferredGreeting, payload.clientName, escapeHtml) +
-    `<p>Good day.</p>` +
-    `<p>Please settle your outstanding balance of <strong>${escapeHtml(formatPeso(payload.amount))}</strong>${casePhrase}.</p>` +
-    `<p>You may view payment instructions and settle online through our secure payment page:</p>` +
-    `<p><a href="${escapeHtml(link)}">Open secure payment page</a></p>` +
-    `<p>Reference: client code <strong>${escapeHtml(payload.clientCode)}</strong></p>` +
-    `<p>Should you have any questions or require further clarification, please do not hesitate to contact our office.</p>` +
-    `<p>Thank you.</p>`;
+    buildFirmFormalEmailShell({
+      sectionLabel: "Billing",
+      documentTitle: "Payment Request",
+      innerHtml:
+        formatClientSalutationHtml(payload.preferredGreeting, payload.clientName, escapeFirmEmailHtml) +
+        buildFirmEmailGreetingLine() +
+        buildFirmEmailBodyParagraph(
+          `Please settle your outstanding balance of <strong>${escapeFirmEmailHtml(formatPeso(payload.amount))}</strong>${casePhrase}.`
+        ) +
+        buildFirmEmailBodyParagraph(
+          "You may view payment instructions and settle online through our secure payment page."
+        ) +
+        buildFirmEmailCtaButton(link, "Open secure payment page") +
+        buildFirmEmailDetailsTable([{ label: "Client reference", value: payload.clientCode }]) +
+        buildFirmEmailBodyParagraph(
+          "Should you have any questions or require further clarification, please do not hesitate to contact our office.",
+          { marginBottom: 0 }
+        ) +
+        buildFirmEmailClosingLine()
+    });
 
   return {
     subject,
     body: buildClientEmailPlain(bodyPlain),
-    html: buildClientEmailHtml(bodyHtml)
+    html: buildClientEmailHtml(wrapFirmClientEmailDocument(bodyHtml))
   };
 }
 

@@ -13,6 +13,10 @@ import {
   type CorrespondenceLetterInput
 } from "@/lib/firm-correspondence-preview";
 import {
+  buildSoaPreviewHtml,
+  buildSoaPreviewInputFromClient
+} from "@/lib/billing-document-html/soa-preview-html";
+import {
   applyCorrespondenceMergeFields,
   CORRESPONDENCE_MERGE_FIELDS,
   type CorrespondenceMergeContext
@@ -107,6 +111,17 @@ export function CorrespondenceDraftPanel({
   );
 
   const previewHtml = useMemo(() => buildCorrespondenceLetterHtml(resolvedLetter), [resolvedLetter]);
+  const soaPreviewHtml = useMemo(
+    () =>
+      buildSoaPreviewHtml(
+        buildSoaPreviewInputFromClient({
+          clientName: letter.recipientName || clientName,
+          clientCode: letter.clientCode || clientCode,
+          balance
+        })
+      ),
+    [balance, clientCode, clientName, letter.clientCode, letter.recipientName]
+  );
   const emailPreview = useMemo(() => {
     const email = buildCorrespondenceEmailPreview(resolvedLetter);
     return { subject: email.subject, body: email.body };
@@ -437,6 +452,22 @@ export function CorrespondenceDraftPanel({
               className="h-[28rem] w-full border-0"
               tabIndex={-1}
               srcDoc={previewHtml}
+            />
+          </div>
+        </section>
+
+      <section className="card">
+          <p className="mb-2 text-xs font-bold text-ink">Statement of Account sample</p>
+          <p className="mb-2 text-[11px] text-muted">
+            Preview of the SOA layout on firm letterhead (A4). When a client is selected above, the prepared-for name
+            and balance update from their file; issued SOAs use the same letterhead and format.
+          </p>
+          <div className="max-h-[32rem] overflow-auto rounded-lg border border-line bg-white p-2">
+            <iframe
+              title="SOA sample preview"
+              className="h-[28rem] w-full border-0"
+              tabIndex={-1}
+              srcDoc={soaPreviewHtml}
             />
           </div>
         </section>

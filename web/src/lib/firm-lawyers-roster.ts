@@ -4,6 +4,8 @@ export type FirmLawyerRosterEntry = {
   id: string;
   /** e.g. Atty. Maria Hernandez */
   displayName: string;
+  /** Optional label shown in payroll roster — e.g. Founding / Managing Partner */
+  designation?: string;
   email: string;
   /** Share of attributed appearance fees (for admin reporting). 0–100. */
   feeSharePercent: number;
@@ -58,6 +60,7 @@ function normalizeEntry(raw: Partial<FirmLawyerRosterEntry>): FirmLawyerRosterEn
   return {
     id: String(raw.id ?? "").trim() || slugifyFirmLawyerId(displayName),
     displayName,
+    designation: String(raw.designation ?? "").trim() || undefined,
     email: String(raw.email ?? "").trim(),
     feeSharePercent: share,
     overseesTasks: raw.overseesTasks !== false,

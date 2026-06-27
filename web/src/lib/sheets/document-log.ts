@@ -1,7 +1,7 @@
 import type { DocumentLogEntry } from "@/lib/gl-config";
 import { GL } from "@/lib/gl-config";
 import { getHyperlinksByRow, resolvePdfUrl } from "@/lib/sheets/hyperlinks";
-import { getSheetValues, sheetExists } from "@/lib/sheets/client";
+import { getSheetValues, sheetExists, updateSheetValues } from "@/lib/sheets/client";
 
 function formatTimestamp(value: unknown): string {
   if (!value) return "";
@@ -65,4 +65,51 @@ export async function getDocumentLog(
   entries.reverse();
   const limit = options?.limit ?? entries.length;
   return entries.slice(0, limit);
+}
+
+function formatLogTimestamp(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
+export async function appendDocumentLogEntry(
+  accessToken: string,
+  entry: {
+    clientCode: string;
+    clientName: string;
+    documentType: string;
+    documentNumber: string;
+    amount: number;
+    email: string;
+    pdfUrl: string;
+    status: string;
+    user?: string;
+  }
+): Promise<void> {
+  if (!(await sheetExists(accessToken, GL.sheets.documentLog))) {
+    return;
+  }
+
+  const values = await getSheetValues(accessToken, `'${GL.sheets.documentLog}'!A2:A`);
+  const nextRow = values.length ? 2 + values.length : 2;
+
+  await updateSheetValues(accessToken, `'${GL.sheets.documentLog}'!A${nextRow}:J${nextRow}`, [
+    [
+      formatLogTimestamp(new Date()),
+      entry.clientCode,
+      entry.clientName,
+      entry.documentType,
+      entry.documentNumber,
+      entry.amount,
+      entry.email,
+      entry.pdfUrl,
+      entry.status,
+      entry.user || ""
+    ]
+  ]);
 }

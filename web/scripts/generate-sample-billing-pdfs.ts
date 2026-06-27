@@ -29,6 +29,7 @@ async function main() {
     ledger: [
       {
         date: "Jan 15, 2026",
+        type: "Charge",
         description: "Acceptance Fee — initial consultation and case evaluation",
         charge: 15000,
         payment: 0,
@@ -36,6 +37,7 @@ async function main() {
       },
       {
         date: "Feb 3, 2026",
+        type: "Charge",
         description: "Professional Fee — preparation of petition and supporting affidavits",
         charge: 25000,
         payment: 0,
@@ -43,6 +45,7 @@ async function main() {
       },
       {
         date: "Mar 18, 2026",
+        type: "Charge",
         description: "Filing Fee — RTC submission and documentary stamps",
         charge: 3500,
         payment: 0,
@@ -50,6 +53,7 @@ async function main() {
       },
       {
         date: "Apr 2, 2026",
+        type: "Payment",
         description: "Payment received — GCash",
         charge: 0,
         payment: 20000,
@@ -57,12 +61,18 @@ async function main() {
       },
       {
         date: "May 22, 2026",
+        type: "Charge",
         description: "Appearance Fee — pre-trial conference attendance",
         charge: 5000,
         payment: 0,
         balance: 41000
       }
-    ]
+    ],
+    remittance: {
+      bankName: "PS Bank",
+      accountName: "Robert Hernandez",
+      accountNumber: "202330000706"
+    }
   };
 
   const arInput = {

@@ -1,4 +1,12 @@
 import { buildClientEmailHtml, buildClientEmailPlain } from "@/lib/firm-email-signature";
+import {
+  buildFirmEmailBodyParagraph,
+  buildFirmEmailClosingLine,
+  buildFirmEmailGreetingLine,
+  buildFirmFormalEmailShell,
+  escapeFirmEmailHtml,
+  wrapFirmClientEmailDocument
+} from "@/lib/firm-email-shell";
 import { buildFirmLetterDocumentHtml } from "@/lib/firm-letterhead-html";
 import { type FirmPageSize } from "@/lib/firm-page-sizes";
 import {
@@ -220,17 +228,26 @@ Kindly acknowledge receipt. Should you have any questions, please do not hesitat
 
 Thank you.`;
 
-  const bodyHtml =
-    `<p>${escapeHtml(salutation)},</p>` +
-    `<p>Good day.</p>` +
-    `<p>Please find attached our <strong>${escapeHtml(docLabel.toLowerCase())}</strong> concerning <strong>${escapeHtml(matter)}</strong>.</p>` +
-    `<p>Kindly acknowledge receipt. Should you have any questions, please do not hesitate to contact our office.</p>` +
-    `<p>Thank you.</p>`;
+  const bodyHtml = buildFirmFormalEmailShell({
+    sectionLabel: "Correspondence",
+    documentTitle: docLabel,
+    innerHtml:
+      `<p style="margin:0 0 4px;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.7;color:#0a0a0a;">${escapeFirmEmailHtml(salutation)},</p>` +
+      buildFirmEmailGreetingLine() +
+      buildFirmEmailBodyParagraph(
+        `Please find attached our <strong>${escapeFirmEmailHtml(docLabel.toLowerCase())}</strong> concerning <strong>${escapeFirmEmailHtml(matter)}</strong>.`
+      ) +
+      buildFirmEmailBodyParagraph(
+        "Kindly acknowledge receipt. Should you have any questions, please do not hesitate to contact our office.",
+        { marginBottom: 0 }
+      ) +
+      buildFirmEmailClosingLine()
+  });
 
   return {
     subject,
     body: buildClientEmailPlain(body),
-    html: buildClientEmailHtml(bodyHtml)
+    html: buildClientEmailHtml(wrapFirmClientEmailDocument(bodyHtml))
   };
 }
 

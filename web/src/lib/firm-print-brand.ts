@@ -73,19 +73,24 @@ export function inlineFirmLogoInEmailHtml(html: string): { html: string; logoInl
 
 /** Logo + firm identity row for SOA / AR email letterheads. */
 export function billingEmailLetterheadBannerHtml(logoSrc = firmLogoPublicUrl()): string {
-  const { gold, goldLight, goldPale, muted } = BILLING_DOC_COLORS;
+  const { goldLight, goldPale, muted, ink, line } = BILLING_DOC_COLORS;
+  const gradient = `linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.08) 7%, ${goldLight} 50%, rgba(0,0,0,0.08) 93%, transparent 100%)`;
 
   return (
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%">` +
+    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%" style="margin:0 0 4px;">` +
+    `<tr><td style="border-top:2.5px solid ${ink};font-size:0;line-height:0;">&nbsp;</td></tr>` +
+    `<tr><td style="height:1px;background:${gradient};font-size:0;line-height:0;">&nbsp;</td></tr>` +
+    `</table>` +
+    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%" style="margin:14px 0 0;">` +
     `<tr>` +
-    `<td width="76" valign="middle" style="padding-right:16px;">` +
-    `<img src="${logoSrc}" alt="" width="120" height="48" style="display:block;width:120px;height:auto;max-height:48px;border:0;background:#ffffff;" />` +
+    `<td width="88" valign="middle" style="padding-right:18px;">` +
+    `<img src="${logoSrc}" alt="${FIRM_NAME}" width="128" height="52" style="display:block;width:128px;height:auto;max-height:52px;border:0;background:#ffffff;" />` +
     `</td>` +
-    `<td valign="middle" style="border-left:1px solid ${goldPale};padding-left:16px;">` +
-    `<p style="margin:0;font-family:${SERIF};font-size:15px;line-height:1.2;color:${gold};font-weight:700;">${FIRM_NAME}</p>` +
-    `<p style="margin:4px 0 0;font-family:${SERIF};font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:${muted};">${FIRM_SUBTITLE}</p>` +
-    `<p style="margin:6px 0 0;font-family:${SERIF};font-size:9px;line-height:1.45;color:${muted};">${FIRM_ADDRESS}</p>` +
-    `<p style="margin:4px 0 0;font-family:${SERIF};font-size:8px;line-height:1.45;color:${muted};">${formatFirmContactLine({
+    `<td valign="middle" style="border-left:1px solid ${goldPale};padding-left:18px;">` +
+    `<p style="margin:0;font-family:${SERIF};font-size:16px;line-height:1.15;color:${ink};font-weight:700;letter-spacing:0.02em;">${FIRM_NAME}</p>` +
+    `<p style="margin:5px 0 0;font-family:${SERIF};font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:${muted};font-weight:600;">${FIRM_SUBTITLE}</p>` +
+    `<p style="margin:8px 0 0;font-family:${SERIF};font-size:9px;line-height:1.5;color:${muted};">${FIRM_ADDRESS}</p>` +
+    `<p style="margin:4px 0 0;font-family:${SERIF};font-size:8px;line-height:1.5;color:${muted};">${formatFirmContactLine({
       address: FIRM_ADDRESS,
       mobile: FIRM_MOBILE,
       landline: FIRM_LANDLINE,
@@ -95,7 +100,7 @@ export function billingEmailLetterheadBannerHtml(logoSrc = firmLogoPublicUrl()):
     `</td>` +
     `</tr>` +
     `</table>` +
-    `<div style="margin:14px 0 0;height:2px;background:linear-gradient(to right,transparent,${goldLight},transparent);"></div>`
+    `<div style="margin:16px 0 0;height:1px;background:${gradient};"></div>`
   );
 }
 

@@ -176,7 +176,7 @@ export function FirmCommandPalette({ workspace, billingAccess = true }: Props) {
       actions.unshift({
         id: "billing-firm-finances",
         label: `Firm finances · ${monthLabel.split(" ")[0]}`,
-        hint: "Income allocation & month close",
+        hint: "Firm income & lawyer fee sharing",
         run: () => {
           saveBillingPage("firmFinances");
           close();

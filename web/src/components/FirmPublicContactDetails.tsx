@@ -8,8 +8,6 @@ import {
 
 type Props = {
   className?: string;
-  /** Inline separators (portal/login) vs stacked lines (app footer). */
-  layout?: "inline" | "stacked";
 };
 
 function websiteHref(website: string): string {
@@ -18,54 +16,45 @@ function websiteHref(website: string): string {
   return /^https?:\/\//i.test(website.trim()) ? website.trim() : `https://${label}`;
 }
 
-/** Shared firm address, email, phone, and website for app and auth footers. */
-export function FirmPublicContactDetails({ className, layout = "inline" }: Props) {
+/** Shared firm address, email, phone, and website — compact letterhead-style footer block. */
+export function FirmPublicContactDetails({ className }: Props) {
   const phone = firmPrimaryPhone();
   const addressLines = formatLetterheadFooterAddressLines();
   const website = formatFirmWebsiteLabel(FIRM_CONTACT.website);
 
-  if (layout === "stacked") {
-    return (
-      <div className={className}>
-        {addressLines.map((line) => (
-          <span key={line}>{line}</span>
-        ))}
-        <a href={`mailto:${FIRM_CONTACT.email}`}>{FIRM_CONTACT.email}</a>
-        {phone ? <a href={firmPhoneTelHref(phone)}>{phone}</a> : null}
-        {website ? (
-          <a href={websiteHref(FIRM_CONTACT.website)} target="_blank" rel="noreferrer">
-            {website}
-          </a>
-        ) : null}
-      </div>
-    );
-  }
-
-  const Sep = () => (
-    <span className="firm-auth-footer__sep" aria-hidden>
-      ·
-    </span>
-  );
-
   return (
     <div className={className}>
-      <span>{addressLines.join(" · ")}</span>
-      <Sep />
-      <a href={`mailto:${FIRM_CONTACT.email}`}>{FIRM_CONTACT.email}</a>
-      {phone ? (
-        <>
-          <Sep />
-          <a href={firmPhoneTelHref(phone)}>{phone}</a>
-        </>
+      {addressLines.length > 0 ? (
+        <p className="firm-footer__address">
+          {addressLines.map((line, index) => (
+            <span key={line}>
+              {index > 0 ? <br /> : null}
+              {line}
+            </span>
+          ))}
+        </p>
       ) : null}
-      {website ? (
-        <>
-          <Sep />
-          <a href={websiteHref(FIRM_CONTACT.website)} target="_blank" rel="noreferrer">
-            {website}
-          </a>
-        </>
-      ) : null}
+      <p className="firm-footer__channels">
+        <a href={`mailto:${FIRM_CONTACT.email}`}>{FIRM_CONTACT.email}</a>
+        {phone ? (
+          <>
+            <span className="firm-footer__sep" aria-hidden>
+              ·
+            </span>
+            <a href={firmPhoneTelHref(phone)}>{phone}</a>
+          </>
+        ) : null}
+        {website ? (
+          <>
+            <span className="firm-footer__sep" aria-hidden>
+              ·
+            </span>
+            <a href={websiteHref(FIRM_CONTACT.website)} target="_blank" rel="noreferrer">
+              {website}
+            </a>
+          </>
+        ) : null}
+      </p>
     </div>
   );
 }

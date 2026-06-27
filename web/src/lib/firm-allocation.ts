@@ -38,15 +38,15 @@ export const ALLOCATION_BUCKET_LABELS: Record<AllocationBucketKey, string> = {
 };
 
 export const DEFAULT_ALLOCATION_PERCENTS: Record<AllocationBucketKey, number> = {
-  expenses: 60,
-  savings: 10,
-  travel: 20,
-  emergency: 10
+  expenses: 0,
+  savings: 0,
+  travel: 0,
+  emergency: 0
 };
 
 export const UNASSIGNED_ATTORNEY_LABEL = "Unassigned";
 
-/** Ledger payment categories counted toward the office 60/10/20/10 split. */
+/** Ledger payment categories counted toward firm office income (not lawyer fee splits). */
 export const OFFICE_SPLIT_LEDGER_CATEGORIES = [
   "Acceptance Fee",
   "Professional Fee",
@@ -589,12 +589,6 @@ export function formatMonthlyStatementText(report: MonthlyAllocationReport): str
     ""
   ];
 
-  ALLOCATION_BUCKET_ORDER.forEach((key) => {
-    lines.push(
-      `${ALLOCATION_BUCKET_LABELS[key]} (${report.settings.percents[key]}%): ₱${report.splits[key].toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-    );
-  });
-
   lines.push("", `Appearance fees (by attorney): ₱${report.totalAppearanceFees.toLocaleString("en-US", { minimumFractionDigits: 2 })}`);
   report.appearanceFeeByAttorney.forEach((group) => {
     lines.push(`  ${group.assignedAttorney}: ₱${group.total.toLocaleString("en-US", { minimumFractionDigits: 2 })}`);
@@ -647,21 +641,10 @@ export function summarizeAppearanceFeesByAttorney(
 }
 
 export function computeAllocationSplits(
-  totalIncome: number,
-  percents: Record<AllocationBucketKey, number>
+  _totalIncome: number,
+  _percents?: Record<AllocationBucketKey, number>
 ): Record<AllocationBucketKey, number> {
-  const splits = {} as Record<AllocationBucketKey, number>;
-  let assigned = 0;
-  ALLOCATION_BUCKET_ORDER.forEach((key, index) => {
-    if (index === ALLOCATION_BUCKET_ORDER.length - 1) {
-      splits[key] = Math.round((totalIncome - assigned) * 100) / 100;
-      return;
-    }
-    const amount = Math.round(totalIncome * (percents[key] / 100) * 100) / 100;
-    splits[key] = amount;
-    assigned += amount;
-  });
-  return splits;
+  return { expenses: 0, savings: 0, travel: 0, emergency: 0 };
 }
 
 export function shiftAllocationMonth(
@@ -688,15 +671,6 @@ export function isLedgerDateInClosedMonth(value: unknown, settings: Map<string, 
 
 export function buildMonthCloseChecklist(report: MonthlyAllocationReport): MonthCloseChecklistItem[] {
   const items: MonthCloseChecklistItem[] = [];
-
-  items.push({
-    id: "policy-valid",
-    label: "Allocation policy",
-    status: report.settings.percentValid ? "ok" : "error",
-    message: report.settings.percentValid
-      ? "Percentages total 100%."
-      : `Policy totals ${report.settings.percentTotal}% — fix before closing.`
-  });
 
   items.push({
     id: "unclassified",

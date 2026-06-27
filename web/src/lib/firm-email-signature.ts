@@ -1,6 +1,7 @@
 /** Shared client-facing email signature — matches SOA / AR Gmail emails from Apps Script. */
 
 import {
+  BILLING_DOC_COLORS,
   FIRM_ADDRESS,
   FIRM_EMAIL,
   FIRM_LANDLINE,
@@ -98,21 +99,23 @@ export function getFirmEmailSignatureHtml(options?: { bannerSrc?: string | null 
   const signer = getFirmEmailSigner();
   const bannerSrc = options?.bannerSrc ?? emailSignatureBannerCidSrc();
   const phone = firmPrimaryPhone();
+  const { ink, muted, line } = BILLING_DOC_COLORS;
+  const linkColor = ink;
   const phoneHtml = phone
-    ? ` &nbsp;|&nbsp; <a href="${firmPhoneTelHref(phone)}" style="color:#8a6b2a;text-decoration:none;">${phone}</a>`
+    ? ` &nbsp;|&nbsp; <a href="${firmPhoneTelHref(phone)}" style="color:${linkColor};text-decoration:none;">${phone}</a>`
     : "";
   const websiteHtml = FIRM_CONTACT.website
-    ? ` &nbsp;|&nbsp; <a href="https://${formatFirmWebsiteLabel(FIRM_CONTACT.website)}" style="color:#8a6b2a;text-decoration:none;">${formatFirmWebsiteLabel(FIRM_CONTACT.website)}</a>`
+    ? ` &nbsp;|&nbsp; <a href="https://${formatFirmWebsiteLabel(FIRM_CONTACT.website)}" style="color:${linkColor};text-decoration:none;">${formatFirmWebsiteLabel(FIRM_CONTACT.website)}</a>`
     : "";
   const bannerHtml = bannerSrc
     ? `<img src="${bannerSrc}" alt="${FIRM_CONTACT.name} — ${FIRM_CONTACT.tagline}" width="560" style="display:block;max-width:100%;height:auto;border:0;" />`
-    : `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Georgia,'Times New Roman',serif;font-size:13px;line-height:1.5;color:#1a1612;max-width:520px;border:1px solid #b8913d;">` +
+    : `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Georgia,'Times New Roman',serif;font-size:13px;line-height:1.5;color:${ink};max-width:520px;border:1px solid ${line};">` +
       `<tr><td style="padding:12px;">` +
-      `<p style="margin:0 0 2px;font-size:14px;font-weight:700;color:#5c4a1f;">${FIRM_CONTACT.name}</p>` +
-      `<p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#8a6b2a;">${FIRM_CONTACT.tagline}</p>` +
-      `<p style="margin:0 0 4px;color:#4a4339;">${FIRM_CONTACT.address}</p>` +
-      `<p style="margin:0;color:#4a4339;">` +
-      `<a href="mailto:${FIRM_CONTACT.email}" style="color:#8a6b2a;text-decoration:none;">${FIRM_CONTACT.email}</a>` +
+      `<p style="margin:0 0 2px;font-size:14px;font-weight:700;color:${ink};">${FIRM_CONTACT.name}</p>` +
+      `<p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:${muted};">${FIRM_CONTACT.tagline}</p>` +
+      `<p style="margin:0 0 4px;color:${muted};">${FIRM_CONTACT.address}</p>` +
+      `<p style="margin:0;color:${muted};">` +
+      `<a href="mailto:${FIRM_CONTACT.email}" style="color:${linkColor};text-decoration:none;">${FIRM_CONTACT.email}</a>` +
       phoneHtml +
       websiteHtml +
       `</p></td></tr></table>`;
@@ -120,13 +123,13 @@ export function getFirmEmailSignatureHtml(options?: { bannerSrc?: string | null 
   return (
     `<!-- gl-email-signature -->` +
     `<br><br>` +
-    `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.65;color:#1a1612;max-width:520px;">` +
+    `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.65;color:${ink};max-width:520px;">` +
     `<tr><td style="padding:0;">` +
-    `<p style="margin:0 0 12px;color:#1a1612;">Respectfully,</p>` +
+    `<p style="margin:0 0 12px;color:${ink};">Respectfully,</p>` +
     bannerHtml +
-    `<p style="margin:14px 0 4px;text-align:center;font-size:14px;font-weight:700;color:#1a1612;">${signer.name}</p>` +
-    `<p style="margin:0 0 16px;text-align:center;font-size:13px;color:#4a4339;">${signer.title}</p>` +
-    `<p style="margin:0;font-size:11px;line-height:1.55;color:#4a4339;text-align:justify;">` +
+    `<p style="margin:14px 0 4px;text-align:center;font-size:14px;font-weight:700;color:${ink};">${signer.name}</p>` +
+    `<p style="margin:0 0 16px;text-align:center;font-size:13px;color:${muted};">${signer.title}</p>` +
+    `<p style="margin:0;font-size:11px;line-height:1.55;color:${muted};text-align:justify;">` +
     CONFIDENTIALITY_NOTICE.replace(/\n\n/g, "<br><br>") +
     `</p>` +
     `</td></tr></table>`
@@ -163,7 +166,7 @@ function wrapClientEmailHtml(bodyHtml: string, signatureHtml: string): string {
       : body;
 
   return (
-    `<div style="font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.65;color:#1a1612;">` +
+    `<div style="font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.65;color:${BILLING_DOC_COLORS.ink};">` +
     wrappedBody +
     signatureHtml +
     `</div>`

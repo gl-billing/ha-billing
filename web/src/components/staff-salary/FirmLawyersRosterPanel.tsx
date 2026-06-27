@@ -10,6 +10,7 @@ import { StaffSalaryField, StaffSalaryFormGrid } from "@/components/staff-salary
 
 const EMPTY_DRAFT = (): Omit<FirmLawyerRosterEntry, "id"> => ({
   displayName: "",
+  designation: "",
   email: "",
   feeSharePercent: 100,
   overseesTasks: true,
@@ -58,6 +59,7 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
     setEditingId(entry.id);
     setDraft({
       displayName: entry.displayName,
+      designation: entry.designation || "",
       email: entry.email,
       feeSharePercent: entry.feeSharePercent,
       overseesTasks: entry.overseesTasks,
@@ -80,6 +82,7 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
     const entry: FirmLawyerRosterEntry = {
       id,
       displayName,
+      designation: draft.designation?.trim() || undefined,
       email: draft.email.trim(),
       feeSharePercent: Number(draft.feeSharePercent) || 0,
       overseesTasks: draft.overseesTasks,
@@ -98,9 +101,9 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
     <section className="staff-salary__panel staff-salary__panel--roster no-print">
       <div className="staff-salary__roster-head">
         <div>
-          <p className="staff-salary__toolbar-label">Associate lawyers</p>
+          <p className="staff-salary__toolbar-label">Firm lawyers</p>
           <p className="staff-salary__toolbar-hint">
-            Lawyers who oversee tasks (synced to Office Tasks Employees), appear in fee-sharing reports, and show up on client assignment dropdowns.
+            Managing partner and associates for fee-sharing reports, task oversight, and client assignment dropdowns.
           </p>
         </div>
       </div>
@@ -111,6 +114,9 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
             <li key={entry.id} className="staff-salary__roster-item">
               <div className="staff-salary__roster-item-main">
                 <strong>{entry.displayName}</strong>
+                {entry.designation ? (
+                  <div className="staff-salary__roster-item-role text-muted">{entry.designation}</div>
+                ) : null}
                 <div className="staff-salary__roster-item-meta text-muted">
                   {entry.email}
                   {" · "}
@@ -140,7 +146,7 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
           ))}
         </ul>
       ) : (
-        <p className="staff-salary__roster-empty text-muted">No associate lawyers yet. Add your first lawyer below.</p>
+        <p className="staff-salary__roster-empty text-muted">No lawyers on the roster yet. Add your first lawyer below.</p>
       )}
 
       <div className="staff-salary__roster-form">
@@ -152,7 +158,16 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
               value={draft.displayName}
               disabled={busy || saving}
               onChange={(e) => setDraft((prev) => ({ ...prev, displayName: e.target.value }))}
-              placeholder="Maria Hernandez"
+              placeholder="Robert Hernandez"
+            />
+          </StaffSalaryField>
+          <StaffSalaryField label="Role / designation">
+            <input
+              className="field"
+              value={draft.designation || ""}
+              disabled={busy || saving}
+              onChange={(e) => setDraft((prev) => ({ ...prev, designation: e.target.value }))}
+              placeholder="Founding / Managing Partner"
             />
           </StaffSalaryField>
           <StaffSalaryField label="Email *">

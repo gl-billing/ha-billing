@@ -16,13 +16,13 @@ import {
 } from "@/lib/office-tasks/gmail-send";
 
 const EMAIL = {
-  ink: "#1a1612",
-  muted: "#6f675c",
-  line: "#e3ddd2",
-  paper: "#fffefd",
-  cream: "#faf8f4",
-  gold: "#b8913d",
-  goldDark: "#8a6b2a",
+  ink: "#0a0a0a",
+  muted: "#4a4a4a",
+  line: "#d4d4d4",
+  paper: "#ffffff",
+  cream: "#ffffff",
+  accent: "#111111",
+  accentDark: "#0a0a0a",
   red: "#b91c1c",
   redBg: "#fef2f2",
   redBorder: "#fecaca",
@@ -132,7 +132,7 @@ function toneEmailStyle(tone: ReturnType<typeof itemTone>): {
     case "event":
       return { label: "Hearing", bg: EMAIL.blueBg, border: EMAIL.blueBorder, text: EMAIL.blue };
     case "started":
-      return { label: "Started", bg: EMAIL.cream, border: EMAIL.line, text: EMAIL.goldDark };
+      return { label: "Started", bg: EMAIL.cream, border: EMAIL.line, text: EMAIL.accentDark };
     case "waiting":
       return { label: "Waiting", bg: "#f5f3ff", border: "#ddd6fe", text: "#5b21b6" };
     default:
@@ -192,7 +192,7 @@ function renderItemCard(item: OfficeItem, stepNumber?: number): string {
       ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" ` +
         `style="background:${EMAIL.cream};border:1px solid ${EMAIL.line};border-radius:8px;">` +
         `<tr><td style="padding:10px 12px;">` +
-        `<p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${EMAIL.goldDark};">Your next step</p>` +
+        `<p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${EMAIL.accentDark};">Your next step</p>` +
         `<p style="margin:0;font-size:14px;line-height:1.5;font-weight:600;color:${EMAIL.ink};">${escapeHtml(item.nextAction)}</p>` +
         `</td></tr></table>`
       : `<p style="margin:0;font-size:12px;font-style:italic;color:${EMAIL.muted};">Open HA Office to review details and mark done when finished.</p>`) +
@@ -327,9 +327,9 @@ function buildHtml(
     `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${EMAIL.cream};padding:24px 12px;">` +
     `<tr><td align="center">` +
     `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%;">` +
-    `<tr><td style="height:4px;background:${EMAIL.gold};border-radius:16px 16px 0 0;font-size:0;line-height:0;">&nbsp;</td></tr>` +
+    `<tr><td style="height:2.5px;background:${EMAIL.accentDark};font-size:0;line-height:0;">&nbsp;</td></tr>` +
     `<tr><td style="padding:22px 24px 18px;background:${EMAIL.paper};border-left:1px solid ${EMAIL.line};border-right:1px solid ${EMAIL.line};">` +
-    `<p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:${EMAIL.goldDark};">Hernandez &amp; Associates</p>` +
+    `<p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:${EMAIL.muted};">Hernandez &amp; Associates</p>` +
     `<h1 style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;line-height:1.25;color:${EMAIL.ink};">` +
     `Good day, <span style="color:${EMAIL.charcoal};">${escapeHtml(name)}</span></h1>` +
     `<p style="margin:0;font-size:15px;line-height:1.5;color:${EMAIL.muted};">Your office task briefing · ${escapeHtml(dateLabel)}</p>` +
@@ -337,15 +337,15 @@ function buildHtml(
     `<tr><td style="padding:20px 18px 8px;background:${EMAIL.paper};border-left:1px solid ${EMAIL.line};border-right:1px solid ${EMAIL.line};">` +
     `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:16px;background:${EMAIL.cream};border:1px solid ${EMAIL.line};border-radius:10px;">` +
     `<tr><td style="padding:12px 14px;">` +
-    `<p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${EMAIL.goldDark};">How to read this email</p>` +
+    `<p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${EMAIL.accentDark};">How to read this email</p>` +
     `<p style="margin:0;font-size:14px;line-height:1.55;color:${EMAIL.ink};">${escapeHtml(focusLine)}</p>` +
     `</td></tr></table>` +
     renderSummaryStats(overdue.length, dueToday.length, scope) +
     bodySections.join("") +
     `</td></tr>` +
     `<tr><td style="padding:18px 20px 22px;background:${EMAIL.soft};border:1px solid ${EMAIL.line};border-top:0;border-radius:0 0 16px 16px;text-align:center;">` +
-    `<a href="${escapeHtml(APP_URL)}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:${EMAIL.gold};` +
-    `color:#fffefd;font-size:13px;font-weight:700;text-decoration:none;letter-spacing:0.04em;">Open HA Office Tasks</a>` +
+    `<a href="${escapeHtml(APP_URL)}" style="display:inline-block;padding:12px 28px;border-radius:2px;background:${EMAIL.accentDark};` +
+    `color:#ffffff;font-size:13px;font-weight:700;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;">Open HA Office Tasks</a>` +
     `<p style="margin:14px 0 0;font-size:11px;line-height:1.5;color:${EMAIL.muted};">Mark items done in the app when finished · Questions? Reply to this email or contact the office.</p>` +
     `</td></tr></table></td></tr></table></body></html>`
   );
@@ -429,7 +429,7 @@ export async function sendTestReminderEmail(
   const subject = `[TEST] ${buildSubject(name, dueToday, overdue, deliveryScope)}`;
   const html =
     `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" ` +
-    `style="max-width:600px;margin:0 auto 16px;border:1px dashed ${EMAIL.gold};border-radius:12px;background:#fffbeb;">` +
+    `style="max-width:600px;margin:0 auto 16px;border:1px dashed ${EMAIL.line};border-radius:12px;background:${EMAIL.cream};">` +
     `<tr><td style="padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;color:#92400e;">` +
     `<strong>Test email</strong> — you are previewing what staff will receive. ` +
     `Live delivery would go to <strong>${escapeHtml(normalizeEmailAddress(email) || "—")}</strong>.` +

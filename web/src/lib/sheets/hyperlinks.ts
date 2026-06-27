@@ -4,6 +4,12 @@ export function isHttpUrl(value: string): boolean {
   return /^https?:\/\//i.test(value.trim());
 }
 
+export function buildHyperlinkFormula(url: string, label: string): string {
+  const safeUrl = String(url || "").replace(/"/g, '""');
+  const safeLabel = String(label || "View").replace(/"/g, '""');
+  return `=HYPERLINK("${safeUrl}","${safeLabel}")`;
+}
+
 function extractHyperlinkFromFormula(formula: string): string {
   const match = formula.match(/^=HYPERLINK\s*\(\s*"((?:[^"\\]|\\.)*)"/i);
   return match?.[1]?.replace(/\\"/g, '"') || "";

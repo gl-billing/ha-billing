@@ -2,6 +2,16 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { formatClientSalutation, formatClientSalutationHtml } from "@/lib/client-greeting";
 import { buildClientEmailHtml, buildClientEmailPlain } from "@/lib/firm-email-signature";
 import { formatPeso } from "@/lib/gl-config";
+import {
+  buildFirmEmailBodyParagraph,
+  buildFirmEmailClosingLine,
+  buildFirmEmailCtaButton,
+  buildFirmEmailDetailsTable,
+  buildFirmEmailGreetingLine,
+  buildFirmFormalEmailShell,
+  escapeFirmEmailHtml,
+  wrapFirmClientEmailDocument
+} from "@/lib/firm-email-shell";
 
 export type ClientPortalDocument = {
   logRow?: number;
@@ -114,26 +124,27 @@ This link expires on ${expiresLabel}. Please do not share it with others.
 
 Thank you.`;
 
-  const bodyHtml =
-    formatClientSalutationHtml(snapshot.preferredGreeting, snapshot.clientName, escapeHtml) +
-    `<p>Good day.</p>` +
-    `<p>You may view your account balance, recent statements, and payment instructions through our secure client portal:</p>` +
-    `<p><a href="${escapeHtml(link)}">Open client portal</a></p>` +
-    `<p>Balance due: <strong>${escapeHtml(formatPeso(snapshot.balance))}</strong><br/>` +
-    `This link expires on <strong>${escapeHtml(expiresLabel)}</strong>. Please do not share it with others.</p>` +
-    `<p>Thank you.</p>`;
+  const bodyHtml = buildFirmFormalEmailShell({
+    sectionLabel: "Client portal",
+    documentTitle: "Secure account access",
+    innerHtml:
+      formatClientSalutationHtml(snapshot.preferredGreeting, snapshot.clientName, escapeFirmEmailHtml) +
+      buildFirmEmailGreetingLine() +
+      buildFirmEmailBodyParagraph(
+        "You may view your account balance, recent statements, and payment instructions through our secure client portal."
+      ) +
+      buildFirmEmailCtaButton(link, "Open client portal") +
+      buildFirmEmailDetailsTable([
+        { label: "Balance due", value: formatPeso(snapshot.balance) },
+        { label: "Link expires", value: expiresLabel }
+      ]) +
+      buildFirmEmailBodyParagraph("Please do not share this link with others.", { marginBottom: 0 }) +
+      buildFirmEmailClosingLine()
+  });
 
   return {
     subject,
     body: buildClientEmailPlain(bodyPlain),
-    html: buildClientEmailHtml(bodyHtml)
+    html: buildClientEmailHtml(wrapFirmClientEmailDocument(bodyHtml))
   };
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }

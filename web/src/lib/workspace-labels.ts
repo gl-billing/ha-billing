@@ -142,7 +142,7 @@ export const BILLING_PAGE_DESCRIPTIONS: Record<SavedBillingPage, string> = {
   documents: "Generate statements of account and accounts receivable.",
   history: "Posted ledger entries and billing history across clients.",
   reports: "Billing reports, collections, and exportable summaries.",
-  firmFinances: "Firm-level financial overview and admin finance tools.",
+  firmFinances: "Firm-level income, lawyer fee sharing, and month-end review.",
   staffSalary: "Payroll runs, cash advances, and staff compensation."
 };
 

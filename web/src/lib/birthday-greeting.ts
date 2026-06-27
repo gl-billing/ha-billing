@@ -1,5 +1,14 @@
 import { buildClientEmailHtml, buildClientEmailPlain } from "@/lib/firm-email-signature";
 import { formatClientSalutation, resolveClientGreeting } from "@/lib/client-greeting";
+import {
+  buildFirmEmailBodyParagraph,
+  buildFirmEmailSalutationLine,
+  buildFirmWarmEmailShell,
+  escapeFirmEmailHtml,
+  ink,
+  wrapFirmClientEmailDocument
+} from "@/lib/firm-email-shell";
+import { FIRM_LINE } from "@/lib/billing-document-design";
 
 export type BirthdayGreetingInput = {
   clientName: string;
@@ -7,16 +16,6 @@ export type BirthdayGreetingInput = {
   /** Kept for API compatibility; not included in the greeting copy. */
   caseTitle?: string;
 };
-
-const FIRM_LINE = "Hernandez & Associates Law Office";
-
-const GOLD = "#8a6b2a";
-const GOLD_LIGHT = "#b8913d";
-const GOLD_PALE = "#e8dcc4";
-const CREAM = "#faf8f4";
-const INK = "#1a1612";
-const MUTED = "#4a4339";
-const SERIF = "Georgia,'Times New Roman',serif";
 
 export function birthdayGreetingSubject(): string {
   return `Happy Birthday — warm wishes from ${FIRM_LINE}`;
@@ -36,58 +35,29 @@ function birthdayClosingLine(): string {
   return `With heartfelt regards from everyone at ${FIRM_LINE}.`;
 }
 
-function birthdaySalutationHtml(input: BirthdayGreetingInput): string {
-  const line = formatClientSalutation(input.preferredGreeting, input.clientName);
-  return (
-    `<p style="margin:0 0 24px;font-family:${SERIF};font-size:16px;line-height:1.55;color:${INK};">` +
-    `${escapeHtml(line)},</p>`
-  );
-}
-
-function birthdayHeaderHtml(): string {
-  return (
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%">` +
-    `<tr><td align="center" style="padding:0 0 6px;">` +
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="72">` +
-    `<tr><td style="border-top:1px solid ${GOLD_LIGHT};font-size:0;line-height:0;">&nbsp;</td></tr>` +
-    `</table></td></tr>` +
-    `<tr><td align="center" style="padding:6px 0 4px;font-family:${SERIF};font-size:11px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:${GOLD};">Happy Birthday</td></tr>` +
-    `<tr><td align="center" style="padding:0 0 8px;font-family:${SERIF};font-size:18px;line-height:1;color:${GOLD_LIGHT};">&#10022;</td></tr>` +
-    `<tr><td align="center" style="padding:0 0 6px;font-family:${SERIF};font-size:15px;line-height:1.55;color:${INK};font-style:italic;">A little note of celebration, sent with care.</td></tr>` +
-    `<tr><td align="center" style="padding:0;">` +
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="72">` +
-    `<tr><td style="border-top:1px solid ${GOLD_PALE};font-size:0;line-height:0;">&nbsp;</td></tr>` +
-    `</table></td></tr>` +
-    `</table>`
-  );
-}
-
 export function buildBirthdayGreetingHtml(input: BirthdayGreetingInput): string {
   const paragraphs = birthdayMessageParagraphs(input);
   const paragraphHtml = paragraphs
-    .map(
-      (text) =>
-        `<p style="margin:0 0 20px;font-family:${SERIF};font-size:14px;line-height:1.85;color:${MUTED};">${escapeHtml(text)}</p>`
-    )
+    .map((text) => buildFirmEmailBodyParagraph(escapeFirmEmailHtml(text), { marginBottom: 20 }))
     .join("");
 
-  const body =
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="max-width:560px;margin:0 auto;width:100%;">` +
-    `<tr><td bgcolor="${CREAM}" style="padding:36px 32px 34px;border:1px solid ${GOLD_PALE};">` +
-    birthdayHeaderHtml() +
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%">` +
-    `<tr><td style="padding:28px 0 0;">` +
-    birthdaySalutationHtml(input) +
+  const inner =
+    buildFirmEmailSalutationLine(formatClientSalutation(input.preferredGreeting, input.clientName)) +
     paragraphHtml +
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%">` +
-    `<tr><td style="padding:8px 0 0;border-top:1px solid ${GOLD_PALE};">` +
-    `<p style="margin:20px 0 0;font-family:${SERIF};font-size:14px;line-height:1.8;color:${INK};text-align:center;font-style:italic;">${escapeHtml(birthdayClosingLine())}</p>` +
-    `</td></tr></table>` +
-    `</td></tr></table>` +
-    `</td></tr></table>`;
+    buildFirmEmailBodyParagraph(escapeFirmEmailHtml(birthdayClosingLine()), {
+      marginBottom: 0,
+      color: ink,
+      size: 14
+    });
 
   return buildClientEmailHtml(
-    `<div style="font-family:${SERIF};font-size:14px;line-height:1.65;color:${INK};">${body}</div>`
+    wrapFirmClientEmailDocument(
+      buildFirmWarmEmailShell({
+        eyebrow: "Happy Birthday",
+        headline: "A note of celebration, sent with care.",
+        innerHtml: inner
+      })
+    )
   );
 }
 
@@ -166,12 +136,4 @@ export function birthdayGreetingSentYear(value: unknown): number | null {
   if (!text) return null;
   const year = Number(text.slice(0, 4));
   return Number.isFinite(year) && year >= 2000 ? year : null;
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }

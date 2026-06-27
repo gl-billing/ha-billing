@@ -11,6 +11,7 @@ import {
 import { firmLetterheadLogoPublicUrl } from "@/lib/firm-logo-url";
 import {
   formatLetterheadFooterAddressLine,
+  formatLetterheadFooterAddressLines,
   formatLetterheadFooterDigitalLine,
   formatLetterheadFooterPhoneLine,
   getFirmLetterheadContact,
@@ -84,7 +85,7 @@ export function firmFooterCapsLine(): string {
 export function buildFirmPageFooterHtml(
   contact: FirmLetterheadContact = getFirmLetterheadContact()
 ): string {
-  const addressLine = formatLetterheadFooterAddressLine(contact);
+  const addressLines = formatLetterheadFooterAddressLines(contact);
   const phoneText = formatLetterheadFooterPhoneLine(contact);
   const digitalText = formatLetterheadFooterDigitalLine(contact);
 
@@ -97,7 +98,12 @@ export function buildFirmPageFooterHtml(
     `<p class="firm-page-foot__firm firm-page-foot__firm--caps">${buildSpacedCapsNameHtml()}</p>` +
     `<p class="firm-page-foot__firm firm-page-foot__subtitle--caps">${escapeHtml(FIRM_LETTER_SPACED_CAPS_SUBTITLE)}</p>` +
     `<div class="firm-page-foot__divider" aria-hidden="true"></div>` +
-    `<p class="firm-page-foot__detail">${escapeHtml(addressLine)}</p>` +
+    addressLines
+      .map(
+        (line) =>
+          `<p class="firm-page-foot__detail firm-page-foot__detail--address">${escapeHtml(line)}</p>`
+      )
+      .join("") +
     (phoneText ? `<p class="firm-page-foot__detail">${escapeHtml(phoneText)}</p>` : "") +
     (digitalText ? `<p class="firm-page-foot__detail firm-page-foot__detail--digital">${escapeHtml(digitalText)}</p>` : "") +
     `</footer>`
@@ -334,31 +340,38 @@ export function buildFirmLetterheadCss(): string {
   color: ${INK};
 }
 .firm-page-foot__firm--caps {
-  font-size: 8.5pt;
+  font-size: 8.75pt;
   letter-spacing: 0.11em;
+  font-weight: 700;
 }
 .firm-page-foot__subtitle--caps {
   font-size: 7.35pt;
   letter-spacing: 0.22em;
   margin-top: 2px;
-  font-weight: 500;
+  font-weight: 600;
+  color: ${ACCENT};
 }
 .firm-page-foot__divider {
   width: 36px;
   height: 0;
-  margin: 6px auto 7px;
+  margin: 5px auto 6px;
   border: none;
   border-top: 1px solid ${ACCENT_PALE};
   opacity: 0.95;
 }
 .firm-page-foot__detail {
-  margin: 2px 0 0;
+  margin: 1px auto 0;
+  max-width: 6.15in;
   font-family: ${SANS};
-  font-size: 6.75pt;
-  line-height: 1.45;
-  letter-spacing: 0.02em;
+  font-size: 6.65pt;
+  line-height: 1.22;
+  letter-spacing: 0.015em;
   text-transform: none;
   color: ${MUTED};
+}
+.firm-page-foot__detail--address {
+  max-width: 6.35in;
+  line-height: 1.18;
 }
 .firm-page-foot__detail--digital {
   text-transform: lowercase;

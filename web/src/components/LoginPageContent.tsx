@@ -119,7 +119,7 @@ export function LoginPageContent({ defaultChooseAccount = false, oauthConfigured
       </div>
 
       <footer className="login-page__footer">
-        <FirmPublicContactDetails className="login-page__contact" layout="stacked" />
+        <FirmPublicContactDetails className="login-page__contact" />
         <div className="login-page__footer-links">
           <a href="/privacy">Privacy</a>
           <span aria-hidden="true">·</span>

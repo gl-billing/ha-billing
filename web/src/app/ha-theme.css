@@ -411,6 +411,74 @@ html {
   border: 2px solid var(--ink) !important;
   border-radius: 0 !important;
   background: #fff !important;
+  padding: 0.65rem 0.75rem 0.55rem !important;
+}
+
+.firm-auth-footer__inner {
+  text-align: center !important;
+}
+
+.firm-auth-footer__title {
+  font-family: var(--font-display), Arial, sans-serif !important;
+  font-size: 0.9375rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--ink) !important;
+  margin: 0 !important;
+  line-height: 1.15 !important;
+}
+
+.firm-auth-footer__tagline {
+  margin: 0.1rem 0 0 !important;
+  font-size: 0.625rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+  line-height: 1.2 !important;
+}
+
+.firm-auth-footer__contact {
+  margin-top: 0.35rem !important;
+  font-size: 0.625rem !important;
+  line-height: 1.28 !important;
+  color: var(--muted) !important;
+}
+
+.firm-auth-footer__contact a {
+  color: var(--ink) !important;
+  text-decoration: underline !important;
+  text-underline-offset: 1px !important;
+}
+
+.firm-auth-footer__sep {
+  margin: 0 0.2rem !important;
+  color: var(--muted) !important;
+}
+
+.firm-auth-footer__legal {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.2rem 0.45rem !important;
+  margin-top: 0.35rem !important;
+  font-size: 0.625rem !important;
+  line-height: 1.28 !important;
+  color: var(--muted) !important;
+}
+
+.firm-auth-footer__legal a {
+  color: var(--ink) !important;
+  text-decoration: underline !important;
+  text-underline-offset: 1px !important;
+}
+
+.firm-auth-footer__copyright {
+  margin: 0.25rem 0 0 !important;
+  font-size: 0.625rem !important;
+  line-height: 1.2 !important;
+  color: var(--muted) !important;
 }
 
 .firm-auth-title {
@@ -1059,58 +1127,47 @@ textarea.field-input:focus {
   border-radius: 0 !important;
   box-shadow: none !important;
   color: var(--ink) !important;
-  padding: 1.25rem 1rem !important;
+  padding: 0.65rem 0.75rem 0.55rem !important;
   text-align: center !important;
 }
 
 .brand-footer__firm {
   font-family: var(--font-display), Arial, sans-serif !important;
-  font-size: 1rem !important;
+  font-size: 0.9375rem !important;
   font-weight: 600 !important;
   letter-spacing: 0.02em !important;
   color: var(--ink) !important;
   margin: 0 !important;
+  line-height: 1.15 !important;
 }
 
 .brand-footer__tagline {
-  margin: 0.25rem 0 0 !important;
-  font-size: var(--ha-text-meta) !important;
+  margin: 0.1rem 0 0 !important;
+  font-size: 0.625rem !important;
   font-weight: 600 !important;
-  letter-spacing: 0.12em !important;
+  letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
   color: var(--muted) !important;
+  line-height: 1.2 !important;
 }
 
 .brand-footer__contact,
 .brand-footer__legal,
 .brand-footer__copyright {
-  font-size: var(--ha-text-meta) !important;
-  line-height: 1.55 !important;
+  font-size: 0.625rem !important;
+  line-height: 1.3 !important;
   color: var(--muted) !important;
 }
 
 .brand-footer__contact {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 0.35rem !important;
-  margin-top: 0.75rem !important;
-}
-
-@media (min-width: 640px) {
-  .brand-footer__contact {
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 0.5rem 1rem !important;
-  }
+  margin-top: 0.35rem !important;
 }
 
 .brand-footer__contact a,
 .brand-footer__legal a {
   color: var(--ink) !important;
   text-decoration: underline !important;
-  text-underline-offset: 2px !important;
+  text-underline-offset: 1px !important;
 }
 
 .brand-footer__contact a:hover,
@@ -1123,17 +1180,36 @@ textarea.field-input:focus {
   flex-wrap: wrap !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 0.35rem 0.65rem !important;
-  margin-top: 0.75rem !important;
+  gap: 0.2rem 0.45rem !important;
+  margin-top: 0.35rem !important;
 }
 
 .brand-footer__copyright {
-  margin: 0.75rem 0 0 !important;
+  margin: 0.25rem 0 0 !important;
+  line-height: 1.2 !important;
 }
 
 .brand-footer__rule {
   background: linear-gradient(90deg, transparent, var(--ink), transparent) !important;
-  margin: 0.75rem auto !important;
+  height: 1px !important;
+  width: 4.5rem !important;
+  margin: 0.35rem auto 0 !important;
+}
+
+.firm-footer__address {
+  margin: 0 !important;
+  line-height: 1.28 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.firm-footer__channels {
+  margin: 0.2rem 0 0 !important;
+  line-height: 1.28 !important;
+}
+
+.firm-footer__sep {
+  margin: 0 0.2rem !important;
+  color: var(--muted) !important;
 }
 
 .nav-tabs-more__menu {
@@ -1393,41 +1469,43 @@ textarea.field-input:focus {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  margin-top: 1.75rem;
+  gap: 0.4rem;
+  margin-top: 1.1rem;
   margin-left: 2rem;
   margin-right: 2rem;
-  padding-top: 1.25rem;
+  padding-top: 0.75rem;
   border-top: 1px solid #e8e8e8;
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .login-page__contact {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.6875rem;
-  line-height: 1.5;
-  letter-spacing: 0.04em;
+  font-size: 0.625rem;
+  line-height: 1.28;
+  letter-spacing: 0.01em;
   text-transform: none;
   color: #5c5c5c;
+  text-align: center;
+}
+
+.login-page__contact .firm-footer__channels {
+  margin-top: 0.15rem;
 }
 
 .login-page__contact a {
   color: #0a0a0a;
   font-weight: 500;
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: 1px;
 }
 
 .login-page__footer-links {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.35rem;
+  margin-top: 0.1rem;
 }
 
 .login-page__footer a {
