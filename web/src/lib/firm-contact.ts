@@ -40,12 +40,9 @@ export function firmPhoneTelHref(phone: string): string {
   return `tel:+${digits}`;
 }
 
-/** Short location line for compact footers. */
+/** Full office address for compact footers and contact blocks. */
 export function firmFooterLocation(contact: FirmLetterheadContact = getFirmLetterheadContact()): string {
-  const address = contact.address.trim();
-  if (!address) return "Davao City";
-  const firstPart = address.split(",")[0]?.trim();
-  return firstPart || address;
+  return contact.address.trim() || "Davao City";
 }
 
 export function formatFirmWebsiteLabel(website = FIRM_WEBSITE): string {
@@ -126,11 +123,33 @@ export function formatAddressLines(address: string): string[] {
   return [parts.slice(0, -1).join(", "), parts[parts.length - 1]!];
 }
 
-/** Letterhead footer — address in normal capitalization. */
+/** Letterhead footer — split long addresses across balanced lines at comma groups. */
+export function formatLetterheadFooterAddressLines(
+  contact: FirmLetterheadContact = getFirmLetterheadContact()
+): string[] {
+  const trimmed = contact.address.trim();
+  if (!trimmed) return [];
+
+  const parts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
+  if (parts.length <= 2) return [trimmed];
+  if (parts.length <= 4) {
+    const mid = Math.ceil(parts.length / 2);
+    return [parts.slice(0, mid).join(", "), parts.slice(mid).join(", ")].filter(Boolean);
+  }
+
+  const third = Math.ceil(parts.length / 3);
+  return [
+    parts.slice(0, third).join(", "),
+    parts.slice(third, third * 2).join(", "),
+    parts.slice(third * 2).join(", ")
+  ].filter(Boolean);
+}
+
+/** Letterhead footer — address in normal capitalization (single-line fallback). */
 export function formatLetterheadFooterAddressLine(
   contact: FirmLetterheadContact = getFirmLetterheadContact()
 ): string {
-  return formatAddressLines(contact.address.trim()).join("   ·   ");
+  return formatLetterheadFooterAddressLines(contact).join("   ·   ");
 }
 
 /** Letterhead footer — email and website in lowercase. */

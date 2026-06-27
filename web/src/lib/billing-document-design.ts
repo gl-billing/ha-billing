@@ -4,8 +4,10 @@
 export const FIRM_LINE = "Hernandez & Associates Law Office";
 export const FIRM_NAME = "Hernandez & Associates";
 export const FIRM_SUBTITLE = "Law Office";
+export const DEFAULT_FIRM_ADDRESS =
+  "Door 11/K, 18 Acacia Bldg., Acacia cor. Calachuchi Sts., Juna Subd., Matina, Davao City";
 export const FIRM_ADDRESS =
-  process.env.NEXT_PUBLIC_FIRM_ADDRESS?.trim() || "Davao City";
+  process.env.NEXT_PUBLIC_FIRM_ADDRESS?.trim() || DEFAULT_FIRM_ADDRESS;
 export const FIRM_EMAIL =
   process.env.NEXT_PUBLIC_FIRM_EMAIL?.trim() || "legal@hernandezlaw.info";
 export const FIRM_LANDLINE =

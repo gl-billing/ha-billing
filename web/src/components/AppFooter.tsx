@@ -1,22 +1,15 @@
 import Link from "next/link";
 import { FirmCopyright } from "@/components/FirmCopyright";
-import { FIRM_CONTACT } from "@/lib/firm-email-signature";
-import { firmFooterLocation, firmPhoneTelHref, firmPrimaryPhone } from "@/lib/firm-contact";
+import { FirmPublicContactDetails } from "@/components/FirmPublicContactDetails";
 
 export function AppFooter() {
-  const phone = firmPrimaryPhone();
-
   return (
     <footer className="brand-footer mt-8">
       <p className="brand-footer__firm">Hernandez &amp; Associates</p>
       <p className="brand-footer__tagline">Law Office</p>
       <div className="brand-footer__rule" aria-hidden />
 
-      <div className="brand-footer__contact">
-        <span>{firmFooterLocation()}</span>
-        <a href={`mailto:${FIRM_CONTACT.email}`}>{FIRM_CONTACT.email}</a>
-        {phone ? <a href={firmPhoneTelHref(phone)}>{phone}</a> : null}
-      </div>
+      <FirmPublicContactDetails className="brand-footer__contact" layout="stacked" />
 
       <div className="brand-footer__legal">
         <Link href="/privacy">Privacy &amp; confidentiality</Link>

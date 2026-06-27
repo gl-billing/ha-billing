@@ -6,6 +6,7 @@ import {
   formatFirmContactLine,
   formatFirmContactLines,
   formatFirmPhoneLine,
+  formatLetterheadFooterAddressLines,
   getFirmLetterheadContact
 } from "@/lib/firm-letterhead";
 import { FIRM_PAGE_SIZE_ORDER, getFirmPageSpec } from "@/lib/firm-page-sizes";
@@ -23,7 +24,8 @@ describe("firm page sizes", () => {
 describe("firm letterhead contact", () => {
   it("includes address, landline, email, and website defaults for Hernandez Law", () => {
     const contact = getFirmLetterheadContact();
-    expect(contact.address).toBe("Davao City");
+    expect(contact.address).toContain("Acacia Bldg.");
+    expect(contact.address).toContain("Davao City");
     expect(contact.email).toBe("legal@hernandezlaw.info");
     expect(contact.landline).toBe("(082) 324 5269");
     expect(contact.website).toContain("hernandezlaw.info");
@@ -89,5 +91,22 @@ describe("firm letterhead contact", () => {
     const lines = formatAddressLines("G/F Plaza de Bole Compound, F. Torres St., Davao City");
     expect(lines).toHaveLength(2);
     expect(lines[1]).toBe("Davao City");
+  });
+
+  it("wraps the full Hernandez office address for letterhead footers", () => {
+    const lines = formatLetterheadFooterAddressLines({
+      address:
+        "Door 11/K, 18 Acacia Bldg., Acacia cor. Calachuchi Sts., Juna Subd., Matina, Davao City",
+      mobile: "",
+      landline: "(082) 324 5269",
+      email: "legal@hernandezlaw.info",
+      website: "www.hernandezlaw.info"
+    });
+    expect(lines.length).toBeGreaterThanOrEqual(2);
+    expect(lines.join(" ")).toContain("Acacia Bldg.");
+    expect(lines.join(" ")).toContain("Davao City");
+    const footer = buildFirmPageFooterHtml();
+    expect(footer).toContain("firm-page-foot__detail--address");
+    expect(footer).toContain("Matina");
   });
 });

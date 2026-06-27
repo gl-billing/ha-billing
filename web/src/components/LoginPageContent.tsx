@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { FirmAuthShell } from "@/components/FirmAuthShell";
+import { FirmPublicContactDetails } from "@/components/FirmPublicContactDetails";
 import { GoogleMark } from "@/components/login/GoogleMark";
 import { STAFF_GOOGLE_PROVIDER_ID } from "@/lib/guest-oauth";
 import {
@@ -118,9 +119,12 @@ export function LoginPageContent({ defaultChooseAccount = false, oauthConfigured
       </div>
 
       <footer className="login-page__footer">
-        <a href="/privacy">Privacy</a>
-        <span aria-hidden="true">·</span>
-        <a href="/terms">Terms</a>
+        <FirmPublicContactDetails className="login-page__contact" layout="stacked" />
+        <div className="login-page__footer-links">
+          <a href="/privacy">Privacy</a>
+          <span aria-hidden="true">·</span>
+          <a href="/terms">Terms</a>
+        </div>
       </footer>
     </FirmAuthShell>
   );
