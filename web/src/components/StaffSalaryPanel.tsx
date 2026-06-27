@@ -934,7 +934,6 @@ export function StaffSalaryPanel({ busy, onStatus }: Props) {
 
       <StaffPayrollRosterPanel
         roster={roster}
-        lawyers={lawyers}
         busy={busy || rosterLoading}
         onSaved={(next) => {
           setRoster(next);

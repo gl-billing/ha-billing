@@ -9,7 +9,7 @@ import {
   FIRM_SUBTITLE,
   FIRM_WEBSITE
 } from "@/lib/billing-document-design";
-import { formatFirmContactLine, formatFirmWebsiteLabel } from "@/lib/firm-contact";
+import { formatFirmContactLine, formatFirmWebsiteLabel, firmPhoneTelHref, firmPrimaryPhone } from "@/lib/firm-contact";
 
 export const FIRM_CONTACT = {
   name: FIRM_NAME,
@@ -97,6 +97,13 @@ export function stripClientEmailSignature(html: string): string {
 export function getFirmEmailSignatureHtml(options?: { bannerSrc?: string | null }): string {
   const signer = getFirmEmailSigner();
   const bannerSrc = options?.bannerSrc ?? emailSignatureBannerCidSrc();
+  const phone = firmPrimaryPhone();
+  const phoneHtml = phone
+    ? ` &nbsp;|&nbsp; <a href="${firmPhoneTelHref(phone)}" style="color:#8a6b2a;text-decoration:none;">${phone}</a>`
+    : "";
+  const websiteHtml = FIRM_CONTACT.website
+    ? ` &nbsp;|&nbsp; <a href="https://${formatFirmWebsiteLabel(FIRM_CONTACT.website)}" style="color:#8a6b2a;text-decoration:none;">${formatFirmWebsiteLabel(FIRM_CONTACT.website)}</a>`
+    : "";
   const bannerHtml = bannerSrc
     ? `<img src="${bannerSrc}" alt="${FIRM_CONTACT.name} — ${FIRM_CONTACT.tagline}" width="560" style="display:block;max-width:100%;height:auto;border:0;" />`
     : `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Georgia,'Times New Roman',serif;font-size:13px;line-height:1.5;color:#1a1612;max-width:520px;border:1px solid #b8913d;">` +
@@ -106,11 +113,8 @@ export function getFirmEmailSignatureHtml(options?: { bannerSrc?: string | null 
       `<p style="margin:0 0 4px;color:#4a4339;">${FIRM_CONTACT.address}</p>` +
       `<p style="margin:0;color:#4a4339;">` +
       `<a href="mailto:${FIRM_CONTACT.email}" style="color:#8a6b2a;text-decoration:none;">${FIRM_CONTACT.email}</a>` +
-      (FIRM_CONTACT.mobile
-        ? ` &nbsp;|&nbsp; <a href="tel:${FIRM_CONTACT.mobile.replace(/\D/g, "")}" style="color:#8a6b2a;text-decoration:none;">${FIRM_CONTACT.mobile}</a>`
-        : "") +
-      ` &nbsp;|&nbsp; <a href="tel:+638981032990" style="color:#8a6b2a;text-decoration:none;">${FIRM_CONTACT.landline}</a>` +
-      ` &nbsp;|&nbsp; <a href="https://${formatFirmWebsiteLabel(FIRM_CONTACT.website)}" style="color:#8a6b2a;text-decoration:none;">${formatFirmWebsiteLabel(FIRM_CONTACT.website)}</a>` +
+      phoneHtml +
+      websiteHtml +
       `</p></td></tr></table>`;
 
   return (

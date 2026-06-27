@@ -21,11 +21,12 @@ describe("firm page sizes", () => {
 });
 
 describe("firm letterhead contact", () => {
-  it("includes address, landline, email, website, and mobile", () => {
+  it("includes address, landline, email, and website defaults for Hernandez Law", () => {
     const contact = getFirmLetterheadContact();
-    expect(contact.address).toContain("configure NEXT_PUBLIC_FIRM_ADDRESS");
-    expect(contact.email).toContain("hernandezassociates.com");
-    expect(contact.website).toContain("hernandezassociates.com");
+    expect(contact.address).toBe("Davao City");
+    expect(contact.email).toBe("legal@hernandezlaw.info");
+    expect(contact.landline).toBe("(082) 324 5269");
+    expect(contact.website).toContain("hernandezlaw.info");
   });
 
   it("formats a single contact line for compact layouts", () => {
@@ -65,7 +66,8 @@ describe("firm letterhead contact", () => {
     expect(footer).toContain("H E R N A N D E Z");
     expect(footer).toContain('class="firm-lh__amp"');
     expect(footer).toContain("L A W O F F I C E");
-    expect(footer).toContain("info@hernandezassociates.com");
+    expect(footer).toContain("legal@hernandezlaw.info");
+    expect(footer).toContain("(082) 324 5269");
     expect(footer).not.toContain("INFO@");
   });
 

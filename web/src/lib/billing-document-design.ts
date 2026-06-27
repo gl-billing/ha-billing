@@ -5,15 +5,15 @@ export const FIRM_LINE = "Hernandez & Associates Law Office";
 export const FIRM_NAME = "Hernandez & Associates";
 export const FIRM_SUBTITLE = "Law Office";
 export const FIRM_ADDRESS =
-  process.env.NEXT_PUBLIC_FIRM_ADDRESS?.trim() ||
-  "Office address — configure NEXT_PUBLIC_FIRM_ADDRESS in .env.local";
+  process.env.NEXT_PUBLIC_FIRM_ADDRESS?.trim() || "Davao City";
 export const FIRM_EMAIL =
-  process.env.NEXT_PUBLIC_FIRM_EMAIL?.trim() || "info@hernandezassociates.com";
-export const FIRM_LANDLINE = process.env.NEXT_PUBLIC_FIRM_LANDLINE_PHONE?.trim() || "";
+  process.env.NEXT_PUBLIC_FIRM_EMAIL?.trim() || "legal@hernandezlaw.info";
+export const FIRM_LANDLINE =
+  process.env.NEXT_PUBLIC_FIRM_LANDLINE_PHONE?.trim() || "(082) 324 5269";
 /** Mobile — override via NEXT_PUBLIC_FIRM_MOBILE_PHONE in env. */
 export const FIRM_MOBILE = process.env.NEXT_PUBLIC_FIRM_MOBILE_PHONE?.trim() || "";
 export const FIRM_WEBSITE =
-  process.env.NEXT_PUBLIC_FIRM_WEBSITE?.trim() || "www.hernandezassociates.com";
+  process.env.NEXT_PUBLIC_FIRM_WEBSITE?.trim() || "www.hernandezlaw.info";
 
 export const BILLING_DOC_COLORS = {
   gold: "#111111",

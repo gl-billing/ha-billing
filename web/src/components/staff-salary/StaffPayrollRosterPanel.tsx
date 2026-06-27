@@ -5,7 +5,6 @@ import {
   ensureUniqueStaffPayrollId,
   type StaffPayrollRosterEntry
 } from "@/lib/staff-payroll-roster";
-import type { FirmLawyerRosterEntry } from "@/lib/firm-lawyers-roster";
 import { DEFAULT_STAFF_MONTHLY_ALLOWANCE, STAFF_PAYROLL_BANK } from "@/lib/staff-salary";
 import { StaffSalaryField, StaffSalaryFormGrid } from "@/components/staff-salary/StaffSalaryComputeUI";
 
@@ -25,13 +24,12 @@ const EMPTY_DRAFT = (): Omit<StaffPayrollRosterEntry, "id"> => ({
 
 type Props = {
   roster: StaffPayrollRosterEntry[];
-  lawyers: FirmLawyerRosterEntry[];
   busy: boolean;
   onSaved: (roster: StaffPayrollRosterEntry[]) => void;
   onStatus: (message: string, isError?: boolean) => void;
 };
 
-export function StaffPayrollRosterPanel({ roster, lawyers, busy, onSaved, onStatus }: Props) {
+export function StaffPayrollRosterPanel({ roster, busy, onSaved, onStatus }: Props) {
   const [draft, setDraft] = useState(EMPTY_DRAFT);
   const [editingId, setEditingId] = useState("");
   const [saving, setSaving] = useState(false);
@@ -69,8 +67,8 @@ export function StaffPayrollRosterPanel({ roster, lawyers, busy, onSaved, onStat
       shortName: entry.shortName,
       role: entry.role,
       email: entry.email,
-      associatedLawyerName: entry.associatedLawyerName,
-      associatedLawyerEmail: entry.associatedLawyerEmail,
+      associatedLawyerName: "",
+      associatedLawyerEmail: "",
       includesFieldDispatch: entry.includesFieldDispatch,
       monthlyAllowance: entry.monthlyAllowance,
       payrollBank: entry.payrollBank,
@@ -97,8 +95,8 @@ export function StaffPayrollRosterPanel({ roster, lawyers, busy, onSaved, onStat
       shortName: draft.shortName.trim(),
       role: draft.role.trim(),
       email: draft.email.trim(),
-      associatedLawyerName: draft.associatedLawyerName.trim(),
-      associatedLawyerEmail: draft.associatedLawyerEmail.trim(),
+      associatedLawyerName: "",
+      associatedLawyerEmail: "",
       includesFieldDispatch: draft.includesFieldDispatch,
       monthlyAllowance: draft.monthlyAllowance,
       payrollBank: draft.payrollBank.trim() || STAFF_PAYROLL_BANK,
@@ -123,7 +121,7 @@ export function StaffPayrollRosterPanel({ roster, lawyers, busy, onSaved, onStat
         <div>
           <p className="staff-salary__toolbar-label">Payroll roster</p>
           <p className="staff-salary__toolbar-hint">
-            Add staff here first. Link each person to a supervising lawyer and email for payslips.
+            Add firm staff here first — name, role, email for payslips, and payroll bank details.
           </p>
         </div>
       </div>
@@ -135,16 +133,7 @@ export function StaffPayrollRosterPanel({ roster, lawyers, busy, onSaved, onStat
               <div className="staff-salary__roster-item-main">
                 <strong>{entry.displayName}</strong>
                 {entry.role ? <span className="text-muted"> · {entry.role}</span> : null}
-                <div className="staff-salary__roster-item-meta text-muted">
-                  {entry.email}
-                  {entry.associatedLawyerName ? (
-                    <>
-                      {" "}
-                      · Lawyer: {entry.associatedLawyerName}
-                      {entry.associatedLawyerEmail ? ` (${entry.associatedLawyerEmail})` : ""}
-                    </>
-                  ) : null}
-                </div>
+                <div className="staff-salary__roster-item-meta text-muted">{entry.email}</div>
               </div>
               <div className="staff-salary__roster-item-actions">
                 <button
@@ -180,7 +169,7 @@ export function StaffPayrollRosterPanel({ roster, lawyers, busy, onSaved, onStat
               value={draft.displayName}
               disabled={busy || saving}
               onChange={(e) => setDraft((prev) => ({ ...prev, displayName: e.target.value }))}
-              placeholder="e.g. Maria Santos"
+              placeholder="e.g. Shiela"
             />
           </StaffSalaryField>
           <StaffSalaryField label="Short name">
@@ -208,49 +197,7 @@ export function StaffPayrollRosterPanel({ roster, lawyers, busy, onSaved, onStat
               value={draft.email}
               disabled={busy || saving}
               onChange={(e) => setDraft((prev) => ({ ...prev, email: e.target.value }))}
-              placeholder="name@hernandezassociates.com"
-            />
-          </StaffSalaryField>
-          <StaffSalaryField label="Supervising lawyer">
-            {lawyers.length ? (
-              <select
-                className="field"
-                value={draft.associatedLawyerName}
-                disabled={busy || saving}
-                onChange={(e) => {
-                  const lawyer = lawyers.find((row) => row.displayName === e.target.value);
-                  setDraft((prev) => ({
-                    ...prev,
-                    associatedLawyerName: e.target.value,
-                    associatedLawyerEmail: lawyer?.email || prev.associatedLawyerEmail
-                  }));
-                }}
-              >
-                <option value="">Select lawyer…</option>
-                {lawyers.map((lawyer) => (
-                  <option key={lawyer.id} value={lawyer.displayName}>
-                    {lawyer.displayName}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                className="field"
-                value={draft.associatedLawyerName}
-                disabled={busy || saving}
-                onChange={(e) => setDraft((prev) => ({ ...prev, associatedLawyerName: e.target.value }))}
-                placeholder="Add associate lawyers below first"
-              />
-            )}
-          </StaffSalaryField>
-          <StaffSalaryField label="Lawyer email">
-            <input
-              className="field"
-              type="email"
-              value={draft.associatedLawyerEmail}
-              disabled={busy || saving || Boolean(lawyers.length && draft.associatedLawyerName)}
-              onChange={(e) => setDraft((prev) => ({ ...prev, associatedLawyerEmail: e.target.value }))}
-              placeholder="Filled when you pick a lawyer"
+              placeholder="legal@hernandezlaw.info"
             />
           </StaffSalaryField>
           <StaffSalaryField label="Payroll bank">

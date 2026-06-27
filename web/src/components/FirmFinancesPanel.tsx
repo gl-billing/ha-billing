@@ -179,16 +179,10 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
     return `${pct}% share · ${formatPeso(share)}`;
   }
 
-  const staffByLawyer = useMemo(() => {
-    const map = new Map<string, StaffPayrollRosterEntry[]>();
-    for (const staff of payrollStaff) {
-      const key = staff.associatedLawyerName.trim() || "Unassigned";
-      const bucket = map.get(key) || [];
-      bucket.push(staff);
-      map.set(key, bucket);
-    }
-    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-  }, [payrollStaff]);
+  const payrollStaffList = useMemo(
+    () => [...payrollStaff].sort((a, b) => a.displayName.localeCompare(b.displayName)),
+    [payrollStaff]
+  );
 
   const loadReport = useCallback(async () => {
     setReportLoading(true);
@@ -1197,19 +1191,15 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
                 />
               )}
 
-              {staffByLawyer.length ? (
+              {payrollStaffList.length ? (
                 <div className="firm-finances__team-roster">
-                  <p className="firm-finances__section-title">Payroll staff by supervising lawyer</p>
-                  <p className="firm-finances__section-desc">
-                    From Payroll roster — links staff compensation to associate lawyers.
-                  </p>
+                  <p className="firm-finances__section-title">Payroll staff</p>
+                  <p className="firm-finances__section-desc">From the Payroll roster — firm staff on semi-monthly compensation.</p>
                   <ul className="firm-finances__team-roster-list">
-                    {staffByLawyer.map(([lawyer, staff]) => (
-                      <li key={lawyer} className="firm-finances__team-roster-item">
-                        <strong>{lawyer}</strong>
-                        <span className="text-muted">
-                          {staff.map((person) => person.displayName).join(", ")}
-                        </span>
+                    {payrollStaffList.map((person) => (
+                      <li key={person.id} className="firm-finances__team-roster-item">
+                        <strong>{person.displayName}</strong>
+                        <span className="text-muted">{person.role || "Staff"}</span>
                       </li>
                     ))}
                   </ul>

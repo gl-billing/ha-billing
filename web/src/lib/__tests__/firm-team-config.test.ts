@@ -15,8 +15,8 @@ describe("firm team config", () => {
     expect(DEFAULT_FIRM_LAWYERS_ROSTER.every((entry) => entry.overseesTasks)).toBe(true);
   });
 
-  it("links payroll staff to the managing partner", () => {
+  it("seeds secretary on the payroll roster", () => {
     expect(DEFAULT_STAFF_PAYROLL_ROSTER[0]?.displayName).toBe(SECRETARY.displayName);
-    expect(DEFAULT_STAFF_PAYROLL_ROSTER[0]?.associatedLawyerName).toBe(MANAGING_PARTNER.displayName);
+    expect(DEFAULT_STAFF_PAYROLL_ROSTER[0]?.associatedLawyerName).toBe("");
   });
 });

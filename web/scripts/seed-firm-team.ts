@@ -67,11 +67,7 @@ async function main() {
 
   console.log("Saving staff payroll roster…");
   const payroll = await saveStaffPayrollRoster(accessToken, DEFAULT_STAFF_PAYROLL_ROSTER);
-  console.log(
-    `  ${payroll
-      .map((entry) => `${entry.displayName} → ${entry.associatedLawyerName}`)
-      .join(", ")}`
-  );
+  console.log(`  ${payroll.map((entry) => entry.displayName).join(", ")}`);
 
   const lawyerRows = activeFirmLawyersRoster(lawyers)
     .filter((entry) => entry.overseesTasks)

@@ -62,7 +62,7 @@ export const DEFAULT_FIRM_LAWYERS_ROSTER: FirmLawyerRosterEntry[] = [
   }
 ];
 
-/** Payroll roster — staff linked to the supervising lawyer for firm books. */
+/** Payroll roster — firm staff for semi-monthly compensation. */
 export const DEFAULT_STAFF_PAYROLL_ROSTER: StaffPayrollRosterEntry[] = [
   {
     id: "shiela",
@@ -70,8 +70,8 @@ export const DEFAULT_STAFF_PAYROLL_ROSTER: StaffPayrollRosterEntry[] = [
     shortName: "Shiela",
     role: "Secretary",
     email: SECRETARY.email,
-    associatedLawyerName: MANAGING_PARTNER.displayName,
-    associatedLawyerEmail: MANAGING_PARTNER.emails[0],
+    associatedLawyerName: "",
+    associatedLawyerEmail: "",
     includesFieldDispatch: false,
     monthlyAllowance: DEFAULT_STAFF_MONTHLY_ALLOWANCE,
     payrollBank: STAFF_PAYROLL_BANK,

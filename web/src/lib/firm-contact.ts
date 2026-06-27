@@ -26,6 +26,28 @@ export function getFirmLetterheadContact(): FirmLetterheadContact {
   };
 }
 
+/** Primary phone for footers — landline first, then mobile. */
+export function firmPrimaryPhone(contact: FirmLetterheadContact = getFirmLetterheadContact()): string {
+  return contact.landline.trim() || contact.mobile.trim();
+}
+
+/** `tel:` href for Philippine numbers shown in the UI. */
+export function firmPhoneTelHref(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.startsWith("0")) return `tel:+63${digits.slice(1)}`;
+  if (digits.startsWith("63")) return `tel:+${digits}`;
+  return `tel:+${digits}`;
+}
+
+/** Short location line for compact footers. */
+export function firmFooterLocation(contact: FirmLetterheadContact = getFirmLetterheadContact()): string {
+  const address = contact.address.trim();
+  if (!address) return "Davao City";
+  const firstPart = address.split(",")[0]?.trim();
+  return firstPart || address;
+}
+
 export function formatFirmWebsiteLabel(website = FIRM_WEBSITE): string {
   return String(website || "")
     .trim()
