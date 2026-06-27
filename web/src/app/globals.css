@@ -10428,6 +10428,29 @@ html {
     background: var(--surface-elevated, #fff);
   }
 
+  .staff-salary__roster-item--partner {
+    border-color: var(--ink, #0a0a0a);
+    background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
+  }
+
+  .staff-salary__roster-partner-badge {
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink, #0a0a0a);
+  }
+
+  .staff-salary__roster-item-role {
+    font-size: 0.85rem;
+    margin-top: 0.15rem;
+  }
+
   .staff-salary__roster-item-meta {
     font-size: 0.85rem;
     margin-top: 0.2rem;

@@ -2,7 +2,9 @@
 
 import { useCallback, useState } from "react";
 import {
+  ensureManagingPartnerOnRoster,
   ensureUniqueFirmLawyerId,
+  isManagingPartnerRosterEntry,
   normalizeFirmLawyerDisplayName,
   type FirmLawyerRosterEntry
 } from "@/lib/firm-lawyers-roster";
@@ -94,8 +96,15 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
   }
 
   async function handleRemove(id: string) {
+    const target = roster.find((row) => row.id === id);
+    if (target && isManagingPartnerRosterEntry(target)) {
+      onStatus("The managing / founding partner cannot be removed from the roster.", true);
+      return;
+    }
     await persistRoster(roster.filter((row) => row.id !== id));
   }
+
+  const displayRoster = ensureManagingPartnerOnRoster(roster);
 
   return (
     <section className="staff-salary__panel staff-salary__panel--roster no-print">
@@ -108,13 +117,21 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
         </div>
       </div>
 
-      {roster.length ? (
+      {displayRoster.length ? (
         <ul className="staff-salary__roster-list">
-          {roster.map((entry) => (
-            <li key={entry.id} className="staff-salary__roster-item">
+          {displayRoster.map((entry) => {
+            const isPartner = isManagingPartnerRosterEntry(entry);
+            return (
+            <li
+              key={entry.id}
+              className={`staff-salary__roster-item${isPartner ? " staff-salary__roster-item--partner" : ""}`}
+            >
               <div className="staff-salary__roster-item-main">
+                {isPartner ? (
+                  <span className="staff-salary__roster-partner-badge">Managing / Founding Partner</span>
+                ) : null}
                 <strong>{entry.displayName}</strong>
-                {entry.designation ? (
+                {entry.designation && !isPartner ? (
                   <div className="staff-salary__roster-item-role text-muted">{entry.designation}</div>
                 ) : null}
                 <div className="staff-salary__roster-item-meta text-muted">
@@ -133,17 +150,20 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
                 >
                   Edit
                 </button>
-                <button
-                  type="button"
-                  className="staff-salary__btn staff-salary__btn--secondary"
-                  disabled={busy || saving}
-                  onClick={() => void handleRemove(entry.id)}
-                >
-                  Remove
-                </button>
+                {!isPartner ? (
+                  <button
+                    type="button"
+                    className="staff-salary__btn staff-salary__btn--secondary"
+                    disabled={busy || saving}
+                    onClick={() => void handleRemove(entry.id)}
+                  >
+                    Remove
+                  </button>
+                ) : null}
               </div>
             </li>
-          ))}
+            );
+          })}
         </ul>
       ) : (
         <p className="staff-salary__roster-empty text-muted">No lawyers on the roster yet. Add your first lawyer below.</p>

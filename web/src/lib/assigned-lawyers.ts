@@ -1,10 +1,14 @@
 import { MANAGING_PARTNER } from "@/lib/firm-team-config";
-import { activeFirmLawyersRoster, type FirmLawyerRosterEntry } from "@/lib/firm-lawyers-roster";
+import {
+  activeFirmLawyersRoster,
+  ensureManagingPartnerOnRoster,
+  type FirmLawyerRosterEntry
+} from "@/lib/firm-lawyers-roster";
 import { isManagingPartnerAttorney, UNASSIGNED_ATTORNEY_LABEL } from "@/lib/firm-allocation";
 
 /** Lawyer names for client assignment dropdowns — roster order, managing partner first. */
 export function buildFirmLawyerDropdownOptions(roster: FirmLawyerRosterEntry[]): string[] {
-  const active = activeFirmLawyersRoster(roster);
+  const active = ensureManagingPartnerOnRoster(roster);
   const names: string[] = [];
   const seen = new Set<string>();
 

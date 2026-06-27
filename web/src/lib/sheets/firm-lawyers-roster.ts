@@ -1,5 +1,6 @@
 import {
   activeFirmLawyersRoster,
+  ensureManagingPartnerOnRoster,
   parseFirmLawyersRoster,
   serializeFirmLawyersRoster,
   FIRM_LAWYERS_ROSTER_SETTING_KEY,
@@ -28,7 +29,8 @@ async function upsertSettingValue(
 
 export async function getFirmLawyersRoster(accessToken: string): Promise<FirmLawyerRosterEntry[]> {
   const settings = await readSettingsMap(accessToken);
-  return parseFirmLawyersRoster(settings.get(FIRM_LAWYERS_ROSTER_SETTING_KEY));
+  const roster = parseFirmLawyersRoster(settings.get(FIRM_LAWYERS_ROSTER_SETTING_KEY));
+  return ensureManagingPartnerOnRoster(roster);
 }
 
 async function readTasksEmployeeRows(accessToken: string): Promise<string[][]> {
@@ -89,15 +91,21 @@ export async function saveFirmLawyersRoster(
   accessToken: string,
   roster: FirmLawyerRosterEntry[]
 ): Promise<FirmLawyerRosterEntry[]> {
+  const normalized = ensureManagingPartnerOnRoster(roster);
   const rowIndex = await readSettingsRowIndex(accessToken);
   await upsertSettingValue(
     accessToken,
     FIRM_LAWYERS_ROSTER_SETTING_KEY,
-    serializeFirmLawyersRoster(roster),
+    serializeFirmLawyersRoster(normalized),
     rowIndex
   );
   invalidateSettingsCache(accessToken);
-  const saved = await getFirmLawyersRoster(accessToken);
+  const saved = ensureManagingPartnerOnRoster(await parseFirmLawyersRosterFromSettings(accessToken));
   await syncFirmLawyersToEmployeesSheet(accessToken, saved);
   return saved;
+}
+
+async function parseFirmLawyersRosterFromSettings(accessToken: string): Promise<FirmLawyerRosterEntry[]> {
+  const settings = await readSettingsMap(accessToken);
+  return parseFirmLawyersRoster(settings.get(FIRM_LAWYERS_ROSTER_SETTING_KEY));
 }

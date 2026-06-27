@@ -1,3 +1,5 @@
+import { DEFAULT_FIRM_LAWYERS_ROSTER, MANAGING_PARTNER } from "@/lib/firm-team-config";
+
 export const FIRM_LAWYERS_ROSTER_SETTING_KEY = "Firm Lawyers Roster";
 
 export type FirmLawyerRosterEntry = {
@@ -84,6 +86,43 @@ export function parseFirmLawyersRoster(raw: string | undefined | null): FirmLawy
 
 export function activeFirmLawyersRoster(roster: FirmLawyerRosterEntry[]): FirmLawyerRosterEntry[] {
   return roster.filter((entry) => entry.active !== false && entry.displayName.trim());
+}
+
+/** True when the roster row is Atty. Robert Hernandez (managing / founding partner). */
+export function isManagingPartnerRosterEntry(entry: FirmLawyerRosterEntry): boolean {
+  const name = entry.displayName.trim().toLowerCase();
+  if (name === MANAGING_PARTNER.displayName.trim().toLowerCase()) return true;
+  const norm = name.replace(/^atty\.?\s*/i, "");
+  if (norm.includes("robert") && norm.includes("hernandez")) return true;
+  const email = entry.email.trim().toLowerCase();
+  return MANAGING_PARTNER.emails.some((value) => value.toLowerCase() === email);
+}
+
+/**
+ * Managing partner is always listed first with a founding/managing designation.
+ * When the live roster is empty, seed the full default lawyer list.
+ */
+export function ensureManagingPartnerOnRoster(roster: FirmLawyerRosterEntry[]): FirmLawyerRosterEntry[] {
+  const active = activeFirmLawyersRoster(roster);
+  if (!active.length) return [...DEFAULT_FIRM_LAWYERS_ROSTER];
+
+  const defaultPartner = DEFAULT_FIRM_LAWYERS_ROSTER[0]!;
+  const partnerIndex = active.findIndex(isManagingPartnerRosterEntry);
+  const others = [...active];
+
+  let partner: FirmLawyerRosterEntry;
+  if (partnerIndex >= 0) {
+    const found = others.splice(partnerIndex, 1)[0]!;
+    partner = {
+      ...found,
+      id: found.id || defaultPartner.id,
+      designation: found.designation?.trim() || defaultPartner.designation
+    };
+  } else {
+    partner = { ...defaultPartner };
+  }
+
+  return [partner, ...others];
 }
 
 export function serializeFirmLawyersRoster(roster: FirmLawyerRosterEntry[]): string {

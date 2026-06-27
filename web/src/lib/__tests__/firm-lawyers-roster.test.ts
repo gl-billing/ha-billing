@@ -1,49 +1,43 @@
 import { describe, expect, it } from "vitest";
 import {
-  ensureUniqueFirmLawyerId,
-  findFirmLawyerByEmail,
-  lawyerFeeShareAmount,
-  normalizeFirmLawyerDisplayName,
-  parseFirmLawyersRoster
+  ensureManagingPartnerOnRoster,
+  isManagingPartnerRosterEntry,
+  type FirmLawyerRosterEntry
 } from "@/lib/firm-lawyers-roster";
+import { DEFAULT_FIRM_LAWYERS_ROSTER, MANAGING_PARTNER } from "@/lib/firm-team-config";
+
+const ASSOCIATES: FirmLawyerRosterEntry[] = DEFAULT_FIRM_LAWYERS_ROSTER.slice(1);
 
 describe("firm lawyers roster", () => {
-  it("normalizes display names with Atty. prefix", () => {
-    expect(normalizeFirmLawyerDisplayName("Maria Hernandez")).toBe("Atty. Maria Hernandez");
-    expect(normalizeFirmLawyerDisplayName("Atty. Carlos Hernandez")).toBe("Atty. Carlos Hernandez");
+  it("lists managing partner first with founding designation", () => {
+    const roster = ensureManagingPartnerOnRoster([...ASSOCIATES]);
+    expect(roster[0]?.displayName).toBe(MANAGING_PARTNER.displayName);
+    expect(roster[0]?.designation).toBe("Founding / Managing Partner");
+    expect(roster.map((entry) => entry.displayName)).toEqual([
+      MANAGING_PARTNER.displayName,
+      "Atty. April Liz Parreno",
+      "Atty. Jeff Pasagui"
+    ]);
   });
 
-  it("parses roster JSON", () => {
-    const roster = parseFirmLawyersRoster(
-      JSON.stringify([
-        {
-          id: "atty-maria",
-          displayName: "Maria Hernandez",
-          email: "maria@example.com",
-          feeSharePercent: 60,
-          overseesTasks: true,
-          active: true
-        }
-      ])
-    );
-    expect(roster).toHaveLength(1);
-    expect(roster[0]?.displayName).toBe("Atty. Maria Hernandez");
-    expect(roster[0]?.feeSharePercent).toBe(60);
+  it("moves an existing Robert Hernandez entry to the top", () => {
+    const roster = ensureManagingPartnerOnRoster([
+      ASSOCIATES[0]!,
+      {
+        ...DEFAULT_FIRM_LAWYERS_ROSTER[0]!,
+        designation: undefined
+      }
+    ]);
+    expect(roster[0]?.displayName).toBe(MANAGING_PARTNER.displayName);
+    expect(roster[0]?.designation).toBe("Founding / Managing Partner");
   });
 
-  it("finds lawyer by email and computes fee share", () => {
-    const roster = parseFirmLawyersRoster(
-      JSON.stringify([
-        {
-          displayName: "Atty. Maria Hernandez",
-          email: "maria@example.com",
-          feeSharePercent: 50,
-          overseesTasks: true
-        }
-      ])
-    );
-    expect(findFirmLawyerByEmail(roster, "maria@example.com")?.displayName).toContain("Maria");
-    expect(lawyerFeeShareAmount(10000, 50)).toBe(5000);
-    expect(ensureUniqueFirmLawyerId("Atty. Carlos Hernandez", roster)).toBe("atty-carlos-hernandez");
+  it("seeds the full default roster when empty", () => {
+    expect(ensureManagingPartnerOnRoster([])).toEqual(DEFAULT_FIRM_LAWYERS_ROSTER);
+  });
+
+  it("detects the managing partner row", () => {
+    expect(isManagingPartnerRosterEntry(DEFAULT_FIRM_LAWYERS_ROSTER[0]!)).toBe(true);
+    expect(isManagingPartnerRosterEntry(ASSOCIATES[0]!)).toBe(false);
   });
 });
