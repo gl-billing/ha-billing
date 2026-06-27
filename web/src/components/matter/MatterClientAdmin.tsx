@@ -4,10 +4,12 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { ClientDetail, LedgerEntry } from "@/lib/gl-config";
 import { formatPeso } from "@/lib/gl-config";
 import { ClientCodeRenameForm } from "@/components/ClientCodeRenameForm";
-import { ClientCaseRoleSelect } from "@/components/ClientCaseRoleSelect";
+import { AssignedLawyerFields } from "@/components/AssignedLawyerFields";
+import { formatClientAssignedLawyers } from "@/lib/assigned-lawyers";
 import { ClientMatterTypeSelect } from "@/components/ClientMatterTypeSelect";
 import { PsychologistFieldsSection } from "@/components/PsychologistFieldsSection";
 import { ClientCaseTypeSelect } from "@/components/ClientCaseTypeSelect";
+import { ClientCaseRoleSelect } from "@/components/ClientCaseRoleSelect";
 import {
   caseTypeOtherRequired,
   formatClientCaseTypeLabel,
@@ -101,6 +103,7 @@ function applyDetailToForm(c: ClientDetail) {
     preferredGreeting: c.preferredGreeting || "",
     clientStatus: c.status || "Active",
     assignedAttorney: c.assignedAttorney || "",
+    coAssignedAttorney: c.coAssignedAttorney || "",
     retainerBalance: String(c.retainerBalance || 0),
     birthday: birthdayToDateInputValue(c.birthday),
     psychologistName: c.psychologistName || "",
@@ -156,6 +159,7 @@ export function MatterAdvancedSettings({
   const [preferredGreeting, setPreferredGreeting] = useState(detail.preferredGreeting || "");
   const [clientStatus, setClientStatus] = useState(detail.status || "Active");
   const [assignedAttorney, setAssignedAttorney] = useState(detail.assignedAttorney || "");
+  const [coAssignedAttorney, setCoAssignedAttorney] = useState(detail.coAssignedAttorney || "");
   const [retainerBalance, setRetainerBalance] = useState(String(detail.retainerBalance || 0));
   const [birthday, setBirthday] = useState(birthdayToDateInputValue(detail.birthday));
   const [psychologistName, setPsychologistName] = useState(detail.psychologistName || "");
@@ -182,6 +186,7 @@ export function MatterAdvancedSettings({
     setPreferredGreeting(next.preferredGreeting);
     setClientStatus(next.clientStatus);
     setAssignedAttorney(next.assignedAttorney);
+    setCoAssignedAttorney(next.coAssignedAttorney);
     setRetainerBalance(next.retainerBalance);
     setBirthday(next.birthday);
     setPsychologistName(next.psychologistName);
@@ -233,6 +238,7 @@ export function MatterAdvancedSettings({
     setPreferredGreeting(next.preferredGreeting);
     setClientStatus(next.clientStatus);
     setAssignedAttorney(next.assignedAttorney);
+    setCoAssignedAttorney(next.coAssignedAttorney);
     setRetainerBalance(next.retainerBalance);
     setBirthday(next.birthday);
     setPsychologistName(next.psychologistName);
@@ -263,6 +269,7 @@ export function MatterAdvancedSettings({
     setPreferredGreeting(next.preferredGreeting);
     setClientStatus(next.clientStatus);
     setAssignedAttorney(next.assignedAttorney);
+    setCoAssignedAttorney(next.coAssignedAttorney);
     setRetainerBalance(next.retainerBalance);
     setBirthday(next.birthday);
     setPsychologistName(next.psychologistName);
@@ -351,6 +358,7 @@ export function MatterAdvancedSettings({
           preferredGreeting,
           clientStatus,
           assignedAttorney,
+          coAssignedAttorney,
           retainerBalance,
           birthday,
           psychologistName,
@@ -630,14 +638,16 @@ export function MatterAdvancedSettings({
                   />
                   <p className="mt-1 text-[11px] text-muted">Used for an annual birthday greeting email on this date.</p>
                 </Field>
-                <div className="form-grid-pair">
-                  <Field label="Assigned attorney">
-                    <input className="field" value={assignedAttorney} disabled={busy} onChange={(e) => setAssignedAttorney(e.target.value)} placeholder="Atty. name" />
-                  </Field>
-                  <Field label="Retainer balance">
-                    <input className="field" type="number" step="0.01" value={retainerBalance} disabled={busy} onChange={(e) => setRetainerBalance(e.target.value)} />
-                  </Field>
-                </div>
+                <AssignedLawyerFields
+                  primaryLawyer={assignedAttorney}
+                  secondaryLawyer={coAssignedAttorney}
+                  disabled={busy}
+                  onPrimaryChange={setAssignedAttorney}
+                  onSecondaryChange={setCoAssignedAttorney}
+                />
+                <Field label="Retainer balance">
+                  <input className="field" type="number" step="0.01" value={retainerBalance} disabled={busy} onChange={(e) => setRetainerBalance(e.target.value)} />
+                </Field>
                 <div className="matter-client-admin__form-actions">
                   <button type="button" disabled={busy} onClick={cancelEditing} className="btn-secondary">Cancel</button>
                   <button type="button" disabled={busy} onClick={() => void saveChanges()} className="btn-primary">Save changes</button>
@@ -683,7 +693,10 @@ export function MatterAdvancedSettings({
                   label="Birthday greeting sent"
                   value={detail.birthdayGreetingSent ? formatDisplayDate(detail.birthdayGreetingSent) : "—"}
                 />
-                <InfoRow label="Assigned attorney" value={detail.assignedAttorney} />
+                <InfoRow
+                  label="Assigned lawyers"
+                  value={formatClientAssignedLawyers(detail.assignedAttorney, detail.coAssignedAttorney) || "—"}
+                />
                 <InfoRow label="Retainer balance" value={formatPeso(detail.retainerBalance)} />
                 <InfoRow label="Previous balance" value={formatPeso(detail.prevBalance)} />
                 <InfoRow label="Account status" value={detail.accountStatus} />

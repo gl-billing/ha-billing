@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { requireSessionAccessToken } from "@/lib/api-auth";
 import { authOptions } from "@/lib/auth";
+import { canAccessBilling } from "@/lib/app-access";
 import { syncSavedItemToCalendar } from "@/lib/calendar/sync-item-after-save";
 import { createEventLinkedTasks } from "@/lib/office-tasks/event-follow-up";
 import { resolvePleadingEventResponsible } from "@/lib/office-tasks/event-client-attorney";
+import { applyEventMatterBillingCharges } from "@/lib/office-tasks/event-matter-billing";
 import { appendSucceedingHearingEvents } from "@/lib/office-tasks/event-pto-schedule";
 import { sessionEntryRegistrarLabel } from "@/lib/office-tasks/entry-registrar";
 import { normalizeEventFormInput, validateEventFormInput } from "@/lib/office-tasks/event-form-utils";
@@ -78,11 +80,26 @@ export async function POST(request: Request) {
     const bodyWithLawyer = { ...body, responsible };
     const { followUpTaskId, reminderTaskId } = await createEventLinkedTasks(token, saved.id, bodyWithLawyer);
 
+    let billingMessages: string[] = [];
+    if (body.billAppearanceFee || body.billPleadingFee) {
+      if (!canAccessBilling(session?.user?.email)) {
+        return NextResponse.json(
+          { error: "Billing access is required to add matter charges from events." },
+          { status: 403 }
+        );
+      }
+      billingMessages = await applyEventMatterBillingCharges(token, {
+        eventId: saved.id,
+        form: bodyWithLawyer
+      });
+    }
+
     const calendar = await syncSavedItemToCalendar(token, saved.id, body.calendarSync === true);
 
     const parts = [`Hearing/event added (${saved.id}) on Hearings & Events row ${saved.sheetRow}`];
     if (followUpTaskId) parts.push(`follow-up task ${followUpTaskId}`);
     if (reminderTaskId) parts.push(`reminder task ${reminderTaskId}`);
+    if (billingMessages.length) parts.push(billingMessages.join("; "));
     if (calendar.calendarEventId) parts.push("synced to Google Calendar");
     if (calendar.calendarError) parts.push(`calendar: ${calendar.calendarError}`);
 

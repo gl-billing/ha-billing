@@ -1,4 +1,5 @@
 import { isAdminEmail } from "@/lib/admin";
+import { isSecretaryNavUser } from "@/lib/app-access";
 import type { FollowUpClient, HomeDashboard, PendingArEntry } from "@/lib/gl-config";
 import { formatPeso } from "@/lib/gl-config";
 import { formatStaffDisplayName } from "@/lib/user-display";
@@ -40,12 +41,15 @@ export function isFirmWideBillingScope(
   name: string | null | undefined
 ): boolean {
   if (isAdminEmail(email)) return true;
+  if (isSecretaryNavUser(email)) return true;
   const label = formatStaffDisplayName(name, email).toLowerCase();
-  if (label.includes("andrea")) return true;
+  if (label.includes("shiela") || label.includes("andrea")) return true;
   const raw = name?.trim().toLowerCase() ?? "";
-  if (raw.includes("ellyza")) return true;
-  const andreaEmail = process.env.ANDREA_EMAIL?.trim().toLowerCase();
-  if (andreaEmail && email?.trim().toLowerCase() === andreaEmail) return true;
+  if (raw.includes("ellyza") || raw.includes("shiela")) return true;
+  const secretaryEmail =
+    process.env.SECRETARY_EMAIL?.trim().toLowerCase() ||
+    process.env.ANDREA_EMAIL?.trim().toLowerCase();
+  if (secretaryEmail && email?.trim().toLowerCase() === secretaryEmail) return true;
   return false;
 }
 

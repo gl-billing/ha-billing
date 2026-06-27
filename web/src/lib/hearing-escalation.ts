@@ -60,7 +60,9 @@ export function resolveAndreaEmail(directory: EmployeeRecord[]): string | null {
 }
 
 export function resolveAndreaEmployee(directory: EmployeeRecord[]): EmployeeRecord | null {
-  const fromEnv = process.env.ANDREA_EMAIL?.trim().toLowerCase();
+  const fromEnv =
+    process.env.SECRETARY_EMAIL?.trim().toLowerCase() ||
+    process.env.ANDREA_EMAIL?.trim().toLowerCase();
   if (fromEnv) {
     const match = directory.find((employee) => employee.email.trim().toLowerCase() === fromEnv);
     if (match) return match;
@@ -69,7 +71,13 @@ export function resolveAndreaEmployee(directory: EmployeeRecord[]): EmployeeReco
   for (const employee of directory) {
     const name = employee.name.toLowerCase();
     const role = employee.role.toLowerCase();
-    if (name.includes("andrea") || role.includes("court") || role.includes("liaison")) {
+    if (
+      name.includes("shiela") ||
+      name.includes("andrea") ||
+      role.includes("secretary") ||
+      role.includes("court") ||
+      role.includes("liaison")
+    ) {
       return employee;
     }
   }

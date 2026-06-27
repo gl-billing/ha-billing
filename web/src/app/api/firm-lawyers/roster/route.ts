@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { requireAdminEmail } from "@/lib/admin";
+import { requireTeamRosterAdmin } from "@/lib/admin";
 import { requireSessionAccessToken } from "@/lib/api-auth";
 import { authOptions } from "@/lib/auth";
 import { activeFirmLawyersRoster } from "@/lib/firm-lawyers-roster";
@@ -10,7 +10,7 @@ import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    requireAdminEmail(session?.user?.email);
+    requireTeamRosterAdmin(session?.user?.email);
     const accessToken = await requireSessionAccessToken();
     const roster = await getFirmLawyersRoster(accessToken);
     return NextResponse.json({ roster: activeFirmLawyersRoster(roster) });
@@ -28,7 +28,7 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    requireAdminEmail(session?.user?.email);
+    requireTeamRosterAdmin(session?.user?.email);
     const accessToken = await requireSessionAccessToken();
     const body = (await request.json()) as { roster?: unknown };
     const roster = Array.isArray(body.roster) ? body.roster : [];

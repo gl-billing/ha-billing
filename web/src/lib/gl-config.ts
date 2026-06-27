@@ -123,7 +123,8 @@ export const GL = {
     "Psychologist Address",
     "Matter Type",
     "Case Type",
-    "Case Type Other"
+    "Case Type Other",
+    "Co-Assigned Attorney"
   ] as const,
   ledgerHeaders: [
     "Date",
@@ -143,6 +144,7 @@ export const GL = {
     "Acceptance Fee",
     "Professional Fee",
     "Appearance Fee",
+    "Pleading Fee",
     "Filing Fee",
     "Notarial Fee",
     "Transportation",
@@ -753,6 +755,7 @@ export type ClientSummary = {
   phone?: string;
   address?: string;
   assignedAttorney?: string;
+  coAssignedAttorney?: string;
   retainerBalance?: number;
   lastBillingDate?: string;
   soaSent?: string;
@@ -783,6 +786,7 @@ export type ClientDetail = ClientSummary & {
   lastActivity: string;
   arPending: string;
   assignedAttorney: string;
+  coAssignedAttorney: string;
   retainerBalance: number;
   closeReason: string;
   closedDate: string;
@@ -826,6 +830,7 @@ export type UpdateClientPayload = {
   preferredGreeting?: string;
   clientStatus?: string;
   assignedAttorney?: string;
+  coAssignedAttorney?: string;
   retainerBalance?: number | string;
   birthday?: string;
   psychologistName?: string;
@@ -1039,6 +1044,8 @@ export type NewClientPayload = {
   matterType?: string;
   caseType?: string;
   caseTypeOther?: string;
+  assignedAttorney?: string;
+  coAssignedAttorney?: string;
 };
 
 export type LedgerEntryPayload = {
@@ -1067,6 +1074,7 @@ export function filterClientsByQuery(clients: ClientSummary[], query: string): C
       c.phone,
       c.address,
       c.assignedAttorney,
+      c.coAssignedAttorney,
       c.courtPending,
       c.caseRole,
       c.psychologistName,

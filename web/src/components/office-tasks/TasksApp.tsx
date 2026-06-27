@@ -1006,7 +1006,7 @@ export function TasksApp() {
   const today = data?.today || todayYmd();
   const wide = true;
   const weekDates = data?.weekStart ? getWeekDates(data.weekStart) : [];
-  const isAdmin = data?.isAdmin === true;
+  const isAdmin = data?.isAdmin === true || session?.user?.isAdmin === true;
   const navTabs = useMemo(
     () => tasksNavTabsForUser(billingAccess, navProfile),
     [billingAccess, navProfile]

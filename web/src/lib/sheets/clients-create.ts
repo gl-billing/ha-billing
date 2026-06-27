@@ -18,6 +18,8 @@ import {
 } from "@/lib/sheets/client";
 import { invalidateCache } from "@/lib/sheets/cache";
 import { ensureMasterListColumns, findMasterRow } from "@/lib/sheets/master";
+import { getActiveEmployeeNames } from "@/lib/office-tasks/sheets/employees";
+import { canonicalizeStaffName } from "@/lib/staff-assignee";
 import { updateSingleClientStatus } from "@/lib/sheets/ledger";
 import { deleteSheetById, getSheetIdByTitle } from "@/lib/sheets/sheet-meta";
 
@@ -39,7 +41,11 @@ async function getMasterNextRow(accessToken: string): Promise<number> {
   return 2 + values.length;
 }
 
-function masterRowValues(payload: NewClientPayload, clientCode: string): unknown[] {
+async function masterRowValues(
+  accessToken: string,
+  payload: NewClientPayload,
+  clientCode: string
+): Promise<unknown[]> {
   const prevBalance = parseMoney(payload.prevBalance) || 0;
   const greeting = payload.preferredGreeting?.trim() || getFirstName(payload.clientName);
   const matterType = resolveClientMatterType({
@@ -49,6 +55,7 @@ function masterRowValues(payload: NewClientPayload, clientCode: string): unknown
   const caseTitle = caseTitleRequiredForMatterType(matterType)
     ? matterTypeCaseLabel(matterType, payload.caseTitle)
     : "";
+  const roster = await getActiveEmployeeNames(accessToken);
 
   const row: unknown[] = new Array(GL.masterHeaders.length).fill("");
   row[0] = clientCode;
@@ -64,6 +71,12 @@ function masterRowValues(payload: NewClientPayload, clientCode: string): unknown
   row[19] = greeting;
   row[20] = payload.clientStatus?.trim() || "Active";
   row[21] = payload.courtPending?.trim() || "";
+  row[22] = payload.assignedAttorney?.trim()
+    ? canonicalizeStaffName(payload.assignedAttorney.trim(), roster)
+    : "";
+  row[35] = payload.coAssignedAttorney?.trim()
+    ? canonicalizeStaffName(payload.coAssignedAttorney.trim(), roster)
+    : "";
   row[26] = normalizeClientCaseRole(payload.caseRole);
   row[27] = payload.birthday?.trim() || "";
   row[29] = payload.psychologistName?.trim() || "";
@@ -262,12 +275,15 @@ async function writeMasterRow(
   if (payload.birthday?.trim()) {
     await ensureMasterListColumns(accessToken);
   }
+  if (payload.assignedAttorney?.trim() || payload.coAssignedAttorney?.trim()) {
+    await ensureMasterListColumns(accessToken);
+  }
   const sheets = getSheetsClient(accessToken);
   await sheets.spreadsheets.values.update({
     spreadsheetId: getSpreadsheetId(),
-    range: `'${GL.sheets.master}'!A${masterRow}:AC${masterRow}`,
+    range: `'${GL.sheets.master}'!A${masterRow}:AJ${masterRow}`,
     valueInputOption: "USER_ENTERED",
-    requestBody: { values: [masterRowValues(payload, clientCode)] }
+    requestBody: { values: [await masterRowValues(accessToken, payload, clientCode)] }
   });
 }
 
@@ -275,7 +291,7 @@ async function clearMasterRow(accessToken: string, masterRow: number): Promise<v
   const sheets = getSheetsClient(accessToken);
   await sheets.spreadsheets.values.update({
     spreadsheetId: getSpreadsheetId(),
-    range: `'${GL.sheets.master}'!A${masterRow}:AC${masterRow}`,
+    range: `'${GL.sheets.master}'!A${masterRow}:AJ${masterRow}`,
     valueInputOption: "USER_ENTERED",
     requestBody: { values: [new Array(GL.masterHeaders.length).fill("")] }
   });

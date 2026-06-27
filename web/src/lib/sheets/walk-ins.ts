@@ -438,7 +438,9 @@ export async function promoteWalkInClient(
     clientAddress: clientPayload.clientAddress,
     prevBalance: clientPayload.prevBalance,
     preferredGreeting: clientPayload.preferredGreeting,
-    clientStatus: clientPayload.clientStatus || "Active"
+    clientStatus: clientPayload.clientStatus || "Active",
+    assignedAttorney: clientPayload.assignedAttorney,
+    coAssignedAttorney: clientPayload.coAssignedAttorney
   };
 
   const result = await createClient(accessToken, payload);

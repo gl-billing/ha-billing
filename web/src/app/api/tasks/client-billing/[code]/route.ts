@@ -92,6 +92,7 @@ export async function GET(request: Request, context: RouteContext) {
         phone: client.phone,
         address: client.address,
         assignedAttorney: client.assignedAttorney,
+        coAssignedAttorney: client.coAssignedAttorney,
         retainerBalance: client.retainerBalance,
         lastBillingDate: client.lastBillingDate,
         nextFollowUp: client.nextFollowUp,

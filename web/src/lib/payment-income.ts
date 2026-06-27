@@ -6,6 +6,7 @@ export const PAYMENT_INCOME_TYPES = [
   "Professional Fee",
   "Notarial Fee",
   "Appearance Fee",
+  "Pleading Fee",
   "Filing Fee",
   "Other"
 ] as const;
@@ -25,6 +26,7 @@ export function normalizePaymentIncomeType(value: string | undefined | null): Pa
   const lower = text.toLowerCase();
   if (lower.includes("acceptance")) return "Acceptance Fee";
   if (lower.includes("appearance")) return "Appearance Fee";
+  if (lower.includes("pleading") || lower.includes("drafting pleading")) return "Pleading Fee";
   if (lower.includes("notarial") || lower.includes("notarization")) return "Notarial Fee";
   if (lower.includes("filing")) return "Filing Fee";
   if (lower.includes("professional")) return "Professional Fee";

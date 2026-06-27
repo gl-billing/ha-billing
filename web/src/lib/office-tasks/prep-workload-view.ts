@@ -36,18 +36,22 @@ export function prepRoleFromLoginEmail(email: string): PrepWorkloadViewRole | nu
   const value = email.trim().toLowerCase();
   if (!value) return null;
   const local = value.split("@")[0] || value;
-  if (/ellyza|andrea|farvjas|jasbrie|hakola|(?<![a-z])jas(?![a-z])|james.*bryan/.test(local)) {
+  if (/shiela|legal|ellyza|andrea|farvjas|jasbrie|hakola|(?<![a-z])jas(?![a-z])|james.*bryan/.test(local)) {
     return "prep";
   }
-  if (/janinerose|maria|nikki|nikkigutz|carlos/.test(local)) return "lawyer";
+  if (
+    /hernandez|rahernandez|lizparreno|pasagui|janinerose|maria|nikki|nikkigutz|carlos|parreno/.test(local)
+  ) {
+    return "lawyer";
+  }
   return null;
 }
 
 function prepRoleFromDisplayText(text: string): PrepWorkloadViewRole | null {
   const value = text.trim().toLowerCase();
   if (!value) return null;
-  if (/\bandrea\b|\bellyza\b|\bjas\b|james bryan|hakola/.test(value)) return "prep";
-  if (/\bmaria\b|\bhernandez\b|\bcarlos\b/.test(value)) return "lawyer";
+  if (/\bshiela\b|\bandrea\b|\bellyza\b|\bjas\b|james bryan|hakola/.test(value)) return "prep";
+  if (/\brobert\b|\bhernandez\b|\bmaria\b|\bcarlos\b|\bparreno\b|\bpasagui\b/.test(value)) return "lawyer";
   return null;
 }
 

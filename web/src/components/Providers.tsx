@@ -4,6 +4,7 @@ import type { Session } from "next-auth";
 import { SessionProvider, signOut, useSession } from "next-auth/react";
 import { PwaInstallBanner, PwaRegister, PwaWrongHomeScreenHint } from "@/components/PwaInstall";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { ContentProtectionProvider } from "@/components/ContentProtectionProvider";
 
 function SessionGuard({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
@@ -42,6 +43,7 @@ export function Providers({
       <PwaWrongHomeScreenHint />
       <OfflineBanner />
       <SessionGuard>{children}</SessionGuard>
+      <ContentProtectionProvider />
       <PwaInstallBanner />
     </SessionProvider>
   );

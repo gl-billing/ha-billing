@@ -102,6 +102,9 @@ export type EventFormInput = {
   fromPretrialOrder?: boolean;
   ptoOrderDate?: string;
   succeedingHearingDates?: SucceedingHearingDate[];
+  billAppearanceFee?: boolean;
+  billPleadingFee?: boolean;
+  billingFeeAmount?: string | number;
 };
 
 function eventSheetEndColumn(): string {

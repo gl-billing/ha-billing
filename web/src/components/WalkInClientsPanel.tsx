@@ -1,5 +1,6 @@
 "use client";
 
+import { AssignedLawyerFields } from "@/components/AssignedLawyerFields";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFocusOnMount } from "@/hooks/useFocusOnMount";
 import { FormStatusReport } from "@/components/FormStatusReport";
@@ -70,6 +71,7 @@ export function WalkInClientsPanel({ busy, onBusy, onStatus, onPromoted, onOpenB
   const [clientName, setClientName] = useState("");
   const [caseTitle, setCaseTitle] = useState("");
   const [promoteAttorney, setPromoteAttorney] = useState("");
+  const [promoteCoAttorney, setPromoteCoAttorney] = useState("");
   const [promoteChecklist, setPromoteChecklist] = useState({
     engagementLetter: true,
     scheduleInitialConference: true as boolean | null,
@@ -387,6 +389,7 @@ export function WalkInClientsPanel({ busy, onBusy, onStatus, onPromoted, onOpenB
           contactEmail: promoteEntry.email,
           contactPhone: promoteEntry.phone,
           assignedAttorney: promoteAttorney.trim() || undefined,
+          coAssignedAttorney: promoteCoAttorney.trim() || undefined,
           checklist: {
             engagementLetter: promoteChecklist.engagementLetter,
             scheduleInitialConference: promoteChecklist.scheduleInitialConference === true,
@@ -822,15 +825,14 @@ export function WalkInClientsPanel({ busy, onBusy, onStatus, onPromoted, onOpenB
                 onBlur={() => void runPromoteCodeCheck()}
               />
             </Field>
-            <Field label="Assigned attorney">
-              <input
-                className="field sm:col-span-2"
-                value={promoteAttorney}
-                disabled={saving}
-                placeholder="e.g. Atty. Janine"
-                onChange={(e) => setPromoteAttorney(e.target.value)}
-              />
-            </Field>
+            <AssignedLawyerFields
+              primaryLawyer={promoteAttorney}
+              secondaryLawyer={promoteCoAttorney}
+              disabled={saving}
+              layout="stack"
+              onPrimaryChange={setPromoteAttorney}
+              onSecondaryChange={setPromoteCoAttorney}
+            />
           </div>
           <ClientCodeWarningPanel
             check={promoteCodeCheck}

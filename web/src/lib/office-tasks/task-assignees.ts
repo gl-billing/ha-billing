@@ -2,12 +2,12 @@ import type { EmployeeRecord } from "@/lib/office-tasks/sheets/employees";
 import { resolveAndreaEmployee } from "@/lib/hearing-escalation";
 import { resolveFirmOwnerAssignee } from "@/lib/staff-assignee";
 
-/** Default assignee for BIR / tax compliance work — Atty. Maria Hernandez. */
+/** Default assignee for BIR / tax compliance work — managing partner. */
 export function defaultTaxComplianceAssignee(roster: string[]): string {
   return resolveFirmOwnerAssignee(roster) || roster.find((name) => /janine/i.test(name)) || "Admin";
 }
 
-/** Default assignee for billing ops, SOA/AR, and engagement/contract delivery — Andrea. */
+/** Default assignee for billing ops, SOA/AR, and engagement/contract delivery — firm secretary. */
 export function resolveAndreaAssignee(
   roster: string[],
   directory?: EmployeeRecord[]
@@ -19,11 +19,16 @@ export function resolveAndreaAssignee(
 
   const fromRoster = roster.find((name) => {
     const lower = name.toLowerCase();
-    return lower.includes("andrea") || lower.includes("ellyza");
+    return (
+      lower.includes("shiela") ||
+      lower.includes("andrea") ||
+      lower.includes("ellyza") ||
+      lower.includes("secretary")
+    );
   });
   if (fromRoster) return fromRoster;
 
-  return "Andrea";
+  return "Shiela";
 }
 
 export function defaultAndreaOperationsAssignee(

@@ -119,8 +119,14 @@ export function BillingApp() {
   const chargeAmountRef = useRef<HTMLInputElement>(null);
   const paymentAmountRef = useRef<HTMLInputElement>(null);
   const clientCodeRef = useRef<HTMLSelectElement>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminResolved, setAdminResolved] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => Boolean(session?.user?.isAdmin));
+  const [canManageTeamRoster, setCanManageTeamRoster] = useState(() =>
+    Boolean(session?.user?.canManageTeamRoster)
+  );
+  const [adminResolved, setAdminResolved] = useState(
+    () => session?.user?.isAdmin === true || session?.user?.canManageTeamRoster === true
+  );
+  const canOpenPayroll = isAdmin || canManageTeamRoster;
   const billingAccess = session?.user?.billingAccess !== false;
   const navProfile = resolveNavUserProfile({
     email: session?.user?.email,
@@ -143,14 +149,19 @@ export function BillingApp() {
 
   const goToPage = useCallback(
     (next: AppPage) => {
-      if (adminResolved && !isAdmin && isAdminBillingPage(next)) {
+      if (
+        adminResolved &&
+        isAdminBillingPage(next) &&
+        !isAdmin &&
+        !(next === "staffSalary" && canManageTeamRoster)
+      ) {
         onStatus("Only firm admins can open that tab.", true);
         return;
       }
       if (
         adminResolved &&
         navProfile === "secretary" &&
-        !isAllowedBillingPage(next, isAdmin, navProfile, email)
+        !isAllowedBillingPage(next, isAdmin, navProfile, email, canManageTeamRoster)
       ) {
         onStatus("That tab is not in your desk view.", true);
         return;
@@ -158,12 +169,15 @@ export function BillingApp() {
       setPage(next);
       saveBillingPage(next);
     },
-    [adminResolved, email, isAdmin, navProfile, onStatus]
+    [adminResolved, canManageTeamRoster, email, isAdmin, navProfile, onStatus]
   );
 
   const billingNavTabs = useMemo(
-    () => (adminResolved ? billingNavTabsForUser(isAdmin, navProfile) : billingNavTabsForUser(false, navProfile)),
-    [adminResolved, isAdmin, navProfile]
+    () =>
+      adminResolved
+        ? billingNavTabsForUser(isAdmin, navProfile, canManageTeamRoster)
+        : billingNavTabsForUser(false, navProfile),
+    [adminResolved, canManageTeamRoster, isAdmin, navProfile]
   );
   const introContent = useMemo(() => getBillingIntroContent(billingNavTabs), [billingNavTabs]);
   const tabShortcuts = useMemo(() => buildTabShortcutHelp(billingNavTabs), [billingNavTabs]);
@@ -225,13 +239,27 @@ export function BillingApp() {
   }, [introGate, router]);
 
   useEffect(() => {
+    if (session?.user?.isAdmin) {
+      setIsAdmin(true);
+      setAdminResolved(true);
+    }
+    if (session?.user?.canManageTeamRoster) {
+      setCanManageTeamRoster(true);
+      setAdminResolved(true);
+    }
+  }, [session?.user?.canManageTeamRoster, session?.user?.isAdmin]);
+
+  useEffect(() => {
     
     let cancelled = false;
     void fetch("/api/me")
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         if (cancelled) return;
-        if (json) setIsAdmin(Boolean(json.isAdmin));
+        if (json) {
+          setIsAdmin(Boolean(json.isAdmin));
+          setCanManageTeamRoster(Boolean(json.canManageTeamRoster));
+        }
         setAdminResolved(true);
       })
       .catch(() => {
@@ -244,16 +272,19 @@ export function BillingApp() {
 
   useEffect(() => {
     if (introGate || !adminResolved || isAdmin) return;
-    if (isAdminBillingPage(page)) {
+    if (isAdminBillingPage(page) && !(page === "staffSalary" && canManageTeamRoster)) {
       setPage("billing");
       saveBillingPage("billing");
       return;
     }
-    if (navProfile === "secretary" && !isAllowedBillingPage(page, isAdmin, navProfile, email)) {
+    if (
+      navProfile === "secretary" &&
+      !isAllowedBillingPage(page, isAdmin, navProfile, email, canManageTeamRoster)
+    ) {
       setPage("billing");
       saveBillingPage("billing");
     }
-  }, [introGate, adminResolved, email, isAdmin, navProfile, page]);
+  }, [canManageTeamRoster, introGate, adminResolved, email, isAdmin, navProfile, page]);
 
   useEffect(() => {
     if (tab !== "payment" || !clientCode) return;
@@ -810,7 +841,7 @@ export function BillingApp() {
         </>
       )}
 
-      {page === "staffSalary" && adminResolved && isAdmin && (
+      {page === "staffSalary" && adminResolved && canOpenPayroll && (
         <>
           <TabPageHeader resetKey={page}>
             <BillingTabGuide title="About staff salary">
@@ -1068,6 +1099,7 @@ export function BillingApp() {
                 setPaymentAmount(String(charge.amount));
                 setPaymentIncomeType(charge.incomeType);
                 setPaymentDescription(charge.description || charge.category);
+                if (charge.details?.trim()) setPaymentDetails(charge.details.trim());
                 setPaymentDefaultHint(`Matched open charge · ${charge.incomeType}`);
               }}
             />

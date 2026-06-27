@@ -2,10 +2,14 @@ import {
   ALLOCATION_BUCKET_ORDER,
   ALLOCATION_SETTING_KEYS,
   buildBucketBalances,
+  computeAcceptanceFeeShares,
   computeAllocationSplits,
   computeIncomeChangePct,
+  computePleadingFeeShares,
   isAppearanceFeePayment,
+  isAcceptanceFeePayment,
   isOfficeSplitPayment,
+  isPleadingFeePayment,
   isUnclassifiedIncomePayment,
   monthCloseHasBlockers,
   monthCloseHasWarnings,
@@ -16,8 +20,10 @@ import {
   readBucketCurrentBalances,
   readClosedMonths,
   shiftAllocationMonth,
+  summarizeAcceptanceFeeSharing,
   summarizeAppearanceFeesByAttorney,
   summarizeOfficeIncomeSources,
+  summarizePleadingFeeSharing,
   buildMonthCloseChecklist,
   unclassifiedIncomeReason,
   UNASSIGNED_ATTORNEY_LABEL,
@@ -25,12 +31,20 @@ import {
   type AllocationIncomeLine,
   type AllocationSettings,
   type AppearanceFeeAttributionLine,
+  type AcceptanceFeeAttributionLine,
+  type PleadingFeeAttributionLine,
   type BucketAdjustment,
   type MonthlyAllocationReport,
   type RollingMonthSummary,
   type UnclassifiedIncomeLine
 } from "@/lib/firm-allocation";
+import { resolveAcceptanceFeeAssociateFromClient } from "@/lib/assigned-lawyers";
 import { GL } from "@/lib/gl-config";
+import {
+  parseAppearanceAttorneyFromLedgerDetails,
+  parsePleadingDrafterFromLedgerDetails,
+  parseSoleLawyerFromLedgerDetails
+} from "@/lib/office-tasks/event-matter-billing-shared";
 import {
   appendSheetValues,
   getSheetsClient,
@@ -46,6 +60,7 @@ type ClientLedgerMeta = {
   code: string;
   name: string;
   assignedAttorney: string;
+  coAssignedAttorney: string;
 };
 
 function parseDate(value: unknown): Date | null {
@@ -80,7 +95,8 @@ function clientsFromMaster(masterRows: unknown[][]): ClientLedgerMeta[] {
     .map((row) => ({
       code: String(row[0]),
       name: String(row[1] || ""),
-      assignedAttorney: String(row[22] || "").trim() || UNASSIGNED_ATTORNEY_LABEL
+      assignedAttorney: String(row[22] || "").trim() || UNASSIGNED_ATTORNEY_LABEL,
+      coAssignedAttorney: String(row[35] || "").trim()
     }));
 }
 
@@ -226,9 +242,99 @@ function collectAppearanceFeeLines(
         date: formatDateDisplay(row[0]),
         clientCode: client.code,
         clientName: client.name,
-        assignedAttorney: client.assignedAttorney,
+        assignedAttorney:
+          parseAppearanceAttorneyFromLedgerDetails(details) || client.assignedAttorney,
         label: description || category || "Appearance fee",
         amount
+      });
+    });
+  });
+
+  return lines;
+}
+
+function collectAcceptanceFeeLines(
+  clients: ClientLedgerMeta[],
+  ledgers: Map<string, string[][]>,
+  year: number,
+  month: number
+): AcceptanceFeeAttributionLine[] {
+  const lines: AcceptanceFeeAttributionLine[] = [];
+
+  clients.forEach((client) => {
+    const rows = ledgers.get(client.code) || [];
+    rows.forEach((row, index) => {
+      if (!row[0]) return;
+      const type = String(row[1] || "").toLowerCase();
+      if (type !== "payment") return;
+      const amount = Number(row[5]) || 0;
+      if (amount <= 0) return;
+      if (!isInMonth(String(row[0]), year, month)) return;
+
+      const category = String(row[2] || "");
+      const description = String(row[3] || "");
+      const details = String(row[8] || "");
+      if (!isAcceptanceFeePayment(category, description, details)) return;
+
+      const shares = computeAcceptanceFeeShares(amount);
+      const sheetRow = index + GL.ledgerStartRow;
+      lines.push({
+        id: `acceptance-${client.code}-${sheetRow}`,
+        date: formatDateDisplay(row[0]),
+        clientCode: client.code,
+        clientName: client.name,
+        handlingAssociate: resolveAcceptanceFeeAssociateFromClient(
+          client.assignedAttorney,
+          client.coAssignedAttorney
+        ),
+        label: description || category || "Acceptance fee",
+        amount,
+        ...shares
+      });
+    });
+  });
+
+  return lines;
+}
+
+function collectPleadingFeeLines(
+  clients: ClientLedgerMeta[],
+  ledgers: Map<string, string[][]>,
+  year: number,
+  month: number
+): PleadingFeeAttributionLine[] {
+  const lines: PleadingFeeAttributionLine[] = [];
+
+  clients.forEach((client) => {
+    const rows = ledgers.get(client.code) || [];
+    rows.forEach((row, index) => {
+      if (!row[0]) return;
+      const type = String(row[1] || "").toLowerCase();
+      if (type !== "payment") return;
+      const amount = Number(row[5]) || 0;
+      if (amount <= 0) return;
+      if (!isInMonth(String(row[0]), year, month)) return;
+
+      const category = String(row[2] || "");
+      const description = String(row[3] || "");
+      const details = String(row[8] || "");
+      if (!isPleadingFeePayment(category, description, details)) return;
+
+      const soleLawyerOnMatter =
+        parseSoleLawyerFromLedgerDetails(details) ||
+        (!client.coAssignedAttorney.trim() && Boolean(client.assignedAttorney.trim()));
+      const shares = computePleadingFeeShares(amount, { soleLawyerOnMatter });
+      const sheetRow = index + GL.ledgerStartRow;
+      lines.push({
+        id: `pleading-${client.code}-${sheetRow}`,
+        date: formatDateDisplay(row[0]),
+        clientCode: client.code,
+        clientName: client.name,
+        drafter: parsePleadingDrafterFromLedgerDetails(details) || client.assignedAttorney,
+        label: description || category || "Pleading fee",
+        amount,
+        soleLawyerOnMatter,
+        ...shares
       });
     });
   });
@@ -417,7 +523,22 @@ function sumMonthOfficeIncome(
 ): number {
   const paymentLines = collectOfficePaymentLines(clients, ledgers, year, month);
   const notarizationLines = collectNotarizationLines(year, month, notarizations);
-  return Math.round([...paymentLines, ...notarizationLines].reduce((sum, line) => sum + line.amount, 0) * 100) / 100;
+  const acceptanceFirmShare = collectAcceptanceFeeLines(clients, ledgers, year, month).reduce(
+    (sum, line) => sum + line.firmShare,
+    0
+  );
+  const pleadingFirmShare = collectPleadingFeeLines(clients, ledgers, year, month).reduce(
+    (sum, line) => sum + line.firmShare,
+    0
+  );
+  return (
+    Math.round(
+      ([...paymentLines, ...notarizationLines].reduce((sum, line) => sum + line.amount, 0) +
+        acceptanceFirmShare +
+        pleadingFirmShare) *
+        100
+    ) / 100
+  );
 }
 
 export async function recordBucketAdjustment(
@@ -521,6 +642,8 @@ export async function getMonthlyAllocationReport(
   const paymentLines = collectOfficePaymentLines(clients, ledgers, year, month);
   const notarizationLines = collectNotarizationLines(year, month, notarizations);
   const appearanceFees = collectAppearanceFeeLines(clients, ledgers, year, month);
+  const acceptanceFees = collectAcceptanceFeeLines(clients, ledgers, year, month);
+  const pleadingFees = collectPleadingFeeLines(clients, ledgers, year, month);
   const unclassifiedIncome = collectUnclassifiedIncomeLines(clients, ledgers, year, month);
 
   const priorMonth = month === 1 ? 12 : month - 1;
@@ -555,7 +678,24 @@ export async function getMonthlyAllocationReport(
     return db - da;
   });
 
-  const totalIncome = Math.round(lines.reduce((sum, line) => sum + line.amount, 0) * 100) / 100;
+  const totalAcceptanceFees =
+    Math.round(acceptanceFees.reduce((sum, line) => sum + line.amount, 0) * 100) / 100;
+  const totalAcceptanceFirmShare =
+    Math.round(acceptanceFees.reduce((sum, line) => sum + line.firmShare, 0) * 100) / 100;
+  const totalPleadingFees =
+    Math.round(pleadingFees.reduce((sum, line) => sum + line.amount, 0) * 100) / 100;
+  const totalPleadingFirmShare =
+    Math.round(pleadingFees.reduce((sum, line) => sum + line.firmShare, 0) * 100) / 100;
+  const pleadingFeeSharing = summarizePleadingFeeSharing(pleadingFees);
+  const acceptanceFeeSharing = summarizeAcceptanceFeeSharing(acceptanceFees);
+
+  const totalIncome =
+    Math.round(
+      (lines.reduce((sum, line) => sum + line.amount, 0) +
+        totalAcceptanceFirmShare +
+        totalPleadingFirmShare) *
+        100
+    ) / 100;
   const splits = computeAllocationSplits(totalIncome, allocationSettings.percents);
   const totalAppearanceFees =
     Math.round(appearanceFees.reduce((sum, line) => sum + line.amount, 0) * 100) / 100;
@@ -563,6 +703,9 @@ export async function getMonthlyAllocationReport(
     Math.round(unclassifiedIncome.reduce((sum, line) => sum + line.amount, 0) * 100) / 100;
 
   const token = monthCloseToken(year, month);
+
+  const sourceBreakdown = summarizeOfficeIncomeSources(lines);
+  sourceBreakdown.acceptance = totalAcceptanceFees;
 
   const reportDraft: MonthlyAllocationReport = {
     year,
@@ -572,10 +715,18 @@ export async function getMonthlyAllocationReport(
     lines,
     totalIncome,
     splits,
-    sourceBreakdown: summarizeOfficeIncomeSources(lines),
+    sourceBreakdown,
     appearanceFees,
     appearanceFeeByAttorney: summarizeAppearanceFeesByAttorney(appearanceFees),
     totalAppearanceFees,
+    acceptanceFees,
+    acceptanceFeeSharing,
+    totalAcceptanceFees,
+    totalAcceptanceFirmShare,
+    pleadingFees,
+    pleadingFeeSharing,
+    totalPleadingFees,
+    totalPleadingFirmShare,
     unclassifiedIncome,
     totalUnclassifiedIncome,
     monthClosed: closedMonths.has(token),

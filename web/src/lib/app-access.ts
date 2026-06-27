@@ -1,3 +1,4 @@
+import { FIRM_OWNER_EMAILS, isFirmOwnerEmail } from "@/lib/firm-team-config";
 import { DEFAULT_FIRM_SENDER_EMAIL } from "@/lib/firm-sender";
 import { STAFF_GOOGLE_PROVIDER_ID } from "@/lib/guest-oauth";
 import { getAdminEmails } from "@/lib/admin";
@@ -14,6 +15,8 @@ function uniqueEmails(emails: string[]): string[] {
 export function isStaffEmail(email: string | null | undefined): boolean {
   if (!email) return false;
   const normalized = email.trim().toLowerCase();
+
+  if (FIRM_OWNER_EMAILS.some((owner) => owner.toLowerCase() === normalized)) return true;
 
   if (getTasksOnlyEmails().includes(normalized)) return true;
   if (getSecretaryNavEmails().includes(normalized)) return true;
@@ -70,6 +73,7 @@ export function getDeskBillingEditorEmails(): string[] {
 
 export function canEditDeskBilling(email: string | null | undefined): boolean {
   if (!email || !canAccessBilling(email)) return false;
+  if (isFirmOwnerEmail(email)) return true;
   return getDeskBillingEditorEmails().includes(email.trim().toLowerCase());
 }
 

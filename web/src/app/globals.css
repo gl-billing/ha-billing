@@ -4535,6 +4535,7 @@ html {
   html.content-protection body {
     -webkit-user-select: none;
     user-select: none;
+    -webkit-touch-callout: none;
   }
 
   html.content-protection input,

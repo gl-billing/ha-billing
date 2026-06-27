@@ -8,6 +8,7 @@ import { ClientBirthdayCake } from "@/components/ClientBirthdayCake";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { isBirthdayToday } from "@/lib/birthday-greeting";
+import { formatClientAssignedLawyers } from "@/lib/assigned-lawyers";
 import {
   formatClientCaseTypeLabel,
   showPsychologistFields
@@ -76,7 +77,7 @@ function buildRows(detail: ClientDetail): DetailRow[] {
   }
 
   rows.push(
-    { label: "Handling attorney", value: display(detail.assignedAttorney) },
+    { label: "Assigned lawyers", value: display(formatClientAssignedLawyers(detail.assignedAttorney, detail.coAssignedAttorney)) },
     { label: "Account status", value: display(detail.accountStatus) },
     { label: "Client status", value: display(detail.status) },
     { label: "Balance", value: formatPeso(detail.balance) },

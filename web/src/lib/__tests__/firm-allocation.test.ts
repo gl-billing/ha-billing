@@ -1,27 +1,106 @@
 import { describe, expect, it } from "vitest";
+import { resolveAcceptanceFeeAssociateFromClient } from "@/lib/assigned-lawyers";
 import {
   buildMonthCloseChecklist,
+  computeAcceptanceFeeShares,
   computeAllocationSplits,
+  computePleadingFeeShares,
   DEFAULT_ALLOCATION_PERCENTS,
+  isAcceptanceFeePayment,
   isAppearanceFeePayment,
   isOfficeSplitPayment,
+  isPleadingFeePayment,
   isUnclassifiedIncomePayment,
   monthCloseHasBlockers,
   monthCloseHasWarnings,
   readAllocationSettings,
+  summarizeAcceptanceFeeSharing,
   summarizeAppearanceFeesByAttorney,
-  summarizeOfficeIncomeSources
+  summarizeOfficeIncomeSources,
+  summarizePleadingFeeSharing
 } from "@/lib/firm-allocation";
+import { ACCEPTANCE_FEE_SHARE_PERCENTS, MANAGING_PARTNER, PLEADING_FEE_SHARE_PERCENTS } from "@/lib/firm-team-config";
 import { buildPaymentLedgerFields, normalizePaymentIncomeType } from "@/lib/payment-income";
 
+function emptyAcceptanceReportFields() {
+  return {
+    acceptanceFees: [],
+    acceptanceFeeSharing: summarizeAcceptanceFeeSharing([]),
+    totalAcceptanceFees: 0,
+    totalAcceptanceFirmShare: 0,
+    pleadingFees: [],
+    pleadingFeeSharing: summarizePleadingFeeSharing([]),
+    totalPleadingFees: 0,
+    totalPleadingFirmShare: 0
+  };
+}
+
 describe("firm allocation", () => {
-  it("detects appearance fee payments", () => {
+  it("detects appearance, pleading, and acceptance fee payments", () => {
     expect(isAppearanceFeePayment("Appearance Fee", "Hearing", "")).toBe(true);
     expect(isAppearanceFeePayment("Acceptance Fee", "Payment", "")).toBe(false);
+    expect(isPleadingFeePayment("Pleading Fee", "Drafting pleading fee", "")).toBe(true);
+    expect(isPleadingFeePayment("Appearance Fee", "Hearing", "")).toBe(false);
+    expect(isAcceptanceFeePayment("Acceptance Fee", "Intake", "")).toBe(true);
+    expect(isAcceptanceFeePayment("Appearance Fee", "Hearing", "")).toBe(false);
   });
 
-  it("includes only acceptance, professional, and notarial ledger payments in office split", () => {
-    expect(isOfficeSplitPayment("Acceptance Fee", "Intake", "")).toBe(true);
+  it("splits pleading fees 20/30/50 or 100% to drafter when sole lawyer", () => {
+    expect(computePleadingFeeShares(10_000, { soleLawyerOnMatter: false })).toEqual({
+      firmShare: 2_000,
+      managingPartnerShare: 3_000,
+      drafterShare: 5_000
+    });
+    expect(computePleadingFeeShares(10_000, { soleLawyerOnMatter: true })).toEqual({
+      firmShare: 0,
+      managingPartnerShare: 0,
+      drafterShare: 10_000
+    });
+    expect(PLEADING_FEE_SHARE_PERCENTS.firm + PLEADING_FEE_SHARE_PERCENTS.managingPartner + PLEADING_FEE_SHARE_PERCENTS.drafter).toBe(100);
+  });
+
+  it("splits acceptance fees 20% firm / 40% managing partner / 40% associate", () => {
+    expect(computeAcceptanceFeeShares(100_000)).toEqual({
+      firmShare: 20_000,
+      managingPartnerShare: 40_000,
+      associateShare: 40_000
+    });
+  });
+
+  it("uses the handling associate from the client profile", () => {
+    expect(resolveAcceptanceFeeAssociateFromClient("Atty. April Liz Parreno")).toBe("Atty. April Liz Parreno");
+    expect(
+      resolveAcceptanceFeeAssociateFromClient(
+        MANAGING_PARTNER.displayName,
+        "Atty. Jeff Pasagui"
+      )
+    ).toBe("Atty. Jeff Pasagui");
+    expect(resolveAcceptanceFeeAssociateFromClient(MANAGING_PARTNER.displayName)).toBe("Unassigned");
+  });
+
+  it("summarizes acceptance fee sharing by associate", () => {
+    const summary = summarizeAcceptanceFeeSharing([
+      {
+        id: "1",
+        date: "Jun 1, 2026",
+        clientCode: "RET-A",
+        clientName: "Client A",
+        handlingAssociate: "Atty. Jeff Pasagui",
+        label: "Acceptance fee",
+        amount: 100_000,
+        firmShare: 20_000,
+        managingPartnerShare: 40_000,
+        associateShare: 40_000
+      }
+    ]);
+    expect(summary.firmTotal).toBe(20_000);
+    expect(summary.managingPartnerTotal).toBe(40_000);
+    expect(summary.byAssociate[0]?.shareTotal).toBe(40_000);
+  });
+
+  it("includes only professional and notarial ledger payments in office split", () => {
+    expect(isOfficeSplitPayment("Acceptance Fee", "Intake", "")).toBe(false);
+    expect(isOfficeSplitPayment("Pleading Fee", "Drafting pleading fee", "")).toBe(false);
     expect(isOfficeSplitPayment("Payment", "Professional fee — retainer", "")).toBe(true);
     expect(isOfficeSplitPayment("Notarial Fee", "Acknowledgment", "")).toBe(true);
     expect(isOfficeSplitPayment("Payment", "Notarization payment", "")).toBe(true);
@@ -113,7 +192,12 @@ describe("firm allocation", () => {
       category: "Acceptance Fee",
       description: "Acceptance Fee"
     });
+    expect(buildPaymentLedgerFields("Pleading Fee")).toEqual({
+      category: "Pleading Fee",
+      description: "Pleading Fee"
+    });
     expect(normalizePaymentIncomeType("payment for professional fee")).toBe("Professional Fee");
+    expect(normalizePaymentIncomeType("Drafting pleading fee")).toBe("Pleading Fee");
   });
 
   it("builds month close checklist with blockers and warnings", () => {
@@ -129,6 +213,7 @@ describe("firm allocation", () => {
       appearanceFees: [],
       appearanceFeeByAttorney: [],
       totalAppearanceFees: 0,
+      ...emptyAcceptanceReportFields(),
       unclassifiedIncome: [
         {
           id: "u1",
@@ -156,5 +241,13 @@ describe("firm allocation", () => {
     });
     expect(monthCloseHasWarnings(checklist)).toBe(true);
     expect(monthCloseHasBlockers(checklist)).toBe(false);
+  });
+
+  it("documents acceptance fee share policy", () => {
+    expect(
+      ACCEPTANCE_FEE_SHARE_PERCENTS.firm +
+        ACCEPTANCE_FEE_SHARE_PERCENTS.managingPartner +
+        ACCEPTANCE_FEE_SHARE_PERCENTS.associate
+    ).toBe(100);
   });
 });

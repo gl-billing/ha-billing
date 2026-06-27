@@ -28,6 +28,7 @@ export async function GET(request: Request) {
       "Email",
       "Phone",
       "Assigned Attorney",
+      "Co-Assigned Attorney",
       "Retainer",
       "Last SOA"
     ]);
@@ -44,6 +45,7 @@ export async function GET(request: Request) {
         c.email,
         c.phone || "",
         c.assignedAttorney || "",
+        c.coAssignedAttorney || "",
         c.retainerBalance || 0,
         c.soaSent || ""
       ])

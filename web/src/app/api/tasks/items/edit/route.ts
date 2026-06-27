@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { requireSessionAccessToken } from "@/lib/api-auth";
 import { authOptions } from "@/lib/auth";
+import { canAccessBilling } from "@/lib/app-access";
 import { syncSavedItemToCalendar } from "@/lib/calendar/sync-item-after-save";
+import { applyEventMatterBillingCharges } from "@/lib/office-tasks/event-matter-billing";
 import { appendTaskActivity } from "@/lib/office-tasks/sheets/activity-log";
 import { normalizeEventFormInput, validateEventFormInput } from "@/lib/office-tasks/event-form-utils";
 import {
@@ -115,13 +117,18 @@ export async function PATCH(request: Request) {
       remarks: body.remarks ? String(body.remarks) : "",
       status: String(body.status || "Scheduled"),
       reminderDays: Number(body.reminderDays ?? 1),
-      calendarSync: body.calendarSync === true
+      calendarSync: body.calendarSync === true,
+      billAppearanceFee: body.billAppearanceFee === true,
+      billPleadingFee: body.billPleadingFee === true,
+      billingFeeAmount: body.billingFeeAmount ? String(body.billingFeeAmount) : ""
     });
 
     const validationError = validateEventFormInput(form);
     if (validationError) {
       return NextResponse.json({ error: validationError }, { status: 400 });
     }
+
+    const session = await getServerSession(authOptions);
 
     if (!form.clientCase.trim() || !form.responsible.trim() || !form.details.trim()) {
       return NextResponse.json(
@@ -132,12 +139,28 @@ export async function PATCH(request: Request) {
 
     await updateEvent(token, rowNumber, form);
     invalidateTasksDataCache(token);
+
+    let billingNote = "";
+    if (form.billAppearanceFee || form.billPleadingFee) {
+      if (!canAccessBilling(session?.user?.email)) {
+        return NextResponse.json(
+          { error: "Billing access is required to add matter charges from events." },
+          { status: 403 }
+        );
+      }
+      const eventId = body.itemId ? String(body.itemId) : "";
+      if (!eventId) {
+        return NextResponse.json({ error: "Event ID is required to bill matter charges." }, { status: 400 });
+      }
+      const billingMessages = await applyEventMatterBillingCharges(token, { eventId, form });
+      billingNote = billingMessages.length ? ` ${billingMessages.join("; ")}.` : "";
+    }
+
     const calendar = await syncSavedItemToCalendar(
       token,
       body.itemId ? String(body.itemId) : "",
       form.calendarSync === true
     );
-    const session = await getServerSession(authOptions);
     await appendTaskActivity(token, {
       user: session?.user?.email || session?.user?.name || "staff",
       action: "edit",
@@ -150,10 +173,10 @@ export async function PATCH(request: Request) {
     return NextResponse.json({
       ok: true,
       message: calendar.calendarError
-        ? `Event updated. Calendar: ${calendar.calendarError}`
+        ? `Event updated.${billingNote} Calendar: ${calendar.calendarError}`
         : calendar.calendarEventId
-          ? "Event updated and synced to Google Calendar."
-          : "Event updated."
+          ? `Event updated and synced to Google Calendar.${billingNote}`
+          : `Event updated.${billingNote}`
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not save changes.";

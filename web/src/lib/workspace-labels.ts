@@ -1,4 +1,5 @@
 import { canEditDeskBilling, isSecretaryNavUser } from "@/lib/app-access";
+import { isFirmOwnerEmail } from "@/lib/firm-team-config";
 import type { SavedBillingPage, SavedTasksTab } from "@/lib/staff-prefs";
 
 export type NavUserProfile = "full" | "tasks-only" | "secretary";
@@ -249,7 +250,7 @@ export function isAdminBillingPage(page: SavedBillingPage): boolean {
   return BILLING_NAV_TABS.some((tab) => tab.id === page && tab.adminOnly);
 }
 
-/** Desk staff — daily billing flow */
+/** Desk staff — full billing except admin-only pages and firm reports. */
 const SECRETARY_BILLING_NAV_TAB_IDS: SavedBillingPage[] = [
   "billing",
   "walkIns",
@@ -257,7 +258,9 @@ const SECRETARY_BILLING_NAV_TAB_IDS: SavedBillingPage[] = [
   "notarizations",
   "spotBilling",
   "documents",
-  "newClient"
+  "newClient",
+  "home",
+  "history"
 ];
 
 /** Desk editors — walk-ins, spot billing, and notarizations (Andrea / info@). */
@@ -265,13 +268,17 @@ export const DESK_BILLING_EDIT_PAGES: SavedBillingPage[] = ["walkIns", "spotBill
 
 const TASKS_ONLY_NAV_TAB_IDS: SavedTasksTab[] = ["today", "add-task", "add-event", "calendar"];
 
-/** Secretary — queue, quick add, then calendar and search */
+/** Secretary — daily work, calendar, correspondence, and team views (no admin tools). */
 const SECRETARY_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
   "today",
   "add-task",
   "add-event",
   "calendar",
-  "all-items"
+  "week",
+  "all-items",
+  "correspondence",
+  "team",
+  "history"
 ];
 
 export function resolveNavUserProfile(options: {
@@ -280,6 +287,7 @@ export function resolveNavUserProfile(options: {
   secretaryNav?: boolean;
 }): NavUserProfile {
   if (!options.billingAccess) return "tasks-only";
+  if (isFirmOwnerEmail(options.email)) return "full";
   if (options.secretaryNav ?? isSecretaryNavUser(options.email)) return "secretary";
   return "full";
 }
@@ -297,14 +305,20 @@ function pickBillingNavTabs(ids: SavedBillingPage[], isAdmin: boolean): typeof B
     .filter((tab): tab is (typeof BILLING_NAV_TABS)[number] => Boolean(tab && (!tab.adminOnly || isAdmin)));
 }
 
-export function billingNavTabsForUser(isAdmin: boolean, profile: NavUserProfile = "full"): typeof BILLING_NAV_TABS {
+export function billingNavTabsForUser(
+  isAdmin: boolean,
+  profile: NavUserProfile = "full",
+  canManageTeamRoster = false
+): typeof BILLING_NAV_TABS {
   if (profile === "secretary") {
     return pickBillingNavTabs(SECRETARY_BILLING_NAV_TAB_IDS, isAdmin);
   }
   const ids = isAdmin
     ? [...FULL_BILLING_NAV_TAB_IDS, ...ADMIN_BILLING_NAV_TAB_IDS]
-    : FULL_BILLING_NAV_TAB_IDS;
-  return pickBillingNavTabs(ids, isAdmin);
+    : canManageTeamRoster
+      ? [...FULL_BILLING_NAV_TAB_IDS, "staffSalary"]
+      : FULL_BILLING_NAV_TAB_IDS;
+  return pickBillingNavTabs(ids, isAdmin || canManageTeamRoster);
 }
 
 /** Tasks-only staff (e.g. Jas) — daily board, calendar, and quick add (no billing browse tabs). */
@@ -338,8 +352,10 @@ export function isAllowedBillingPage(
   page: SavedBillingPage,
   isAdmin: boolean,
   profile: NavUserProfile = "full",
-  email?: string | null
+  email?: string | null,
+  canManageTeamRoster = false
 ): boolean {
+  if (page === "staffSalary" && canManageTeamRoster) return true;
   if (isAdminBillingPage(page) && !isAdmin) return false;
   if (email && canEditDeskBilling(email) && DESK_BILLING_EDIT_PAGES.includes(page)) return true;
   if (profile === "secretary") return SECRETARY_BILLING_NAV_TAB_IDS.includes(page);

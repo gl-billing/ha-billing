@@ -8,6 +8,8 @@ export type OpenChargeOption = {
   description: string;
   amount: number;
   incomeType: PaymentIncomeType;
+  /** Charge ledger details — event billing metadata for lawyer attribution on payment. */
+  details: string;
   display: string;
 };
 
@@ -31,6 +33,7 @@ export function listOpenChargesFromLedger(entries: LedgerEntry[], limit = 8): Op
         description: entry.description,
         amount: entry.charge,
         incomeType,
+        details: entry.details || "",
         display: `${entry.date} · ${formatPeso(entry.charge)} · ${label}`
       };
     });

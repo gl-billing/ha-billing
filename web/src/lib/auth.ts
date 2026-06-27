@@ -8,6 +8,7 @@ import {
   isStaffEmail,
   resolveStaffSignIn
 } from "@/lib/app-access";
+import { canManageTeamRoster, isAdminEmail } from "@/lib/admin";
 import { STAFF_GOOGLE_PROVIDER_ID } from "@/lib/guest-oauth";
 import { getGoogleOAuthConfig, getNextAuthSecret, isGoogleOAuthConfigured } from "@/lib/auth-env";
 import { formatStaffDisplayName } from "@/lib/user-display";
@@ -136,6 +137,8 @@ export const authOptions: NextAuthOptions = {
         user?.email ?? (typeof token.email === "string" ? token.email.trim() : "");
       if (email) {
         token.officeAccess = isStaffEmail(email);
+        token.isAdmin = isAdminEmail(email);
+        token.canManageTeamRoster = canManageTeamRoster(email);
       }
 
       if (account) {
@@ -165,6 +168,8 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.displayName = formatStaffDisplayName(session.user.name, session.user.email);
         session.user.billingAccess = canAccessBilling(session.user.email);
+        session.user.isAdmin = isAdminEmail(session.user.email);
+        session.user.canManageTeamRoster = canManageTeamRoster(session.user.email);
         session.user.secretaryNav =
           session.user.billingAccess === true && isSecretaryNavUser(session.user.email);
         session.user.deskBillingEdit =

@@ -15,6 +15,7 @@ import { getFirmMatterByCode } from "@/lib/office-tasks/firm-matters";
 import { ItemCard, type ItemSummary } from "@/components/office-tasks/ItemCard";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { DashboardSkeleton } from "@/components/Skeleton";
+import { formatClientAssignedLawyers } from "@/lib/assigned-lawyers";
 import type { ClientDetail, ActivityItem, LedgerEntry } from "@/lib/gl-config";
 import { formatPeso, GL } from "@/lib/gl-config";
 import {
@@ -89,6 +90,7 @@ type BillingClient = {
   phone: string;
   address: string;
   assignedAttorney: string;
+  coAssignedAttorney: string;
   retainerBalance: number;
   lastBillingDate: string;
   nextFollowUp: string;
@@ -118,6 +120,7 @@ function detailToBillingClient(detail: ClientDetail): BillingClient {
     phone: detail.phone || "",
     address: detail.address || "",
     assignedAttorney: detail.assignedAttorney || "",
+    coAssignedAttorney: detail.coAssignedAttorney || "",
     retainerBalance: detail.retainerBalance,
     lastBillingDate: detail.lastBillingDate,
     nextFollowUp: detail.nextFollowUp,
@@ -172,6 +175,7 @@ function billingClientToDetail(client: BillingClient): ClientDetail {
     phone: client.phone,
     address: client.address,
     assignedAttorney: client.assignedAttorney,
+    coAssignedAttorney: client.coAssignedAttorney,
     retainerBalance: client.retainerBalance,
     lastBillingDate: client.lastBillingDate,
     nextFollowUp: client.nextFollowUp,
@@ -1080,9 +1084,14 @@ export function MatterPage({ matterCode, user }: Props) {
                         <span className="client-matter-panel__stat-value">{openEvents}</span>
                       </div>
                       <div className="client-matter-panel__stat client-matter-panel__stat--wide">
-                        <span className="client-matter-panel__stat-label">Attorney</span>
+                        <span className="client-matter-panel__stat-label">Lawyers</span>
                         <span className="client-matter-panel__stat-value">
-                          {displayValue(billingClient.assignedAttorney)}
+                          {displayValue(
+                            formatClientAssignedLawyers(
+                              billingClient.assignedAttorney,
+                              billingClient.coAssignedAttorney
+                            )
+                          )}
                         </span>
                       </div>
                     </div>
@@ -1436,8 +1445,15 @@ export function MatterPage({ matterCode, user }: Props) {
                     <dd className="amount-serif">{formatPeso(billingClient.balance)}</dd>
                   </div>
                   <div>
-                    <dt>Attorney</dt>
-                    <dd>{displayValue(billingClient.assignedAttorney)}</dd>
+                    <dt>Lawyers</dt>
+                    <dd>
+                      {displayValue(
+                        formatClientAssignedLawyers(
+                          billingClient.assignedAttorney,
+                          billingClient.coAssignedAttorney
+                        )
+                      )}
+                    </dd>
                   </div>
                 </>
               ) : null}

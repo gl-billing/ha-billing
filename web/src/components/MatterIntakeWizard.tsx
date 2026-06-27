@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { NewClientPayload } from "@/lib/gl-config";
+import { AssignedLawyerFields } from "@/components/AssignedLawyerFields";
+import { formatClientAssignedLawyers } from "@/lib/assigned-lawyers";
 import { ClientCaseRoleSelect } from "@/components/ClientCaseRoleSelect";
 import { ClientCodeWarningPanel } from "@/components/ClientCodeWarningPanel";
 import { ClientContactEmailField } from "@/components/office-tasks/ClientContactEmailField";
@@ -86,6 +88,7 @@ type IntakeDraft = {
   psychologistAddress: string;
   prevBalance: string;
   assignedAttorney: string;
+  coAssignedAttorney: string;
   checklist: {
     engagementLetter: boolean;
     scheduleInitialConference: boolean | null;
@@ -135,6 +138,7 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
   const [psychologistAddress, setPsychologistAddress] = useState("");
   const [prevBalance, setPrevBalance] = useState("");
   const [assignedAttorney, setAssignedAttorney] = useState("");
+  const [coAssignedAttorney, setCoAssignedAttorney] = useState("");
   const [checklist, setChecklist] = useState({
     engagementLetter: true,
     scheduleInitialConference: null as boolean | null
@@ -193,6 +197,7 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
     setPsychologistAddress(draft.psychologistAddress || "");
     setPrevBalance(draft.prevBalance || "");
     setAssignedAttorney(draft.assignedAttorney || "");
+    setCoAssignedAttorney(draft.coAssignedAttorney || "");
     setChecklist(draft.checklist || { engagementLetter: true, scheduleInitialConference: null });
     if (draft.letter) setLetter(draft.letter);
   }, []);
@@ -218,6 +223,7 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
       psychologistAddress,
       prevBalance,
       assignedAttorney,
+      coAssignedAttorney,
       checklist,
       letter
     });
@@ -240,6 +246,7 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
     psychologistAddress,
     prevBalance,
     assignedAttorney,
+    coAssignedAttorney,
     checklist,
     letter,
     registeredCode
@@ -278,7 +285,7 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
       courtPending,
       contactEmail: formatContactEmails(contactEmails),
       clientAddress,
-      handlingAttorney: assignedAttorney
+      handlingAttorney: formatClientAssignedLawyers(assignedAttorney, coAssignedAttorney) || assignedAttorney
     }));
   }
 
@@ -292,7 +299,7 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
       courtPending,
       contactEmail: formatContactEmails(contactEmails),
       clientAddress,
-      handlingAttorney: assignedAttorney
+      handlingAttorney: formatClientAssignedLawyers(assignedAttorney, coAssignedAttorney) || assignedAttorney
     };
   }
 
@@ -351,7 +358,9 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
       psychologistAddress,
       prevBalance,
       preferredGreeting: resolveClientGreeting("", clientName),
-      clientStatus: "Active"
+      clientStatus: "Active",
+      assignedAttorney,
+      coAssignedAttorney
     };
 
     const res = await fetch("/api/intake", {
@@ -359,7 +368,6 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...payload,
-        assignedAttorney,
         checklist: intakeChecklistPayload,
         acknowledgeConflicts: conflictReviewChoice === "different_case",
         conflictReviewChoice: conflictReviewChoice || undefined
@@ -386,7 +394,7 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
         courtPending,
         contactEmail: formatContactEmails(contactEmails),
         clientAddress,
-        handlingAttorney: assignedAttorney,
+        handlingAttorney: formatClientAssignedLawyers(assignedAttorney, coAssignedAttorney) || assignedAttorney,
         preferredGreeting: resolveClientGreeting("", clientName)
       };
       setLetter(nextLetter);
@@ -428,6 +436,7 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
     setPsychologistAddress("");
     setPrevBalance("");
     setAssignedAttorney("");
+    setCoAssignedAttorney("");
     setChecklist({ engagementLetter: true, scheduleInitialConference: null });
     setRegisteredCode(null);
     setEngagementTaskId(null);
@@ -644,9 +653,14 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
           <Field label="Court where pending" hint="Optional.">
             <input className="field" value={courtPending} disabled={formBusy} onChange={(e) => setCourtPending(e.target.value)} />
           </Field>
-          <Field label="Assigned attorney" hint="Optional.">
-            <input className="field" value={assignedAttorney} disabled={formBusy} onChange={(e) => setAssignedAttorney(e.target.value)} placeholder="e.g. Atty. Janine" />
-          </Field>
+          <AssignedLawyerFields
+            primaryLawyer={assignedAttorney}
+            secondaryLawyer={coAssignedAttorney}
+            disabled={formBusy}
+            layout="stack"
+            onPrimaryChange={setAssignedAttorney}
+            onSecondaryChange={setCoAssignedAttorney}
+          />
           <ClientContactEmailField
             emails={contactEmails}
             disabled={formBusy}
@@ -1021,7 +1035,7 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
               <p><strong>Case type:</strong> {formatClientCaseTypeLabel(caseType, caseTypeOther)}</p>
             ) : null}
             <p><strong>Court:</strong> {courtPending || "—"}</p>
-            <p><strong>Attorney:</strong> {assignedAttorney || "Unassigned"}</p>
+            <p><strong>Lawyers:</strong> {formatClientAssignedLawyers(assignedAttorney, coAssignedAttorney) || "Unassigned"}</p>
             <p><strong>Email:</strong> {formatContactEmails(contactEmails) || "—"}</p>
             {showPsychologistFields({ caseType, caseTitle }) ? (
               <>

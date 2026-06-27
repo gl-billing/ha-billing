@@ -9,6 +9,8 @@ declare module "next-auth" {
     user?: DefaultSession["user"] & {
       displayName?: string;
       billingAccess?: boolean;
+      isAdmin?: boolean;
+      canManageTeamRoster?: boolean;
       secretaryNav?: boolean;
       deskBillingEdit?: boolean;
       officeAccess?: boolean;
@@ -24,6 +26,8 @@ declare module "next-auth/jwt" {
     error?: string;
     errorMessage?: string;
     officeAccess?: boolean;
+    isAdmin?: boolean;
+    canManageTeamRoster?: boolean;
     authProvider?: string;
   }
 }

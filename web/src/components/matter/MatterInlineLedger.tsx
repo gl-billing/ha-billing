@@ -230,6 +230,7 @@ export function MatterInlineLedger({
               setPaymentAmount(String(charge.amount));
               setPaymentIncomeType(charge.incomeType);
               setPaymentDescription(charge.description || charge.category);
+              if (charge.details?.trim()) setPaymentDetails(charge.details.trim());
               setPaymentDefaultHint(`Matched open charge · ${charge.incomeType}`);
             }}
           />

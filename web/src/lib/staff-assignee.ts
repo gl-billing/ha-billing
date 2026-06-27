@@ -22,7 +22,7 @@ function splitAssigneeParts(value: string): string[] {
     .filter(Boolean);
 }
 
-/** Placeholder assignees that belong to the firm owner (Atty. Maria Hernandez). */
+/** Placeholder assignees that belong to the firm owner / managing partner. */
 export function isOwnerAdminAssigneeAlias(input: string): boolean {
   const compact = String(input || "")
     .trim()
@@ -40,14 +40,17 @@ export function resolveFirmOwnerAssignee(roster: string[]): string | null {
   const exact = roster.find((name) => name.toLowerCase() === FIRM_COPYRIGHT_HOLDER.toLowerCase());
   if (exact) return exact;
 
-  const ownerMatches = roster.filter((name) => {
-    const norm = normalizeForMatch(name);
-    return norm.includes("maria") && norm.includes("hernandez");
-  });
-  if (ownerMatches.length === 1) return ownerMatches[0];
-  if (ownerMatches.length > 1) {
-    const withAtty = ownerMatches.find((name) => /^atty/i.test(name.trim()));
-    return withAtty || ownerMatches[0];
+  const ownerMatchers = [
+    (norm: string) => norm.includes("robert") && norm.includes("hernandez"),
+    (norm: string) => norm.includes("maria") && norm.includes("hernandez")
+  ];
+  for (const matchesOwner of ownerMatchers) {
+    const ownerMatches = roster.filter((name) => matchesOwner(normalizeForMatch(name)));
+    if (ownerMatches.length === 1) return ownerMatches[0];
+    if (ownerMatches.length > 1) {
+      const withAtty = ownerMatches.find((name) => /^atty/i.test(name.trim()));
+      return withAtty || ownerMatches[0];
+    }
   }
 
   const hernandezAtty = roster.filter((name) => {
@@ -91,13 +94,25 @@ export function canonicalizeStaffName(input: string, roster: string[]): string {
   }> = [
     { test: (value) => /^jas$/i.test(value) || /^hakola$/i.test(value), rosterMatch: (n) => (n.includes("james") && n.includes("bryan")) || n.includes("hakola") },
     {
-      test: (value) => /^(andrea|ellyza)$/i.test(value),
-      rosterMatch: (n) => n.includes("andrea") || n.includes("ellyza")
+      test: (value) => /^(andrea|ellyza|shiela)$/i.test(value),
+      rosterMatch: (n) => n.includes("andrea") || n.includes("ellyza") || n.includes("shiela")
     },
     { test: (value) => /^nikki$/i.test(value), rosterMatch: (n) => n.includes("nikki") },
     {
       test: (value) => /^maria$/i.test(value) || /^atty\.?\s*maria$/i.test(value),
       rosterMatch: (n) => n.includes("maria") && n.includes("hernandez")
+    },
+    {
+      test: (value) => /^(robert|bob)$/i.test(value) || /^atty\.?\s*robert$/i.test(value),
+      rosterMatch: (n) => n.includes("robert") && n.includes("hernandez")
+    },
+    {
+      test: (value) => /^(april|liz)$/i.test(value),
+      rosterMatch: (n) => n.includes("april") || n.includes("parreno")
+    },
+    {
+      test: (value) => /^jeff$/i.test(value),
+      rosterMatch: (n) => n.includes("jeff") || n.includes("pasagui")
     }
   ];
 

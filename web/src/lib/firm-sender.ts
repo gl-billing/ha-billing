@@ -10,7 +10,9 @@ function isValidEmailAddress(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-export const DEFAULT_FIRM_SENDER_EMAIL = "info@hernandezassociates.com";
+import { FIRM_INBOX_EMAIL } from "@/lib/firm-team-config";
+
+export const DEFAULT_FIRM_SENDER_EMAIL = FIRM_INBOX_EMAIL;
 
 const FIRM_SENDER_SETTINGS_KEYS = ["Firm Email", "Sender Email", "Billing From Email"] as const;
 

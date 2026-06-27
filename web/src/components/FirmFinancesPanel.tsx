@@ -16,6 +16,12 @@ import {
   type MonthlyAllocationReport,
   type UnclassifiedIncomeLine
 } from "@/lib/firm-allocation";
+import { ACCEPTANCE_FEE_SHARE_PERCENTS, MANAGING_PARTNER, PLEADING_FEE_SHARE_PERCENTS } from "@/lib/firm-team-config";
+import {
+  acceptanceFeeSharingSummary,
+  appearanceFeeSharingSummary,
+  pleadingFeeSharingSummary
+} from "@/lib/firm-fee-sharing-labels";
 import { lawyerFeeShareAmount } from "@/lib/firm-lawyers-roster";
 import type { FirmLawyerRosterEntry } from "@/lib/firm-lawyers-roster";
 import type { StaffPayrollRosterEntry } from "@/lib/staff-payroll-roster";
@@ -403,6 +409,9 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
   const unassignedAppearance = report?.appearanceFeeByAttorney.find(
     (group) => group.assignedAttorney === UNASSIGNED_ATTORNEY_LABEL
   );
+  const unassignedAcceptance = report?.acceptanceFeeSharing.byAssociate.find(
+    (group) => group.associateName === UNASSIGNED_ATTORNEY_LABEL
+  );
 
   return (
     <div className="firm-finances firm-finances--printable">
@@ -411,8 +420,9 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
           <p className="firm-finances__eyebrow">Partner treasury</p>
           <h2 className="firm-finances__title">Income allocation</h2>
           <p className="firm-finances__lede">
-            Split acceptance, professional, and notarial receipts into your office buckets. Appearance fees remain with
-            each matter&apos;s assigned attorney.
+            Professional and notarial receipts, plus the firm share of acceptance fees, flow into office buckets.
+            Acceptance fees: {acceptanceFeeSharingSummary()}. Drafting pleading fees: {pleadingFeeSharingSummary()}
+            . Appearance fees: {appearanceFeeSharingSummary()} when payment is recorded on the client ledger.
           </p>
         </div>
         <div className="firm-finances__hero-meta">
@@ -730,7 +740,12 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
                   {report.lines.length} qualifying receipt{report.lines.length === 1 ? "" : "s"}
                 </p>
                 <div className="firm-finances__source-strip">
-                  <span>Acceptance {formatPeso(report.sourceBreakdown.acceptance)}</span>
+                  <span>
+                    Acceptance {formatPeso(report.sourceBreakdown.acceptance)}
+                    {report.totalAcceptanceFirmShare > 0
+                      ? ` (${formatPeso(report.totalAcceptanceFirmShare)} firm)`
+                      : ""}
+                  </span>
                   <span aria-hidden>·</span>
                   <span>Professional {formatPeso(report.sourceBreakdown.professional)}</span>
                   <span aria-hidden>·</span>
@@ -923,8 +938,183 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
             <div className="firm-finances__appearance">
               <div className="firm-finances__appearance-head">
                 <div>
+                  <p className="firm-finances__section-title">Acceptance fees</p>
+                  <p className="firm-finances__section-desc">
+                    {acceptanceFeeSharingSummary()} · other lawyer from client profile (co-assigned attorney)
+                  </p>
+                </div>
+                <p className="firm-finances__appearance-total amount-serif">{formatPeso(report.totalAcceptanceFees)}</p>
+              </div>
+
+              {unassignedAcceptance ? (
+                <div className="firm-finances__unassigned-alert">
+                  <p className="firm-finances__unassigned-title">
+                    {formatPeso(unassignedAcceptance.total)} need a handling associate — set the associate on the client
+                    profile (Atty. Hernandez is on every matter; the associate is April or Jeff)
+                  </p>
+                  <ul className="firm-finances__unassigned-lines">
+                    {unassignedAcceptance.lines.map((line) => (
+                      <li key={line.id}>
+                        <a href={matterHref(line.clientCode)} className="firm-finances__unassigned-link">
+                          {line.clientCode}
+                          {line.clientName ? ` · ${line.clientName}` : ""} · {formatPeso(line.amount)}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {report.totalAcceptanceFees > 0 ? (
+                <div className="firm-finances__appearance-grid">
+                  <article className="firm-finances__attorney-card">
+                    <div className="firm-finances__attorney-head">
+                      <span className="firm-finances__attorney-seal" aria-hidden>
+                        F
+                      </span>
+                      <div>
+                        <p className="firm-finances__attorney-name">Firm share</p>
+                        <p className="firm-finances__attorney-count">
+                          {ACCEPTANCE_FEE_SHARE_PERCENTS.firm}% · included in office buckets above
+                        </p>
+                      </div>
+                      <p className="firm-finances__attorney-total amount-serif">
+                        {formatPeso(report.acceptanceFeeSharing.firmTotal)}
+                      </p>
+                    </div>
+                  </article>
+
+                  <article className="firm-finances__attorney-card">
+                    <div className="firm-finances__attorney-head">
+                      <span className="firm-finances__attorney-seal" aria-hidden>
+                        {attorneyInitials(report.acceptanceFeeSharing.managingPartnerName)}
+                      </span>
+                      <div>
+                        <p className="firm-finances__attorney-name">{report.acceptanceFeeSharing.managingPartnerName}</p>
+                        <p className="firm-finances__attorney-count">
+                          {report.acceptanceFees.length} acceptance fee{report.acceptanceFees.length === 1 ? "" : "s"} ·{" "}
+                          {ACCEPTANCE_FEE_SHARE_PERCENTS.managingPartner}% share
+                        </p>
+                      </div>
+                      <p className="firm-finances__attorney-total amount-serif">
+                        {formatPeso(report.acceptanceFeeSharing.managingPartnerTotal)}
+                      </p>
+                    </div>
+                  </article>
+
+                  {report.acceptanceFeeSharing.byAssociate
+                    .filter((group) => group.associateName !== UNASSIGNED_ATTORNEY_LABEL)
+                    .map((group) => (
+                      <article key={group.associateName} className="firm-finances__attorney-card">
+                        <div className="firm-finances__attorney-head">
+                          <span className="firm-finances__attorney-seal" aria-hidden>
+                            {attorneyInitials(group.associateName)}
+                          </span>
+                          <div>
+                            <p className="firm-finances__attorney-name">{group.associateName}</p>
+                            <p className="firm-finances__attorney-count">
+                              {group.lines.length} acceptance fee{group.lines.length === 1 ? "" : "s"} ·{" "}
+                              {ACCEPTANCE_FEE_SHARE_PERCENTS.associate}% share
+                            </p>
+                          </div>
+                          <p className="firm-finances__attorney-total amount-serif">{formatPeso(group.shareTotal)}</p>
+                        </div>
+                        <ul className="firm-finances__attorney-lines">
+                          {group.lines.map((line) => (
+                            <li key={line.id}>
+                              <a href={matterHref(line.clientCode)} className="firm-finances__attorney-line-link">
+                                {line.clientCode}
+                                {line.clientName ? ` · ${line.clientName}` : ""} · {formatPeso(line.amount)}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </article>
+                    ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No acceptance fees this month"
+                  message={`Record acceptance fee payments on client ledgers to see the ${ACCEPTANCE_FEE_SHARE_PERCENTS.firm}/${ACCEPTANCE_FEE_SHARE_PERCENTS.managingPartner}/${ACCEPTANCE_FEE_SHARE_PERCENTS.associate} split.`}
+                />
+              )}
+            </div>
+
+            <div className="firm-finances__appearance">
+              <div className="firm-finances__appearance-head">
+                <div>
+                  <p className="firm-finances__section-title">Drafting pleading fees</p>
+                  <p className="firm-finances__section-desc">
+                    {pleadingFeeSharingSummary()} · drafting lawyer from event / charge details
+                  </p>
+                </div>
+                <p className="firm-finances__appearance-total amount-serif">{formatPeso(report.totalPleadingFees)}</p>
+              </div>
+
+              {report.totalPleadingFees > 0 ? (
+                <div className="firm-finances__appearance-grid">
+                  <article className="firm-finances__attorney-card">
+                    <div className="firm-finances__attorney-head">
+                      <span className="firm-finances__attorney-seal" aria-hidden>
+                        F
+                      </span>
+                      <div>
+                        <p className="firm-finances__attorney-name">Firm share</p>
+                        <p className="firm-finances__attorney-count">
+                          {PLEADING_FEE_SHARE_PERCENTS.firm}% · included in office buckets above
+                        </p>
+                      </div>
+                      <p className="firm-finances__attorney-total amount-serif">
+                        {formatPeso(report.pleadingFeeSharing.firmTotal)}
+                      </p>
+                    </div>
+                  </article>
+                  <article className="firm-finances__attorney-card">
+                    <div className="firm-finances__attorney-head">
+                      <span className="firm-finances__attorney-seal" aria-hidden>
+                        {attorneyInitials(report.pleadingFeeSharing.managingPartnerName)}
+                      </span>
+                      <div>
+                        <p className="firm-finances__attorney-name">{report.pleadingFeeSharing.managingPartnerName}</p>
+                        <p className="firm-finances__attorney-count">
+                          {PLEADING_FEE_SHARE_PERCENTS.managingPartner}% managing partner share
+                        </p>
+                      </div>
+                      <p className="firm-finances__attorney-total amount-serif">
+                        {formatPeso(report.pleadingFeeSharing.managingPartnerTotal)}
+                      </p>
+                    </div>
+                  </article>
+                  {report.pleadingFeeSharing.byDrafter.map((group) => (
+                    <article key={group.drafterName} className="firm-finances__attorney-card">
+                      <div className="firm-finances__attorney-head">
+                        <span className="firm-finances__attorney-seal" aria-hidden>
+                          {attorneyInitials(group.drafterName)}
+                        </span>
+                        <div>
+                          <p className="firm-finances__attorney-name">{group.drafterName}</p>
+                          <p className="firm-finances__attorney-count">
+                            {group.lines.length} pleading fee{group.lines.length === 1 ? "" : "s"} · drafter share
+                          </p>
+                        </div>
+                        <p className="firm-finances__attorney-total amount-serif">{formatPeso(group.shareTotal)}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No drafting pleading fees this month"
+                  message="Check “Add drafting pleading fee” when saving a court filing event, then record payment on the client ledger with income type Pleading Fee."
+                />
+              )}
+            </div>
+
+            <div className="firm-finances__appearance">
+              <div className="firm-finances__appearance-head">
+                <div>
                   <p className="firm-finances__section-title">Appearance fees</p>
-                  <p className="firm-finances__section-desc">Attributed to assigned attorney · not in office split</p>
+                  <p className="firm-finances__section-desc">{appearanceFeeSharingSummary()} · not in office split</p>
                 </div>
                 <p className="firm-finances__appearance-total amount-serif">{formatPeso(report.totalAppearanceFees)}</p>
               </div>

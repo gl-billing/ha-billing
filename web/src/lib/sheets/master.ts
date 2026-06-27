@@ -86,6 +86,13 @@ export async function ensureMasterListColumns(accessToken: string): Promise<void
     });
   }
 
+  if (!String(existing[35] || "").trim()) {
+    patches.push({
+      range: `'${sheetName}'!AJ1`,
+      values: [[GL.masterHeaders[35]]]
+    });
+  }
+
   if (patches.length) {
     for (const patch of patches) {
       await updateSheetValues(accessToken, patch.range, patch.values);
@@ -106,6 +113,7 @@ function rowToSummary(row: unknown[]): ClientSummary {
     phone: String(row[5] || ""),
     address: String(row[6] || ""),
     assignedAttorney: String(row[22] || ""),
+    coAssignedAttorney: String(row[35] || ""),
     retainerBalance: Number(row[23]) || 0,
     lastBillingDate: String(row[7] || ""),
     soaSent: String(row[12] || ""),
@@ -159,6 +167,7 @@ function rowToDetail(row: unknown[], masterRow: number): ClientDetail {
     lastActivity: String(row[17] || ""),
     arPending: String(row[16] || ""),
     assignedAttorney: String(row[22] || ""),
+    coAssignedAttorney: String(row[35] || ""),
     retainerBalance: Number(row[23]) || 0,
     closeReason: String(row[24] || ""),
     closedDate: String(row[25] || ""),
@@ -191,12 +200,14 @@ export function filterMasterRowsByQuery(rows: unknown[][], query: string): unkno
       row[5],
       row[6],
       row[21],
+      row[22],
       row[26],
       row[29],
       row[30],
       row[31],
       row[33],
-      row[34]
+      row[34],
+      row[35]
     ]
       .join(" ")
       .toLowerCase();
@@ -323,6 +334,10 @@ export async function updateClient(
     payload.assignedAttorney !== undefined
       ? canonicalizeStaffName(payload.assignedAttorney.trim(), roster)
       : String(current[22] || "");
+  const nextCoAttorney =
+    payload.coAssignedAttorney !== undefined
+      ? canonicalizeStaffName(payload.coAssignedAttorney.trim(), roster)
+      : String(current[35] || "");
   const nextRetainer =
     payload.retainerBalance !== undefined
       ? parseMoney(payload.retainerBalance)
@@ -380,7 +395,9 @@ export async function updateClient(
     payload.psychologistAddress !== undefined ||
     payload.matterType !== undefined ||
     payload.caseType !== undefined ||
-    payload.caseTypeOther !== undefined
+    payload.caseTypeOther !== undefined ||
+    payload.assignedAttorney !== undefined ||
+    payload.coAssignedAttorney !== undefined
   ) {
     await ensureMasterListColumns(accessToken);
   }
@@ -406,6 +423,7 @@ export async function updateClient(
   await updateSheetValues(accessToken, `'${GL.sheets.master}'!AH${row}:AI${row}`, [
     [nextCaseType, nextCaseTypeOther]
   ]);
+  await updateSheetValues(accessToken, `'${GL.sheets.master}'!AJ${row}`, [[nextCoAttorney]]);
 
   return { ok: true, message: `Client ${code} updated.` };
 }

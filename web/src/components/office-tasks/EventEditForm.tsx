@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 import { ClientCasePicker, type ClientCasePickerHandle } from "@/components/office-tasks/ClientCasePicker";
 import type { EntryFormOptions } from "@/components/office-tasks/AddEntryForm";
 import type { EditableItem } from "@/components/office-tasks/EditItemDialog";
@@ -15,11 +16,17 @@ import {
   splitEventCategory,
   splitEventPlatform
 } from "@/lib/office-tasks/event-form-utils";
+import { suggestedEventBillingAmount } from "@/lib/office-tasks/event-matter-billing-shared";
+import {
+  hasEventBillingAppearanceMarker,
+  hasEventBillingPleadingMarker
+} from "@/lib/office-tasks/event-item-links";
 import { EventSegmentedControl } from "@/components/office-tasks/EventSegmentedControl";
 import { EventScheduleEmailPanel } from "@/components/office-tasks/EventScheduleEmailPanel";
 import { displayRemarks } from "@/lib/office-tasks/follow-up-marker";
 import { todayYmd } from "@/lib/office-tasks/schedule";
-import type { CaseOption } from "@/lib/gl-config";
+import { formatPeso, type CaseOption } from "@/lib/gl-config";
+import { pleadingFeeSharingSummary, appearanceFeeSharingSummary } from "@/lib/firm-fee-sharing-labels";
 
 const PERIOD_PRESETS = [5, 10, 15, 30] as const;
 
@@ -32,6 +39,8 @@ type Props = {
 };
 
 export function EventEditForm({ item, options, busy, onClose, onConfirm }: Props) {
+  const { data: session } = useSession();
+  const billingAccess = session?.user?.billingAccess !== false;
   const casePickerRef = useRef<ClientCasePickerHandle>(null);
   const venueTouched = useRef(Boolean(item.venue?.trim()));
   const responsibleTouched = useRef(Boolean(item.assignedTo?.trim()));
@@ -90,6 +99,16 @@ export function EventEditForm({ item, options, busy, onClose, onConfirm }: Props
   const [error, setError] = useState("");
   const [panel, setPanel] = useState<"edit" | "email">("edit");
   const [emailNote, setEmailNote] = useState("");
+  const [billAppearanceFee, setBillAppearanceFee] = useState(false);
+  const [billPleadingFee, setBillPleadingFee] = useState(false);
+  const [billingFeeAmount, setBillingFeeAmount] = useState("");
+
+  const alreadyBilledAppearance = hasEventBillingAppearanceMarker(item.remarks || "");
+  const alreadyBilledPleading = hasEventBillingPleadingMarker(item.remarks || "");
+  const suggestedBillingFee = useMemo(
+    () => suggestedEventBillingAmount(venue, selectedCaseRef.current?.courtPending || ""),
+    [venue]
+  );
 
   const computedFilingDate = useMemo(() => {
     if (pleadingType !== "Responsive pleading") return "";
@@ -205,7 +224,10 @@ export function EventEditForm({ item, options, busy, onClose, onConfirm }: Props
       remarks,
       status,
       reminderDays: Number(reminderDays || 1),
-      calendarSync
+      calendarSync,
+      billAppearanceFee,
+      billPleadingFee,
+      billingFeeAmount: billingFeeAmount.trim()
     });
     })();
   }
@@ -379,6 +401,71 @@ export function EventEditForm({ item, options, busy, onClose, onConfirm }: Props
           </span>
         </label>
       </div>
+
+      {billingAccess && (showAppearance || showPleading) ? (
+        <div className="event-form-stack rounded-lg border border-line p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">Client billing</p>
+          {showPleading && !alreadyBilledPleading ? (
+            <label className="form-check form-check--flat">
+              <input
+                type="checkbox"
+                checked={billPleadingFee}
+                onChange={(e) => {
+                  setBillPleadingFee(e.target.checked);
+                  if (e.target.checked && !billingFeeAmount.trim()) {
+                    setBillingFeeAmount(String(suggestedBillingFee));
+                  }
+                }}
+              />
+              <span className="form-check__copy">
+                <span className="form-check__text">Add drafting pleading fee to client billing</span>
+                <span className="form-check__hint">
+                  {pleadingFeeSharingSummary()}. Suggested {formatPeso(suggestedBillingFee)}.
+                </span>
+              </span>
+            </label>
+          ) : null}
+          {showPleading && alreadyBilledPleading ? (
+            <p className="text-xs text-muted">Drafting pleading fee already billed for this event.</p>
+          ) : null}
+          {showAppearance && !alreadyBilledAppearance ? (
+            <label className="form-check form-check--flat">
+              <input
+                type="checkbox"
+                checked={billAppearanceFee}
+                onChange={(e) => {
+                  setBillAppearanceFee(e.target.checked);
+                  if (e.target.checked && !billingFeeAmount.trim()) {
+                    setBillingFeeAmount(String(suggestedBillingFee));
+                  }
+                }}
+              />
+              <span className="form-check__copy">
+                <span className="form-check__text">Add appearance fee to client billing</span>
+                <span className="form-check__hint">
+                  {appearanceFeeSharingSummary()} when collected. Suggested {formatPeso(suggestedBillingFee)}.
+                </span>
+              </span>
+            </label>
+          ) : null}
+          {showAppearance && alreadyBilledAppearance ? (
+            <p className="text-xs text-muted">Appearance fee already billed for this event.</p>
+          ) : null}
+          {(billAppearanceFee || billPleadingFee) && (
+            <label className="form-field">
+              <span className="form-field__label">Fee amount (PHP)</span>
+              <input
+                type="number"
+                min={1}
+                className="field-input"
+                value={billingFeeAmount}
+                onChange={(e) => setBillingFeeAmount(e.target.value)}
+                placeholder={String(suggestedBillingFee)}
+              />
+            </label>
+          )}
+        </div>
+      ) : null}
 
       {error ? <p className="text-xs font-semibold text-red-700">{error}</p> : null}
 

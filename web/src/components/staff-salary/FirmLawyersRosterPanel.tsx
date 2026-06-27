@@ -100,7 +100,7 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
         <div>
           <p className="staff-salary__toolbar-label">Associate lawyers</p>
           <p className="staff-salary__toolbar-hint">
-            Lawyers who oversee tasks (synced to Office Tasks Employees) and appear in fee-sharing reports.
+            Lawyers who oversee tasks (synced to Office Tasks Employees), appear in fee-sharing reports, and show up on client assignment dropdowns.
           </p>
         </div>
       </div>

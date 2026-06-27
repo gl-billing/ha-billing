@@ -7,6 +7,8 @@ const LINKED_REMINDER_RE = /LINKED_REMINDER_TASK:([A-Z0-9-]+)/i;
 const PTO_BATCH_RE = /PTO_BATCH:([A-Z0-9-]+)/i;
 const PLEADING_CASE_RE = /PLEADING_CASE:(Civil\/Administrative|Criminal|Civil|Administrative)/i;
 const PREP_ASSIGNEE_RE = /PREP_ASSIGNEE:([^\n]+)/i;
+const EVENT_BILLING_APPEARANCE_RE = /EVENT_BILLING:APPEARANCE:([A-Z0-9-]+)/i;
+const EVENT_BILLING_PLEADING_RE = /EVENT_BILLING:PLEADING:([A-Z0-9-]+)/i;
 
 export function ptoBatchMarker(batchId: string): string {
   return `PTO_BATCH:${batchId}`;
@@ -35,6 +37,22 @@ export function linkedReminderTaskMarker(taskId: string): string {
 export function prepAssigneeMarker(assignees: string): string {
   const value = String(assignees || "").trim();
   return value ? `PREP_ASSIGNEE:${value}` : "";
+}
+
+export function eventBillingAppearanceMarker(eventId: string): string {
+  return `EVENT_BILLING:APPEARANCE:${eventId}`;
+}
+
+export function eventBillingPleadingMarker(eventId: string): string {
+  return `EVENT_BILLING:PLEADING:${eventId}`;
+}
+
+export function hasEventBillingAppearanceMarker(remarks: string): boolean {
+  return EVENT_BILLING_APPEARANCE_RE.test(remarks);
+}
+
+export function hasEventBillingPleadingMarker(remarks: string): boolean {
+  return EVENT_BILLING_PLEADING_RE.test(remarks);
 }
 
 export function parsePrepAssignee(remarks: string): string {
@@ -121,6 +139,8 @@ export function displayEventRemarks(remarks: string): string {
     .replace(/\n?PLEADING_CASE:(Civil\/Administrative|Criminal|Civil|Administrative)/gi, "")
     .replace(/\n?PREP_CHECKLIST:\{[^\n]+\}/gi, "")
     .replace(/\n?PREP_ASSIGNEE:[^\n]+/gi, "")
+    .replace(/\n?EVENT_BILLING:APPEARANCE:[A-Z0-9-]+/gi, "")
+    .replace(/\n?EVENT_BILLING:PLEADING:[A-Z0-9-]+/gi, "")
     .replace(/\n?PREP_DONE_NOTICE:[^\n]+/gi, "")
     .trim();
 }

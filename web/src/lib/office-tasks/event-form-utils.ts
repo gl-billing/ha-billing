@@ -464,7 +464,10 @@ export function buildEventFormInputFromFormData(fd: FormData): EventFormInput {
     prepAssignedTo: String(fd.get("prepAssignedTo") || "").trim(),
     fromPretrialOrder,
     ptoOrderDate: String(fd.get("ptoOrderDate") || ""),
-    succeedingHearingDates
+    succeedingHearingDates,
+    billAppearanceFee: fd.get("billAppearanceFee") === "on",
+    billPleadingFee: fd.get("billPleadingFee") === "on",
+    billingFeeAmount: String(fd.get("billingFeeAmount") || "").trim()
   });
 }
 

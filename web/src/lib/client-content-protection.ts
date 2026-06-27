@@ -26,6 +26,7 @@ function isBlockedShortcut(event: KeyboardEvent): boolean {
   const withCtrlOrMeta = event.ctrlKey || event.metaKey;
 
   if (key === "f12") return true;
+  if (key === "printscreen") return true;
 
   if (!withCtrlOrMeta) return false;
 
@@ -60,6 +61,7 @@ export type ContentProtectionHandlers = {
   onDragStart: (event: DragEvent) => void;
   onSelectStart: (event: Event) => void;
   onKeyDown: (event: KeyboardEvent) => void;
+  onAuxClick: (event: MouseEvent) => void;
 };
 
 export function createContentProtectionHandlers(options?: {
@@ -97,6 +99,12 @@ export function createContentProtectionHandlers(options?: {
       event.preventDefault();
       event.stopPropagation();
       notify?.(shortcutReason(event));
+    },
+    onAuxClick(event) {
+      if (event.button !== 1) return;
+      if (isEditableCopyTarget(event.target)) return;
+      event.preventDefault();
+      notify?.("context_menu");
     }
   };
 }
@@ -111,6 +119,7 @@ export function attachContentProtection(
   const onDragStart: EventListener = (event) => handlers.onDragStart(event as DragEvent);
   const onSelectStart: EventListener = (event) => handlers.onSelectStart(event);
   const onKeyDown: EventListener = (event) => handlers.onKeyDown(event as KeyboardEvent);
+  const onAuxClick: EventListener = (event) => handlers.onAuxClick(event as MouseEvent);
 
   target.addEventListener("contextmenu", onContextMenu);
   target.addEventListener("copy", onCopy);
@@ -118,6 +127,7 @@ export function attachContentProtection(
   target.addEventListener("dragstart", onDragStart);
   target.addEventListener("selectstart", onSelectStart);
   target.addEventListener("keydown", onKeyDown, true);
+  target.addEventListener("auxclick", onAuxClick);
 
   return () => {
     target.removeEventListener("contextmenu", onContextMenu);
@@ -126,5 +136,6 @@ export function attachContentProtection(
     target.removeEventListener("dragstart", onDragStart);
     target.removeEventListener("selectstart", onSelectStart);
     target.removeEventListener("keydown", onKeyDown, true);
+    target.removeEventListener("auxclick", onAuxClick);
   };
 }

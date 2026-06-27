@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { AssignedLawyerFields } from "@/components/AssignedLawyerFields";
+import { formatClientAssignedLawyers } from "@/lib/assigned-lawyers";
 import { ClientCaseRoleSelect } from "@/components/ClientCaseRoleSelect";
 import { ClientCaseTypeSelect } from "@/components/ClientCaseTypeSelect";
 import {
@@ -197,6 +199,7 @@ export function ClientProfile({
   const [preferredGreeting, setPreferredGreeting] = useState("");
   const [clientStatus, setClientStatus] = useState("Active");
   const [assignedAttorney, setAssignedAttorney] = useState("");
+  const [coAssignedAttorney, setCoAssignedAttorney] = useState("");
   const [retainerBalance, setRetainerBalance] = useState("");
   const [psychologistName, setPsychologistName] = useState("");
   const [psychologistPhone, setPsychologistPhone] = useState("");
@@ -218,6 +221,7 @@ export function ClientProfile({
     setPreferredGreeting(c.preferredGreeting || "");
     setClientStatus(c.status || "Active");
     setAssignedAttorney(c.assignedAttorney || "");
+    setCoAssignedAttorney(c.coAssignedAttorney || "");
     setRetainerBalance(String(c.retainerBalance || 0));
     setPsychologistName(c.psychologistName || "");
     setPsychologistPhone(c.psychologistPhone || "");
@@ -439,6 +443,7 @@ export function ClientProfile({
           preferredGreeting,
           clientStatus,
           assignedAttorney,
+          coAssignedAttorney,
           retainerBalance,
           psychologistName,
           psychologistPhone,
@@ -1104,27 +1109,23 @@ export function ClientProfile({
                   onChange={(e) => setPreferredGreeting(e.target.value)}
                 />
               </Field>
-              <div className="form-grid-pair">
-                <Field label="Assigned attorney">
-                  <input
-                    className="field"
-                    value={assignedAttorney}
-                    disabled={busy}
-                    onChange={(e) => setAssignedAttorney(e.target.value)}
-                    placeholder="Atty. name"
-                  />
-                </Field>
-                <Field label="Retainer balance">
-                  <input
-                    className="field"
-                    type="number"
-                    step="0.01"
-                    value={retainerBalance}
-                    disabled={busy}
-                    onChange={(e) => setRetainerBalance(e.target.value)}
-                  />
-                </Field>
-              </div>
+              <AssignedLawyerFields
+                primaryLawyer={assignedAttorney}
+                secondaryLawyer={coAssignedAttorney}
+                disabled={busy}
+                onPrimaryChange={setAssignedAttorney}
+                onSecondaryChange={setCoAssignedAttorney}
+              />
+              <Field label="Retainer balance">
+                <input
+                  className="field"
+                  type="number"
+                  step="0.01"
+                  value={retainerBalance}
+                  disabled={busy}
+                  onChange={(e) => setRetainerBalance(e.target.value)}
+                />
+              </Field>
 
               <div className="form-grid-pair mt-4">
                 <button
@@ -1166,7 +1167,10 @@ export function ClientProfile({
                   <InfoRow label="Phone" value={detail.phone} />
                   <InfoRow label="Address" value={detail.address} />
                   <InfoRow label="Preferred greeting" value={detail.preferredGreeting} />
-                  <InfoRow label="Assigned attorney" value={detail.assignedAttorney} />
+                  <InfoRow
+                    label="Assigned lawyers"
+                    value={formatClientAssignedLawyers(detail.assignedAttorney, detail.coAssignedAttorney) || "—"}
+                  />
                   <InfoRow label="Retainer balance" value={formatPeso(detail.retainerBalance)} />
                   {detail.closeReason ? (
                     <InfoRow label="Close reason" value={detail.closeReason} />

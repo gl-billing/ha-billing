@@ -1,3 +1,9 @@
+import {
+  ACCEPTANCE_FEE_SHARE_PERCENTS,
+  MANAGING_PARTNER,
+  PLEADING_FEE_SHARE_PERCENTS
+} from "@/lib/firm-team-config";
+
 export const ALLOCATION_SETTING_KEYS = {
   expensesPct: "Income Split Expenses Pct",
   savingsPct: "Income Split Savings Pct",
@@ -79,6 +85,61 @@ export type AppearanceFeeAttorneySummary = {
   lines: AppearanceFeeAttributionLine[];
 };
 
+export type AcceptanceFeeAttributionLine = {
+  id: string;
+  date: string;
+  clientCode: string;
+  clientName: string;
+  handlingAssociate: string;
+  label: string;
+  amount: number;
+  firmShare: number;
+  managingPartnerShare: number;
+  associateShare: number;
+};
+
+export type AcceptanceFeeAssociateSummary = {
+  associateName: string;
+  total: number;
+  shareTotal: number;
+  lines: AcceptanceFeeAttributionLine[];
+};
+
+export type AcceptanceFeeSharingSummary = {
+  managingPartnerName: string;
+  firmTotal: number;
+  managingPartnerTotal: number;
+  byAssociate: AcceptanceFeeAssociateSummary[];
+};
+
+export type PleadingFeeAttributionLine = {
+  id: string;
+  date: string;
+  clientCode: string;
+  clientName: string;
+  drafter: string;
+  label: string;
+  amount: number;
+  firmShare: number;
+  managingPartnerShare: number;
+  drafterShare: number;
+  soleLawyerOnMatter: boolean;
+};
+
+export type PleadingFeeDrafterSummary = {
+  drafterName: string;
+  total: number;
+  shareTotal: number;
+  lines: PleadingFeeAttributionLine[];
+};
+
+export type PleadingFeeSharingSummary = {
+  managingPartnerName: string;
+  firmTotal: number;
+  managingPartnerTotal: number;
+  byDrafter: PleadingFeeDrafterSummary[];
+};
+
 export type UnclassifiedIncomeLine = {
   id: string;
   sheetRow: number;
@@ -140,6 +201,14 @@ export type MonthlyAllocationReport = {
   appearanceFees: AppearanceFeeAttributionLine[];
   appearanceFeeByAttorney: AppearanceFeeAttorneySummary[];
   totalAppearanceFees: number;
+  acceptanceFees: AcceptanceFeeAttributionLine[];
+  acceptanceFeeSharing: AcceptanceFeeSharingSummary;
+  totalAcceptanceFees: number;
+  pleadingFees: PleadingFeeAttributionLine[];
+  pleadingFeeSharing: PleadingFeeSharingSummary;
+  totalPleadingFees: number;
+  totalPleadingFirmShare: number;
+  totalAcceptanceFirmShare: number;
   unclassifiedIncome: UnclassifiedIncomeLine[];
   totalUnclassifiedIncome: number;
   monthClosed: boolean;
@@ -205,22 +274,154 @@ export function isAppearanceFeePayment(category: string, description: string, de
   return haystack.includes("appearance fee");
 }
 
-/** Acceptance, professional, and notarial ledger payments — office split only. Notarizations tab is added separately. */
-export function isOfficeSplitPayment(category: string, description: string, details: string): boolean {
+/** Drafting pleading fee payments — 20% firm / 30% managing partner / 50% drafter (or 100% drafter). */
+export function isPleadingFeePayment(category: string, description: string, details: string): boolean {
   if (isAppearanceFeePayment(category, description, details)) return false;
 
   const normalizedCategory = category.trim().toLowerCase();
-  if (
-    normalizedCategory === "acceptance fee" ||
-    normalizedCategory === "professional fee" ||
-    normalizedCategory === "notarial fee"
-  ) {
+  if (normalizedCategory === "pleading fee" || normalizedCategory === "drafting pleading fee") return true;
+
+  const haystack = `${category} ${description} ${details}`.toLowerCase();
+  return haystack.includes("drafting pleading fee") || haystack.includes("pleading fee");
+}
+
+/** Acceptance fee payments — 20% firm / 40% managing partner / 40% handling associate. */
+export function isAcceptanceFeePayment(category: string, description: string, details: string): boolean {
+  if (isAppearanceFeePayment(category, description, details)) return false;
+  if (isPleadingFeePayment(category, description, details)) return false;
+
+  const normalizedCategory = category.trim().toLowerCase();
+  if (normalizedCategory === "acceptance fee") return true;
+
+  const haystack = `${category} ${description} ${details}`.toLowerCase();
+  return haystack.includes("acceptance fee");
+}
+
+function roundMoney(amount: number): number {
+  return Math.round(amount * 100) / 100;
+}
+
+export function computeAcceptanceFeeShares(amount: number): {
+  firmShare: number;
+  managingPartnerShare: number;
+  associateShare: number;
+} {
+  const firmShare = roundMoney(amount * (ACCEPTANCE_FEE_SHARE_PERCENTS.firm / 100));
+  const managingPartnerShare = roundMoney(amount * (ACCEPTANCE_FEE_SHARE_PERCENTS.managingPartner / 100));
+  const associateShare = roundMoney(amount - firmShare - managingPartnerShare);
+  return { firmShare, managingPartnerShare, associateShare };
+}
+
+export function computePleadingFeeShares(
+  amount: number,
+  options: { soleLawyerOnMatter: boolean }
+): {
+  firmShare: number;
+  managingPartnerShare: number;
+  drafterShare: number;
+} {
+  if (options.soleLawyerOnMatter) {
+    return { firmShare: 0, managingPartnerShare: 0, drafterShare: roundMoney(amount) };
+  }
+  const firmShare = roundMoney(amount * (PLEADING_FEE_SHARE_PERCENTS.firm / 100));
+  const managingPartnerShare = roundMoney(amount * (PLEADING_FEE_SHARE_PERCENTS.managingPartner / 100));
+  const drafterShare = roundMoney(amount - firmShare - managingPartnerShare);
+  return { firmShare, managingPartnerShare, drafterShare };
+}
+
+export function isManagingPartnerAttorney(name: string): boolean {
+  const norm = String(name || "")
+    .trim()
+    .toLowerCase()
+    .replace(/^atty\.?\s*/i, "");
+  if (!norm) return false;
+  if (norm.includes("robert") && norm.includes("hernandez")) return true;
+  return name.trim().toLowerCase() === MANAGING_PARTNER.displayName.trim().toLowerCase();
+}
+
+/** Handling associate on the matter — assigned attorney when it is not the managing partner. */
+export function resolveAcceptanceFeeAssociate(assignedAttorney: string): string {
+  const trimmed = assignedAttorney.trim();
+  if (!trimmed || trimmed === UNASSIGNED_ATTORNEY_LABEL) return UNASSIGNED_ATTORNEY_LABEL;
+  if (isManagingPartnerAttorney(trimmed)) return UNASSIGNED_ATTORNEY_LABEL;
+  return trimmed;
+}
+
+export function summarizeAcceptanceFeeSharing(
+  lines: AcceptanceFeeAttributionLine[]
+): AcceptanceFeeSharingSummary {
+  const byAssociate = new Map<string, AcceptanceFeeAttributionLine[]>();
+  let firmTotal = 0;
+  let managingPartnerTotal = 0;
+
+  lines.forEach((line) => {
+    firmTotal += line.firmShare;
+    managingPartnerTotal += line.managingPartnerShare;
+    const key = line.handlingAssociate.trim() || UNASSIGNED_ATTORNEY_LABEL;
+    const bucket = byAssociate.get(key) || [];
+    bucket.push(line);
+    byAssociate.set(key, bucket);
+  });
+
+  return {
+    managingPartnerName: MANAGING_PARTNER.displayName,
+    firmTotal: roundMoney(firmTotal),
+    managingPartnerTotal: roundMoney(managingPartnerTotal),
+    byAssociate: [...byAssociate.entries()]
+      .map(([associateName, associateLines]) => ({
+        associateName,
+        total: roundMoney(associateLines.reduce((sum, line) => sum + line.amount, 0)),
+        shareTotal: roundMoney(associateLines.reduce((sum, line) => sum + line.associateShare, 0)),
+        lines: associateLines
+      }))
+      .sort((a, b) => b.shareTotal - a.shareTotal || a.associateName.localeCompare(b.associateName))
+  };
+}
+
+export function summarizePleadingFeeSharing(
+  lines: PleadingFeeAttributionLine[]
+): PleadingFeeSharingSummary {
+  const byDrafter = new Map<string, PleadingFeeAttributionLine[]>();
+  let firmTotal = 0;
+  let managingPartnerTotal = 0;
+
+  lines.forEach((line) => {
+    firmTotal += line.firmShare;
+    managingPartnerTotal += line.managingPartnerShare;
+    const key = line.drafter.trim() || UNASSIGNED_ATTORNEY_LABEL;
+    const bucket = byDrafter.get(key) || [];
+    bucket.push(line);
+    byDrafter.set(key, bucket);
+  });
+
+  return {
+    managingPartnerName: MANAGING_PARTNER.displayName,
+    firmTotal: roundMoney(firmTotal),
+    managingPartnerTotal: roundMoney(managingPartnerTotal),
+    byDrafter: [...byDrafter.entries()]
+      .map(([drafterName, drafterLines]) => ({
+        drafterName,
+        total: roundMoney(drafterLines.reduce((sum, line) => sum + line.amount, 0)),
+        shareTotal: roundMoney(drafterLines.reduce((sum, line) => sum + line.drafterShare, 0)),
+        lines: drafterLines
+      }))
+      .sort((a, b) => b.shareTotal - a.shareTotal || a.drafterName.localeCompare(b.drafterName))
+  };
+}
+
+/** Professional and notarial ledger payments — office split only. Acceptance fees use a separate share. */
+export function isOfficeSplitPayment(category: string, description: string, details: string): boolean {
+  if (isAppearanceFeePayment(category, description, details)) return false;
+  if (isAcceptanceFeePayment(category, description, details)) return false;
+  if (isPleadingFeePayment(category, description, details)) return false;
+
+  const normalizedCategory = category.trim().toLowerCase();
+  if (normalizedCategory === "professional fee" || normalizedCategory === "notarial fee") {
     return true;
   }
 
   const haystack = `${category} ${description} ${details}`.toLowerCase();
   return (
-    haystack.includes("acceptance fee") ||
     haystack.includes("professional fee") ||
     haystack.includes("notarial fee") ||
     haystack.includes("notarization")
@@ -245,6 +446,8 @@ export function isExplicitNonIncomePayment(category: string, description: string
 export function isUnclassifiedIncomePayment(category: string, description: string, details: string): boolean {
   if (isOfficeSplitPayment(category, description, details)) return false;
   if (isAppearanceFeePayment(category, description, details)) return false;
+  if (isAcceptanceFeePayment(category, description, details)) return false;
+  if (isPleadingFeePayment(category, description, details)) return false;
   if (isExplicitNonIncomePayment(category, description, details)) return false;
 
   const normalizedCategory = category.trim().toLowerCase();
@@ -397,6 +600,21 @@ export function formatMonthlyStatementText(report: MonthlyAllocationReport): str
     lines.push(`  ${group.assignedAttorney}: ₱${group.total.toLocaleString("en-US", { minimumFractionDigits: 2 })}`);
   });
 
+  if (report.totalAcceptanceFees > 0) {
+    lines.push(
+      "",
+      `Acceptance fees: ₱${report.totalAcceptanceFees.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      `  Firm (${ACCEPTANCE_FEE_SHARE_PERCENTS.firm}%): ₱${report.acceptanceFeeSharing.firmTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      `  ${report.acceptanceFeeSharing.managingPartnerName} (${ACCEPTANCE_FEE_SHARE_PERCENTS.managingPartner}%): ₱${report.acceptanceFeeSharing.managingPartnerTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+    );
+    report.acceptanceFeeSharing.byAssociate.forEach((group) => {
+      if (group.associateName === UNASSIGNED_ATTORNEY_LABEL) return;
+      lines.push(
+        `  ${group.associateName} (${ACCEPTANCE_FEE_SHARE_PERCENTS.associate}%): ₱${group.shareTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+      );
+    });
+  }
+
   if (report.unclassifiedIncome.length) {
     lines.push("", `Needs review: ₱${report.totalUnclassifiedIncome.toLocaleString("en-US", { minimumFractionDigits: 2 })}`);
   }
@@ -501,6 +719,21 @@ export function buildMonthCloseChecklist(report: MonthlyAllocationReport): Month
       unassigned && unassigned.total > 0
         ? `${unassigned.lines.length} appearance fee(s) have no assigned attorney.`
         : "Appearance fees are attributed."
+  });
+
+  const unassignedAcceptance = report.acceptanceFeeSharing.byAssociate.find(
+    (group) => group.associateName === UNASSIGNED_ATTORNEY_LABEL
+  );
+  items.push({
+    id: "acceptance-attribution",
+    label: "Acceptance fees",
+    status: unassignedAcceptance && unassignedAcceptance.total > 0 ? "warn" : "ok",
+    message:
+      unassignedAcceptance && unassignedAcceptance.total > 0
+        ? `${unassignedAcceptance.lines.length} acceptance fee(s) need a handling associate on the client profile.`
+        : report.totalAcceptanceFees > 0
+          ? `Acceptance fees split ${ACCEPTANCE_FEE_SHARE_PERCENTS.firm}% firm / ${ACCEPTANCE_FEE_SHARE_PERCENTS.managingPartner}% ${report.acceptanceFeeSharing.managingPartnerName} / ${ACCEPTANCE_FEE_SHARE_PERCENTS.associate}% associate.`
+          : "No acceptance fees this month."
   });
 
   items.push({

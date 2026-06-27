@@ -36,6 +36,8 @@ import {
 } from "@/lib/office-tasks/task-assignees";
 import { parseContactEmails } from "@/lib/contact-emails";
 import type { CaseOption } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/gl-config";
+import { suggestedEventBillingAmount } from "@/lib/office-tasks/event-matter-billing-shared";
 import {
   canAutoSendScheduleConfirmation,
   sendScheduleConfirmation,
@@ -47,6 +49,7 @@ import { PrepChecklistEditor } from "@/components/office-tasks/PrepChecklistEdit
 import { EventAssigneeToggle, EventSegmentedControl } from "@/components/office-tasks/EventSegmentedControl";
 import type { FormSaveStatus } from "@/lib/firm-status-report";
 import { prepChecklistItemsForEvent } from "@/lib/office-tasks/event-prep-checklist";
+import { pleadingFeeSharingSummary, appearanceFeeSharingSummary } from "@/lib/firm-fee-sharing-labels";
 
 type EventFormProps = {
   options: EntryFormOptions;
@@ -129,6 +132,14 @@ export function EventAddForm({
   const [formError, setFormError] = useState("");
   const [formStatus, setFormStatus] = useState<FormSaveStatus | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [billAppearanceFee, setBillAppearanceFee] = useState(false);
+  const [billPleadingFee, setBillPleadingFee] = useState(false);
+  const [billingFeeAmount, setBillingFeeAmount] = useState("");
+
+  const suggestedBillingFee = useMemo(() => {
+    const courtPending = selectedCaseRef.current?.courtPending || "";
+    return suggestedEventBillingAmount(venue, courtPending);
+  }, [venue]);
 
   const computedFilingDate = useMemo(() => {
     if (pleadingType !== "Responsive pleading") return "";
@@ -281,6 +292,9 @@ export function EventAddForm({
     if (!option) return;
     applyCourtVenue(option);
     applyDefaultResponsible();
+    if (!billingFeeAmount.trim()) {
+      setBillingFeeAmount(String(suggestedEventBillingAmount(option.courtPending || venue, option.courtPending || "")));
+    }
   }
 
   function selectCategory(next: string) {
@@ -984,7 +998,75 @@ export function EventAddForm({
           </div>
         </EntryFormSection>
 
-        <EntryFormSection step={4} title="Agenda & notes" hint="What to prepare, prior steps, and next steps">
+        {billingAccess && (showAppearance || showPleading) ? (
+          <EntryFormSection
+            step={4}
+            title="Client billing"
+            hint="Optional matter charges posted to the client ledger when you save"
+          >
+            <div className="event-form-stack">
+              {showPleading ? (
+                <label className="form-check form-check--flat">
+                  <input
+                    name="billPleadingFee"
+                    type="checkbox"
+                    checked={billPleadingFee}
+                    onChange={(e) => {
+                      setBillPleadingFee(e.target.checked);
+                      if (e.target.checked && !billingFeeAmount.trim()) {
+                        setBillingFeeAmount(String(suggestedBillingFee));
+                      }
+                    }}
+                  />
+                  <span className="form-check__copy">
+                    <span className="form-check__text">Add drafting pleading fee to client billing</span>
+                    <span className="form-check__hint">
+                      {pleadingFeeSharingSummary()} (100% to sole lawyer when only one is on the matter). Suggested:{" "}
+                      {formatPeso(suggestedBillingFee)}.
+                    </span>
+                  </span>
+                </label>
+              ) : null}
+              {showAppearance ? (
+                <label className="form-check form-check--flat">
+                  <input
+                    name="billAppearanceFee"
+                    type="checkbox"
+                    checked={billAppearanceFee}
+                    onChange={(e) => {
+                      setBillAppearanceFee(e.target.checked);
+                      if (e.target.checked && !billingFeeAmount.trim()) {
+                        setBillingFeeAmount(String(suggestedBillingFee));
+                      }
+                    }}
+                  />
+                  <span className="form-check__copy">
+                    <span className="form-check__text">Add appearance fee to client billing</span>
+                    <span className="form-check__hint">
+                      {appearanceFeeSharingSummary()} when collected. Suggested: {formatPeso(suggestedBillingFee)}.
+                    </span>
+                  </span>
+                </label>
+              ) : null}
+              {billAppearanceFee || billPleadingFee ? (
+                <label className="form-field">
+                  <span className="form-field__label">Fee amount (PHP)</span>
+                  <input
+                    name="billingFeeAmount"
+                    type="number"
+                    min={1}
+                    className="field-input"
+                    value={billingFeeAmount}
+                    onChange={(e) => setBillingFeeAmount(e.target.value)}
+                    placeholder={String(suggestedBillingFee)}
+                  />
+                </label>
+              ) : null}
+            </div>
+          </EntryFormSection>
+        ) : null}
+
+        <EntryFormSection step={5} title="Agenda & notes" hint="What to prepare, prior steps, and next steps">
           <EntryField
             label="Agenda"
             name="details"
@@ -1000,7 +1082,7 @@ export function EventAddForm({
           <EntryField label="Remarks" name="remarks" textarea optional placeholder="Internal notes" />
         </EntryFormSection>
 
-        <EntryFormSection step={5} title="Reminders & calendar" hint="When to remind staff and whether to sync">
+        <EntryFormSection step={6} title="Reminders & calendar" hint="When to remind staff and whether to sync">
           <div className="entry-form__options-row">
             <EntryField label="Reminder days before" name="reminderDays" type="number" defaultValue="1" />
             <CalendarSyncCheck />
