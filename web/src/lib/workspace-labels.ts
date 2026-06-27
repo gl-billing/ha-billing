@@ -246,6 +246,8 @@ const FULL_BILLING_NAV_TAB_IDS: SavedBillingPage[] = [
 
 const ADMIN_BILLING_NAV_TAB_IDS: SavedBillingPage[] = ["staffSalary", "firmFinances"];
 
+const ROSTER_ADMIN_BILLING_NAV_TAB_IDS: SavedBillingPage[] = [...FULL_BILLING_NAV_TAB_IDS, "staffSalary"];
+
 export function isAdminBillingPage(page: SavedBillingPage): boolean {
   return BILLING_NAV_TABS.some((tab) => tab.id === page && tab.adminOnly);
 }
@@ -316,7 +318,7 @@ export function billingNavTabsForUser(
   const ids = isAdmin
     ? [...FULL_BILLING_NAV_TAB_IDS, ...ADMIN_BILLING_NAV_TAB_IDS]
     : canManageTeamRoster
-      ? [...FULL_BILLING_NAV_TAB_IDS, "staffSalary"]
+      ? ROSTER_ADMIN_BILLING_NAV_TAB_IDS
       : FULL_BILLING_NAV_TAB_IDS;
   return pickBillingNavTabs(ids, isAdmin || canManageTeamRoster);
 }
