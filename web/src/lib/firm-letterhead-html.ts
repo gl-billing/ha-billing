@@ -17,11 +17,7 @@ import {
   getFirmLetterheadContact,
   type FirmLetterheadContact
 } from "@/lib/firm-contact";
-import {
-  FIRM_FOOTER_CAPS_LINE_1,
-  FIRM_FOOTER_CAPS_LINE_2,
-  splitFooterCapsChars
-} from "@/lib/firm-footer-name";
+import { FIRM_FOOTER_NAME } from "@/lib/firm-footer-name";
 
 export type { FirmLetterheadContact } from "@/lib/firm-contact";
 
@@ -83,28 +79,17 @@ export const FIRM_LETTER_SPACED_CAPS_NAME = "H E R N A N D E Z & A S S O C I A T
 /** @deprecated Law Office removed from footers — kept for legacy letterhead references only. */
 export const FIRM_LETTER_SPACED_CAPS_SUBTITLE = "L A W O F F I C E";
 
-function buildEdgeAlignedCapsLineHtml(line: string, className: string): string {
-  const chars = splitFooterCapsChars(line)
-    .map((char) => `<span>${escapeHtml(char === " " ? "\u00a0" : char)}</span>`)
-    .join("");
-  return `<p class="${className}">${chars}</p>`;
-}
-
 export function buildFirmFooterNameHtml(): string {
   return (
     `<div class="firm-page-foot__name-block">` +
-    buildEdgeAlignedCapsLineHtml(FIRM_FOOTER_CAPS_LINE_1, "firm-page-foot__name-line") +
-    buildEdgeAlignedCapsLineHtml(
-      FIRM_FOOTER_CAPS_LINE_2,
-      "firm-page-foot__name-line firm-page-foot__name-line--second"
-    ) +
+    `<p class="firm-page-foot__name-line">${escapeHtml(FIRM_FOOTER_NAME)}</p>` +
     `</div>`
   );
 }
 
-/** Footer firm line — spaced capitals per approved legal letterhead. */
+/** Footer firm name on one line. */
 export function firmFooterCapsLine(): string {
-  return `${FIRM_FOOTER_CAPS_LINE_1}\n${FIRM_FOOTER_CAPS_LINE_2}`;
+  return FIRM_FOOTER_NAME;
 }
 
 export function buildFirmPageFooterHtml(
@@ -383,17 +368,12 @@ export function buildFirmLetterheadCss(): string {
   background: ${RULE_GRADIENT};
 }
 .firm-page-foot__name-block {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: max-content;
+  display: block;
+  width: 100%;
   max-width: 100%;
   margin: 0 auto 1px;
 }
 .firm-page-foot__name-line {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
   margin: 0;
   font-family: ${DISPLAY};
   font-size: 8.75pt;
@@ -401,12 +381,6 @@ export function buildFirmLetterheadCss(): string {
   letter-spacing: 0.04em;
   color: ${INK};
   line-height: 1.1;
-}
-.firm-page-foot__name-line--second {
-  margin-top: 1px;
-}
-.firm-page-foot__name-line span {
-  flex: 0 0 auto;
 }
 .firm-page-foot__firm {
   margin: 0;

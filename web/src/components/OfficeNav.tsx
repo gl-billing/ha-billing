@@ -9,14 +9,14 @@ const OFFICE_LINKS = [
   {
     href: firmAppHref("/app"),
     label: "Schedule",
-    description: "Hearings, deadlines, and assignments.",
+    description: "Tasks, hearings, deadlines, and calendar.",
     match: "/app",
     billingOnly: false
   },
   {
     href: "/billing",
     label: "Accounts",
-    description: "Client files, entries, and statements.",
+    description: "Client billing, fees, payments, and statements.",
     match: "/billing",
     billingOnly: true
   }

@@ -18,30 +18,30 @@ export function HubRoleShortcuts({ billingAccess, isAdmin, secretaryNav = false 
 
   if (secretaryNav) {
     shortcuts.push(
-      { label: "Log walk-in", href: billingHref({ page: "walkIns" }), description: "Same-day visit" },
-      { label: "SOA / AR", href: billingHref({ page: "documents" }), description: "Statements & receipts" },
-      { label: "My work", href: tasksHref({ tab: "today" }), description: "Today's queue" },
-      { label: "Draft letter", href: tasksHref({ tab: "correspondence" }), description: "Firm correspondence" }
+      { label: "Log walk-in", href: billingHref({ page: "walkIns" }), description: "Today's office visitor" },
+      { label: "SOA / receipt", href: billingHref({ page: "documents" }), description: "Print statement or AR" },
+      { label: "My work", href: tasksHref({ tab: "today" }), description: "Today's task list" },
+      { label: "Write letter", href: tasksHref({ tab: "correspondence" }), description: "Firm letterhead" }
     );
   } else if (isAdmin) {
     shortcuts.push(
-      { label: "Overview", href: billingHref({ page: "home" }), description: "Firm snapshot & batch SOA" },
-      { label: "Today's hearings", href: tasksHref({ tab: "today" }), description: "Court & prep" },
-      { label: "Calendar", href: tasksHref({ tab: "calendar" }), description: "Month view" },
-      { label: "Reports", href: billingHref({ page: "reports" }), description: "AR aging & exports" }
+      { label: "Overview", href: billingHref({ page: "home" }), description: "Balances & collections" },
+      { label: "My work", href: tasksHref({ tab: "today" }), description: "Today's hearings & tasks" },
+      { label: "Calendar", href: tasksHref({ tab: "calendar" }), description: "Month schedule" },
+      { label: "Reports", href: billingHref({ page: "reports" }), description: "Who owes & exports" }
     );
   } else if (billingAccess) {
     shortcuts.push(
-      { label: "My work", href: tasksHref({ tab: "today" }), description: "Tasks & hearings" },
-      { label: "Post billing", href: billingHref({ page: "billing" }), description: "Charges & payments" },
-      { label: "Clients", href: billingHref({ page: "clients" }), description: "Open a matter" },
-      { label: "Calendar", href: tasksHref({ tab: "calendar" }), description: "Schedule" }
+      { label: "My work", href: tasksHref({ tab: "today" }), description: "Today's task list" },
+      { label: "Charges & pay", href: billingHref({ page: "billing" }), description: "Record fee or payment" },
+      { label: "Find client", href: billingHref({ page: "clients" }), description: "Open billing file" },
+      { label: "Calendar", href: tasksHref({ tab: "calendar" }), description: "Month schedule" }
     );
   } else {
     shortcuts.push(
-      { label: "My work", href: tasksHref({ tab: "today" }), description: "Today's queue" },
-      { label: "Add task", href: tasksHref({ tab: "add-task" }), description: "Quick add" },
-      { label: "Calendar", href: tasksHref({ tab: "calendar" }), description: "Month view" }
+      { label: "My work", href: tasksHref({ tab: "today" }), description: "Today's task list" },
+      { label: "Add task", href: tasksHref({ tab: "add-task" }), description: "Log new work" },
+      { label: "Calendar", href: tasksHref({ tab: "calendar" }), description: "Month schedule" }
     );
   }
 

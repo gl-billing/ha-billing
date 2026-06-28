@@ -17,32 +17,33 @@ export type WorkspaceIntroContent = {
 };
 
 const TASKS_TAB_DESCRIPTIONS: Record<string, string> = {
-  today: "Your daily board — overdue first, then waiting, due today, and this week.",
-  "add-task": "Office or field work assigned to someone with a due date.",
-  "add-event": "Hearings, consultations, meetings, and deadlines on the calendar.",
-  correspondence: "Draft demand letters, proposals, replies, and other firm correspondence.",
-  calendar: "Month view of hearings, deadlines, and dated work.",
-  week: "Seven-day planner for coordinating the firm’s schedule.",
-  "all-items": "Search and browse every open task, hearing, and event.",
-  team: "Who has what open — workload by staff member.",
-  history: "Recently completed tasks and events for reference.",
-  tools: "Refresh sheets, sync Google Calendar, and other firm tools."
+  today: "Your daily list — overdue first, then due today and in progress.",
+  "add-task": "Create a to-do: pick client, assignee, due date, and describe the work.",
+  "add-event": "Book a hearing, meeting, or filing deadline with date, time, and client matter.",
+  correspondence: "Write letters on firm letterhead — demand letters, proposals, replies, and more.",
+  calendar: "Month view — tap a date to see hearings, deadlines, and tasks.",
+  week: "Seven-day planner for coordinating the week ahead.",
+  "all-items": "Search every open task, hearing, and event.",
+  team: "See who has what open — workload by staff member.",
+  history: "Finished and past tasks and events for reference.",
+  tools: "Refresh sheets, sync Google Calendar, print lists, and admin settings."
 };
 
 const BILLING_TAB_DESCRIPTIONS: Record<string, string> = {
-  billing: "Post charges and payments to client ledgers — daily money in and out.",
-  walkIns: "Same-day visitors and consultation fees; promote to a client file when retained.",
-  spotBilling: "Occasional payers with one or two transactions — no full client file.",
-  notarizations: "Notarial records, acknowledgments, and notarial fees.",
-  newClient: "Full retained-matter intake — code, conflict check, and billing setup.",
-  clients: "Open any client’s billing file from the directory.",
-  documents: "Generate statements of account and acknowledgment receipts.",
-  history: "Posted ledger entries and billing history across clients.",
-  home: "Firm-wide balances, batch SOA, and collections overview.",
-  reports: "Exports and billing reports for partners and admin.",
-  fieldDispatch: "Assign and track field staff visits.",
-  staffSalary: "Payroll runs, cash advances, and staff compensation.",
-  firmFinances: "Firm-level financial overview and admin finance tools."
+  billing:
+    "Record fees and payments for regular clients — date, amount, category, description.",
+  walkIns: "Log today's walk-in visitors — name, visit type, fee, and payment.",
+  spotBilling: "One-time payers not on the main client list — name, fee, and payment.",
+  notarizations: "Notary records — book/page numbers, document type, fee, payment method.",
+  newClient: "Full intake for a retained client — contact info, case details, agreement.",
+  clients: "Find a client by name or code and open their billing file.",
+  documents: "Print or email SOA statements and payment receipts (AR).",
+  history: "Office-wide log of posted charges, payments, SOAs, and changes.",
+  home: "Firm balances, collections overview, birthdays, and quick links.",
+  reports: "Overdue balances, monthly collections, CSV exports, and admin tools.",
+  fieldDispatch: "Track field trips — advance, service fee, and client billing.",
+  staffSalary: "Semi-monthly payroll, allowances, and cash advances.",
+  firmFinances: "Firm income split into expense, savings, and other buckets."
 };
 
 function buildItemsFromTabs(tabs: NavTabDef[], descriptions: Record<string, string>): WorkspaceIntroItem[] {
@@ -57,8 +58,8 @@ export function getTasksIntroContent(tabs: NavTabDef[]): WorkspaceIntroContent {
   return {
     title: "Schedule",
     lede:
-      "Shared calendar and assignments for the firm — track hearings, deadlines, and day-to-day work. Client billing is in Accounts.",
-    tip: "Tap a tab name below to open that section.",
+      "Track hearings, deadlines, and day-to-day work for the firm. Use My work for today's list; add tasks and events when something new comes in.",
+    tip: "Hover a tab name for a short guide, or tap the (i) icon on each page for what to enter.",
     instructionsAnchor: "tasks-tabs",
     items: buildItemsFromTabs(tabs, TASKS_TAB_DESCRIPTIONS)
   };
@@ -68,8 +69,8 @@ export function getBillingIntroContent(tabs: NavTabDef[]): WorkspaceIntroContent
   return {
     title: "Accounts",
     lede:
-      "Client files, money in and out, statements, and firm reports. Use Entries for routine charges and payments.",
-    tip: "Tap a tab name below to open that section.",
+      "Client billing, money in and out, statements, and firm reports. Use Charges & payments for regular clients; Walk-ins and One-time fees for everyone else.",
+    tip: "Hover a tab name for a short guide, or tap the (i) icon on each page for what to enter.",
     instructionsAnchor: "billing-tabs",
     items: buildItemsFromTabs(tabs, BILLING_TAB_DESCRIPTIONS)
   };

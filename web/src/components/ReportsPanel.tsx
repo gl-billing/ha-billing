@@ -6,6 +6,7 @@ import { formatPeso } from "@/lib/gl-config";
 import { MetricSkeleton, Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { HealthChecksPanel } from "@/components/HealthChecksPanel";
+import { useFirmAdmin } from "@/hooks/useFirmAdmin";
 import type { PartnerWeeklyReport } from "@/lib/sheets/partner-weekly";
 
 type Props = {
@@ -22,6 +23,7 @@ type ScriptStatus = {
 };
 
 export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
+  const isAdmin = useFirmAdmin();
   const [aging, setAging] = useState<ArAgingReport | null>(null);
   const [collections, setCollections] = useState<MonthlyCollectionsReport | null>(null);
   const [agingLoading, setAgingLoading] = useState(true);
@@ -30,6 +32,9 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
   const [collectionsError, setCollectionsError] = useState("");
   const [section, setSection] = useState<"aging" | "collections">("aging");
   const [maintenanceBusy, setMaintenanceBusy] = useState(false);
+  const [backupPdfBusy, setBackupPdfBusy] = useState(false);
+  const [lastPdfBackupAt, setLastPdfBackupAt] = useState<string | null>(null);
+  const [backupStatusLoading, setBackupStatusLoading] = useState(false);
   const [scriptStatus, setScriptStatus] = useState<ScriptStatus | null>(null);
   const [scriptStatusLoading, setScriptStatusLoading] = useState(true);
   const now = new Date();
@@ -94,6 +99,25 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
     void loadScriptStatus();
   }, [loadScriptStatus]);
 
+  const loadBackupStatus = useCallback(async () => {
+    if (!isAdmin) return;
+    setBackupStatusLoading(true);
+    try {
+      const res = await fetch("/api/export/backup-status");
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to load backup status.");
+      setLastPdfBackupAt(json.lastBackupAt ?? null);
+    } catch {
+      setLastPdfBackupAt(null);
+    } finally {
+      setBackupStatusLoading(false);
+    }
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (isAdmin) void loadBackupStatus();
+  }, [isAdmin, loadBackupStatus]);
+
   useEffect(() => {
     if (section === "collections") {
       void loadCollections();
@@ -122,7 +146,35 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
     }
   }
 
-  const maintenanceDisabled = busy || maintenanceBusy;
+  async function downloadBackupPdf() {
+    setBackupPdfBusy(true);
+    onBusy?.(true);
+    onStatus("Preparing incremental backup PDF…");
+    try {
+      const res = await fetch("/api/export/backup-pdf");
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error || "Backup download failed.");
+      }
+      const blob = await res.blob();
+      const stamp = new Date().toISOString().slice(0, 10);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `ha-billing-backup-${stamp}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+      onStatus("Backup PDF downloaded. Next backup will include only new activity.");
+      await loadBackupStatus();
+    } catch (error) {
+      onStatus(error instanceof Error ? error.message : "Backup download failed.", true);
+    } finally {
+      setBackupPdfBusy(false);
+      onBusy?.(false);
+    }
+  }
+
+  const maintenanceDisabled = busy || maintenanceBusy || backupPdfBusy;
 
   if (agingLoading && !aging) {
     return (
@@ -484,6 +536,12 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
           <div className="reports-maintenance-banner reports-maintenance-banner--warn">
             <p className="font-bold">Apps Script not ready</p>
             <p className="mt-1">{scriptStatus?.error || "Connection check failed."}</p>
+            {isAdmin ? (
+              <p className="mt-2 text-[11px] leading-snug opacity-90">
+                <strong>Download backup PDF</strong> still works — it reads directly from the billing spreadsheet and
+                does not need Apps Script. The other maintenance buttons below require a working Web App connection.
+              </p>
+            ) : null}
             <button
               type="button"
               className="btn-gold mt-2 text-[10px]"
@@ -494,11 +552,11 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <button
             type="button"
             disabled={maintenanceDisabled || !scriptStatus?.ok}
-            className="btn-secondary text-xs"
+            className="btn-secondary whitespace-normal text-xs leading-snug"
             onClick={() => void runMaintenance("setupAutoRefreshTrigger", "Installing hourly sync")}
           >
             {maintenanceBusy ? "Working…" : "Enable hourly dashboard sync"}
@@ -506,20 +564,39 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
           <button
             type="button"
             disabled={maintenanceDisabled || !scriptStatus?.ok}
-            className="btn-secondary text-xs"
+            className="btn-secondary whitespace-normal text-xs leading-snug"
             onClick={() => void runMaintenance("backupSpreadsheet", "Creating backup")}
           >
             Backup spreadsheet
           </button>
+          {isAdmin ? (
+            <button
+              type="button"
+              disabled={maintenanceDisabled}
+              className="btn-secondary whitespace-normal text-xs leading-snug"
+              onClick={() => void downloadBackupPdf()}
+            >
+              {backupPdfBusy ? "Preparing PDF…" : "Download backup PDF"}
+            </button>
+          ) : null}
           <button
             type="button"
             disabled={maintenanceDisabled || !scriptStatus?.ok}
-            className="btn-secondary text-xs"
+            className="btn-secondary whitespace-normal text-xs leading-snug"
             onClick={() => void runMaintenance("refreshDashboard", "Refreshing dashboard")}
           >
             Refresh dashboard now
           </button>
         </div>
+        {isAdmin ? (
+          <p className="reports-maintenance-hint">
+            {backupStatusLoading
+              ? "Checking last PDF backup…"
+              : lastPdfBackupAt
+                ? `Last PDF backup: ${new Date(lastPdfBackupAt).toLocaleString()}. Each download includes audit and document activity since that time only — no duplicate entries.`
+                : "No PDF backup yet. The first download includes all audit and document log activity; later downloads include only new entries since the previous backup."}
+          </p>
+        ) : null}
         <p className="reports-maintenance-hint">
           Hourly sync installs a trigger in your billing spreadsheet (Extensions → Apps Script → paste{" "}
           <strong>Triggers.gs</strong>, deploy Web App). If the button fails, run{" "}

@@ -46,7 +46,7 @@ export function NavTabsScroll<T extends string>({
           else tabRefs.current.delete(tab.id);
         }}
         type="button"
-        className={`nav-tab inline-flex items-center ${activeId === tab.id ? "active" : ""}`}
+        className={`nav-tab nav-tab--scroll shrink-0 inline-flex items-center ${activeId === tab.id ? "active" : ""}`}
         onClick={() => onSelect(tab.id)}
         disabled={disabled}
         title={tab.description}
@@ -57,9 +57,9 @@ export function NavTabsScroll<T extends string>({
   }
 
   return (
-    <div className="nav-tabs-scroll-wrap">
+    <div className="nav-tabs-scroll-wrap min-w-0 max-w-full overflow-hidden">
       <nav
-        className={`nav-tabs-scroll no-print${workspace ? ` nav-tabs-scroll--${workspace}` : ""}`}
+        className={`nav-tabs-scroll no-print min-w-0${workspace ? ` nav-tabs-scroll--${workspace}` : ""}`}
         aria-label={ariaLabel}
         data-workspace={workspace}
       >

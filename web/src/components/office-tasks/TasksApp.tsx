@@ -1262,40 +1262,39 @@ export function TasksApp() {
             }
           />
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="About my work">
+            <BillingTabGuide title="How to use My work">
               <BillingTabGuideText>
-                <strong>My items</strong> shows work assigned to you; <strong>Whole firm</strong> is the team board. Work
-                flows <strong>Due first</strong>, then <strong>Due today</strong>, <strong>Waiting/Started</strong> (collapsed
-                until expanded), and <strong>Completed today</strong>. Billing to-do&apos;s follow your task queue. Tap a stat
-                to jump.
+                Your daily list. Choose <strong>My items</strong> to see work assigned to you, or <strong>Whole firm</strong>{" "}
+                for the team board. Items appear as <strong>Overdue</strong>, <strong>Due today</strong>,{" "}
+                <strong>Waiting/Started</strong>, then <strong>Completed today</strong>.
               </BillingTabGuideText>
               {billingAccess ? (
                 <BillingTabGuideText>
-                  Billing to-dos appear after your work queue; charges and SOAs live in{" "}
+                  To record client fees or print SOAs, go to{" "}
                   <SameWindowLink
                     href={"/billing"}
                     className="font-bold text-gold-dark underline"
                   >
-                    Billing
+                    Accounts → Charges &amp; payments
                   </SameWindowLink>
                   .
                 </BillingTabGuideText>
               ) : (
                 <BillingTabGuideText>
-                  Use <strong>Calendar</strong> for other dates. Plot new work with <strong>+ Task</strong> or{" "}
-                  <strong>+ Event</strong> — add <strong>Remarks</strong> on the form or edit a card after saving.
+                  Use <strong>Calendar</strong> for other dates. Tap <strong>Add task</strong> or <strong>Add event</strong>{" "}
+                  to log new work — add remarks on the form or edit a card after saving.
                 </BillingTabGuideText>
               )}
               {billingAccess ? (
                 <BillingTabGuideText>
-                  <strong>+ Task</strong> — work due by a date (drafting, prep, follow-ups, admin). <strong>+ Event</strong> —
-                  fixed calendar items (hearings, meetings, filing deadlines); when unsure, log the hearing or deadline as an
-                  event and prep as a task.
+                  <strong>Add task</strong> — work with a due date (drafting, follow-ups, prep). Enter client, assignee,
+                  due date, and what to do. <strong>Add event</strong> — fixed calendar items (hearings, meetings,
+                  filing deadlines).
                 </BillingTabGuideText>
               ) : (
                 <BillingTabGuideText>
-                  <strong>+ Task</strong> — court trips, follow-ups, and field work. <strong>+ Event</strong> — hearings,
-                  consultations, and filing deadlines on the calendar.
+                  <strong>Add task</strong> — court trips, follow-ups, and field work. <strong>Add event</strong> — hearings,
+                  consultations, and filing deadlines.
                 </BillingTabGuideText>
               )}
             </BillingTabGuide>
@@ -1519,10 +1518,10 @@ export function TasksApp() {
       {tab === "calendar" && data && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="About calendar">
+            <BillingTabGuide title="How to use Calendar">
               <BillingTabGuideText>
-                Month view of hearings, filing deadlines, and tasks — tap a date for details below (overdue first),
-                Philippine holidays highlighted, <strong>Print</strong> for a wall calendar.
+                See the whole month — hearings, filing deadlines, and tasks on each date. Tap a date for details below
+                (overdue items first). Philippine holidays are highlighted. Use <strong>Print</strong> for a wall calendar.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -1549,12 +1548,13 @@ export function TasksApp() {
       {tab === "week" && data && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="About week planner">
+            <BillingTabGuide title="How to use Week planner">
               <BillingTabGuideText>
-                Seven-day grid with overdue at the top; tap a day for details below — best for planning ahead.
+                See the next seven days in a grid — overdue items at the top, then each day&apos;s work. Tap a day for
+                details below. Best when planning ahead for the week.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                Use <strong>My work</strong> for today&apos;s priority list.
+                For today&apos;s priority list, use <strong>My work</strong>.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -1582,12 +1582,13 @@ export function TasksApp() {
       {tab === "team" && data && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="About team tracker">
+            <BillingTabGuide title="How to use Team workload">
               <BillingTabGuideText>
-                Select a team member to see open, today, week, and overdue work; card counts show workload.
+                Pick a team member to see their open, due-today, this-week, and overdue work. Card counts show how much
+                each person has on their plate.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                Staff reminder emails (admin) are configured in <strong>Tools</strong>.
+                Staff reminder emails (admin) are set up in <strong>Tools</strong>.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -1625,14 +1626,14 @@ export function TasksApp() {
       {tab === "history" && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="About task history">
+            <BillingTabGuide title="About past tasks">
               <BillingTabGuideText>
-                Audit log of task and event changes from this app — reload for newest first.
+                Look up finished or past tasks and events. Reload for the newest entries first.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                Charges, payments, SOAs, and receipts are in{" "}
+                Client charges, payments, SOAs, and receipts are in{" "}
                 <SameWindowLink href="/billing" className="font-bold text-gold-dark underline">
-                  Billing → History
+                  Accounts → Activity log
                 </SameWindowLink>
                 .
               </BillingTabGuideText>
@@ -1668,8 +1669,8 @@ export function TasksApp() {
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="About tools">
               <BillingTabGuideText>
-                Refresh sheet overviews, <strong>sync Google Calendar</strong>, print today/week/calendar, export lists; admins
-                also get BIR tax deadlines, legacy reminder run, and data health checks.
+                Refresh sheet data, <strong>sync Google Calendar</strong>, and print today&apos;s list, the week planner,
+                or calendar. Admins also get BIR tax deadlines and data health checks.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -1773,10 +1774,10 @@ export function TasksApp() {
       {tab === "all-items" && data && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="About all items">
+            <BillingTabGuide title="How to search all items">
               <BillingTabGuideText>
-                Full master list of tasks and events — search above in plain English or filter below by type, status, and
-                assignee; open any card to edit or update status.
+                Find any open task, hearing, or event. Type in the search box or filter by type, status, and assignee.
+                Tap a card to open details or update its status.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -1815,14 +1816,13 @@ export function TasksApp() {
       {tab === "correspondence" && billingAccess && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="About draft letters">
+            <BillingTabGuide title="How to write a letter">
               <BillingTabGuideText>
-                Compose firm correspondence on the approved letterhead — demand letters, proposals, reply letters,
-                requests, and general letters.
+                Choose a letter type (demand letter, proposal, reply, request, or general letter). Pick a client to fill
+                in their name and address automatically, then edit the body text.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                Pick a client below to prefill recipient details, edit the body, preview the PDF layout, then download
-                or send via Gmail with the PDF attached.
+                Preview the PDF on firm letterhead, then download or send via Gmail with the PDF attached.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>

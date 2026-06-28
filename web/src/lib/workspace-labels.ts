@@ -5,29 +5,34 @@ import type { SavedBillingPage, SavedTasksTab } from "@/lib/staff-prefs";
 export type NavUserProfile = "full" | "tasks-only" | "secretary";
 
 export const TASKS_TAB_LABELS: Record<SavedTasksTab, string> = {
-  today: "Today",
+  today: "My work",
   calendar: "Calendar",
-  week: "Week view",
-  team: "Staff load",
-  history: "Archive",
-  "add-task": "New task",
-  "add-event": "New event",
-  "all-items": "Search",
+  week: "Week plan",
+  team: "Team work",
+  history: "Past tasks",
+  "add-task": "Add task",
+  "add-event": "Add event",
+  "all-items": "Search all",
   correspondence: "Letters",
-  tools: "Admin tools"
+  tools: "Tools"
 };
 
 export const TASKS_TAB_DESCRIPTIONS: Record<SavedTasksTab, string> = {
-  today: "Your overdue, due-today, and in-progress tasks, hearings, events, and filings.",
-  calendar: "Month view of hearings, deadlines, meetings, and office events.",
-  week: "Weekly planner — see the firm’s schedule day by day.",
-  team: "Workload by staff — who has what open across the office.",
-  history: "Completed and past tasks and events across dates.",
-  "add-task": "Create a new task or to-do and assign it to a client matter.",
-  "add-event": "Schedule hearings, meetings, court filings, and submission deadlines.",
-  "all-items": "Search and browse every open task, hearing, and event.",
-  correspondence: "Draft demand letters, proposals, replies, and other firm correspondence on letterhead.",
-  tools: "Diagnostics, imports, BIR tracker, and other admin tools."
+  today:
+    "Your daily list — overdue items first, then due today, in progress, and finished today. Tap a card to open details.",
+  calendar:
+    "Month view of hearings, filing deadlines, meetings, and tasks. Tap a date to see what is scheduled.",
+  week: "See the next seven days at a glance — useful when planning the week ahead.",
+  team: "See who on the team has open work and how much each person has on their plate.",
+  history: "Look up finished or past tasks and events when you need to check what was done.",
+  "add-task":
+    "Create a to-do (drafting, follow-up, prep). Enter the client matter, assignee, due date, and what needs to be done.",
+  "add-event":
+    "Book a hearing, meeting, or filing deadline. Enter the date, client matter, location or court, and any notes.",
+  "all-items": "Search every open task, hearing, and event by keyword, client, or staff member.",
+  correspondence:
+    "Write demand letters, proposals, replies, and other letters on firm letterhead — pick a template and fill in the details.",
+  tools: "Refresh data, sync Google Calendar, print lists, and other admin settings."
 };
 
 export type BillingNavTabGroup = "daily" | "clients" | "overview" | "admin";
@@ -35,11 +40,11 @@ export type TasksNavTabGroup = "daily" | "actions" | "schedule" | "browse" | "ov
 export type NavTabGroup = BillingNavTabGroup | TasksNavTabGroup;
 
 export const NAV_TAB_GROUP_LABELS: Record<NavTabGroup, string> = {
-  daily: "Today",
-  actions: "New",
+  daily: "Every day",
+  actions: "Add new",
   clients: "Clients",
-  overview: "Reports",
-  admin: "Admin",
+  overview: "Overview",
+  admin: "Admin only",
   schedule: "Calendar",
   browse: "Search",
   oversight: "Team"
@@ -115,35 +120,48 @@ const FULL_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
 ];
 
 export const BILLING_PAGE_LABELS: Record<SavedBillingPage, string> = {
-  home: "Summary",
-  billing: "Entries",
-  clients: "Clients",
+  home: "Overview",
+  billing: "Charges & pay",
+  clients: "Find client",
   walkIns: "Walk-ins",
-  spotBilling: "One-off fees",
-  notarizations: "Notarial",
+  spotBilling: "One-time fees",
+  notarizations: "Notary log",
   fieldDispatch: "Field visits",
   newClient: "New client",
-  documents: "Statements",
-  history: "Posted log",
+  documents: "SOA & AR",
+  history: "Activity log",
   reports: "Reports",
-  firmFinances: "Firm books",
+  firmFinances: "Firm income",
   staffSalary: "Payroll"
 };
 
 export const BILLING_PAGE_DESCRIPTIONS: Record<SavedBillingPage, string> = {
-  home: "Firm-wide overview — balances, alerts, birthdays, and quick links.",
-  billing: "Post charges and payments to client ledgers.",
-  clients: "Browse client matters and open a client’s billing file.",
-  walkIns: "Same-day walk-in clients, quick intake, and same-day fees.",
-  spotBilling: "Occasional payers with one or two transactions — no Master List client file.",
-  notarizations: "Notarial records, acknowledgments, and notarial fees.",
-  fieldDispatch: "Assign and track field staff visits and dispatches.",
-  newClient: "New client intake — open a matter and set up billing.",
-  documents: "Generate statements of account and accounts receivable.",
-  history: "Posted ledger entries and billing history across clients.",
-  reports: "Billing reports, collections, and exportable summaries.",
-  firmFinances: "Firm-level income, lawyer fee sharing, and month-end review.",
-  staffSalary: "Payroll runs, cash advances, and staff compensation."
+  home:
+    "Firm snapshot — total balances, who owes money, client birthdays, and quick links to common tasks.",
+  billing:
+    "Record a fee or payment for a regular client. Pick the client, then enter date, amount, category, and a short description.",
+  clients:
+    "Look up a client by name or code and open their billing file, ledger, tasks, and documents.",
+  walkIns:
+    "Log someone who walked in today. Enter their name, visit type, amount charged, and payment if they paid now.",
+  spotBilling:
+    "For people who pay once or twice only — not on the main client list. Enter name, fee, and payment details.",
+  notarizations:
+    "Record a notarized document — enter book/page numbers, document type, fee, and how they paid.",
+  fieldDispatch:
+    "Track out-of-town field trips — enter advance money, service fee, and bill the client when staff returns.",
+  newClient:
+    "Start a new retained client — enter name, contact details, case info, and choose the agreement to send.",
+  documents:
+    "Print or email a Statement of Account (SOA) or payment receipt (AR). Post charges and payments first on Charges & payments.",
+  history:
+    "See everything posted — charges, payments, SOAs, receipts, and record changes — across all clients.",
+  reports:
+    "View overdue balances, monthly collections, download exports, and run admin maintenance tools.",
+  firmFinances:
+    "Admin — review firm income and split it into expense, savings, travel, and emergency buckets each month.",
+  staffSalary:
+    "Admin — run semi-monthly payroll, staff allowances, and cash advances."
 };
 
 /** Full catalog — labels for every billing page (nav uses subsets below). */

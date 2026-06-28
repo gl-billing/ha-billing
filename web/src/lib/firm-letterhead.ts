@@ -49,12 +49,7 @@ export {
 };
 
 export * from "./firm-letterhead-html";
-import {
-  FIRM_FOOTER_CAPS_LINE_1,
-  FIRM_FOOTER_CAPS_LINE_2,
-  footerNameBlockBounds,
-  splitFooterCapsChars
-} from "./firm-footer-name";
+import { FIRM_FOOTER_NAME } from "./firm-footer-name";
 import { FIRM_LETTER_SPACED_CAPS_NAME, FIRM_LETTER_SPACED_CAPS_SUBTITLE } from "./firm-letterhead-html";
 
 function drawCenteredText(
@@ -131,42 +126,6 @@ function drawCenteredLogoCrest(
   return imgY - 12;
 }
 
-export function drawEdgeAlignedCapsLine(
-  page: PDFPage,
-  text: string,
-  y: number,
-  xLeft: number,
-  xRight: number,
-  font: PDFFont,
-  size: number,
-  color: ReturnType<typeof pdfColor>,
-  lineGap = 3
-): number {
-  const chars = splitFooterCapsChars(text);
-  if (!chars.length) return y;
-  if (chars.length === 1) {
-    const width = font.widthOfTextAtSize(chars[0], size);
-    page.drawText(chars[0], {
-      x: (xLeft + xRight - width) / 2,
-      y: y - size,
-      size,
-      font,
-      color
-    });
-    return y - size - lineGap;
-  }
-
-  const charWidths = chars.map((char) => font.widthOfTextAtSize(char, size));
-  const totalCharWidth = charWidths.reduce((sum, width) => sum + width, 0);
-  const gap = (xRight - xLeft - totalCharWidth) / (chars.length - 1);
-  let x = xLeft;
-  for (let index = 0; index < chars.length; index += 1) {
-    page.drawText(chars[index], { x, y: y - size, size, font, color });
-    x += charWidths[index] + gap;
-  }
-  return y - size - lineGap;
-}
-
 export function drawFooterNameDivider(
   page: PDFPage,
   pageWidth: number,
@@ -238,7 +197,7 @@ function footerTextLines(contact: FirmLetterheadContact): {
   tone?: "ink" | "gold" | "muted";
   bold?: boolean;
   wrap?: boolean;
-  edgeAlign?: boolean;
+  nameLine?: boolean;
 }[] {
   const phoneText = formatLetterheadFooterPhoneLine(contact);
   const digitalText = formatLetterheadFooterDigitalLine(contact);
@@ -248,10 +207,9 @@ function footerTextLines(contact: FirmLetterheadContact): {
     tone?: "ink" | "gold" | "muted";
     bold?: boolean;
     wrap?: boolean;
-    edgeAlign?: boolean;
+    nameLine?: boolean;
   }[] = [
-    { text: FIRM_FOOTER_CAPS_LINE_1, size: 8.5, tone: "ink", bold: true, edgeAlign: true },
-    { text: FIRM_FOOTER_CAPS_LINE_2, size: 8.5, tone: "ink", bold: true, edgeAlign: true }
+    { text: FIRM_FOOTER_NAME, size: 8.5, tone: "ink", bold: true, nameLine: true }
   ];
 
   for (const addressLine of formatLetterheadFooterAddressLines(contact)) {
@@ -323,12 +281,6 @@ export function drawFirmPageFooterPdf(options: {
   });
 
   y -= ruleBlock + 4;
-  const nameLineSize = lines.find((line) => line.edgeAlign)?.size ?? 8.5;
-  const nameBounds = footerNameBlockBounds(options.pageWidth, (char) =>
-    bold.widthOfTextAtSize(char, nameLineSize)
-  );
-  const nameLines = lines.filter((line) => line.edgeAlign);
-  let nameLineIndex = 0;
 
   for (const line of lines) {
     const color =
@@ -339,23 +291,17 @@ export function drawFirmPageFooterPdf(options: {
           : pdfColor(BILLING_DOC_RGB.muted);
     const font = line.bold ? bold : options.regular;
 
-    if (line.edgeAlign) {
-      const isLastNameLine = nameLineIndex === nameLines.length - 1;
-      y = drawEdgeAlignedCapsLine(
-        options.page,
-        line.text,
-        y,
-        nameBounds.left,
-        nameBounds.right,
+    if (line.nameLine) {
+      const width = font.widthOfTextAtSize(line.text, line.size);
+      options.page.drawText(line.text, {
+        x: (options.pageWidth - width) / 2,
+        y: y - line.size,
+        size: line.size,
         font,
-        line.size,
-        color,
-        isLastNameLine ? 1.5 : 1
-      );
-      nameLineIndex += 1;
-      if (isLastNameLine) {
-        y = drawFooterNameDivider(options.page, options.pageWidth, y);
-      }
+        color
+      });
+      y -= line.size + 1.5;
+      y = drawFooterNameDivider(options.page, options.pageWidth, y);
       continue;
     }
 

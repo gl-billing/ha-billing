@@ -8,16 +8,12 @@ import {
   formatLetterheadFooterPhoneLine,
   getFirmLetterheadContact
 } from "@/lib/firm-contact";
-import { drawEdgeAlignedCapsLine, drawFooterNameDivider } from "@/lib/firm-letterhead";
+import { drawFooterNameDivider } from "@/lib/firm-letterhead";
 import {
   FIRM_LETTER_SPACED_CAPS_NAME,
   FIRM_LETTER_SPACED_CAPS_SUBTITLE
 } from "@/lib/firm-letterhead-html";
-import {
-  FIRM_FOOTER_CAPS_LINE_1,
-  FIRM_FOOTER_CAPS_LINE_2,
-  footerNameBlockBounds
-} from "@/lib/firm-footer-name";
+import { FIRM_FOOTER_NAME } from "@/lib/firm-footer-name";
 
 export type ArPdfInput = {
   receiptNumber: string;
@@ -309,7 +305,6 @@ function drawArFooter(page: PDFPage, regular: PDFFont, bold: PDFFont) {
   y -= 12;
 
   const nameSize = 6.75;
-  const nameBounds = footerNameBlockBounds(PAGE_WIDTH, (char) => bold.widthOfTextAtSize(char, nameSize));
 
   const drawCenteredLine = (
     text: string,
@@ -345,8 +340,7 @@ function drawArFooter(page: PDFPage, regular: PDFFont, bold: PDFFont) {
     y -= size + 2;
   };
 
-  y = drawEdgeAlignedCapsLine(page, FIRM_FOOTER_CAPS_LINE_1, y, nameBounds.left, nameBounds.right, bold, nameSize, AR.ink, 1);
-  y = drawEdgeAlignedCapsLine(page, FIRM_FOOTER_CAPS_LINE_2, y, nameBounds.left, nameBounds.right, bold, nameSize, AR.ink, 1.5);
+  drawCenteredLine(FIRM_FOOTER_NAME, nameSize, bold, AR.ink);
   y = drawFooterNameDivider(page, PAGE_WIDTH, y);
   for (const addressLine of formatLetterheadFooterAddressLines(contact)) {
     drawCenteredLine(addressLine, 6, regular, AR.muted, true);

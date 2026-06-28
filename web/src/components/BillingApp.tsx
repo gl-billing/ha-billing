@@ -577,17 +577,17 @@ export function BillingApp() {
       {page === "home" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About firm dashboard">
+            <BillingTabGuide title="About overview">
               <BillingTabGuideText>
-                Firm-wide snapshot of balances, collections, batch SOA, and recent documents.
+                Firm-wide snapshot — who owes money, recent documents, client birthdays, and batch SOA tools.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                Day-to-day charges and payments go on <strong>Billing</strong>; tasks and deadlines go in{" "}
+                To record a new fee or payment, go to <strong>Charges &amp; payments</strong>. For tasks and deadlines, go to{" "}
                 <SameWindowLink
                   href={firmAppHref("/app?tab=today")}
                   className="font-bold text-gold-dark underline"
                 >
-                  Tasks → My work
+                  Schedule → My work
                 </SameWindowLink>
                 .
               </BillingTabGuideText>
@@ -607,19 +607,15 @@ export function BillingApp() {
       {page === "newClient" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About intake">
+            <BillingTabGuide title="How to add a new client">
               <BillingTabGuideText>
-                <strong>New matter intake</strong> — full retained matter: billing file, conflict review before registration, optional starter
-                tasks, hearing placeholder, document preview/send.
+                <strong>Full intake</strong> — for a retained client. You will enter client code (surname in CAPS, e.g.{" "}
+                <em>SMITH</em>), full name, contact details (email or phone and address), case type, and choose a{" "}
+                <strong>Contract of legal services</strong> or <strong>Retainership agreement</strong> to send.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                <strong>Quick register</strong> (expand at bottom) — Master List row and ledger tab only, when the matter is
-                already discussed or you are not sending letters/tasks yet.
-              </BillingTabGuideText>
-              <BillingTabGuideText>
-                Wizard: <strong>Client code *</strong> is surname in CAPS (e.g. <em>SMITH</em>); <strong>Client name *</strong> is
-                full name; <strong>Case title</strong> is optional; step 2 needs email or phone and address; step 3 picks{" "}
-                <strong>Contract of legal services</strong> or <strong>Retainership agreement</strong>.
+                <strong>Quick register</strong> (expand at bottom) — adds the client to the list and opens their billing
+                file only, when you are not sending letters or starter tasks yet.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -652,10 +648,10 @@ export function BillingApp() {
       {page === "clients" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About client directory">
+            <BillingTabGuide title="How to find a client">
               <BillingTabGuideText>
-                Search and browse every client by code or name; view contacts here and open the <strong>matter page</strong>{" "}
-                for tasks, billing, and documents.
+                Search by client code or name. Tap a row to see contact details, or open the <strong>matter page</strong>{" "}
+                for their ledger, tasks, and documents.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -668,11 +664,14 @@ export function BillingApp() {
       {page === "walkIns" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About walk-ins">
+            <BillingTabGuide title="How to log a walk-in">
               <BillingTabGuideText>
-                Log one-time visits with a <strong>charge</strong>, <strong>payment</strong>, or <strong>retainer
-                visit</strong>. <strong>Promote &amp; open matter</strong> creates the billing file, copies walk-in
-                billing to the ledger, adds starter tasks, and opens the matter page.
+                For someone who visited the office today and is <strong>not yet a regular client</strong>. Enter their
+                name, visit type (consultation, retainer visit, etc.), amount charged, and payment if they paid now.
+              </BillingTabGuideText>
+              <BillingTabGuideText>
+                If they become a retained client, use <strong>Promote &amp; open matter</strong> to create their billing
+                file and copy today&apos;s fees to their ledger.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -697,16 +696,14 @@ export function BillingApp() {
       {page === "spotBilling" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About spot billing">
+            <BillingTabGuide title="How to record one-time fees">
               <BillingTabGuideText>
-                Record charges and payments for <strong>occasional payers</strong> — people with only one or two
-                transactions who are not same-day walk-ins and do not need a full client file on Master List.
+                For people who pay once or twice and do <strong>not</strong> need a full client file — e.g. a single
+                document review or a one-off legal service. Enter their name, the fee, and how they paid.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                Open a spot record, record <strong>charges</strong> (fees/expenses) and <strong>payments</strong> as
-                separate transactions, then email each on firm letterhead with the assigned lawyer. Close when done. Use{" "}
-                <strong>Walk-ins</strong> for consult visits you may promote to a matter, or <strong>Intake</strong> for
-                full clients.
+                Use <strong>Walk-ins</strong> for same-day office visitors you may promote to a client later. Use{" "}
+                <strong>New client</strong> when they are retained for ongoing work.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -719,13 +716,13 @@ export function BillingApp() {
       {page === "notarizations" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About notarizations">
+            <BillingTabGuide title="How to log a notarization">
               <BillingTabGuideText>
-                Log each notarized document with book, page, and document numbers, record the fee and payment method, then
-                print an <strong>acknowledgment receipt</strong>.
+                Enter the document type, notarial book and page numbers, document number, fee amount, and payment method.
+                Then print the <strong>acknowledgment receipt</strong> for the signatory.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                Visitors not yet on the Master List can use the <strong>Walk-ins</strong> tab instead.
+                If the person is not on the client list yet, you can log them under <strong>Walk-ins</strong> instead.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -743,10 +740,11 @@ export function BillingApp() {
       {page === "fieldDispatch" && adminResolved && isAdmin && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About out-of-town liaison">
+            <BillingTabGuide title="How to track field visits">
               <BillingTabGuideText>
-                Admin only: record advance and service fee, enter returned change when Jas is back, then use{" "}
-                <strong>Bill client</strong> to post expenses and liaison fee to the client ledger in one step.
+                Admin only. When staff travels out of town for a client: enter the advance given, service fee, and returned
+                change when they are back. Use <strong>Bill client</strong> to post expenses and the liaison fee to the
+                client ledger in one step.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -768,13 +766,14 @@ export function BillingApp() {
       {page === "documents" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About SOA & receipts">
+            <BillingTabGuide title="How to print SOA or receipt">
               <BillingTabGuideText>
-                Pick a client and generate a <strong>Statement of Account (SOA)</strong> to send or print, or issue an{" "}
-                <strong>Acknowledgment Receipt (AR)</strong> for a payment already on their ledger.
+                Pick a client, then choose <strong>Statement of Account (SOA)</strong> to show what they owe, or{" "}
+                <strong>Acknowledgment Receipt (AR)</strong> for a payment already recorded on their ledger.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                Enter new charges and payments on the <strong>Billing</strong> tab first.
+                Record new fees and payments first on <strong>Charges &amp; payments</strong> — this tab only prints or
+                emails documents from what is already posted.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -814,8 +813,8 @@ export function BillingApp() {
           <TabPageHeader resetKey={page}>
             <BillingTabGuide title="About reports">
               <BillingTabGuideText>
-                AR aging and monthly collections, partner weekly summary, admin <strong>data health checks</strong>, and
-                maintenance (refresh cache, verify Apps Script, run sheet checks).
+                See who owes money (AR aging), monthly collections, and partner summaries. Admins can export CSV files,
+                run data health checks, and download incremental backup PDFs under Maintenance.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -828,10 +827,10 @@ export function BillingApp() {
       {page === "firmFinances" && adminResolved && isAdmin && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About firm finances">
+            <BillingTabGuide title="About firm income">
               <BillingTabGuideText>
-                Split acceptance, professional, and notarial income (plus Notarizations tab) into expense, savings,
-                travel, and emergency buckets. Appearance fees are shown separately by assigned attorney.
+                Admin only. Review firm income each month and split it into expense, savings, travel, and emergency
+                buckets. Notarial fees from the Notary log tab are included automatically.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -844,11 +843,10 @@ export function BillingApp() {
       {page === "staffSalary" && adminResolved && canOpenPayroll && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About staff salary">
+            <BillingTabGuide title="About payroll">
               <BillingTabGuideText>
-                Semi-monthly payroll for James Bryan and Ellyza Andrea — pay on the 15th and last day (prior business
-                day if weekend). Each gets ₱500 allowance on the end-of-month pay; Jas also gets field dispatch on that
-                second pay.
+                Admin only. Run semi-monthly payroll on the 15th and last day of each month (or the prior business day if
+                it falls on a weekend). Enter allowances, cash advances, and adjustments before closing each pay period.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -861,10 +859,10 @@ export function BillingApp() {
       {page === "history" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About history">
+            <BillingTabGuide title="About activity log">
               <BillingTabGuideText>
-                Office-wide audit log of charges, payments, SOAs, receipts, and client record changes — filter by type or
-                open a client from any entry.
+                See everything posted office-wide — charges, payments, SOAs, receipts, and client record changes. Filter
+                by type or open a client from any row.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -882,12 +880,15 @@ export function BillingApp() {
       {page === "billing" && (
         <>
       <TabPageHeader resetKey={page}>
-        <BillingTabGuide title="About billing">
+        <BillingTabGuide title="How to post charges & payments">
           <BillingTabGuideText>
-            Pick a retained client, post <strong>charges</strong> or <strong>payments</strong> to their ledger tab, and save.
+            Pick a regular client, choose <strong>Charge</strong> or <strong>Payment</strong>, then enter the date,
+            amount, category (Professional fee, Filing fee, Notarial fee, etc.), and a short description of the work or
+            payment.
           </BillingTabGuideText>
           <BillingTabGuideText>
-            One-time walk-in visits belong on <strong>Walk-ins</strong>, not here.
+            Same-day walk-in visitors belong on <strong>Walk-ins</strong>, not here. One-time payers belong on{" "}
+            <strong>One-time fees</strong>.
           </BillingTabGuideText>
         </BillingTabGuide>
       </TabPageHeader>

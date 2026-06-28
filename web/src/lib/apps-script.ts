@@ -55,16 +55,24 @@ export async function callAppsScriptWebApp(
   try {
     payload = JSON.parse(text) as Partial<AppsScriptResult>;
   } catch {
-    const snippet = text.trim().slice(0, 80);
+    if (!text.trim()) {
+      throw new Error("Apps Script returned an empty response.");
+    }
     if (/login|sign in|accounts\.google/i.test(text)) {
       throw new Error(
         "Apps Script Web App URL looks wrong or access is blocked. Use the /exec URL from Deploy → Web app (Execute as: Me, Who has access: Anyone)."
       );
     }
+    if (/^\s*<!DOCTYPE html|<html[\s>]/i.test(text)) {
+      throw new Error(
+        "Apps Script returned a web page instead of JSON. Check APPS_SCRIPT_WEB_APP_URL in server settings — it must be the /exec deployment URL (Deploy → Web app → Execute as: Me, Who has access: Anyone), then redeploy a new version."
+      );
+    }
+    const snippet = text.trim().slice(0, 80);
     throw new Error(
       snippet
         ? `Apps Script returned a non-JSON response: ${snippet}${text.length > 80 ? "…" : ""}`
-        : "Apps Script returned an empty response."
+        : "Apps Script returned an unreadable response."
     );
   }
 
