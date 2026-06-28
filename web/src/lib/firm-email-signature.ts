@@ -11,6 +11,7 @@ import {
   FIRM_WEBSITE
 } from "@/lib/billing-document-design";
 import { formatFirmContactLine, formatFirmWebsiteLabel, firmPhoneTelHref, firmPrimaryPhone } from "@/lib/firm-contact";
+import { SECRETARY } from "@/lib/firm-team-config";
 
 export const FIRM_CONTACT = {
   name: FIRM_NAME,
@@ -38,7 +39,7 @@ export type FirmEmailSigner = {
 
 export function getFirmEmailSigner(): FirmEmailSigner {
   return {
-    name: process.env.FIRM_EMAIL_SIGNER_NAME?.trim() || "ELLYZA ANDREA P. AGUANTA",
+    name: process.env.FIRM_EMAIL_SIGNER_NAME?.trim() || SECRETARY.signatureName,
     title: process.env.FIRM_EMAIL_SIGNER_TITLE?.trim() || "Firm Secretary"
   };
 }

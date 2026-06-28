@@ -39,6 +39,8 @@ export const APPEARANCE_FEE_LAWYER_SHARE_PERCENT = 100;
 export const SECRETARY = {
   displayName: "Shiela",
   rosterName: "Shiela (Secretary)",
+  /** Full name shown on client email signatures (SOA, AR, payslips, etc.). */
+  signatureName: "Shiela Cabaniero",
   email: FIRM_INBOX_EMAIL
 };
 
