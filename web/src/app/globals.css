@@ -6551,7 +6551,7 @@ html {
   }
 
   .client-matter-panel__columns {
-    @apply grid grid-cols-2 gap-4 px-5 py-5 sm:gap-6 sm:px-6 sm:py-6;
+    @apply grid grid-cols-1 gap-4 px-5 py-5 sm:grid-cols-2 sm:gap-6 sm:px-6 sm:py-6;
   }
 
   .client-matter-panel__section {
@@ -7228,20 +7228,24 @@ html {
   }
 
   .matter-items-column__summary {
-    @apply flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 sm:px-6;
+    @apply flex cursor-pointer list-none flex-wrap items-start justify-between gap-x-3 gap-y-1 px-4 py-3.5 sm:flex-nowrap sm:items-center sm:px-6 sm:py-4;
   }
 
   .matter-items-column__summary::-webkit-details-marker {
     display: none;
   }
 
+  .matter-items-column__summary-main {
+    @apply flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3;
+  }
+
   .matter-items-column__title {
-    @apply text-xs font-semibold uppercase tracking-[0.06em] text-ink;
+    @apply block min-w-0 text-xs font-semibold uppercase tracking-[0.06em] text-ink;
     font-family: var(--font-ui);
   }
 
   .matter-items-column__counts {
-    @apply shrink-0 text-[11px] font-semibold text-muted;
+    @apply block min-w-0 text-[11px] font-semibold leading-snug text-muted sm:shrink-0 sm:text-right;
   }
 
   .matter-items-column__body {

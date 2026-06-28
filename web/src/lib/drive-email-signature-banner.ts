@@ -9,19 +9,16 @@ export type EmailSignatureBanner = {
   content: Buffer;
 };
 
-const DRIVE_FILE_NAME = "email signature";
+/** HA billing — Hernandez logo bar on Drive (`cover.png`). Not the GL "email signature" file. */
+const HA_DRIVE_BANNER_FILE_NAME = "cover.png";
 
 function configuredFileId(): string | null {
   const id = process.env.FIRM_EMAIL_SIGNATURE_DRIVE_FILE_ID?.trim();
   return id || null;
 }
 
-function normalizeDriveName(name: string): string {
-  return name.replace(/\.[^.]+$/, "").trim().toLowerCase();
-}
-
-function isEmailSignatureFileName(name: string): boolean {
-  return normalizeDriveName(name) === DRIVE_FILE_NAME;
+function isHaEmailBannerFileName(name: string): boolean {
+  return name.trim().toLowerCase() === HA_DRIVE_BANNER_FILE_NAME;
 }
 
 async function driveFetch(accessToken: string, url: string): Promise<Response> {
@@ -41,17 +38,17 @@ async function findDriveFileId(accessToken: string): Promise<{ id: string; name:
     if (!metaRes.ok) return null;
     const meta = (await metaRes.json()) as { id?: string; name?: string; mimeType?: string };
     if (!meta.id) return null;
-    return { id: meta.id, name: meta.name || DRIVE_FILE_NAME, mimeType: meta.mimeType || "image/jpeg" };
+    return { id: meta.id, name: meta.name || HA_DRIVE_BANNER_FILE_NAME, mimeType: meta.mimeType || "image/png" };
   }
 
   const folderId = process.env.FIRM_EMAIL_SIGNATURE_DRIVE_FOLDER_ID?.trim();
   const folderClause = folderId ? `'${folderId}' in parents and ` : "";
   const query = encodeURIComponent(
-    `${folderClause}trashed=false and mimeType contains 'image/' and name contains 'email signature'`
+    `${folderClause}trashed=false and mimeType contains 'image/' and name = '${HA_DRIVE_BANNER_FILE_NAME}'`
   );
   const listRes = await driveFetch(
     accessToken,
-    `https://www.googleapis.com/drive/v3/files?q=${query}&orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,mimeType)`
+    `https://www.googleapis.com/drive/v3/files?q=${query}&orderBy=modifiedTime desc&pageSize=5&fields=files(id,name,mimeType)`
   );
   if (!listRes.ok) return null;
 
@@ -59,40 +56,32 @@ async function findDriveFileId(accessToken: string): Promise<{ id: string; name:
     files?: Array<{ id?: string; name?: string; mimeType?: string }>;
   };
   const files = data.files || [];
-  const exact = files.find((file) => file.id && file.name && isEmailSignatureFileName(file.name));
-  const picked = exact || files.find((file) => file.id && file.name);
-  if (!picked?.id) return null;
+  const exact = files.find((file) => file.id && file.name && isHaEmailBannerFileName(file.name));
+  if (!exact?.id) return null;
 
   return {
-    id: picked.id,
-    name: picked.name || DRIVE_FILE_NAME,
-    mimeType: picked.mimeType || "image/jpeg"
+    id: exact.id,
+    name: exact.name || HA_DRIVE_BANNER_FILE_NAME,
+    mimeType: exact.mimeType || "image/png"
   };
 }
 
 function localBannerFallback(): EmailSignatureBanner | null {
-  const candidates = [
-    { filePath: path.join(process.cwd(), "public/brand/email-signature-banner.png"), filename: "email-signature-banner.png", mimeType: "image/png" },
-    { filePath: path.join(process.cwd(), "public/brand/email-signature-banner.jpg"), filename: "email-signature-banner.jpg", mimeType: "image/jpeg" },
-    { filePath: path.join(process.cwd(), "public/brand/cover.png"), filename: "email-signature-banner.png", mimeType: "image/png" }
-  ];
-  for (const candidate of candidates) {
-    try {
-      const content = fs.readFileSync(candidate.filePath);
-      return {
-        contentId: EMAIL_SIGNATURE_BANNER_CID,
-        filename: candidate.filename,
-        mimeType: candidate.mimeType,
-        content
-      };
-    } catch {
-      // try next
-    }
+  const filePath = path.join(process.cwd(), "public/brand/cover.png");
+  try {
+    const content = fs.readFileSync(filePath);
+    return {
+      contentId: EMAIL_SIGNATURE_BANNER_CID,
+      filename: "cover.png",
+      mimeType: "image/png",
+      content
+    };
+  } catch {
+    return null;
   }
-  return null;
 }
 
-/** Load the firm email signature banner from Google Drive (file named "email signature") or local fallback. */
+/** Load the HA email signature banner from Google Drive (`cover.png`) or `public/brand/cover.png`. */
 export async function loadEmailSignatureBanner(accessToken: string): Promise<EmailSignatureBanner | null> {
   try {
     const file = await findDriveFileId(accessToken);
@@ -118,9 +107,8 @@ export async function loadEmailSignatureBanner(accessToken: string): Promise<Ema
 
     return {
       contentId: EMAIL_SIGNATURE_BANNER_CID,
-      // Neutral filename — Drive file is named "email signature" but must not show as attachment.
-      filename: `signature-banner.${ext}`,
-      mimeType: file.mimeType || "image/jpeg",
+      filename: `cover.${ext}`,
+      mimeType: file.mimeType || "image/png",
       content: bytes
     };
   } catch {

@@ -2972,3 +2972,162 @@ a.btn-secondary,
   text-transform: uppercase;
 }
 
+/* ── Spacing & overflow — readable on all screens, no overlapping boxes ── */
+:root {
+  --ha-block-gap: 0.875rem;
+}
+
+.firm-workspace .page-enter,
+.firm-workspace .tab-page-body,
+.firm-workspace .firm-workspace-body,
+.matter-page {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--ha-block-gap) !important;
+}
+
+.firm-workspace .page-enter > *,
+.firm-workspace .tab-page-body > *,
+.firm-workspace .firm-workspace-body > *,
+.matter-page > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin-top: 0 !important;
+}
+
+.firm-workspace .card,
+.firm-workspace .stat-tile,
+.firm-workspace .item-card,
+.firm-workspace .matter-staff-actions__card,
+.firm-workspace .hub-role-shortcuts__card,
+.matter-page .matter-items-column {
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.firm-workspace .grid > *,
+.firm-workspace .flex > *,
+.firm-workspace [class*="__grid"] > * {
+  min-width: 0 !important;
+}
+
+.firm-workspace .btn-primary,
+.firm-workspace .btn-secondary,
+.firm-workspace a.btn-primary,
+.firm-workspace a.btn-secondary {
+  white-space: normal !important;
+  line-height: var(--ha-leading-tight) !important;
+  text-align: center !important;
+  overflow-wrap: anywhere !important;
+}
+
+@media (max-width: 639px) {
+  :root {
+    --ha-block-gap: 1rem;
+    --ha-tab-gap: 1rem;
+  }
+
+  .firm-workspace,
+  .office-hub {
+    --ha-shell-pad-x: clamp(1rem, 4vw, 1.25rem);
+  }
+
+  .firm-workspace .card,
+  .matter-page .card.matter-page__section,
+  .matter-page .card.matter-page__pending,
+  .matter-page .card.matter-page__header {
+    padding: 1rem !important;
+  }
+
+  .firm-workspace .nav-tab,
+  .firm-workspace .office-nav__link {
+    padding-left: 0.65rem !important;
+    padding-right: 0.65rem !important;
+    font-size: var(--ha-text-meta) !important;
+  }
+
+  .matter-page__nav {
+    gap: 0.5rem !important;
+    padding: 0.65rem !important;
+  }
+
+  .matter-page__nav-link {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    min-height: 2.35rem !important;
+    padding: 0.45rem 0.6rem !important;
+    font-size: var(--ha-text-meta) !important;
+    white-space: normal !important;
+    text-align: center !important;
+    line-height: var(--ha-leading-tight) !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .matter-staff-actions {
+    padding: 0.875rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  .matter-staff-actions__card {
+    min-height: 3.25rem !important;
+    padding: 0.65rem 0.75rem !important;
+  }
+
+  .matter-staff-actions__title,
+  .matter-staff-actions__desc {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    max-width: 100% !important;
+  }
+
+  .matter-doc-tabs .nav-tab {
+    white-space: normal !important;
+    line-height: var(--ha-leading-tight) !important;
+    padding: 0.55rem 0.45rem !important;
+    font-size: var(--ha-text-meta) !important;
+    min-height: 2.5rem !important;
+  }
+
+  .client-matter-panel__name,
+  .matter-page__client-name {
+    font-size: 1.125rem !important;
+    line-height: var(--ha-leading-tight) !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .matter-items-column__summary {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .matter-items-column__body {
+    padding: 0.75rem 1rem 1rem !important;
+  }
+
+  .client-matter-panel__columns {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .matter-page__columns.client-matter-panel__columns {
+    gap: 1rem !important;
+  }
+
+  .firm-workspace .my-work-list__row,
+  .firm-workspace .item-card {
+    gap: 0.5rem !important;
+  }
+
+  .firm-workspace .my-work-list__actions {
+    flex-wrap: wrap !important;
+    gap: 0.35rem !important;
+  }
+
+  .firm-workspace .my-work-list__btn {
+    flex: 1 1 auto !important;
+    min-width: 4.5rem !important;
+    max-width: 100% !important;
+  }
+}
+

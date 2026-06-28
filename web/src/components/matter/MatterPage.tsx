@@ -1712,9 +1712,11 @@ function MatterItemsColumn({
   return (
     <details className="matter-items-column card matter-page__section">
       <summary className="matter-items-column__summary">
-        <span className="matter-items-column__title">{title}</span>
-        <span className="matter-items-column__counts">
-          {items.length} total · {openCount} open
+        <span className="matter-items-column__summary-main">
+          <span className="matter-items-column__title">{title}</span>
+          <span className="matter-items-column__counts">
+            {items.length} total · {openCount} open
+          </span>
         </span>
       </summary>
       <div className="matter-items-column__body">

@@ -26,9 +26,9 @@ export const FIRM_CONTACT = {
 const CONFIDENTIALITY_NOTICE =
   "CONFIDENTIALITY NOTICE: This email and its attachments are confidential and may contain privileged, proprietary, or legally protected information intended only for the addressee. If you received this email in error, please notify the sender immediately, delete the message and attachments from your system, and do not copy, disclose, distribute, or use any part of its contents. Hernandez & Associates does not waive any privilege, confidentiality protection, or legal right by reason of any inadvertent or erroneous transmission.";
 
-/** Hosted banner — Hernandez logo bar (matches `public/brand/cover.png`). */
-export const EMAIL_SIGNATURE_BANNER_PATH = "/brand/email-signature-banner.png";
-export const EMAIL_SIGNATURE_BANNER_VERSION = "ha-v1";
+/** Hosted banner — Hernandez logo bar (`public/brand/cover.png`; Drive file `cover.png`). */
+export const EMAIL_SIGNATURE_BANNER_PATH = "/brand/cover.png";
+export const EMAIL_SIGNATURE_BANNER_VERSION = "ha-v2";
 
 export type FirmEmailSigner = {
   name: string;
