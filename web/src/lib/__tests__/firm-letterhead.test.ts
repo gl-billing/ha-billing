@@ -65,9 +65,11 @@ describe("firm letterhead contact", () => {
     expect(html).toContain("firm-lh__masthead-line--heavy");
     expect(html).not.toContain("firm-lh__contact-panel");
     const footer = buildFirmPageFooterHtml();
-    expect(footer).toContain("H E R N A N D E Z");
-    expect(footer).toContain('class="firm-lh__amp"');
-    expect(footer).toContain("L A W O F F I C E");
+    expect(footer).toContain("firm-page-foot__name-block");
+    expect(footer).toContain("<span>H</span><span>E</span><span>R</span>");
+    expect(footer).toContain("<span>&amp;</span>");
+    expect(footer).toContain("<span>A</span><span>S</span><span>S</span><span>O</span><span>C</span><span>I</span><span>A</span><span>T</span><span>E</span><span>S</span>");
+    expect(footer).not.toContain("L A W O F F I C E");
     expect(footer).toContain("legal@hernandezlaw.info");
     expect(footer).toContain("(082) 324 5269");
     expect(footer).not.toContain("INFO@");

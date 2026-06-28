@@ -1,7 +1,11 @@
-import { PDFDocument, StandardFonts, type PDFFont, type PDFPage, rgb } from "pdf-lib";
-import { formatBillingDate } from "@/lib/billing-document-design";
-import { drawWrappedText, embedFirmLogo } from "@/lib/billing-document-pdf/common";
-import { drawFirmLetterheadPdf, drawFirmPageFooterPdf } from "@/lib/firm-letterhead";
+import fontkit from "@pdf-lib/fontkit";
+import fs from "fs";
+import path from "path";
+import { PDFDocument, StandardFonts, type PDFImage, type PDFFont, type PDFPage, rgb } from "pdf-lib";
+import { formatBillingDate, FIRM_NAME } from "@/lib/billing-document-design";
+import { drawWrappedText, embedFirmCoverBanner } from "@/lib/billing-document-pdf/common";
+import { getFirmLetterheadContact } from "@/lib/firm-contact";
+import { drawFirmPageFooterPdf, firmPageFooterReservePt } from "@/lib/firm-letterhead";
 import { getFirmPageSpec } from "@/lib/firm-page-sizes";
 
 export type SoaLedgerRow = {
@@ -42,33 +46,31 @@ export type SoaPdfInput = {
 const PAGE_SPEC = getFirmPageSpec("a4");
 const PAGE_WIDTH = PAGE_SPEC.widthPt;
 const PAGE_HEIGHT = PAGE_SPEC.heightPt;
-const FOOTER_RESERVE = 78;
+const FOOTER_RESERVE = firmPageFooterReservePt(PAGE_SPEC);
 
-const LEFT = 66.8;
-const RIGHT = 528;
-const META_X = 321.7;
-const REMIT_X = 312.8;
+const LEFT = PAGE_SPEC.margins.left;
+const RIGHT = PAGE_WIDTH - PAGE_SPEC.margins.right;
+const CONTENT_WIDTH = RIGHT - LEFT;
+const META_X = LEFT + CONTENT_WIDTH * 0.52;
+const REMIT_X = META_X + 8;
 
 const COL = {
-  date: 73.5,
-  type: 145,
-  desc: 193.6,
-  charge: 322.6,
-  payment: 394.8,
-  balance: 480.1
+  date: LEFT + 7,
+  type: LEFT + 78,
+  desc: LEFT + 127,
+  charge: LEFT + 256,
+  payment: LEFT + 328,
+  balance: LEFT + 413
 };
 
 const INK = rgb(0.08, 0.07, 0.06);
 const MUTED = rgb(0.42, 0.4, 0.38);
 const LINE = rgb(0.82, 0.8, 0.78);
-const WHITE = rgb(1, 1, 1);
 
 const DEFAULT_NOTES =
   "Thank you for your business. Kindly note the due date indicated. If payment is made through any method other than cash, please send the proof of payment to our email address for immediate posting.";
 
-function letterSpace(text: string): string {
-  return text.toUpperCase().split("").join(" ");
-}
+const NOTO_SANS_PATH = path.join(process.cwd(), "public/fonts/NotoSans-Regular.ttf");
 
 function letterSpaceWords(text: string): string {
   return text
@@ -90,11 +92,17 @@ function formatSoaDateShort(value: string | Date): string {
   return `${mm}/${dd}/${yyyy}`;
 }
 
-function formatAmount(value: number, options?: { parens?: boolean }): string {
+function formatSoaAmount(value: number, options?: { parens?: boolean }): string {
   const n = Number(value) || 0;
   const body = n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const formatted = `PHP ${body}`;
+  const formatted = `₱${body}`;
   return options?.parens && n > 0 ? `(${formatted})` : formatted;
+}
+
+async function embedSoaAmountFont(pdf: PDFDocument): Promise<PDFFont> {
+  pdf.registerFontkit(fontkit);
+  const bytes = fs.readFileSync(NOTO_SANS_PATH);
+  return pdf.embedFont(bytes);
 }
 
 function drawRightAmount(
@@ -104,9 +112,9 @@ function drawRightAmount(
   amount: number,
   font: PDFFont,
   size: number,
-  options?: { parens?: boolean; bold?: boolean }
+  options?: { parens?: boolean }
 ) {
-  const text = formatAmount(amount, { parens: options?.parens });
+  const text = formatSoaAmount(amount, { parens: options?.parens });
   const width = font.widthOfTextAtSize(text, size);
   page.drawText(text, {
     x: xRight - width,
@@ -135,35 +143,113 @@ function drawMetaLabelValue(
   });
 }
 
-function drawSoaTitleBlock(
+function drawSoaContactBlock(
+  page: PDFPage,
+  startY: number,
+  maxWidth: number,
+  serif: PDFFont,
+  serifBold: PDFFont
+): number {
+  const contact = getFirmLetterheadContact();
+  let y = startY;
+
+  page.drawText(FIRM_NAME, { x: LEFT, y, size: 8.5, font: serifBold, color: INK });
+  y -= 13;
+
+  y = drawWrappedText({
+    page,
+    text: contact.address,
+    x: LEFT,
+    y,
+    maxWidth,
+    font: serif,
+    size: 8.2,
+    color: MUTED,
+    lineGap: 10
+  });
+  y -= 2;
+
+  const phones: string[] = [];
+  if (contact.landline.trim()) phones.push(contact.landline.trim());
+  if (contact.mobile.trim() && contact.mobile.trim() !== contact.landline.trim()) {
+    phones.push(contact.mobile.trim());
+  }
+  if (phones.length) {
+    page.drawText(`T: ${phones.join(" | ")}`, { x: LEFT, y, size: 8.2, font: serif, color: MUTED });
+    y -= 11;
+  }
+  if (contact.email.trim()) {
+    page.drawText(`E: ${contact.email.trim()}`, { x: LEFT, y, size: 8.2, font: serif, color: MUTED });
+    y -= 11;
+  }
+
+  return y;
+}
+
+function fitStatementSize(text: string, font: PDFFont, maxWidth: number): number {
+  let size = 20;
+  while (size > 13 && font.widthOfTextAtSize(text, size) > maxWidth) {
+    size -= 0.5;
+  }
+  return size;
+}
+
+/** Two-column header — logo + contact (left), STATEMENT + meta (right). */
+function drawSoaHeader(
   page: PDFPage,
   input: SoaPdfInput,
-  y: number,
+  logo: PDFImage | null,
   sansBold: PDFFont,
   serif: PDFFont,
   serifBold: PDFFont
 ): number {
-  const statement = letterSpace("STATEMENT");
+  const topY = PAGE_HEIGHT - PAGE_SPEC.margins.top + 2;
+  const leftWidth = META_X - LEFT - 12;
+  let leftBottom = topY;
+
+  if (logo) {
+    const aspect = logo.width / logo.height;
+    const bannerHeight = leftWidth / aspect;
+    const imgY = topY - bannerHeight;
+    page.drawImage(logo, {
+      x: LEFT,
+      y: imgY,
+      width: leftWidth,
+      height: bannerHeight
+    });
+    leftBottom = imgY - 10;
+  }
+
+  leftBottom = drawSoaContactBlock(page, leftBottom, leftWidth, serif, serifBold);
+
+  const statement = "STATEMENT";
+  const stmtColWidth = RIGHT - META_X;
+  const stmtSize = fitStatementSize(statement, serifBold, stmtColWidth);
+  const stmtWidth = serifBold.widthOfTextAtSize(statement, stmtSize);
   page.drawText(statement, {
-    x: RIGHT - serifBold.widthOfTextAtSize(statement, 21),
-    y: y + 6,
-    size: 21,
+    x: RIGHT - stmtWidth,
+    y: topY - stmtSize + 4,
+    size: stmtSize,
     font: serifBold,
     color: INK
   });
 
-  drawMetaLabelValue(page, "PREPARED FOR", input.clientName, y - 16, sansBold, serifBold);
-  drawMetaLabelValue(page, "INVOICE NO.", input.invoiceNumber, y - 37, sansBold, serifBold);
-  drawMetaLabelValue(
-    page,
-    "DATE ISSUED",
-    formatBillingDate(input.invoiceDate),
-    y - 58,
-    sansBold,
-    serif
-  );
+  let rightY = topY - stmtSize - 10;
+  page.drawLine({
+    start: { x: META_X, y: rightY },
+    end: { x: RIGHT, y: rightY },
+    thickness: 0.6,
+    color: LINE
+  });
+  rightY -= 16;
 
-  return y - 72;
+  drawMetaLabelValue(page, "PREPARED FOR", input.clientName, rightY, sansBold, serifBold);
+  rightY -= 21;
+  drawMetaLabelValue(page, "INVOICE NO.", input.invoiceNumber, rightY, sansBold, serifBold);
+  rightY -= 21;
+  drawMetaLabelValue(page, "DATE ISSUED", formatBillingDate(input.invoiceDate), rightY, sansBold, serif);
+
+  return Math.min(leftBottom, rightY) - 22;
 }
 
 function drawAccountSummary(
@@ -172,15 +258,18 @@ function drawAccountSummary(
   input: SoaPdfInput,
   sansBold: PDFFont,
   serif: PDFFont,
-  serifBold: PDFFont
+  serifBold: PDFFont,
+  amountFont: PDFFont
 ): number {
   page.drawLine({ start: { x: LEFT, y: y + 8 }, end: { x: RIGHT, y: y + 8 }, thickness: 0.6, color: LINE });
 
   const heading = letterSpaceWords("ACCOUNT SUMMARY");
   page.drawText(heading, { x: LEFT, y, size: 9.8, font: sansBold, color: INK });
-  y -= 28;
+  y -= 12;
+  page.drawLine({ start: { x: LEFT, y }, end: { x: RIGHT, y }, thickness: 1.2, color: INK });
+  y -= 16;
 
-  const rows: Array<{ label: string; amount: number; parens?: boolean; bold?: boolean }> = [
+  const rows: Array<{ label: string; amount: number; parens?: boolean }> = [
     { label: "Previous Balance", amount: input.prevBalance },
     { label: "New Charges", amount: input.newCharges },
     { label: "Payments Received", amount: input.payments, parens: true },
@@ -189,26 +278,26 @@ function drawAccountSummary(
 
   for (const row of rows) {
     page.drawText(row.label, { x: LEFT + 6.7, y, size: 9.8, font: serif, color: INK });
-    drawRightAmount(page, RIGHT - 6, y, row.amount, row.bold ? serifBold : serif, 9.8, {
-      parens: row.parens
-    });
+    drawRightAmount(page, RIGHT - 6, y, row.amount, amountFont, 9.8, { parens: row.parens });
     y -= 27;
   }
 
   page.drawLine({ start: { x: LEFT, y: y + 10 }, end: { x: RIGHT, y: y + 10 }, thickness: 1.2, color: INK });
   y -= 8;
   page.drawText("TOTAL BALANCE DUE", { x: LEFT + 6.7, y, size: 12, font: serifBold, color: INK });
-  drawRightAmount(page, RIGHT - 6, y, input.totalDue, serifBold, 12, { bold: true });
-  y -= 24;
+  drawRightAmount(page, RIGHT - 6, y, input.totalDue, amountFont, 12);
+  y -= 14;
+  page.drawLine({ start: { x: LEFT, y: y + 4 }, end: { x: RIGHT, y: y + 4 }, thickness: 1.2, color: INK });
 
-  page.drawLine({ start: { x: LEFT, y: y + 6 }, end: { x: RIGHT, y: y + 6 }, thickness: 0.6, color: LINE });
   return y - 18;
 }
 
 function drawLedgerHeader(page: PDFPage, y: number, sansBold: PDFFont) {
   const heading = letterSpaceWords("DETAILED LEDGER");
   page.drawText(heading, { x: LEFT, y, size: 9.8, font: sansBold, color: INK });
-  y -= 28;
+  y -= 12;
+  page.drawLine({ start: { x: LEFT, y }, end: { x: RIGHT, y }, thickness: 1.2, color: INK });
+  y -= 16;
 
   const labels = [
     { text: "DATE", x: COL.date },
@@ -224,14 +313,20 @@ function drawLedgerHeader(page: PDFPage, y: number, sansBold: PDFFont) {
   page.drawLine({ start: { x: LEFT, y: y - 6 }, end: { x: RIGHT, y: y - 6 }, thickness: 0.35, color: LINE });
 }
 
-function drawLedgerDataRow(page: PDFPage, row: SoaLedgerRow, y: number, serif: PDFFont) {
+function drawLedgerDataRow(
+  page: PDFPage,
+  row: SoaLedgerRow,
+  y: number,
+  serif: PDFFont,
+  amountFont: PDFFont
+) {
   page.drawText(formatSoaDateShort(row.date), { x: COL.date, y, size: 9, font: serif, color: INK });
   page.drawText(String(row.type || "").slice(0, 12), { x: COL.type, y, size: 9, font: serif, color: INK });
   page.drawText(String(row.description || "").slice(0, 42), { x: COL.desc, y, size: 9, font: serif, color: INK });
 
-  if (row.charge > 0) drawRightAmount(page, COL.charge + 48, y, row.charge, serif, 9);
-  if (row.payment > 0) drawRightAmount(page, COL.payment + 48, y, row.payment, serif, 9);
-  drawRightAmount(page, RIGHT - 6, y, row.balance, serif, 9);
+  if (row.charge > 0) drawRightAmount(page, COL.charge + 48, y, row.charge, amountFont, 9);
+  if (row.payment > 0) drawRightAmount(page, COL.payment + 48, y, row.payment, amountFont, 9);
+  drawRightAmount(page, RIGHT - 6, y, row.balance, amountFont, 9);
 
   page.drawLine({ start: { x: LEFT, y: y - 6 }, end: { x: RIGHT, y: y - 6 }, thickness: 0.25, color: LINE });
 }
@@ -245,13 +340,13 @@ function drawNotesAndRemittance(
   serifBold: PDFFont,
   serifItalic: PDFFont
 ) {
-  page.drawText("Notes & Remarks:", { x: LEFT, y, size: 8.2, font: serifBold, color: INK });
+  page.drawText("Notes & Remarks:", { x: LEFT, y, size: 8.2, font: serifItalic, color: INK });
   drawWrappedText({
     page,
     text: input.notes?.trim() || DEFAULT_NOTES,
     x: LEFT,
     y: y - 14,
-    maxWidth: 230,
+    maxWidth: META_X - LEFT - 18,
     font: serifItalic,
     size: 8.2,
     color: INK,
@@ -261,22 +356,59 @@ function drawNotesAndRemittance(
   const remittance = input.remittance;
   if (!remittance?.bankName && !remittance?.accountName && !remittance?.accountNumber) return;
 
-  let ry = y;
-  page.drawText("REMITTANCE INSTRUCTIONS", { x: REMIT_X, y: ry, size: 8.2, font: sansBold, color: INK });
-  ry -= 18;
+  const boxPad = 12;
+  const labelColW = 96;
+  const labelSize = 7.5;
+  const valueSize = 9.2;
+  const rowGap = 17;
+  const innerLeft = REMIT_X;
+  const valueX = innerLeft + labelColW;
 
-  const drawField = (label: string, value: string) => {
-    page.drawText(label, { x: REMIT_X, y: ry, size: 8.2, font: sansBold, color: MUTED });
-    ry -= 13;
-    page.drawText(value, { x: REMIT_X, y: ry, size: 9, font: serifBold, color: INK });
-    ry -= 20;
-  };
+  const rows: Array<{ label: string; value: string }> = [];
+  if (remittance?.bankName) rows.push({ label: "BANK NAME", value: remittance.bankName });
+  if (remittance?.accountName) rows.push({ label: "ACCOUNT NAME", value: remittance.accountName });
+  if (remittance?.accountNumber) rows.push({ label: "ACCOUNT NUMBER", value: remittance.accountNumber });
 
-  if (remittance?.bankName) drawField("BANK NAME", remittance.bankName);
-  if (remittance?.accountName) drawField("ACCOUNT NAME", remittance.accountName);
-  if (remittance?.accountNumber) drawField("ACCOUNT NUMBER", remittance.accountNumber);
+  const titleBlock = 28;
+  const rowsBlock = rows.length * rowGap + 4;
+  const boxHeight = boxPad * 2 + titleBlock + rowsBlock;
+  const boxTop = y + 6;
+  const boxBottom = boxTop - boxHeight;
+  const boxLeft = REMIT_X - boxPad;
+  const boxWidth = RIGHT - boxLeft;
+
+  page.drawRectangle({
+    x: boxLeft,
+    y: boxBottom,
+    width: boxWidth,
+    height: boxHeight,
+    borderColor: INK,
+    borderWidth: 0.75
+  });
+
+  let ry = boxTop - boxPad;
+  page.drawText("REMITTANCE INSTRUCTIONS", {
+    x: innerLeft,
+    y: ry,
+    size: 8,
+    font: sansBold,
+    color: INK
+  });
+  ry -= 9;
+  page.drawLine({
+    start: { x: innerLeft, y: ry },
+    end: { x: RIGHT - 4, y: ry },
+    thickness: 0.4,
+    color: LINE
+  });
+  ry -= 15;
+
+  for (const row of rows) {
+    page.drawText(row.label, { x: innerLeft, y: ry, size: labelSize, font: sansBold, color: MUTED });
+    page.drawText(row.value, { x: valueX, y: ry, size: valueSize, font: serifBold, color: INK });
+    ry -= rowGap;
+  }
 }
-
 
 export async function buildSoaPdf(input: SoaPdfInput): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
@@ -285,19 +417,12 @@ export async function buildSoaPdf(input: SoaPdfInput): Promise<Uint8Array> {
   const serif = await pdf.embedFont(StandardFonts.TimesRoman);
   const serifBold = await pdf.embedFont(StandardFonts.TimesRomanBold);
   const serifItalic = await pdf.embedFont(StandardFonts.TimesRomanItalic);
-  const logo = await embedFirmLogo(pdf);
+  const amountFont = await embedSoaAmountFont(pdf);
+  const logo = await embedFirmCoverBanner(pdf);
 
   let page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-  let y = drawFirmLetterheadPdf({
-    page,
-    pageWidth: PAGE_WIDTH,
-    pageSpec: PAGE_SPEC,
-    bold: serifBold,
-    regular: serif,
-    logo
-  });
-  y = drawSoaTitleBlock(page, input, y, sansBold, serif, serifBold);
-  y = drawAccountSummary(page, y, input, sansBold, serif, serifBold);
+  let y = drawSoaHeader(page, input, logo, sansBold, serif, serifBold);
+  y = drawAccountSummary(page, y, input, sansBold, serif, serifBold, amountFont);
 
   const ensureSpace = (needed: number) => {
     if (y - needed < FOOTER_RESERVE) {
@@ -313,7 +438,7 @@ export async function buildSoaPdf(input: SoaPdfInput): Promise<Uint8Array> {
 
   for (const row of input.ledger) {
     ensureSpace(24);
-    drawLedgerDataRow(page, row, y, serif);
+    drawLedgerDataRow(page, row, y, serif, amountFont);
     y -= 22;
   }
 
@@ -326,8 +451,8 @@ export async function buildSoaPdf(input: SoaPdfInput): Promise<Uint8Array> {
       page: sheetPage,
       pageWidth: PAGE_WIDTH,
       pageSpec: PAGE_SPEC,
-      regular: serif,
-      bold: serifBold
+      regular: sans,
+      bold: sansBold
     });
   }
 

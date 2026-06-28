@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { FirmCopyright } from "@/components/FirmCopyright";
+import { FirmFooterName } from "@/components/FirmFooterName";
 import { FirmPublicContactDetails } from "@/components/FirmPublicContactDetails";
 
 export function AppFooter() {
   return (
     <footer className="brand-footer mt-5">
-      <p className="brand-footer__firm">Hernandez &amp; Associates</p>
-      <p className="brand-footer__tagline">Law Office</p>
+      <FirmFooterName className="brand-footer__name" />
       <div className="brand-footer__rule" aria-hidden />
 
       <FirmPublicContactDetails className="brand-footer__contact" />

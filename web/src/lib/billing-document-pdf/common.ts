@@ -4,7 +4,7 @@ import {
   BILLING_DOC_RGB
 } from "@/lib/billing-document-design";
 import { drawFirmLetterheadHorizontalPdf } from "@/lib/firm-letterhead";
-import { FIRM_LOGO_PATH } from "@/lib/firm-print-brand";
+import { FIRM_COVER_BANNER_PATH, FIRM_LOGO_PATH } from "@/lib/firm-print-brand";
 
 export const C = BILLING_DOC_RGB;
 
@@ -87,6 +87,11 @@ async function embedLogoBytes(pdf: PDFDocument, filePath: string): Promise<PDFIm
 
 export async function embedFirmLogo(pdf: PDFDocument): Promise<PDFImage | null> {
   return embedLogoBytes(pdf, FIRM_LOGO_PATH);
+}
+
+/** Wide cover banner for SOA PDF header (falls back to square logo). */
+export async function embedFirmCoverBanner(pdf: PDFDocument): Promise<PDFImage | null> {
+  return (await embedLogoBytes(pdf, FIRM_COVER_BANNER_PATH)) ?? embedFirmLogo(pdf);
 }
 
 /** Official firm seal for contracts and formal letter PDFs. */

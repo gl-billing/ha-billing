@@ -1,5 +1,7 @@
 import { formatBillingDate, FIRM_NAME } from "@/lib/billing-document-design";
-import { buildFirmLetterDocumentHtml } from "@/lib/firm-letterhead-html";
+import { getFirmLetterheadContact } from "@/lib/firm-contact";
+import { buildFirmLetterheadCss, buildFirmPageFooterHtml, getFirmLetterSheetLayout } from "@/lib/firm-letterhead-html";
+import { getFirmPageSpec } from "@/lib/firm-page-sizes";
 import type { SoaLedgerRow, SoaRemittance } from "@/lib/billing-document-pdf/soa-pdf";
 
 export type SoaPreviewInput = {
@@ -53,10 +55,6 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function letterSpace(text: string): string {
-  return text.toUpperCase().split("").join(" ");
-}
-
 function letterSpaceWords(text: string): string {
   return text
     .split(/\s+/)
@@ -108,30 +106,56 @@ function resolveSoaPreviewInput(partial?: SoaPreviewInput): Required<
   };
 }
 
+function buildSoaContactHtml(): string {
+  const contact = getFirmLetterheadContact();
+  const phones: string[] = [];
+  if (contact.landline.trim()) phones.push(contact.landline.trim());
+  if (contact.mobile.trim() && contact.mobile.trim() !== contact.landline.trim()) {
+    phones.push(contact.mobile.trim());
+  }
+  return (
+    `<p class="soa-doc__firm-name">${escapeHtml(FIRM_NAME)}</p>` +
+    `<p class="soa-doc__contact-line">${escapeHtml(contact.address)}</p>` +
+    (phones.length ? `<p class="soa-doc__contact-line">T: ${escapeHtml(phones.join(" | "))}</p>` : "") +
+    (contact.email.trim() ? `<p class="soa-doc__contact-line">E: ${escapeHtml(contact.email.trim())}</p>` : "")
+  );
+}
+
 function buildSoaPreviewCss(): string {
+  const layout = getFirmLetterSheetLayout("a4");
   return `
-.soa-doc { font-family: Georgia, "Times New Roman", serif; color: #14110e; font-size: 9pt; line-height: 1.35; }
-.soa-doc__head { display: flex; justify-content: flex-end; margin-bottom: 0.18in; }
-.soa-doc__title { margin: 0; font-size: 21pt; letter-spacing: 0.14em; font-weight: 700; }
-.soa-doc__meta { margin-top: 0.12in; width: 100%; max-width: 2.45in; }
-.soa-doc__meta-row { display: flex; justify-content: space-between; gap: 0.2in; margin-top: 0.08in; }
+${buildFirmLetterheadCss()}
+.soa-sheet { box-sizing: border-box; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 12mm 17mm ${layout.paddingBottom}; background: #fff; color: #14110e; font-family: Georgia, "Times New Roman", serif; font-size: 9pt; line-height: 1.35; position: relative; }
+.soa-doc__header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.35in; margin-bottom: 0.2in; }
+.soa-doc__header-left { flex: 1 1 52%; min-width: 0; }
+.soa-doc__header-right { flex: 0 0 2.55in; min-width: 0; text-align: right; }
+.soa-doc__banner-wrap { margin: 0 0 0.1in; }
+.soa-doc__banner { display: block; width: 100%; max-width: 100%; height: auto; margin: 0; padding: 0; border: 0; object-fit: contain; object-position: left top; }
+.soa-doc__firm-name { margin: 0 0 0.06in; font-size: 8.5pt; font-weight: 700; color: #14110e; }
+.soa-doc__contact-line { margin: 0 0 0.04in; font-size: 8.2pt; color: #6b6358; line-height: 1.45; }
+.soa-doc__title { margin: 0; font-size: 19pt; letter-spacing: 0.04em; font-weight: 700; text-align: right; white-space: nowrap; line-height: 1; }
+.soa-doc__meta { margin-top: 0.1in; width: 100%; border-top: 1px solid #ddd6c8; padding-top: 0.1in; }
+.soa-doc__meta-row { display: flex; justify-content: space-between; gap: 0.15in; margin-top: 0.08in; }
 .soa-doc__meta-label { font-family: Arial, Helvetica, sans-serif; font-size: 7.5pt; font-weight: 700; letter-spacing: 0.08em; color: #6b6358; text-transform: uppercase; }
 .soa-doc__meta-value { font-size: 9pt; font-weight: 700; text-align: right; }
-.soa-doc__section { margin-top: 0.16in; padding-top: 0.08in; border-top: 1px solid #ddd6c8; }
-.soa-doc__section-title { margin: 0 0 0.12in; font-family: Arial, Helvetica, sans-serif; font-size: 9.8pt; font-weight: 700; letter-spacing: 0.12em; }
+.soa-doc__section { margin-top: 0.14in; padding-top: 0.08in; border-top: 1px solid #ddd6c8; }
+.soa-doc__section-title { margin: 0 0 0.1in; font-family: Arial, Helvetica, sans-serif; font-size: 9.8pt; font-weight: 700; letter-spacing: 0.12em; border-bottom: 1.5px solid #14110e; padding-bottom: 0.08in; }
 .soa-doc__summary-row { display: flex; justify-content: space-between; gap: 0.2in; margin: 0.08in 0; font-size: 9.8pt; }
 .soa-doc__summary-row--total { margin-top: 0.12in; padding-top: 0.1in; border-top: 1.5px solid #14110e; font-size: 12pt; font-weight: 700; }
+.soa-doc__summary-foot { margin-top: 0.1in; border-top: 1.5px solid #14110e; height: 0; }
 .soa-doc__table { width: 100%; border-collapse: collapse; margin-top: 0.08in; font-size: 9pt; }
 .soa-doc__table th { font-family: Arial, Helvetica, sans-serif; font-size: 7.5pt; letter-spacing: 0.08em; text-transform: uppercase; color: #6b6358; text-align: left; padding: 0.06in 0.04in; border-bottom: 1px solid #ddd6c8; font-weight: 700; }
 .soa-doc__table td { padding: 0.07in 0.04in; border-bottom: 1px solid #ece7dc; vertical-align: top; }
 .soa-doc__amount { text-align: right; white-space: nowrap; }
-.soa-doc__footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.28in; margin-top: 0.22in; }
-.soa-doc__notes-title { margin: 0 0 0.08in; font-weight: 700; font-size: 8.2pt; }
-.soa-doc__notes { margin: 0; font-style: italic; font-size: 8.2pt; line-height: 1.55; }
-.soa-doc__remit-title { margin: 0 0 0.1in; font-family: Arial, Helvetica, sans-serif; font-size: 8.2pt; font-weight: 700; letter-spacing: 0.08em; }
-.soa-doc__remit-label { margin: 0.08in 0 0.03in; font-family: Arial, Helvetica, sans-serif; font-size: 8.2pt; font-weight: 700; letter-spacing: 0.06em; color: #6b6358; text-transform: uppercase; }
-.soa-doc__remit-value { margin: 0; font-size: 9pt; font-weight: 700; }
-.firm-letter-body .soa-doc p { margin: 0; }
+.soa-doc__footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.28in; margin-top: 0.22in; align-items: start; }
+.soa-doc__notes-title { margin: 0 0 0.08in; font-style: italic; font-weight: 700; font-size: 8.2pt; }
+.soa-doc__notes { margin: 0; font-style: italic; font-size: 8.2pt; line-height: 1.55; color: #3d3830; }
+.soa-doc__remit-box { border: 0.75px solid #14110e; padding: 0.12in 0.14in; }
+.soa-doc__remit-title { margin: 0 0 0.07in; font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-weight: 700; letter-spacing: 0.08em; border-bottom: 1px solid #ddd6c8; padding-bottom: 0.05in; }
+.soa-doc__remit-row { display: grid; grid-template-columns: 0.95in 1fr; gap: 0.08in; align-items: baseline; margin-top: 0.09in; }
+.soa-doc__remit-label { margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 7.5pt; font-weight: 700; letter-spacing: 0.06em; color: #6b6358; text-transform: uppercase; }
+.soa-doc__remit-value { margin: 0; font-size: 9.2pt; font-weight: 700; color: #14110e; }
+.soa-doc p { margin: 0; }
 `;
 }
 
@@ -157,28 +181,33 @@ function buildSoaBodyHtml(input: ReturnType<typeof resolveSoaPreviewInput>): str
     )
     .join("");
 
+  const remitRow = (label: string, value: string) =>
+    `<div class="soa-doc__remit-row">` +
+    `<p class="soa-doc__remit-label">${escapeHtml(label)}</p>` +
+    `<p class="soa-doc__remit-value">${escapeHtml(value)}</p>` +
+    `</div>`;
+
   const remittanceHtml =
     input.remittance.bankName || input.remittance.accountName || input.remittance.accountNumber
-      ? `<div>` +
+      ? `<div class="soa-doc__remit-box">` +
         `<p class="soa-doc__remit-title">REMITTANCE INSTRUCTIONS</p>` +
-        (input.remittance.bankName
-          ? `<p class="soa-doc__remit-label">Bank name</p><p class="soa-doc__remit-value">${escapeHtml(input.remittance.bankName)}</p>`
-          : "") +
-        (input.remittance.accountName
-          ? `<p class="soa-doc__remit-label">Account name</p><p class="soa-doc__remit-value">${escapeHtml(input.remittance.accountName)}</p>`
-          : "") +
-        (input.remittance.accountNumber
-          ? `<p class="soa-doc__remit-label">Account number</p><p class="soa-doc__remit-value">${escapeHtml(input.remittance.accountNumber)}</p>`
-          : "") +
+        (input.remittance.bankName ? remitRow("Bank name", input.remittance.bankName) : "") +
+        (input.remittance.accountName ? remitRow("Account name", input.remittance.accountName) : "") +
+        (input.remittance.accountNumber ? remitRow("Account number", input.remittance.accountNumber) : "") +
         `</div>`
       : "";
 
   return (
     `<style>${buildSoaPreviewCss()}</style>` +
+    `<div class="soa-sheet sheet sheet--a4">` +
     `<div class="soa-doc">` +
-    `<div class="soa-doc__head">` +
-    `<div>` +
-    `<h1 class="soa-doc__title">${escapeHtml(letterSpace("STATEMENT"))}</h1>` +
+    `<div class="soa-doc__header">` +
+    `<div class="soa-doc__header-left">` +
+    `<div class="soa-doc__banner-wrap"><img class="soa-doc__banner" src="/brand/cover.png" alt="${escapeHtml(FIRM_NAME)}" /></div>` +
+    buildSoaContactHtml() +
+    `</div>` +
+    `<div class="soa-doc__header-right">` +
+    `<h1 class="soa-doc__title">STATEMENT</h1>` +
     `<div class="soa-doc__meta">` +
     `<div class="soa-doc__meta-row"><span class="soa-doc__meta-label">Prepared for</span><span class="soa-doc__meta-value">${escapeHtml(input.clientName)}</span></div>` +
     `<div class="soa-doc__meta-row"><span class="soa-doc__meta-label">Invoice no.</span><span class="soa-doc__meta-value">${escapeHtml(input.invoiceNumber)}</span></div>` +
@@ -192,7 +221,8 @@ function buildSoaBodyHtml(input: ReturnType<typeof resolveSoaPreviewInput>): str
           `<div class="soa-doc__summary-row"><span>${escapeHtml(row.label)}</span><span>${escapeHtml(formatPeso(row.amount, { parens: row.parens }))}</span></div>`
       )
       .join("") +
-    `<div class="soa-doc__summary-row soa-doc__summary-row--total"><span>Total balance due</span><span>${escapeHtml(formatPeso(input.totalDue))}</span></div>` +
+    `<div class="soa-doc__summary-row soa-doc__summary-row--total"><span>TOTAL BALANCE DUE</span><span>${escapeHtml(formatPeso(input.totalDue))}</span></div>` +
+    `<div class="soa-doc__summary-foot"></div>` +
     `</section>` +
     `<section class="soa-doc__section">` +
     `<h2 class="soa-doc__section-title">${escapeHtml(letterSpaceWords("DETAILED LEDGER"))}</h2>` +
@@ -204,18 +234,25 @@ function buildSoaBodyHtml(input: ReturnType<typeof resolveSoaPreviewInput>): str
     `<div><p class="soa-doc__notes-title">Notes &amp; Remarks:</p><p class="soa-doc__notes">${escapeHtml(input.notes)}</p></div>` +
     remittanceHtml +
     `</div>` +
+    `</div>` +
+    buildFirmPageFooterHtml() +
     `</div>`
   );
 }
 
-/** HTML preview of the Statement of Account on firm letterhead (A4). */
+/** HTML preview of the Statement of Account (A4, matches SOA PDF layout). */
 export function buildSoaPreviewHtml(partial?: SoaPreviewInput): string {
   const input = resolveSoaPreviewInput(partial);
-  return buildFirmLetterDocumentHtml({
-    pageSize: "a4",
-    title: `${FIRM_NAME} — Statement of Account`,
-    bodyHtml: buildSoaBodyHtml(input)
-  });
+  const spec = getFirmPageSpec("a4");
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>${escapeHtml(FIRM_NAME)} — Statement of Account</title>
+  <style>@page { size: ${spec.pageCss}; margin: 0; } body { margin: 0; background: #ececec; }</style>
+</head>
+<body>${buildSoaBodyHtml(input)}</body>
+</html>`;
 }
 
 export function buildSoaPreviewInputFromClient(context: {

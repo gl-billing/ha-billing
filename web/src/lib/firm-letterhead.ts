@@ -50,9 +50,12 @@ export {
 
 export * from "./firm-letterhead-html";
 import {
-  FIRM_LETTER_SPACED_CAPS_NAME,
-  FIRM_LETTER_SPACED_CAPS_SUBTITLE
-} from "./firm-letterhead-html";
+  FIRM_FOOTER_CAPS_LINE_1,
+  FIRM_FOOTER_CAPS_LINE_2,
+  footerNameBlockBounds,
+  splitFooterCapsChars
+} from "./firm-footer-name";
+import { FIRM_LETTER_SPACED_CAPS_NAME, FIRM_LETTER_SPACED_CAPS_SUBTITLE } from "./firm-letterhead-html";
 
 function drawCenteredText(
   page: PDFPage,
@@ -128,6 +131,58 @@ function drawCenteredLogoCrest(
   return imgY - 12;
 }
 
+export function drawEdgeAlignedCapsLine(
+  page: PDFPage,
+  text: string,
+  y: number,
+  xLeft: number,
+  xRight: number,
+  font: PDFFont,
+  size: number,
+  color: ReturnType<typeof pdfColor>,
+  lineGap = 3
+): number {
+  const chars = splitFooterCapsChars(text);
+  if (!chars.length) return y;
+  if (chars.length === 1) {
+    const width = font.widthOfTextAtSize(chars[0], size);
+    page.drawText(chars[0], {
+      x: (xLeft + xRight - width) / 2,
+      y: y - size,
+      size,
+      font,
+      color
+    });
+    return y - size - lineGap;
+  }
+
+  const charWidths = chars.map((char) => font.widthOfTextAtSize(char, size));
+  const totalCharWidth = charWidths.reduce((sum, width) => sum + width, 0);
+  const gap = (xRight - xLeft - totalCharWidth) / (chars.length - 1);
+  let x = xLeft;
+  for (let index = 0; index < chars.length; index += 1) {
+    page.drawText(chars[index], { x, y: y - size, size, font, color });
+    x += charWidths[index] + gap;
+  }
+  return y - size - lineGap;
+}
+
+export function drawFooterNameDivider(
+  page: PDFPage,
+  pageWidth: number,
+  y: number
+): number {
+  const dividerWidth = 28;
+  const x1 = (pageWidth - dividerWidth) / 2;
+  page.drawLine({
+    start: { x: x1, y: y - 2 },
+    end: { x: x1 + dividerWidth, y: y - 2 },
+    thickness: 0.45,
+    color: pdfColor(BILLING_DOC_RGB.goldPale)
+  });
+  return y - 5;
+}
+
 function drawSpacedCapsFirmBlock(
   page: PDFPage,
   y: number,
@@ -183,6 +238,7 @@ function footerTextLines(contact: FirmLetterheadContact): {
   tone?: "ink" | "gold" | "muted";
   bold?: boolean;
   wrap?: boolean;
+  edgeAlign?: boolean;
 }[] {
   const phoneText = formatLetterheadFooterPhoneLine(contact);
   const digitalText = formatLetterheadFooterDigitalLine(contact);
@@ -192,9 +248,10 @@ function footerTextLines(contact: FirmLetterheadContact): {
     tone?: "ink" | "gold" | "muted";
     bold?: boolean;
     wrap?: boolean;
+    edgeAlign?: boolean;
   }[] = [
-    { text: FIRM_LETTER_SPACED_CAPS_NAME, size: 8.5, tone: "ink", bold: true },
-    { text: FIRM_LETTER_SPACED_CAPS_SUBTITLE, size: 7.35, tone: "gold", bold: true }
+    { text: FIRM_FOOTER_CAPS_LINE_1, size: 8.5, tone: "ink", bold: true, edgeAlign: true },
+    { text: FIRM_FOOTER_CAPS_LINE_2, size: 8.5, tone: "ink", bold: true, edgeAlign: true }
   ];
 
   for (const addressLine of formatLetterheadFooterAddressLines(contact)) {
@@ -266,6 +323,13 @@ export function drawFirmPageFooterPdf(options: {
   });
 
   y -= ruleBlock + 4;
+  const nameLineSize = lines.find((line) => line.edgeAlign)?.size ?? 8.5;
+  const nameBounds = footerNameBlockBounds(options.pageWidth, (char) =>
+    bold.widthOfTextAtSize(char, nameLineSize)
+  );
+  const nameLines = lines.filter((line) => line.edgeAlign);
+  let nameLineIndex = 0;
+
   for (const line of lines) {
     const color =
       line.tone === "ink"
@@ -274,6 +338,26 @@ export function drawFirmPageFooterPdf(options: {
           ? pdfColor(BILLING_DOC_RGB.gold)
           : pdfColor(BILLING_DOC_RGB.muted);
     const font = line.bold ? bold : options.regular;
+
+    if (line.edgeAlign) {
+      const isLastNameLine = nameLineIndex === nameLines.length - 1;
+      y = drawEdgeAlignedCapsLine(
+        options.page,
+        line.text,
+        y,
+        nameBounds.left,
+        nameBounds.right,
+        font,
+        line.size,
+        color,
+        isLastNameLine ? 1.5 : 1
+      );
+      nameLineIndex += 1;
+      if (isLastNameLine) {
+        y = drawFooterNameDivider(options.page, options.pageWidth, y);
+      }
+      continue;
+    }
 
     if (line.wrap) {
       y = drawCenteredWrappedText({
@@ -370,6 +454,42 @@ export function drawFirmLetterheadPdf(options: {
   y -= metrics.ruleGap;
   y = drawLetterheadClosingRule(options.page, x1, x2, y);
   return y - metrics.bodyGap;
+}
+
+/** SOA / statement PDF — left-aligned wide logo banner as page header. */
+export function drawFirmSoaBannerLetterheadPdf(options: {
+  page: PDFPage;
+  pageSpec: FirmPageSpec;
+  bold: PDFFont;
+  regular: PDFFont;
+  logo?: PDFImage | null;
+  contentLeft: number;
+  contentRight: number;
+}): number {
+  const x1 = options.contentLeft;
+  const x2 = options.contentRight;
+  const contentWidth = x2 - x1;
+  let y = options.pageSpec.heightPt - 40;
+
+  if (options.logo) {
+    const aspect = options.logo.width / options.logo.height;
+    const bannerWidth = contentWidth;
+    const bannerHeight = bannerWidth / aspect;
+    const imgY = y - bannerHeight;
+    options.page.drawImage(options.logo, {
+      x: x1,
+      y: imgY,
+      width: bannerWidth,
+      height: bannerHeight
+    });
+    y = imgY - options.pageSpec.letterhead.ruleGap;
+  } else {
+    y = drawSpacedCapsFirmBlock(options.page, y, options.pageSpec.widthPt, options.bold, 11, 7);
+    y -= options.pageSpec.letterhead.ruleGap;
+  }
+
+  y = drawLetterheadClosingRule(options.page, x1, x2, y);
+  return y - options.pageSpec.letterhead.bodyGap * 0.65;
 }
 
 /** Horizontal letterhead for compact receipts (AR) and narrow pages. */

@@ -343,12 +343,51 @@ html {
     @apply leading-tight;
   }
 
+  .firm-footer-name,
+  .brand-footer__name,
+  .firm-auth-footer__name {
+    @apply mx-auto inline-flex max-w-full flex-col items-stretch;
+    width: max-content;
+  }
+
+  .firm-footer-name__line,
+  .brand-footer__name__line,
+  .firm-auth-footer__name__line {
+    @apply m-0 flex w-full justify-between font-display font-semibold uppercase leading-none;
+    letter-spacing: 0;
+  }
+
+  .firm-footer-name__line span,
+  .brand-footer__name__line span,
+  .firm-auth-footer__name__line span {
+    @apply shrink-0 grow-0;
+  }
+
+  .firm-footer-name__line--second,
+  .brand-footer__name__line--second,
+  .firm-auth-footer__name__line--second {
+    @apply mt-0.5;
+  }
+
+  .brand-footer__name__line {
+    @apply text-[0.95rem];
+  }
+
+  .tasks-app .brand-footer__name__line,
+  .billing-app .brand-footer__name__line {
+    @apply text-gold-light;
+  }
+
+  .firm-auth-footer__name__line {
+    @apply text-base;
+  }
+
   .brand-footer__tagline {
     @apply mt-1;
   }
 
   .brand-footer__rule {
-    @apply mx-auto my-3 h-px w-16 bg-gradient-to-r from-transparent via-gold-light to-transparent;
+    @apply mx-auto my-1 h-px w-8 bg-gradient-to-r from-transparent via-gold-light to-transparent;
   }
 
   .app-shell {
@@ -3394,7 +3433,7 @@ html {
   }
 
   .firm-auth-footer__contact {
-    @apply mt-4 flex flex-col items-center gap-1.5 text-[12px] font-medium text-white/85 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-2 sm:gap-y-1;
+    @apply mt-2 flex flex-col items-center gap-1.5 text-[12px] font-medium text-white/85 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-2 sm:gap-y-1;
   }
 
   .firm-auth-footer__contact a {
@@ -8263,6 +8302,20 @@ html {
     @apply m-0 text-[10pt] font-bold text-[#14110e];
   }
 
+  .firm-page-foot__name-block {
+    @apply mx-auto mb-px inline-flex max-w-full flex-col items-stretch;
+    width: max-content;
+  }
+
+  .firm-page-foot__name-line {
+    font-family: var(--font-display), "Arial Black", Georgia, serif;
+    @apply m-0 flex w-full justify-between text-[8.75pt] font-bold uppercase leading-none tracking-[0.04em] text-[#14110e];
+  }
+
+  .firm-page-foot__name-line--second {
+    @apply mt-px;
+  }
+
   .firm-page-foot__firm--caps {
     @apply whitespace-nowrap text-[8.5pt] tracking-[0.11em];
   }
@@ -8273,12 +8326,12 @@ html {
   }
 
   .firm-page-foot__divider {
-    @apply mx-auto my-1.5 h-0 w-9 border-t border-[#e8dcc4];
+    @apply mx-auto my-px h-0 w-8 border-t border-[#e8dcc4];
   }
 
   .firm-page-foot__detail {
     font-family: Arial, Helvetica, sans-serif;
-    @apply m-0 mt-0.5 text-[6.75pt] normal-case leading-snug tracking-wide text-[#5c554c];
+    @apply m-0 mt-px text-[6.75pt] normal-case leading-snug tracking-wide text-[#5c554c];
   }
 
   .firm-page-foot__detail--digital {

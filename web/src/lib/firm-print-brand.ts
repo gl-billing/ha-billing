@@ -17,6 +17,9 @@ const SERIF = "Georgia,'Times New Roman',serif";
 
 export const FIRM_LOGO_PATH = path.join(process.cwd(), "public", "brand", "logo.png");
 
+/** Wide Hernandez banner bar — SOA PDF header and email signature. */
+export const FIRM_COVER_BANNER_PATH = path.join(process.cwd(), "public", "brand", "cover.png");
+
 /** Same official seal as the billing app — used on letterhead and formal PDFs. */
 export const FIRM_LETTERHEAD_LOGO_PATH = FIRM_LOGO_PATH;
 

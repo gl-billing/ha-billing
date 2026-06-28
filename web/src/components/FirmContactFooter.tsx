@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { FirmCopyright } from "@/components/FirmCopyright";
+import { FirmFooterName } from "@/components/FirmFooterName";
 import { FirmPublicContactDetails } from "@/components/FirmPublicContactDetails";
 
 /** Footer for login and portal (systems chooser) — matches billing app branding. */
 export function FirmContactFooter({ guestFriendly = false }: { guestFriendly?: boolean }) {
   return (
     <div className="firm-auth-footer__inner">
-      <p className="firm-auth-footer__title">Hernandez &amp; Associates</p>
-      <p className="firm-auth-footer__tagline">Law Office</p>
+      <FirmFooterName className="firm-auth-footer__name" />
 
       <FirmPublicContactDetails className="firm-auth-footer__contact" />
 

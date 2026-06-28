@@ -17,6 +17,11 @@ import {
   getFirmLetterheadContact,
   type FirmLetterheadContact
 } from "@/lib/firm-contact";
+import {
+  FIRM_FOOTER_CAPS_LINE_1,
+  FIRM_FOOTER_CAPS_LINE_2,
+  splitFooterCapsChars
+} from "@/lib/firm-footer-name";
 
 export type { FirmLetterheadContact } from "@/lib/firm-contact";
 
@@ -75,11 +80,31 @@ function buildLetterheadMastheadHtml(): string {
 }
 
 export const FIRM_LETTER_SPACED_CAPS_NAME = "H E R N A N D E Z & A S S O C I A T E S";
+/** @deprecated Law Office removed from footers — kept for legacy letterhead references only. */
 export const FIRM_LETTER_SPACED_CAPS_SUBTITLE = "L A W O F F I C E";
+
+function buildEdgeAlignedCapsLineHtml(line: string, className: string): string {
+  const chars = splitFooterCapsChars(line)
+    .map((char) => `<span>${escapeHtml(char === " " ? "\u00a0" : char)}</span>`)
+    .join("");
+  return `<p class="${className}">${chars}</p>`;
+}
+
+export function buildFirmFooterNameHtml(): string {
+  return (
+    `<div class="firm-page-foot__name-block">` +
+    buildEdgeAlignedCapsLineHtml(FIRM_FOOTER_CAPS_LINE_1, "firm-page-foot__name-line") +
+    buildEdgeAlignedCapsLineHtml(
+      FIRM_FOOTER_CAPS_LINE_2,
+      "firm-page-foot__name-line firm-page-foot__name-line--second"
+    ) +
+    `</div>`
+  );
+}
 
 /** Footer firm line — spaced capitals per approved legal letterhead. */
 export function firmFooterCapsLine(): string {
-  return `${FIRM_LETTER_SPACED_CAPS_NAME} · ${FIRM_LETTER_SPACED_CAPS_SUBTITLE}`;
+  return `${FIRM_FOOTER_CAPS_LINE_1}\n${FIRM_FOOTER_CAPS_LINE_2}`;
 }
 
 export function buildFirmPageFooterHtml(
@@ -95,8 +120,7 @@ export function buildFirmPageFooterHtml(
     `<div class="firm-page-foot__line firm-page-foot__line--heavy"></div>` +
     `<div class="firm-page-foot__line firm-page-foot__line--fine"></div>` +
     `</div>` +
-    `<p class="firm-page-foot__firm firm-page-foot__firm--caps">${buildSpacedCapsNameHtml()}</p>` +
-    `<p class="firm-page-foot__firm firm-page-foot__subtitle--caps">${escapeHtml(FIRM_LETTER_SPACED_CAPS_SUBTITLE)}</p>` +
+    buildFirmFooterNameHtml() +
     `<div class="firm-page-foot__divider" aria-hidden="true"></div>` +
     addressLines
       .map(
@@ -162,11 +186,37 @@ export function buildFirmLetterheadHtml(options?: {
   );
 }
 
+/** SOA preview/print — full-width left-aligned Hernandez banner bar. */
+export function buildFirmSoaBannerLetterheadHtml(options?: { bannerSrc?: string }): string {
+  const bannerSrc = options?.bannerSrc ?? "/brand/cover.png";
+  return (
+    `<header class="firm-lh firm-lh--soa-banner">` +
+    `<img src="${bannerSrc}" alt="${FIRM_NAME}" class="firm-lh__banner" />` +
+    buildLetterheadClosingRuleHtml() +
+    `</header>`
+  );
+}
+
 export function buildFirmLetterheadCss(): string {
   return `
 .firm-lh {
   padding: 0 0 8px;
   text-align: center;
+}
+.firm-lh--soa-banner {
+  text-align: left;
+  padding: 0 0 10px;
+}
+.firm-lh--soa-banner .firm-lh__banner {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+  border: 0;
+}
+.firm-lh--soa-banner .firm-lh__closing-rule {
+  margin-top: 10px;
 }
 .firm-lh__masthead {
   width: 100%;
@@ -314,7 +364,7 @@ export function buildFirmLetterheadCss(): string {
 }
 .firm-page-foot__rules {
   width: 100%;
-  margin: 0 auto 9px;
+  margin: 0 auto 5px;
 }
 .firm-page-foot__line--heavy {
   display: block;
@@ -331,6 +381,32 @@ export function buildFirmLetterheadCss(): string {
   margin-top: 5px;
   border: none;
   background: ${RULE_GRADIENT};
+}
+.firm-page-foot__name-block {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto 1px;
+}
+.firm-page-foot__name-line {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0;
+  font-family: ${DISPLAY};
+  font-size: 8.75pt;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: ${INK};
+  line-height: 1.1;
+}
+.firm-page-foot__name-line--second {
+  margin-top: 1px;
+}
+.firm-page-foot__name-line span {
+  flex: 0 0 auto;
 }
 .firm-page-foot__firm {
   margin: 0;
@@ -352,15 +428,15 @@ export function buildFirmLetterheadCss(): string {
   color: ${ACCENT};
 }
 .firm-page-foot__divider {
-  width: 36px;
+  width: 32px;
   height: 0;
-  margin: 5px auto 6px;
+  margin: 1px auto 2px;
   border: none;
   border-top: 1px solid ${ACCENT_PALE};
   opacity: 0.95;
 }
 .firm-page-foot__detail {
-  margin: 1px auto 0;
+  margin: 0 auto;
   max-width: 6.15in;
   font-family: ${SANS};
   font-size: 6.65pt;
@@ -872,10 +948,11 @@ export function buildFirmLetterDocumentHtml(options: {
   pageSize: FirmPageSize;
   title: string;
   bodyHtml: string;
+  letterheadHtml?: string;
 }): string {
   const spec = getFirmPageSpec(options.pageSize);
   const layout = getFirmLetterSheetLayout(options.pageSize);
-  const letterhead = buildFirmLetterheadHtml({ pageSize: options.pageSize });
+  const letterhead = options.letterheadHtml ?? buildFirmLetterheadHtml({ pageSize: options.pageSize });
   const letterheadTemplate = letterhead.replace(
     /class="firm-lh([^"]*)"/,
     'class="firm-lh$1 firm-letter-template-header"'
