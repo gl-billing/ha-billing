@@ -71,18 +71,25 @@ async function findDriveFileId(accessToken: string): Promise<{ id: string; name:
 }
 
 function localBannerFallback(): EmailSignatureBanner | null {
-  try {
-    const filePath = path.join(process.cwd(), "public/brand/email-signature-banner.jpg");
-    const content = fs.readFileSync(filePath);
-    return {
-      contentId: EMAIL_SIGNATURE_BANNER_CID,
-      filename: "email-signature-banner.jpg",
-      mimeType: "image/jpeg",
-      content
-    };
-  } catch {
-    return null;
+  const candidates = [
+    { filePath: path.join(process.cwd(), "public/brand/email-signature-banner.png"), filename: "email-signature-banner.png", mimeType: "image/png" },
+    { filePath: path.join(process.cwd(), "public/brand/email-signature-banner.jpg"), filename: "email-signature-banner.jpg", mimeType: "image/jpeg" },
+    { filePath: path.join(process.cwd(), "public/brand/cover.png"), filename: "email-signature-banner.png", mimeType: "image/png" }
+  ];
+  for (const candidate of candidates) {
+    try {
+      const content = fs.readFileSync(candidate.filePath);
+      return {
+        contentId: EMAIL_SIGNATURE_BANNER_CID,
+        filename: candidate.filename,
+        mimeType: candidate.mimeType,
+        content
+      };
+    } catch {
+      // try next
+    }
   }
+  return null;
 }
 
 /** Load the firm email signature banner from Google Drive (file named "email signature") or local fallback. */

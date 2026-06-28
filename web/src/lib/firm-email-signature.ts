@@ -10,7 +10,6 @@ import {
   FIRM_SUBTITLE,
   FIRM_WEBSITE
 } from "@/lib/billing-document-design";
-import { formatFirmContactLine, formatFirmWebsiteLabel, firmPhoneTelHref, firmPrimaryPhone } from "@/lib/firm-contact";
 import { SECRETARY } from "@/lib/firm-team-config";
 
 export const FIRM_CONTACT = {
@@ -24,13 +23,12 @@ export const FIRM_CONTACT = {
   website: FIRM_WEBSITE
 } as const;
 
-const CONFIDENTIALITY_NOTICE = `CONFIDENTIALITY NOTICE: This email and any attachments are confidential and may contain privileged, proprietary, or legally protected information intended solely for the use of the individual or entity to whom it is addressed. Any unauthorized review, use, disclosure, copying, or distribution of this communication, in whole or in part, is strictly prohibited and may be unlawful.
+const CONFIDENTIALITY_NOTICE =
+  "CONFIDENTIALITY NOTICE: This email and its attachments are confidential and may contain privileged, proprietary, or legally protected information intended only for the addressee. If you received this email in error, please notify the sender immediately, delete the message and attachments from your system, and do not copy, disclose, distribute, or use any part of its contents. Hernandez & Associates does not waive any privilege, confidentiality protection, or legal right by reason of any inadvertent or erroneous transmission.";
 
-If you have received this message in error, please notify the sender immediately by reply email, permanently delete this message and any attachments from your system, and refrain from using, disseminating, or retaining any portion of its contents.
-
-All information contained herein remains confidential and is protected under applicable laws, including but not limited to the Rules on Evidence and the Data Privacy Act of 2012. The sender and its affiliated law office do not waive any privilege or legal right by the inadvertent transmission of this message.
-
-Thank you for your understanding and cooperation.`;
+/** Hosted banner — Hernandez logo bar (matches `public/brand/cover.png`). */
+export const EMAIL_SIGNATURE_BANNER_PATH = "/brand/email-signature-banner.png";
+export const EMAIL_SIGNATURE_BANNER_VERSION = "ha-v1";
 
 export type FirmEmailSigner = {
   name: string;
@@ -56,10 +54,21 @@ function publicAppUrl(): string | null {
   return root || null;
 }
 
-/** Hosted banner URL — preview/fallback only; sent mail uses Drive + inline CID. */
+/** Hosted banner URL — preview/fallback; sent mail uses Drive + inline CID. */
 function emailSignatureBannerUrl(): string | null {
   const root = publicAppUrl();
-  return root ? `${root}/brand/email-signature-banner.jpg` : null;
+  const path = `${EMAIL_SIGNATURE_BANNER_PATH}?v=${EMAIL_SIGNATURE_BANNER_VERSION}`;
+  return root ? `${root}${path}` : path;
+}
+
+function buildSignatureBannerHtml(bannerSrc: string): string {
+  return (
+    `<table cellpadding="0" cellspacing="0" border="0" width="100%" role="presentation" style="margin:0 0 8px;">` +
+    `<tr><td align="center" style="padding:0;line-height:0;font-size:0;">` +
+    `<img src="${bannerSrc}" alt="${FIRM_NAME}" width="560" ` +
+    `style="display:block;width:100%;max-width:560px;height:auto;margin:0 auto;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;" />` +
+    `</td></tr></table>`
+  );
 }
 
 /** Detect whether HTML already includes the firm email signature block. */
@@ -69,7 +78,7 @@ export function clientEmailHasSignature(content: string): boolean {
     content.includes("CONFIDENTIALITY NOTICE:") ||
     content.includes(EMAIL_SIGNATURE_BANNER_CID) ||
     content.includes("/brand/email-signature-banner") ||
-    (content.includes(FIRM_CONTACT.email) && content.includes("Respectfully,"))
+    (content.includes(FIRM_NAME) && content.includes("Respectfully,"))
   );
 }
 
@@ -85,7 +94,7 @@ export function stripClientEmailSignature(html: string): string {
   }
 
   const tableMatch = trimmed.match(
-    /(?:<br\s*\/?>\s*)*<table[^>]*style="[^"]*max-width:\s*520px[^"]*"[^>]*>[\s\S]*?Respectfully,[\s\S]*?<\/table>/i
+    /(?:<br\s*\/?>\s*)*<table[^>]*style="[^"]*max-width:\s*560px[^"]*"[^>]*>[\s\S]*?Respectfully,[\s\S]*?<\/table>/i
   );
   if (tableMatch?.index != null) {
     return trimmed.slice(0, tableMatch.index).replace(/(<br\s*\/?>\s*)+$/i, "").trim();
@@ -99,39 +108,21 @@ export function stripClientEmailSignature(html: string): string {
 export function getFirmEmailSignatureHtml(options?: { bannerSrc?: string | null }): string {
   const signer = getFirmEmailSigner();
   const bannerSrc = options?.bannerSrc ?? emailSignatureBannerCidSrc();
-  const phone = firmPrimaryPhone();
-  const { ink, muted, line } = BILLING_DOC_COLORS;
-  const linkColor = ink;
-  const phoneHtml = phone
-    ? ` &nbsp;|&nbsp; <a href="${firmPhoneTelHref(phone)}" style="color:${linkColor};text-decoration:none;">${phone}</a>`
-    : "";
-  const websiteHtml = FIRM_CONTACT.website
-    ? ` &nbsp;|&nbsp; <a href="https://${formatFirmWebsiteLabel(FIRM_CONTACT.website)}" style="color:${linkColor};text-decoration:none;">${formatFirmWebsiteLabel(FIRM_CONTACT.website)}</a>`
-    : "";
-  const bannerHtml = bannerSrc
-    ? `<img src="${bannerSrc}" alt="${FIRM_CONTACT.name} — ${FIRM_CONTACT.tagline}" width="560" style="display:block;max-width:100%;height:auto;border:0;" />`
-    : `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Georgia,'Times New Roman',serif;font-size:13px;line-height:1.5;color:${ink};max-width:520px;border:1px solid ${line};">` +
-      `<tr><td style="padding:12px;">` +
-      `<p style="margin:0 0 2px;font-size:14px;font-weight:700;color:${ink};">${FIRM_CONTACT.name}</p>` +
-      `<p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:${muted};">${FIRM_CONTACT.tagline}</p>` +
-      `<p style="margin:0 0 4px;color:${muted};">${FIRM_CONTACT.address}</p>` +
-      `<p style="margin:0;color:${muted};">` +
-      `<a href="mailto:${FIRM_CONTACT.email}" style="color:${linkColor};text-decoration:none;">${FIRM_CONTACT.email}</a>` +
-      phoneHtml +
-      websiteHtml +
-      `</p></td></tr></table>`;
+  const { ink, muted } = BILLING_DOC_COLORS;
+  const bannerHtml = bannerSrc ? buildSignatureBannerHtml(bannerSrc) : "";
 
   return (
     `<!-- gl-email-signature -->` +
     `<br><br>` +
-    `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.65;color:${ink};max-width:520px;">` +
+    `<table cellpadding="0" cellspacing="0" border="0" width="100%" role="presentation" ` +
+    `style="max-width:560px;font-family:Georgia,'Times New Roman',serif;color:${ink};">` +
     `<tr><td style="padding:0;">` +
-    `<p style="margin:0 0 12px;color:${ink};">Respectfully,</p>` +
+    `<p style="margin:0 0 10px;font-size:12px;line-height:1.5;color:${ink};">Respectfully,</p>` +
     bannerHtml +
-    `<p style="margin:14px 0 4px;text-align:center;font-size:14px;font-weight:700;color:${ink};">${signer.name}</p>` +
-    `<p style="margin:0 0 16px;text-align:center;font-size:13px;color:${muted};">${signer.title}</p>` +
-    `<p style="margin:0;font-size:11px;line-height:1.55;color:${muted};text-align:justify;">` +
-    CONFIDENTIALITY_NOTICE.replace(/\n\n/g, "<br><br>") +
+    `<p style="margin:8px 0 2px;text-align:center;font-size:11px;line-height:1.4;font-weight:600;color:${ink};">${signer.name}</p>` +
+    `<p style="margin:0 0 12px;text-align:center;font-size:10px;line-height:1.35;color:${muted};">${signer.title}</p>` +
+    `<p style="margin:0;font-size:9px;line-height:1.45;color:${muted};text-align:justify;">` +
+    CONFIDENTIALITY_NOTICE +
     `</p>` +
     `</td></tr></table>`
   );
@@ -143,10 +134,6 @@ export function getFirmEmailSignaturePlain(): string {
     `\n\nRespectfully,\n\n` +
     `${signer.name}\n` +
     `${signer.title}\n\n` +
-    `${FIRM_CONTACT.name}\n` +
-    `${FIRM_CONTACT.tagline}\n` +
-    `${FIRM_CONTACT.address}\n` +
-    `${formatFirmContactLine()}\n\n` +
     CONFIDENTIALITY_NOTICE
   );
 }
