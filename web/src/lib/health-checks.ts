@@ -159,7 +159,7 @@ export async function runTasksHealthChecks(accessToken: string): Promise<HealthC
     status: unconfirmedHearings ? "warn" : "ok",
     count: unconfirmedHearings,
     message: unconfirmedHearings
-      ? `${unconfirmedHearings} scheduled hearing(s) still need Andrea to confirm with the court.`
+      ? `${unconfirmedHearings} scheduled hearing(s) still need the secretaries to confirm with the court.`
       : "No hearings waiting for court confirmation."
   });
 

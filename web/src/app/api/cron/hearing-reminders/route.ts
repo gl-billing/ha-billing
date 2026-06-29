@@ -7,9 +7,9 @@ import {
   formatAssigneeOverdueEmailHtml,
   formatCourtConfirmationEmailHtml,
   formatEscalationEmailHtml,
-  getAndreaCourtConfirmationItems,
+  getSecretaryCourtConfirmationItems,
   getEscalationCandidates,
-  resolveAndreaEmployee
+  resolveSecretaryEmployees
 } from "@/lib/hearing-escalation";
 import { sendHtmlEmailViaGmail } from "@/lib/office-tasks/gmail-send";
 import { getEmployeeDirectory } from "@/lib/office-tasks/sheets/employees";
@@ -17,7 +17,7 @@ import { collectAllItems } from "@/lib/office-tasks/sheets/items";
 import { getEmployeeItemGroups } from "@/lib/office-tasks/schedule";
 import { callTasksAppsScript, isTasksAppsScriptConfigured } from "@/lib/office-tasks/apps-script";
 
-/** Vercel Cron — hearing escalation + Andrea court confirmation (via Apps Script when configured). */
+/** Vercel Cron — hearing escalation + secretary court confirmation (via Apps Script when configured). */
 export async function GET(request: Request) {
   const expected = process.env.CRON_SECRET?.trim();
   const auth = request.headers.get("authorization")?.trim() || "";
@@ -51,8 +51,8 @@ export async function POST(request: Request) {
     const accessToken = await requireSessionAccessToken();
     const session = await getServerSession(authOptions);
     const fromEmail = session?.user?.email || undefined;
-    const body = (await request.json()) as { scope?: "escalation" | "andrea" | "both" };
-    const scope = body.scope || "both";
+    const body = (await request.json()) as { scope?: "escalation" | "secretaries" | "andrea" | "both" };
+    const scope = body.scope === "andrea" ? "secretaries" : body.scope || "both";
     const today = new Date().toISOString().slice(0, 10);
     const items = await collectAllItems(accessToken);
     const directory = await getEmployeeDirectory(accessToken);
@@ -80,17 +80,19 @@ export async function POST(request: Request) {
       }
     }
 
-    if (scope === "andrea" || scope === "both") {
-      const pending = getAndreaCourtConfirmationItems(items);
-      const andrea = resolveAndreaEmployee(directory);
-      const andreaEmail = andrea?.email.trim().toLowerCase() || null;
+    if (scope === "secretaries" || scope === "both") {
+      const pending = getSecretaryCourtConfirmationItems(items);
+      const secretaries = resolveSecretaryEmployees(directory);
       const roster = directory.map((employee) => employee.name).filter(Boolean);
-      const andreaOverdue = andrea
-        ? getEmployeeItemGroups(andrea.name, items, today, [], roster).overdue
-        : [];
 
-      if ((pending.length || andreaOverdue.length) && andreaEmail) {
-        const overdueBlock = formatAssigneeOverdueEmailHtml(andrea?.name || "Andrea", andreaOverdue);
+      for (const secretary of secretaries) {
+        const secretaryEmail = secretary.email.trim().toLowerCase();
+        if (!secretaryEmail) continue;
+
+        const secretaryOverdue = getEmployeeItemGroups(secretary.name, items, today, [], roster).overdue;
+        if (!pending.length && !secretaryOverdue.length) continue;
+
+        const overdueBlock = formatAssigneeOverdueEmailHtml(secretary.name, secretaryOverdue);
         const courtBlock = pending.length
           ? `<p style="margin:0 0 12px;font-size:15px;line-height:1.5;">Please call each court below to confirm the scheduled hearing date and time.</p>` +
             formatCourtConfirmationEmailHtml(pending) +
@@ -98,30 +100,30 @@ export async function POST(request: Request) {
           : `<p style="margin:0;font-size:14px;line-height:1.5;">No new court confirmations today.</p>`;
 
         const subject =
-          andreaOverdue.length && pending.length
-            ? `Clear ${andreaOverdue.length} overdue + call court (${pending.length} hearing${pending.length === 1 ? "" : "s"})`
-            : andreaOverdue.length
-              ? `Clear ${andreaOverdue.length} overdue task${andreaOverdue.length === 1 ? "" : "s"} first`
+          secretaryOverdue.length && pending.length
+            ? `Clear ${secretaryOverdue.length} overdue + call court (${pending.length} hearing${pending.length === 1 ? "" : "s"})`
+            : secretaryOverdue.length
+              ? `Clear ${secretaryOverdue.length} overdue task${secretaryOverdue.length === 1 ? "" : "s"} first`
               : `Call court to confirm — ${pending.length} scheduled hearing(s)`;
 
         await sendHtmlEmailViaGmail({
           accessToken,
           fromEmail,
-          to: andreaEmail,
+          to: secretaryEmail,
           bcc:
-            andreaOverdue.length >= 5
-              ? getAdminEmails().filter((email) => email !== andreaEmail).join(", ") || undefined
+            secretaryOverdue.length >= 5
+              ? getAdminEmails().filter((email) => email !== secretaryEmail).join(", ") || undefined
               : undefined,
           subject,
           html:
-            `<p>Hi ${andrea?.name || "Andrea"},</p>` +
+            `<p>Hi ${secretary.name},</p>` +
             overdueBlock +
-            (andreaOverdue.length
+            (secretaryOverdue.length
               ? `<h3 style="margin:24px 0 8px;font-size:16px;color:#1a1612;">Then — court confirmations</h3>`
               : "") +
             courtBlock
         });
-        sent.push(andreaEmail);
+        sent.push(secretaryEmail);
       }
     }
 

@@ -3,9 +3,10 @@
 import type { EmployeeRecord } from "@/lib/office-tasks/sheets/employees";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import {
-  getAndreaCourtConfirmationItems,
+  formatSecretaryDisplayNames,
   getEscalationCandidates,
-  resolveAndreaEmployee
+  getSecretaryCourtConfirmationItems,
+  resolveSecretaryEmployees
 } from "@/lib/hearing-escalation";
 import { getEmployeeItemGroups } from "@/lib/office-tasks/schedule";
 
@@ -20,12 +21,15 @@ type Props = {
 
 export function HearingRemindersPanel({ items, today, busy, isAdmin, directory, onStatus }: Props) {
   const escalation = getEscalationCandidates(items, today, 2);
-  const andreaItems = getAndreaCourtConfirmationItems(items);
-  const andrea = resolveAndreaEmployee(directory);
+  const courtConfirmationItems = getSecretaryCourtConfirmationItems(items);
+  const secretaries = resolveSecretaryEmployees(directory);
+  const secretaryLabel = formatSecretaryDisplayNames(secretaries);
   const roster = directory.map((employee) => employee.name).filter(Boolean);
-  const andreaOverdue = andrea ? getEmployeeItemGroups(andrea.name, items, today, [], roster).overdue.length : 0;
+  const secretaryOverdue = secretaries.reduce((total, secretary) => {
+    return total + getEmployeeItemGroups(secretary.name, items, today, [], roster).overdue.length;
+  }, 0);
 
-  async function sendReminders(scope: "both" | "escalation" | "andrea") {
+  async function sendReminders(scope: "both" | "escalation" | "secretaries") {
     try {
       const res = await fetch("/api/cron/hearing-reminders", {
         method: "POST",
@@ -46,8 +50,8 @@ export function HearingRemindersPanel({ items, today, busy, isAdmin, directory, 
     <section className="card tools-panel__section">
       <h2 className="section-label">Hearing reminders</h2>
       <p className="tools-panel__section-desc">
-        Escalation: items due within 48 hours. Andrea: overdue tasks plus scheduled hearings needing court
-        confirmation call (overdue listed first in her email).
+        Escalation: items due within 48 hours. {secretaryLabel}: overdue tasks plus scheduled hearings needing court
+        confirmation call (overdue listed first in their email).
       </p>
       <div className="tools-panel__stat-grid">
         <div className="tools-panel__stat-box tools-panel__stat-box--warn">
@@ -55,25 +59,30 @@ export function HearingRemindersPanel({ items, today, busy, isAdmin, directory, 
           <p className="tools-panel__stat-value">{escalation.length}</p>
         </div>
         <div className="tools-panel__stat-box tools-panel__stat-box--info">
-          <p className="tools-panel__stat-label">Andrea — call court</p>
-          <p className="tools-panel__stat-value">{andreaItems.length}</p>
+          <p className="tools-panel__stat-label">Secretaries — call court</p>
+          <p className="tools-panel__stat-value">{courtConfirmationItems.length}</p>
         </div>
         <div className="tools-panel__stat-box tools-panel__stat-box--warn">
-          <p className="tools-panel__stat-label">Andrea — overdue</p>
-          <p className="tools-panel__stat-value">{andreaOverdue}</p>
+          <p className="tools-panel__stat-label">Secretaries — overdue</p>
+          <p className="tools-panel__stat-value">{secretaryOverdue}</p>
         </div>
       </div>
       <div className="tools-btn-grid">
         <button type="button" className="tool-action-btn" disabled={busy} onClick={() => void sendReminders("both")}>
           <span className="tool-action-btn__label">Send all hearing reminders</span>
         </button>
-        <button type="button" className="tool-action-btn" disabled={busy} onClick={() => void sendReminders("andrea")}>
-          <span className="tool-action-btn__label">Remind Andrea only</span>
+        <button
+          type="button"
+          className="tool-action-btn"
+          disabled={busy}
+          onClick={() => void sendReminders("secretaries")}
+        >
+          <span className="tool-action-btn__label">Remind secretaries only</span>
         </button>
       </div>
-      {andreaItems.length ? (
+      {courtConfirmationItems.length ? (
         <ul className="mt-4 space-y-1.5 text-xs text-muted">
-          {andreaItems.slice(0, 5).map((item) => (
+          {courtConfirmationItems.slice(0, 5).map((item) => (
             <li key={`${item.sheetName}-${item.rowNumber}`}>
               {item.date} — {item.clientCase} · {item.venue || "Court TBD"}
             </li>

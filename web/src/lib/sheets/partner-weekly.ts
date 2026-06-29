@@ -133,7 +133,7 @@ export function formatPartnerWeeklyReportHtml(report: PartnerWeeklyReport): stri
     `<li>Completed this week: ${report.tasks.completedThisWeek}</li>` +
     `<li>Hearings this week: ${report.tasks.hearingsThisWeek}</li>` +
     `<li>Due within 48h (escalation): ${report.tasks.escalationDue}</li>` +
-    `<li>Court confirmation pending (Andrea): ${report.tasks.courtConfirmationPending}</li>` +
+    `<li>Court confirmation pending (secretaries): ${report.tasks.courtConfirmationPending}</li>` +
     `</ul>` +
     `<h3>Team workload</h3>` +
     `<table style="border-collapse:collapse;width:100%;font-size:14px;">` +

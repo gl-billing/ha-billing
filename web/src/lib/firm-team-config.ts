@@ -44,6 +44,20 @@ export const SECRETARY = {
   email: FIRM_INBOX_EMAIL
 };
 
+/** Hearing reminders and court-confirmation calls — both firm secretaries. */
+export const FIRM_SECRETARIES = [
+  {
+    displayName: "Shiela Cabaniero",
+    shortName: "Shiela",
+    email: SECRETARY.email
+  },
+  {
+    displayName: "Hiedee Escartin",
+    shortName: "Hiedee",
+    email: "rahernandez555@gmail.com"
+  }
+] as const;
+
 /** Firm lawyers — fee-sharing roster (managing partner listed first). */
 export const DEFAULT_FIRM_LAWYERS_ROSTER: FirmLawyerRosterEntry[] = [
   {
