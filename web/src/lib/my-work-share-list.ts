@@ -7,6 +7,7 @@ export type MyWorkShareLists = {
   eventsToday: OfficeItem[];
   deadlinesToday: OfficeItem[];
   tasksDueToday: OfficeItem[];
+  dueThisWeek: OfficeItem[];
   waitingAndStarted: OfficeItem[];
   doneToday: OfficeItem[];
 };
@@ -38,21 +39,23 @@ export function formatMyWorkListText(options: {
     ""
   ];
 
-  lines.push(...section("Due first", lists.overdue));
-  lines.push(...section("Due today — hearings", lists.eventsToday));
-  lines.push(...section("Due today — filing deadlines", lists.deadlinesToday));
-  lines.push(...section("Due today — tasks", lists.tasksDueToday));
+  lines.push(...section("Overdue", lists.overdue));
+  lines.push(...section("Due now — hearings", lists.eventsToday));
+  lines.push(...section("Due now — filing deadlines", lists.deadlinesToday));
+  lines.push(...section("Due now — tasks", lists.tasksDueToday));
+  lines.push(...section("Due this week", lists.dueThisWeek));
   lines.push(...section("Waiting / started", lists.waitingAndStarted));
-  lines.push(...section("Completed today", lists.doneToday));
+  lines.push(...section("Completed", lists.doneToday));
 
   const openCount =
     lists.overdue.length +
     lists.eventsToday.length +
     lists.deadlinesToday.length +
     lists.tasksDueToday.length +
+    lists.dueThisWeek.length +
     lists.waitingAndStarted.length;
 
-  lines.push(`Open items: ${openCount} · Done today: ${lists.doneToday.length}`);
+  lines.push(`Open items: ${openCount} · Completed: ${lists.doneToday.length}`);
 
   return lines.join("\n").trim();
 }

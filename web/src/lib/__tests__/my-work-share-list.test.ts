@@ -30,6 +30,7 @@ describe("formatMyWorkListText", () => {
         eventsToday: [],
         deadlinesToday: [],
         tasksDueToday: [item({ details: "Draft pleading" })],
+        dueThisWeek: [],
         waitingAndStarted: [],
         doneToday: []
       }
@@ -37,9 +38,9 @@ describe("formatMyWorkListText", () => {
 
     expect(text).toContain("HA Office — My work");
     expect(text).toContain("Assigned to Jas");
-    expect(text).toContain("Due first");
+    expect(text).toContain("Overdue");
     expect(text).toContain("Follow up payment");
-    expect(text).toContain("Due today — tasks");
+    expect(text).toContain("Due now — tasks");
     expect(text).toContain("Draft pleading");
     expect(text).toContain("Open items: 2");
   });

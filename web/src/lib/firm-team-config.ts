@@ -16,7 +16,7 @@ export function isFirmOwnerEmail(email: string | null | undefined): boolean {
 
 export const MANAGING_PARTNER = {
   displayName: "Atty. Robert Hernandez",
-  emails: ["atty.hernandez@hernandezlaw.info", "atty.rahernandez@gmail.com"] as const
+  emails: ["atty.hernandez@hernandezlaw.info", "atty.rahernandez@gmail.com", "rahernandez@gmail.com"] as const
 };
 
 /** Acceptance fee sharing — 20% firm, 40% Atty. Hernandez, 40% other lawyer on the matter. */
@@ -106,6 +106,14 @@ export const DEFAULT_STAFF_PAYROLL_ROSTER: StaffPayrollRosterEntry[] = [
     active: true
   }
 ];
+
+/** Field / liaison officer — confidential admin assignments. */
+export const FIRM_LIAISON = {
+  displayName: "James Bryan Hakola",
+  rosterName: "James Bryan Hakola (Liaison Officer)",
+  /** Override via LIAISON_EMAILS env (comma-separated). */
+  defaultEmails: [] as string[]
+};
 
 /** Employees sheet rows beyond lawyers synced from the roster. */
 export const DEFAULT_FIRM_EMPLOYEE_ROWS: Array<[string, string, string, string]> = [

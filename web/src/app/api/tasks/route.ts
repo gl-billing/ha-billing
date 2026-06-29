@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { requireSessionAccessToken } from "@/lib/api-auth";
 import { authOptions } from "@/lib/auth";
+import { isAdminEmail } from "@/lib/admin";
 import { syncSavedItemToCalendar } from "@/lib/calendar/sync-item-after-save";
 import { sessionEntryRegistrarLabel } from "@/lib/office-tasks/entry-registrar";
 import { appendTask, listRecentItems, type TaskFormInput } from "@/lib/office-tasks/sheets/tasks";
 import { invalidateTasksDataCache } from "@/lib/office-tasks/tasks-cache";
+import { resolveJasAssignee } from "@/lib/office-tasks/task-assignees";
+import { getActiveEmployeeNames } from "@/lib/office-tasks/sheets/employees";
 
 export async function GET() {
   try {
@@ -32,12 +35,26 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
     const createdBy = sessionEntryRegistrarLabel(session);
 
+    if (body.liaisonConfidential && !isAdminEmail(session?.user?.email)) {
+      return NextResponse.json({ error: "Only admin may create confidential liaison tasks." }, { status: 403 });
+    }
+
+    let assignedTo = body.assignedTo?.trim() || "";
+    if (body.liaisonConfidential) {
+      const roster = await getActiveEmployeeNames(token);
+      assignedTo = resolveJasAssignee(roster);
+    }
+
     const saved = await appendTask(token, {
       ...body,
-      taskType: body.taskType?.trim() || "Task"
+      assignedTo,
+      taskType: body.taskType?.trim() || "Task",
+      liaisonConfidential: body.liaisonConfidential === true
     }, { createdBy });
     invalidateTasksDataCache(token);
-    const calendar = await syncSavedItemToCalendar(token, saved.id, body.calendarSync === true);
+    const calendar = body.liaisonConfidential
+      ? { calendarEventId: null, calendarError: null }
+      : await syncSavedItemToCalendar(token, saved.id, body.calendarSync === true);
     return NextResponse.json({
       ok: true,
       taskId: saved.id,

@@ -49,6 +49,7 @@ import {
   nextActionForPrepChecklist,
   prepChecklistMarker
 } from "@/lib/office-tasks/prep-checklist-storage";
+import { markLiaisonConfidentialRemarks } from "@/lib/office-tasks/liaison-confidential";
 
 export type TaskFormInput = {
   clientCase: string;
@@ -68,6 +69,7 @@ export type TaskFormInput = {
   status?: string;
   interactiveChecklist?: boolean;
   interactiveChecklistItems?: string[];
+  liaisonConfidential?: boolean;
 };
 
 export type EventFormInput = {
@@ -178,13 +180,16 @@ export async function appendTask(
   if (options?.createdBy) {
     remarks = appendEntryCreatedByMarker(remarks, options.createdBy);
   }
+  if (form.liaisonConfidential) {
+    remarks = markLiaisonConfidentialRemarks(remarks);
+  }
   row[9] = nextAction;
   const status = normalizeOfficeStatus(sanitize(form.status) || "In Progress");
   row[10] = status;
   row[11] = status === "Done";
   row[13] = remarks;
   row[14] = form.reminderDays ?? 1;
-  row[15] = form.calendarSync === true;
+  row[15] = form.liaisonConfidential ? false : form.calendarSync === true;
   row[17] = now;
   row[18] = sanitize(form.dueTime);
   row[19] = sanitize(form.venue);

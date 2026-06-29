@@ -17,20 +17,34 @@ describe("date bucketing", () => {
     vi.clearAllMocks();
   });
 
-  it("counts overdue, due today, and waiting separately", () => {
+  it("counts overdue, due today, due this week, and waiting separately", () => {
     const counts = computeTodayCounts([
       makeItem({ id: "T-1", date: "2026-06-09", status: "In Progress" }),
       makeItem({ id: "T-2", source: "Event", category: "Hearing", date: TODAY }),
       makeItem({ id: "T-3", source: "Event", category: "Court Filing", date: TODAY }),
       makeItem({ id: "T-4", status: "Waiting", date: "2026-06-20" }),
-      makeItem({ id: "T-5", done: true, completedDate: TODAY })
+      makeItem({ id: "T-5", done: true, completedDate: TODAY }),
+      makeItem({ id: "T-6", date: "2026-06-13", status: "In Progress" })
     ]);
 
     expect(counts.overdueOpen).toBe(1);
     expect(counts.eventsToday).toBe(1);
     expect(counts.deadlinesToday).toBe(1);
+    expect(counts.dueThisWeek).toBe(1);
     expect(counts.waitingAndStarted).toBe(1);
     expect(counts.completedToday).toBe(1);
+  });
+
+  it("lists due-this-week items separately from due today", () => {
+    const lists = filterTodayLists([
+      makeItem({ id: "T-1", date: TODAY }),
+      makeItem({ id: "T-2", date: "2026-06-13", status: "In Progress" }),
+      makeItem({ id: "T-3", date: "2026-06-20", status: "In Progress" })
+    ]);
+
+    expect(lists.tasksDueToday.map((i) => i.id)).toEqual(["T-1"]);
+    expect(lists.dueThisWeek.map((i) => i.id)).toEqual(["T-2"]);
+    expect(lists.dueThisWeek.some((i) => i.id === "T-3")).toBe(false);
   });
 
   it("puts waiting items in follow-up list, not overdue", () => {

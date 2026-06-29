@@ -1,5 +1,5 @@
 import type { OfficeItem, TodayCounts } from "@/lib/office-tasks/item-types";
-import { addDaysYmd, isPastDueOpenItem, isWaitingOrStarted, todayYmd } from "@/lib/office-tasks/date-only";
+import { addDaysYmd, getMondayOfWeekYmd, isPastDueOpenItem, isWaitingOrStarted, todayYmd } from "@/lib/office-tasks/date-only";
 
 function isCancelled(status: string): boolean {
   const s = status.trim();
@@ -17,13 +17,19 @@ function priorityRank(priority: string): number {
   return i === -1 ? 99 : i;
 }
 
+function endOfWeekYmd(today: string): string {
+  return addDaysYmd(getMondayOfWeekYmd(today), 6);
+}
+
 export function computeTodayCounts(items: OfficeItem[]): TodayCounts {
   const today = todayYmd();
+  const weekEnd = endOfWeekYmd(today);
   const counts: TodayCounts = {
     tasksDueToday: 0,
     eventsToday: 0,
     deadlinesToday: 0,
     overdueOpen: 0,
+    dueThisWeek: 0,
     waitingAndStarted: 0,
     completedToday: 0
   };
@@ -47,7 +53,12 @@ export function computeTodayCounts(items: OfficeItem[]): TodayCounts {
       return;
     }
 
-    if (item.date !== today) return;
+    if (item.date !== today) {
+      if (item.date > today && item.date <= weekEnd) {
+        counts.dueThisWeek++;
+      }
+      return;
+    }
 
     if (isDeadlineLike(item)) {
       counts.deadlinesToday++;
@@ -63,10 +74,12 @@ export function computeTodayCounts(items: OfficeItem[]): TodayCounts {
 
 export function filterTodayLists(items: OfficeItem[]) {
   const today = todayYmd();
+  const weekEnd = endOfWeekYmd(today);
   const overdue: OfficeItem[] = [];
   const eventsToday: OfficeItem[] = [];
   const deadlinesToday: OfficeItem[] = [];
   const tasksDueToday: OfficeItem[] = [];
+  const dueThisWeek: OfficeItem[] = [];
   const waitingAndStarted: OfficeItem[] = [];
   const doneToday: OfficeItem[] = [];
 
@@ -82,21 +95,26 @@ export function filterTodayLists(items: OfficeItem[]) {
     }
 
     if (!item.date) return;
+    if (item.done) return;
 
     if (isPastDueOpenItem(item, today)) {
       overdue.push(item);
       return;
     }
 
-    if (item.done) return;
-    if (item.date !== today) return;
+    if (item.date === today) {
+      if (isDeadlineLike(item)) {
+        deadlinesToday.push(item);
+      } else if (item.source === "Event") {
+        eventsToday.push(item);
+      } else {
+        tasksDueToday.push(item);
+      }
+      return;
+    }
 
-    if (isDeadlineLike(item)) {
-      deadlinesToday.push(item);
-    } else if (item.source === "Event") {
-      eventsToday.push(item);
-    } else {
-      tasksDueToday.push(item);
+    if (item.date > today && item.date <= weekEnd) {
+      dueThisWeek.push(item);
     }
   });
 
@@ -110,6 +128,7 @@ export function filterTodayLists(items: OfficeItem[]) {
     eventsToday: eventsToday.sort(sort),
     deadlinesToday: deadlinesToday.sort(sort),
     tasksDueToday: tasksDueToday.sort(sort),
+    dueThisWeek: dueThisWeek.sort(sort),
     waitingAndStarted: waitingAndStarted.sort(sort),
     doneToday: doneToday.sort(sort)
   };

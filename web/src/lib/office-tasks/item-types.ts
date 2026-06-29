@@ -41,6 +41,7 @@ export type TodayCounts = {
   eventsToday: number;
   deadlinesToday: number;
   overdueOpen: number;
+  dueThisWeek: number;
   waitingAndStarted: number;
   completedToday: number;
 };

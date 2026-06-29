@@ -10480,9 +10480,18 @@ html {
     background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
   }
 
+  .staff-salary__roster-item-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    min-width: 0;
+    flex: 1;
+  }
+
   .staff-salary__roster-partner-badge {
-    display: inline-block;
-    margin-bottom: 0.35rem;
+    display: block;
+    margin-bottom: 0.2rem;
     padding: 0.2rem 0.55rem;
     border: 1px solid var(--line);
     border-radius: 999px;
@@ -17244,6 +17253,403 @@ body:has(.office-hub-page) {
 .my-work-panel--elegant .my-work-feed__body {
   padding: 0.5rem 1.15rem 1.25rem;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(250, 246, 238, 0.35) 100%);
+}
+
+.my-work-feed__body--checklist {
+  padding-top: 0.15rem;
+}
+
+.my-work-toolbar__scope-note {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--ink, #1a1612);
+}
+
+.my-work-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(26, 22, 18, 0.1);
+  border-radius: 0.35rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.my-work-checklist--collapsed {
+  display: none;
+}
+
+@media print {
+  .my-work-checklist--collapsed {
+    display: block;
+  }
+}
+
+.my-work-checklist__empty {
+  margin: 0.5rem 0 0.75rem;
+  font-size: 0.88rem;
+  color: rgba(26, 22, 18, 0.62);
+}
+
+.my-work-checklist__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem 0.75rem;
+  align-items: start;
+  padding: 0.78rem 0.95rem;
+  border-bottom: 1px solid rgba(26, 22, 18, 0.08);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.my-work-checklist__row:last-child {
+  border-bottom: none;
+}
+
+.my-work-checklist__row--overdue {
+  background: rgba(254, 242, 242, 0.45);
+}
+
+.my-work-checklist__row--done {
+  opacity: 0.72;
+}
+
+.my-work-checklist__row--done .my-work-checklist__body,
+.my-work-checklist__row--done .my-work-checklist__headline,
+.my-work-checklist__row--done .my-work-checklist__meta dd,
+.my-work-checklist__row--done .my-work-checklist__client,
+.my-work-checklist__row--done .my-work-checklist__case {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.my-work-checklist__check-wrap {
+  position: relative;
+  display: inline-flex;
+  margin-top: 0.18rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.my-work-checklist__check {
+  position: absolute;
+  opacity: 0;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.my-work-checklist__check-ui {
+  display: block;
+  width: 0.95rem;
+  height: 0.95rem;
+  border: 1.5px solid rgba(26, 22, 18, 0.42);
+  border-radius: 0.12rem;
+  background: #fff;
+}
+
+.my-work-checklist__check:focus-visible + .my-work-checklist__check-ui {
+  outline: 2px solid rgba(184, 145, 61, 0.55);
+  outline-offset: 2px;
+}
+
+.my-work-checklist__check:checked + .my-work-checklist__check-ui {
+  border-color: rgba(26, 22, 18, 0.55);
+  background:
+    linear-gradient(180deg, rgba(26, 22, 18, 0.08), rgba(26, 22, 18, 0.02)),
+    #fff;
+  box-shadow: inset 0 0 0 2px #fff;
+}
+
+.my-work-checklist__check:checked + .my-work-checklist__check-ui::after {
+  content: "";
+  display: block;
+  width: 0.28rem;
+  height: 0.52rem;
+  margin: 0.08rem auto 0;
+  border: solid rgba(26, 22, 18, 0.72);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+
+.my-work-checklist__check:disabled + .my-work-checklist__check-ui {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.my-work-checklist__content {
+  min-width: 0;
+  width: 100%;
+}
+
+.my-work-checklist__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.2rem 1.25rem;
+  align-items: start;
+  min-width: 0;
+  width: 100%;
+}
+
+.my-work-checklist__primary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.my-work-checklist__headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.4rem;
+  min-width: 0;
+  font-weight: 650;
+  color: var(--ink, #1a1612);
+}
+
+.my-work-checklist__kind {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(26, 22, 18, 0.55);
+}
+
+.my-work-checklist__sep {
+  flex-shrink: 0;
+  color: rgba(26, 22, 18, 0.35);
+}
+
+.my-work-checklist__sep--em {
+  color: rgba(26, 22, 18, 0.28);
+}
+
+.my-work-checklist__case {
+  min-width: 0;
+  font-family: var(--font-serif, Georgia, "Times New Roman", serif);
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.my-work-checklist__client {
+  min-width: 0;
+  font-weight: 600;
+  color: rgba(26, 22, 18, 0.78);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(184, 145, 61, 0.45);
+  text-underline-offset: 0.14em;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.my-work-checklist__client:hover {
+  color: var(--ink, #1a1612);
+}
+
+/* Checklist commands — text links, not boxed buttons */
+.my-work-checklist__actions.my-work-item-actions {
+  width: 100%;
+  margin: 0.14rem 0 0;
+  padding: 0;
+  border: none;
+}
+
+.my-work-checklist__actions .my-work-item-actions__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.65rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.my-work-checklist__actions .my-work-item-actions__buttons--inline {
+  display: contents;
+}
+
+.my-work-cmd {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0.14rem 0.1rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  min-height: 0;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  color: rgba(26, 22, 18, 0.58);
+  white-space: nowrap;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(26, 22, 18, 0.28);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  transform: none;
+  transition:
+    color 0.14s ease,
+    text-decoration-color 0.14s ease;
+}
+
+.my-work-cmd:hover:not(:disabled) {
+  color: rgba(26, 22, 18, 0.92);
+  background: transparent;
+  box-shadow: none;
+  text-decoration-color: rgba(26, 22, 18, 0.55);
+  transform: none;
+}
+
+.my-work-cmd:focus-visible {
+  outline: 2px solid rgba(184, 145, 61, 0.45);
+  outline-offset: 2px;
+  border-radius: 0.1rem;
+}
+
+.my-work-cmd:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.my-work-cmd--emphasis {
+  color: rgba(26, 22, 18, 0.68);
+  text-decoration-color: rgba(26, 22, 18, 0.36);
+}
+
+.my-work-cmd--more {
+  padding: 0.14rem 0.2rem;
+  letter-spacing: 0.12em;
+  color: rgba(26, 22, 18, 0.5);
+  text-decoration-color: rgba(26, 22, 18, 0.24);
+}
+
+.my-work-cmd--more:hover:not(:disabled) {
+  color: rgba(26, 22, 18, 0.82);
+  text-decoration-color: rgba(26, 22, 18, 0.48);
+}
+
+.my-work-checklist__actions .item-more-menu--minimal {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.my-work-checklist__meta {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(4.75rem, max-content);
+  gap: 0.35rem 1rem;
+  margin: 0;
+  padding: 0;
+  justify-content: end;
+  text-align: right;
+  align-self: start;
+}
+
+.my-work-checklist__meta > div {
+  display: grid;
+  gap: 0.08rem;
+  min-width: 0;
+}
+
+.my-work-checklist__meta dt {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(26, 22, 18, 0.48);
+  white-space: nowrap;
+}
+
+.my-work-checklist__meta dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  color: rgba(26, 22, 18, 0.82);
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+@media (max-width: 720px) {
+  .my-work-checklist__body {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
+  .my-work-cmd {
+    font-size: 0.66rem;
+  }
+
+  .my-work-checklist__actions .my-work-item-actions__row {
+    gap: 0.3rem 0.55rem;
+  }
+
+  .my-work-checklist__meta {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+    justify-content: stretch;
+    text-align: left;
+    width: 100%;
+    padding-top: 0.15rem;
+    border-top: 1px solid rgba(26, 22, 18, 0.06);
+  }
+}
+
+@media (max-width: 420px) {
+  .my-work-checklist__row {
+    padding: 0.72rem 0.75rem;
+  }
+
+  .my-work-checklist__headline {
+    gap: 0.18rem 0.32rem;
+  }
+
+  .my-work-checklist__meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 0.65rem;
+  }
+}
+
+.liaison-confidential-hero {
+  border-left: 3px solid rgba(26, 22, 18, 0.28);
+}
+
+.liaison-confidential-form {
+  border: 1px solid rgba(26, 22, 18, 0.12);
+  background: rgba(250, 248, 244, 0.92);
+}
+
+.liaison-confidential-form__head {
+  padding: 1rem 1.1rem 0.35rem;
+  border-bottom: 1px solid rgba(26, 22, 18, 0.08);
+}
+
+.liaison-confidential-form__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.liaison-confidential-form__lede {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  color: rgba(26, 22, 18, 0.62);
+}
+
+.liaison-confidential-feed .my-work-feed__eyebrow {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .my-work-feed__group + .my-work-feed__group {

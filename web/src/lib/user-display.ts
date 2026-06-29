@@ -1,7 +1,5 @@
 /** Display name for header / Office Hub greeting. */
 
-import { DEFAULT_FIRM_SENDER_EMAIL } from "@/lib/firm-sender";
-
 function parseDisplayNameMap(): Map<string, string> {
   const raw = process.env.USER_DISPLAY_NAMES?.trim();
   if (!raw) return new Map();
@@ -19,6 +17,17 @@ function parseDisplayNameMap(): Map<string, string> {
   return map;
 }
 
+/** Default greeting labels by sign-in email (env USER_DISPLAY_NAMES overrides these). */
+const DEFAULT_STAFF_GREETING_BY_EMAIL: Record<string, string> = {
+  "atty.rahernandez@gmail.com": "Atty. Robert",
+  "rahernandez@gmail.com": "Atty. Robert",
+  "jlppasagui@gmail.com": "Atty. Jeff",
+  "legal@hernandezlaw.info": "Shiela",
+  "lizparreno595@gmail.com": "Atty. April",
+  "rahernandez555@gmail.com": "Hiedee",
+  "rbr083080@gmail.com": "Raquel"
+};
+
 const displayNameByEmail = parseDisplayNameMap();
 
 function capitalizeFirst(value: string): string {
@@ -27,13 +36,11 @@ function capitalizeFirst(value: string): string {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
 }
 
-function greetingFromProfile(name: string, email: string): string | null {
-  const firmInbox = DEFAULT_FIRM_SENDER_EMAIL.toLowerCase();
-  if (email === firmInbox) {
-    return "Admin";
+function greetingForEmail(emailKey: string): string | null {
+  if (displayNameByEmail.has(emailKey)) {
+    return displayNameByEmail.get(emailKey)!;
   }
-
-  return null;
+  return DEFAULT_STAFF_GREETING_BY_EMAIL[emailKey] ?? null;
 }
 
 export function formatStaffDisplayName(
@@ -41,20 +48,13 @@ export function formatStaffDisplayName(
   email?: string | null
 ): string {
   const emailKey = email?.trim().toLowerCase();
-  if (emailKey === DEFAULT_FIRM_SENDER_EMAIL.toLowerCase()) {
-    return "Admin";
-  }
 
-  if (emailKey && displayNameByEmail.has(emailKey)) {
-    return displayNameByEmail.get(emailKey)!;
-  }
-
-  const profileName = name?.trim();
-  if (profileName && emailKey) {
-    const greeting = greetingFromProfile(profileName, emailKey);
+  if (emailKey) {
+    const greeting = greetingForEmail(emailKey);
     if (greeting) return greeting;
   }
 
+  const profileName = name?.trim();
   if (profileName) {
     const first = profileName.split(/\s+/)[0]?.trim();
     if (first) return capitalizeFirst(first);

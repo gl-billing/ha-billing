@@ -3032,6 +3032,21 @@ a.btn-secondary,
   background: var(--soft) !important;
 }
 
+.firm-workspace .employee-card__role {
+  margin: 0.1rem 0 0.2rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--muted, #6b6560);
+}
+
+.firm-workspace .employee-card__role--detail {
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
 .firm-workspace .tab-page-body details.card > summary {
   padding: 0.15rem 0;
   font-size: var(--ha-text-meta) !important;
@@ -3196,5 +3211,57 @@ a.btn-secondary,
     min-width: 4.5rem !important;
     max-width: 100% !important;
   }
+}
+
+/* Checklist row commands — override boxed list-button theme */
+.firm-workspace .my-work-checklist__actions .my-work-cmd,
+.firm-workspace .my-work-checklist__actions .my-work-cmd--more {
+  min-height: 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 0.14rem 0.1rem !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  font-size: 0.68rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em !important;
+  line-height: 1.35 !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+  color: rgba(26, 22, 18, 0.58) !important;
+  text-decoration: underline !important;
+  text-decoration-color: rgba(26, 22, 18, 0.28) !important;
+  text-underline-offset: 0.18em !important;
+  transform: none !important;
+  flex: 0 0 auto !important;
+}
+
+.firm-workspace .my-work-checklist__actions .my-work-cmd--emphasis {
+  font-weight: 600 !important;
+  color: rgba(26, 22, 18, 0.68) !important;
+  text-decoration-color: rgba(26, 22, 18, 0.36) !important;
+}
+
+.firm-workspace .my-work-checklist__actions .my-work-cmd:hover:not(:disabled),
+.firm-workspace .my-work-checklist__actions .my-work-cmd--more:hover:not(:disabled) {
+  border: none !important;
+  background: transparent !important;
+  color: rgba(26, 22, 18, 0.92) !important;
+  text-decoration-color: rgba(26, 22, 18, 0.55) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.firm-workspace .my-work-checklist__actions .item-more-menu--minimal .my-work-cmd--more {
+  width: auto !important;
+}
+
+.firm-workspace .my-work-checklist__row--done .my-work-checklist__actions,
+.firm-workspace .my-work-checklist__row--done .my-work-cmd {
+  text-decoration: none;
 }
 

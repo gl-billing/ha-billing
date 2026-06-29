@@ -163,6 +163,43 @@ export function getWeekPlan(items: OfficeItem[], weekDates: string[], today: str
   return { overdue, byDay };
 }
 
+/** Non-lawyer staff card order on Staff load — after all lawyers. */
+const STAFF_WORKLOAD_STAFF_ORDER: Array<(normalizedName: string) => boolean> = [
+  (name) => name.includes("shiela"),
+  (name) => name.includes("hiedee"),
+  (name) => name.includes("raquel") || name.includes("rontal")
+];
+
+function teamWorkloadSortMeta(name: string, roster: string[]): { tier: number; sub: number; label: string } {
+  const canonical = canonicalizeStaffName(name, roster);
+  const norm = canonical.trim().toLowerCase();
+  const owner = resolveFirmOwnerAssignee(roster);
+  if (owner && norm === owner.trim().toLowerCase()) {
+    return { tier: 0, sub: 0, label: canonical };
+  }
+  if (/^atty/i.test(canonical.trim())) {
+    return { tier: 1, sub: 0, label: canonical };
+  }
+  const staffIndex = STAFF_WORKLOAD_STAFF_ORDER.findIndex((matches) => matches(norm));
+  if (staffIndex >= 0) {
+    return { tier: 2, sub: staffIndex, label: canonical };
+  }
+  return { tier: 3, sub: 0, label: canonical };
+}
+
+/** Team workload cards — managing partner, associates, then Shiela → Hiedee → Raquel, then others. */
+export function sortTeamWorkloadStats(stats: EmployeeStat[], roster: string[]): EmployeeStat[] {
+  return [...stats].sort((a, b) => {
+    const left = teamWorkloadSortMeta(a.name, roster);
+    const right = teamWorkloadSortMeta(b.name, roster);
+    if (left.tier !== right.tier) return left.tier - right.tier;
+    if (left.tier === 1 || left.tier === 3) {
+      return left.label.localeCompare(right.label, undefined, { sensitivity: "base" });
+    }
+    return left.sub - right.sub;
+  });
+}
+
 export function computeEmployeeStats(items: OfficeItem[], employeeNames: string[], today: string, weekDates: string[]): EmployeeStat[] {
   const weekSet = new Set(weekDates);
   const roster = employeeNames.filter(Boolean);
@@ -173,13 +210,12 @@ export function computeEmployeeStats(items: OfficeItem[], employeeNames: string[
     splitAssignees(item.assignedTo).forEach((n) => names.add(canonicalizeStaffName(n, roster)));
   });
 
-  return Array.from(names)
+  const stats = Array.from(names)
     .filter(Boolean)
     .filter((name) => {
       const owner = resolveFirmOwnerAssignee(roster);
       return !(owner && isOwnerAdminAssigneeAlias(name));
     })
-    .sort()
     .map((name) => {
       const assigned = filterStaffWorkloadItems(name, items, roster);
       let total = 0;
@@ -214,6 +250,8 @@ export function computeEmployeeStats(items: OfficeItem[], employeeNames: string[
         completionRate: total ? Math.round((done / total) * 100) : 0
       };
     });
+
+  return sortTeamWorkloadStats(stats, roster);
 }
 
 export function itemTone(

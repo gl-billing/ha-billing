@@ -1,7 +1,7 @@
-import { FIRM_OWNER_EMAILS, isFirmOwnerEmail } from "@/lib/firm-team-config";
+import { FIRM_OWNER_EMAILS, isFirmOwnerEmail, FIRM_SECRETARIES, MANAGING_PARTNER, DEFAULT_FIRM_LAWYERS_ROSTER, FIRM_LIAISON } from "@/lib/firm-team-config";
 import { DEFAULT_FIRM_SENDER_EMAIL } from "@/lib/firm-sender";
 import { STAFF_GOOGLE_PROVIDER_ID } from "@/lib/guest-oauth";
-import { getAdminEmails } from "@/lib/admin";
+import { getAdminEmails, isAdminEmail } from "@/lib/admin";
 
 function parseEmailList(raw: string | undefined): string[] {
   return raw?.split(",").map((e) => e.trim().toLowerCase()).filter(Boolean) ?? [];
@@ -21,6 +21,8 @@ export function isStaffEmail(email: string | null | undefined): boolean {
   if (getTasksOnlyEmails().includes(normalized)) return true;
   if (getSecretaryNavEmails().includes(normalized)) return true;
   if (getAdminEmails().includes(normalized)) return true;
+  if (getAssociateLawyerEmails().includes(normalized)) return true;
+  if (getLiaisonEmails().includes(normalized)) return true;
 
   const allowedList = parseEmailList(process.env.ALLOWED_EMAILS);
   if (allowedList.includes(normalized)) return true;
@@ -60,7 +62,59 @@ export function getTasksOnlyEmails(): string[] {
 
 export function getSecretaryNavEmails(): string[] {
   const fromEnv = parseEmailList(process.env.SECRETARY_NAV_EMAILS);
-  return uniqueEmails([DEFAULT_FIRM_SENDER_EMAIL.toLowerCase(), ...fromEnv]);
+  const firmSecretaries = FIRM_SECRETARIES.map((entry) => entry.email.toLowerCase());
+  return uniqueEmails([DEFAULT_FIRM_SENDER_EMAIL.toLowerCase(), ...firmSecretaries, ...fromEnv]);
+}
+
+/** Associate lawyers — tasks/calendar only, no Accounts billing. */
+export function getAssociateLawyerEmails(): string[] {
+  const fromEnv = parseEmailList(process.env.ASSOCIATE_LAWYER_EMAILS);
+  const partnerEmails = new Set(MANAGING_PARTNER.emails.map((value) => value.toLowerCase()));
+  const fromRoster = DEFAULT_FIRM_LAWYERS_ROSTER.filter(
+    (entry) => !partnerEmails.has(entry.email.trim().toLowerCase())
+  ).map((entry) => entry.email);
+  return uniqueEmails([...fromRoster, ...fromEnv]);
+}
+
+export function getLiaisonEmails(): string[] {
+  const fromEnv = parseEmailList(process.env.LIAISON_EMAILS);
+  return uniqueEmails([...FIRM_LIAISON.defaultEmails, ...fromEnv]);
+}
+
+export function isLiaisonStaffName(name: string | null | undefined): boolean {
+  if (!name?.trim()) return false;
+  const lower = name.trim().toLowerCase();
+  return (
+    (lower.includes("james") && lower.includes("bryan")) ||
+    lower.includes("hakola") ||
+    /\bliaison officer\b/i.test(name)
+  );
+}
+
+export function isLiaisonEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const normalized = email.trim().toLowerCase();
+  const list = getLiaisonEmails();
+  return list.length > 0 && list.includes(normalized);
+}
+
+export function canViewLiaisonTab(options: {
+  email?: string | null;
+  staffName?: string | null;
+  isAdmin?: boolean;
+}): boolean {
+  if (options.isAdmin) return true;
+  if (isLiaisonEmail(options.email)) return true;
+  if (isLiaisonStaffName(options.staffName)) return true;
+  return false;
+}
+
+export function isAssociateLawyerEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const normalized = email.trim().toLowerCase();
+  if (isAdminEmail(email)) return false;
+  if (MANAGING_PARTNER.emails.some((value) => value.toLowerCase() === normalized)) return false;
+  return getAssociateLawyerEmails().includes(normalized);
 }
 
 const DEFAULT_DESK_BILLING_EDITOR_EMAILS = [DEFAULT_FIRM_SENDER_EMAIL.toLowerCase()] as const;
@@ -97,6 +151,7 @@ export function isTasksOnlyStaff(email: string | null | undefined): boolean {
 
 export function canAccessBilling(email: string | null | undefined): boolean {
   if (!email) return false;
+  if (isAssociateLawyerEmail(email)) return false;
   return !isTasksOnlyEmail(email);
 }
 

@@ -1,20 +1,21 @@
-import { canEditDeskBilling, isSecretaryNavUser } from "@/lib/app-access";
+import { canEditDeskBilling, isAssociateLawyerEmail, isSecretaryNavUser } from "@/lib/app-access";
 import { isFirmOwnerEmail } from "@/lib/firm-team-config";
 import type { SavedBillingPage, SavedTasksTab } from "@/lib/staff-prefs";
 
-export type NavUserProfile = "full" | "tasks-only" | "secretary";
+export type NavUserProfile = "full" | "tasks-only" | "secretary" | "associate";
 
 export const TASKS_TAB_LABELS: Record<SavedTasksTab, string> = {
   today: "My work",
-  calendar: "Calendar",
-  week: "Week plan",
-  team: "Team work",
-  history: "Past tasks",
-  "add-task": "Add task",
-  "add-event": "Add event",
-  "all-items": "Search all",
-  correspondence: "Letters",
-  tools: "Tools"
+  calendar: "View calendar",
+  week: "View week",
+  team: "Staff load",
+  history: "Completed",
+  "add-task": "New task",
+  "add-event": "New hearing and filing",
+  "all-items": "Find item",
+  correspondence: "Draft letters",
+  tools: "Admin tools",
+  liaison: "Liaison"
 };
 
 export const TASKS_TAB_DESCRIPTIONS: Record<SavedTasksTab, string> = {
@@ -22,8 +23,8 @@ export const TASKS_TAB_DESCRIPTIONS: Record<SavedTasksTab, string> = {
     "Your daily list — overdue items first, then due today, in progress, and finished today. Tap a card to open details.",
   calendar:
     "Month view of hearings, filing deadlines, meetings, and tasks. Tap a date to see what is scheduled.",
-  week: "See the next seven days at a glance — useful when planning the week ahead.",
-  team: "See who on the team has open work and how much each person has on their plate.",
+  week: "See what is due over the next seven days — useful when planning the week ahead.",
+  team: "See each staff member's open work, overdue items, and how busy everyone is.",
   history: "Look up finished or past tasks and events when you need to check what was done.",
   "add-task":
     "Create a to-do (drafting, follow-up, prep). Enter the client matter, assignee, due date, and what needs to be done.",
@@ -32,7 +33,9 @@ export const TASKS_TAB_DESCRIPTIONS: Record<SavedTasksTab, string> = {
   "all-items": "Search every open task, hearing, and event by keyword, client, or staff member.",
   correspondence:
     "Write demand letters, proposals, replies, and other letters on firm letterhead — pick a template and fill in the details.",
-  tools: "Refresh data, sync Google Calendar, print lists, and other admin settings."
+  tools: "Refresh data, sync Google Calendar, print lists, and other admin settings.",
+  liaison:
+    "Confidential assignments from admin to the liaison officer — not visible on other schedule tabs."
 };
 
 export type BillingNavTabGroup = "daily" | "clients" | "overview" | "admin";
@@ -42,12 +45,12 @@ export type NavTabGroup = BillingNavTabGroup | TasksNavTabGroup;
 export const NAV_TAB_GROUP_LABELS: Record<NavTabGroup, string> = {
   daily: "Every day",
   actions: "Add new",
-  clients: "Clients",
+  clients: "Client directory",
   overview: "Overview",
   admin: "Admin only",
   schedule: "Calendar",
   browse: "Search",
-  oversight: "Team"
+  oversight: "Staff"
 };
 
 /** @deprecated Use NAV_TAB_GROUP_LABELS */
@@ -102,6 +105,12 @@ export const TASKS_NAV_TABS: NavTabDef<SavedTasksTab>[] = [
     label: TASKS_TAB_LABELS.tools,
     description: TASKS_TAB_DESCRIPTIONS.tools,
     group: "admin"
+  },
+  {
+    id: "liaison",
+    label: TASKS_TAB_LABELS.liaison,
+    description: TASKS_TAB_DESCRIPTIONS.liaison,
+    group: "oversight"
   }
 ];
 
@@ -120,19 +129,19 @@ const FULL_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
 ];
 
 export const BILLING_PAGE_LABELS: Record<SavedBillingPage, string> = {
-  home: "Overview",
-  billing: "Charges & pay",
-  clients: "Find client",
-  walkIns: "Walk-ins",
-  spotBilling: "One-time fees",
-  notarizations: "Notary log",
-  fieldDispatch: "Field visits",
-  newClient: "New client",
-  documents: "SOA & AR",
-  history: "Activity log",
-  reports: "Reports",
+  home: "Firm dashboard",
+  billing: "Record fees & payments",
+  clients: "Client directory",
+  walkIns: "Log walk-ins",
+  spotBilling: "One-time payment",
+  notarizations: "Record notary",
+  fieldDispatch: "Field dispatch",
+  newClient: "New client intake",
+  documents: "Send SOA/AR",
+  history: "Billing activity",
+  reports: "Firm reports",
   firmFinances: "Firm income",
-  staffSalary: "Payroll"
+  staffSalary: "Staff payroll"
 };
 
 export const BILLING_PAGE_DESCRIPTIONS: Record<SavedBillingPage, string> = {
@@ -153,7 +162,7 @@ export const BILLING_PAGE_DESCRIPTIONS: Record<SavedBillingPage, string> = {
   newClient:
     "Start a new retained client — enter name, contact details, case info, and choose the agreement to send.",
   documents:
-    "Print or email a Statement of Account (SOA) or payment receipt (AR). Post charges and payments first on Charges & payments.",
+    "Print or email a Statement of Account (SOA) or payment receipt (AR). Post charges and payments first on Record fees & payments.",
   history:
     "See everything posted — charges, payments, SOAs, receipts, and record changes — across all clients.",
   reports:
@@ -262,7 +271,7 @@ const FULL_BILLING_NAV_TAB_IDS: SavedBillingPage[] = [
   "reports"
 ];
 
-const ADMIN_BILLING_NAV_TAB_IDS: SavedBillingPage[] = ["staffSalary", "firmFinances"];
+const ADMIN_BILLING_NAV_TAB_IDS: SavedBillingPage[] = ["staffSalary", "firmFinances", "fieldDispatch"];
 
 const ROSTER_ADMIN_BILLING_NAV_TAB_IDS: SavedBillingPage[] = [...FULL_BILLING_NAV_TAB_IDS, "staffSalary"];
 
@@ -270,25 +279,27 @@ export function isAdminBillingPage(page: SavedBillingPage): boolean {
   return BILLING_NAV_TABS.some((tab) => tab.id === page && tab.adminOnly);
 }
 
-/** Desk staff — full billing except admin-only pages and firm reports. */
+/** Secretaries (Shiela, Hiedee) — desk billing without reports or admin pages. */
 const SECRETARY_BILLING_NAV_TAB_IDS: SavedBillingPage[] = [
   "billing",
   "walkIns",
   "clients",
-  "notarizations",
-  "spotBilling",
   "documents",
+  "spotBilling",
+  "notarizations",
   "newClient",
-  "home",
-  "history"
+  "home"
 ];
 
-/** Desk editors — walk-ins, spot billing, and notarizations (Andrea / info@). */
+/** Desk editors — walk-ins, spot billing, and notarizations. */
 export const DESK_BILLING_EDIT_PAGES: SavedBillingPage[] = ["walkIns", "spotBilling", "notarizations"];
 
 const TASKS_ONLY_NAV_TAB_IDS: SavedTasksTab[] = ["today", "add-task", "add-event", "calendar"];
 
-/** Secretary — daily work, calendar, correspondence, and team views (no admin tools). */
+/** Associate lawyers — schedule tabs only (no billing). */
+const ASSOCIATE_TASKS_NAV_TAB_IDS: SavedTasksTab[] = ["today", "calendar", "week", "correspondence"];
+
+/** Secretaries — schedule + correspondence + search (no team oversight or admin tools). */
 const SECRETARY_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
   "today",
   "add-task",
@@ -296,9 +307,7 @@ const SECRETARY_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
   "calendar",
   "week",
   "all-items",
-  "correspondence",
-  "team",
-  "history"
+  "correspondence"
 ];
 
 export function resolveNavUserProfile(options: {
@@ -306,7 +315,10 @@ export function resolveNavUserProfile(options: {
   billingAccess: boolean;
   secretaryNav?: boolean;
 }): NavUserProfile {
-  if (!options.billingAccess) return "tasks-only";
+  if (!options.billingAccess) {
+    if (options.email && isAssociateLawyerEmail(options.email)) return "associate";
+    return "tasks-only";
+  }
   if (isFirmOwnerEmail(options.email)) return "full";
   if (options.secretaryNav ?? isSecretaryNavUser(options.email)) return "secretary";
   return "full";
@@ -341,28 +353,43 @@ export function billingNavTabsForUser(
   return pickBillingNavTabs(ids, isAdmin || canManageTeamRoster);
 }
 
-/** Tasks-only staff (e.g. Jas) — daily board, calendar, and quick add (no billing browse tabs). */
+/** Tasks nav tabs by role profile. */
 export function tasksNavTabsForUser(
   billingAccess: boolean,
-  profile: NavUserProfile = "full"
+  profile: NavUserProfile = "full",
+  options?: { canViewLiaisonTab?: boolean }
 ): typeof TASKS_NAV_TABS {
-  if (profile === "tasks-only" || !billingAccess) {
-    return pickTasksNavTabs(TASKS_ONLY_NAV_TAB_IDS);
+  let tabs: typeof TASKS_NAV_TABS;
+  if (profile === "associate") {
+    tabs = pickTasksNavTabs(ASSOCIATE_TASKS_NAV_TAB_IDS);
+  } else if (profile === "tasks-only" || !billingAccess) {
+    tabs = pickTasksNavTabs(TASKS_ONLY_NAV_TAB_IDS);
+  } else if (profile === "secretary") {
+    tabs = pickTasksNavTabs(SECRETARY_TASKS_NAV_TAB_IDS);
+  } else {
+    tabs = pickTasksNavTabs(FULL_TASKS_NAV_TAB_IDS);
   }
-  if (profile === "secretary") {
-    return pickTasksNavTabs(SECRETARY_TASKS_NAV_TAB_IDS);
+
+  if (options?.canViewLiaisonTab && !tabs.some((tab) => tab.id === "liaison")) {
+    const liaisonTab = TASKS_NAV_TABS.find((entry) => entry.id === "liaison");
+    if (liaisonTab) tabs = [...tabs, liaisonTab];
   }
-  return pickTasksNavTabs(FULL_TASKS_NAV_TAB_IDS);
+
+  return tabs;
 }
 
 export function isAllowedTasksTab(
   tab: SavedTasksTab,
   billingAccess: boolean,
-  profile: NavUserProfile = "full"
+  profile: NavUserProfile = "full",
+  options?: { canViewLiaisonTab?: boolean }
 ): boolean {
-  if (tab === "correspondence" && !billingAccess) return false;
+  if (tab === "liaison") return options?.canViewLiaisonTab === true;
+  if (tab === "correspondence" && profile === "associate") return true;
+  if (tab === "correspondence" && !billingAccess && profile !== "associate") return false;
   const resolved = profile === "full" && !billingAccess ? "tasks-only" : profile;
   if (resolved === "full" && billingAccess) return true;
+  if (resolved === "associate") return ASSOCIATE_TASKS_NAV_TAB_IDS.includes(tab);
   if (resolved === "tasks-only") return TASKS_ONLY_NAV_TAB_IDS.includes(tab);
   if (resolved === "secretary") return SECRETARY_TASKS_NAV_TAB_IDS.includes(tab);
   return false;

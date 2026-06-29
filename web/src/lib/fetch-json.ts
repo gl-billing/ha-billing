@@ -22,7 +22,7 @@ function parseResponseText<T>(text: string, status: number): T {
     if (text.trimStart().startsWith("<")) {
       throw new Error(
         status === 404
-          ? "Could not reach the server API. Refresh the page and try again."
+          ? "Could not reach the server API (404). Refresh the page. On local dev, restart with: rm -rf web/.next && npm run dev"
           : `Server returned an error page (${status}). Try refreshing or signing in again.`
       );
     }

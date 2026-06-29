@@ -6,6 +6,7 @@ import { useAnchoredMenuPosition } from "@/hooks/useAnchoredMenuPosition";
 
 type Props = {
   toggling?: boolean;
+  minimal?: boolean;
   showStarted?: boolean;
   onStarted?: () => void;
   showWaiting?: boolean;
@@ -19,6 +20,7 @@ type Props = {
 
 export function ItemMoreMenu({
   toggling,
+  minimal = false,
   showStarted,
   onStarted,
   showWaiting,
@@ -105,22 +107,26 @@ export function ItemMoreMenu({
     ) : null;
 
   return (
-    <div className="item-more-menu" ref={ref}>
+    <div className={`item-more-menu${minimal ? " item-more-menu--minimal" : ""}`.trim()} ref={ref}>
       <button
         type="button"
-        className="item-action-btn item-action-btn--more"
+        className={minimal ? "my-work-cmd my-work-cmd--more" : "item-action-btn item-action-btn--more"}
         disabled={toggling}
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="menu"
-        aria-label="More"
-        title="More"
+        aria-label="More options"
+        title="More options"
       >
-        <span className="item-more-menu__dots" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </span>
+        {minimal ? (
+          <span>More</span>
+        ) : (
+          <span className="item-more-menu__dots" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+        )}
       </button>
       {panel ? createPortal(panel, document.body) : null}
     </div>

@@ -69,6 +69,9 @@ import {
 } from "@/lib/office-tasks/prep-checklist-actions";
 import { SameWindowLink } from "@/components/SameWindowLink";
 import { MyWorkScopeToggle } from "@/components/office-tasks/MyWorkScopeToggle";
+import { LiaisonConfidentialPanel } from "@/components/office-tasks/LiaisonConfidentialPanel";
+import { excludeLiaisonConfidentialItems } from "@/lib/office-tasks/liaison-confidential";
+import { canViewLiaisonTab } from "@/lib/app-access";
 import { filterItemsForMyWork } from "@/lib/office-tasks/my-work-filter";
 import { applyEventJoinLinkPatch, type EventScheduleEmailSentPatch } from "@/lib/office-tasks/event-join-link";
 import { getSavedMyWorkScope, saveMyWorkScope, type MyWorkScope } from "@/lib/my-work-scope";
@@ -94,6 +97,7 @@ type Counts = {
   eventsToday: number;
   deadlinesToday: number;
   overdueOpen: number;
+  dueThisWeek: number;
   waitingAndStarted: number;
   completedToday: number;
 };
@@ -105,6 +109,7 @@ type HomeData = {
     eventsToday: OfficeItem[];
     deadlinesToday: OfficeItem[];
     tasksDueToday: OfficeItem[];
+    dueThisWeek: OfficeItem[];
     waitingAndStarted: OfficeItem[];
     doneToday: OfficeItem[];
   };
@@ -120,6 +125,7 @@ type HomeData = {
   tasksAppsScriptConfigured?: boolean;
   tasksSpreadsheetFallback?: boolean;
   isAdmin?: boolean;
+  canViewLiaisonConfidential?: boolean;
 };
 
 type Tab =
@@ -132,7 +138,8 @@ type Tab =
   | "add-event"
   | "all-items"
   | "correspondence"
-  | "tools";
+  | "tools"
+  | "liaison";
 
 type PendingDuplicateEntry = {
   kind: "task" | "event";
@@ -149,6 +156,7 @@ export function TasksApp() {
   const [tab, setTab] = useState<Tab>("today");
   const [data, setData] = useState<HomeData | null>(null);
   const [lastLoadStatus, setLastLoadStatus] = useState<number | undefined>(undefined);
+  const [lastLoadError, setLastLoadError] = useState<string | null>(null);
   const {
     message: statusMsg,
     variant: statusVariant,
@@ -208,6 +216,13 @@ export function TasksApp() {
     secretaryNav: session?.user?.secretaryNav
   });
   const email = session?.user?.email?.trim() || "";
+  const sessionDisplayName = session?.user?.displayName || session?.user?.name || "";
+  const isAdminUser = session?.user?.isAdmin === true;
+  const canViewLiaisonConfidentialEarly = canViewLiaisonTab({
+    email,
+    staffName: sessionDisplayName,
+    isAdmin: isAdminUser
+  });
   const introOpen = introState === "open";
   const introGate = introState !== "closed";
 
@@ -221,11 +236,15 @@ export function TasksApp() {
 
   const selectTab = useCallback(
     (next: Tab) => {
-      const allowed = isAllowedTasksTab(next, billingAccess, navProfile) ? next : "today";
+      const allowed = isAllowedTasksTab(next, billingAccess, navProfile, {
+        canViewLiaisonTab: canViewLiaisonConfidentialEarly
+      })
+        ? next
+        : "today";
       setTab(allowed);
       saveTasksTab(allowed);
     },
-    [billingAccess, navProfile]
+    [billingAccess, navProfile, canViewLiaisonConfidentialEarly]
   );
 
   async function runEventsSheetCheck() {
@@ -341,6 +360,7 @@ export function TasksApp() {
             json.error ||
             "Google Sheets read limit reached. Wait about 60 seconds, then use Reload once.";
           setSheetsAccessHint(formatSheetsAccessHint(quotaMsg, email));
+          setLastLoadError(quotaMsg);
           reportWarn(quotaMsg);
           setLastLoadStatus(status);
           setData((prev) => prev ?? null);
@@ -350,12 +370,14 @@ export function TasksApp() {
       }
       setData(json);
       setLastLoadStatus(undefined);
+      setLastLoadError(null);
       setSheetsAccessHint(null);
       if (!options?.keepStatus) clearUnlessProcessing();
       return { data: json, quotaBlocked: false };
     } catch (e) {
       const message = e instanceof Error ? e.message : "Could not load data.";
       setSheetsAccessHint(formatSheetsAccessHint(message, email));
+      setLastLoadError(message);
       setData(null);
       setLastLoadStatus(undefined);
       reportError(message);
@@ -394,14 +416,14 @@ export function TasksApp() {
     if (introGate) return;
 
     const tabParam = params.get("tab");
-    if (tabParam && isAllowedTasksTab(tabParam as Tab, billingAccess, navProfile)) {
+    if (tabParam && isAllowedTasksTab(tabParam as Tab, billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidentialEarly })) {
       selectTab(tabParam as Tab);
     } else {
       const saved = getSavedTasksTab();
-      if (saved && isAllowedTasksTab(saved, billingAccess, navProfile)) selectTab(saved);
+      if (saved && isAllowedTasksTab(saved, billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidentialEarly })) selectTab(saved);
       else selectTab("today");
     }
-  }, [billingAccess, introGate, load, navProfile, selectTab]);
+  }, [billingAccess, introGate, load, navProfile, selectTab, canViewLiaisonConfidentialEarly]);
 
   function itemActionKey(item: ItemSummary) {
     return officeItemKey(item);
@@ -793,7 +815,7 @@ export function TasksApp() {
     }
 
     if (!options?.skipDuplicateCheck) {
-      const duplicate = findDuplicateTask(data?.items || [], {
+      const duplicate = findDuplicateTask(scheduleItems, {
         clientCase,
         taskType: payload.taskType,
         dueDate: payload.dueDate,
@@ -836,6 +858,72 @@ export function TasksApp() {
       if (createdStatus === "Waiting" || createdStatus === "Started") {
         scrollToTodaySection("today-waiting");
       }
+    } catch (e) {
+      showStatus(e instanceof Error ? e.message : "Save failed.", true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submitLiaisonConfidentialTask(form: HTMLFormElement, resolvedClientCase: string) {
+    const fd = new FormData(form);
+    const clientCase = resolvedClientCase.trim() || String(fd.get("clientCase") || "").trim();
+    if (!clientCase) {
+      showStatus("Select or enter a client / case before saving.", true);
+      return;
+    }
+
+    const payload = {
+      clientCase,
+      assignedTo: String(fd.get("assignedTo") || "").trim() || "Liaison",
+      dueDate: String(fd.get("dueDate") || ""),
+      dueTime: String(fd.get("dueTime") || ""),
+      venue: String(fd.get("venue") || ""),
+      priority: String(fd.get("priority") || "Medium"),
+      taskType: resolveTaskType(String(fd.get("taskType") || "Task"), String(fd.get("taskTypeOther") || "")),
+      description: mergeTaskWorkDetails(
+        String(fd.get("description") || "").trim(),
+        String(fd.get("workNotes") || "").trim(),
+        []
+      ),
+      previousAction: String(fd.get("previousAction") || ""),
+      nextAction: String(fd.get("nextAction") || ""),
+      remarks: String(fd.get("remarks") || ""),
+      status: String(fd.get("status") || "In Progress"),
+      reminderDays: Number(fd.get("reminderDays") || 1),
+      calendarSync: false,
+      liaisonConfidential: true
+    };
+
+    const validationError = validateTaskFormInput({
+      ...payload,
+      taskType: String(fd.get("taskType") || "Task"),
+      taskTypeOther: String(fd.get("taskTypeOther") || "")
+    });
+    if (validationError) {
+      showStatus(validationError, true);
+      throw new Error(validationError);
+    }
+
+    reportProcessing("Saving confidential liaison assignment…");
+    setBusy(true);
+    try {
+      const res = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const json = await readApiResponse(res);
+      if (!res.ok) throw new Error(json.error || "Save failed");
+      const savedMessage = formatSuccessReport(
+        json.message || "Confidential assignment saved.",
+        clientCase || sheetOpenHint(data?.spreadsheetId)
+      );
+      form.reset();
+      setTaskFormKey((key) => key + 1);
+      selectTab("liaison");
+      await load(undefined, true, { keepStatus: true });
+      reportSuccess(savedMessage);
     } catch (e) {
       showStatus(e instanceof Error ? e.message : "Save failed.", true);
     } finally {
@@ -1003,13 +1091,28 @@ export function TasksApp() {
   const counts = data?.counts;
   const opts = data?.options;
   const items = data?.items || [];
+  const scheduleItems = useMemo(() => excludeLiaisonConfidentialItems(items), [items]);
   const today = data?.today || todayYmd();
   const wide = true;
   const weekDates = data?.weekStart ? getWeekDates(data.weekStart) : [];
   const isAdmin = data?.isAdmin === true || session?.user?.isAdmin === true;
+  const sessionStaffName = useMemo(() => {
+    const directory = data?.employeeDirectory ?? [];
+    return resolveSessionStaffName(session?.user, directory);
+  }, [session?.user, data?.employeeDirectory]);
+  const canViewLiaisonConfidential = useMemo(
+    () =>
+      data?.canViewLiaisonConfidential === true ||
+      canViewLiaisonTab({
+        email,
+        staffName: sessionStaffName || sessionDisplayName,
+        isAdmin
+      }),
+    [data?.canViewLiaisonConfidential, email, sessionStaffName, sessionDisplayName, isAdmin]
+  );
   const navTabs = useMemo(
-    () => tasksNavTabsForUser(billingAccess, navProfile),
-    [billingAccess, navProfile]
+    () => tasksNavTabsForUser(billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidential }),
+    [billingAccess, navProfile, canViewLiaisonConfidential]
   );
   const introContent = useMemo(() => getTasksIntroContent(navTabs), [navTabs]);
   const tabShortcuts = useMemo(() => buildTabShortcutHelp(navTabs), [navTabs]);
@@ -1056,26 +1159,23 @@ export function TasksApp() {
     );
   }, [introOpen, navTabs, selectTab]);
 
-  const filingDeadlineAlerts = useMemo(() => listFilingDeadlineAlerts(items, today), [items, today]);
+  const filingDeadlineAlerts = useMemo(() => listFilingDeadlineAlerts(scheduleItems, today), [scheduleItems, today]);
 
-  const sessionStaffName = useMemo(() => {
-    const directory = data?.employeeDirectory ?? [];
-    return resolveSessionStaffName(session?.user, directory);
-  }, [session?.user, data?.employeeDirectory]);
   const viewerPrepRole = useMemo(
     () => resolvePrepRoleFromSession(session?.user, data?.employeeDirectory ?? []),
     [session?.user, data?.employeeDirectory]
   );
-  const effectiveMyWorkScope: MyWorkScope = sessionStaffName ? myWorkScope : "firm";
+  const effectiveMyWorkScope: MyWorkScope =
+    isAdmin && sessionStaffName ? myWorkScope : sessionStaffName ? "mine" : "firm";
   const myWorkItems = useMemo(() => {
-    if (effectiveMyWorkScope === "firm" || !sessionStaffName) return items;
-    return filterItemsForMyWork(items, sessionStaffName, data?.employees ?? []);
-  }, [items, effectiveMyWorkScope, sessionStaffName, data?.employees]);
+    if (effectiveMyWorkScope === "firm" || !sessionStaffName) return scheduleItems;
+    return filterItemsForMyWork(scheduleItems, sessionStaffName, data?.employees ?? []);
+  }, [scheduleItems, effectiveMyWorkScope, sessionStaffName, data?.employees]);
   const myWorkCounts = useMemo(() => computeTodayCounts(myWorkItems), [myWorkItems]);
   const myWorkLists = useMemo(() => filterTodayLists(myWorkItems), [myWorkItems]);
   const todayCounts = effectiveMyWorkScope === "mine" ? myWorkCounts : counts;
   const todayLists = effectiveMyWorkScope === "mine" ? myWorkLists : data?.lists;
-  const calendarSyncItems = effectiveMyWorkScope === "mine" ? myWorkItems : items;
+  const calendarSyncItems = effectiveMyWorkScope === "mine" ? myWorkItems : scheduleItems;
 
   const handleShareMyWorkList = useCallback(async () => {
     if (!todayLists) return;
@@ -1117,11 +1217,11 @@ export function TasksApp() {
   };
 
   useEffect(() => {
-    if (!isAllowedTasksTab(tab, billingAccess, navProfile)) {
+    if (!isAllowedTasksTab(tab, billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidential })) {
       setTab("today");
       saveTasksTab("today");
     }
-  }, [billingAccess, navProfile, tab]);
+  }, [billingAccess, navProfile, tab, canViewLiaisonConfidential]);
 
   return (
     <>
@@ -1139,7 +1239,7 @@ export function TasksApp() {
         onConfirmAddAnyway={() => void confirmDuplicateAddAnyway()}
       />
     <ClientMatterProvider
-      items={items}
+      items={scheduleItems}
       togglingKey={togglingKey}
       onToggleDone={toggleItemDone}
       onSetStatus={updateItemStatus}
@@ -1238,6 +1338,7 @@ export function TasksApp() {
       {!reloading && !data ? (
         <SmartLoadEmptyState
           errorMessage={
+            lastLoadError ||
             statusMsg ||
             "Something went wrong reading tasks from Google Sheets."
           }
@@ -1264,10 +1365,20 @@ export function TasksApp() {
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="How to use My work">
               <BillingTabGuideText>
-                Your daily list. Choose <strong>My items</strong> to see work assigned to you, or <strong>Whole firm</strong>{" "}
-                for the team board. Items appear as <strong>Overdue</strong>, <strong>Due today</strong>,{" "}
-                <strong>Waiting/Started</strong>, then <strong>Completed today</strong>.
+                Your assignment checklist. Open items are grouped as <strong>Overdue</strong>,{" "}
+                <strong>Due now</strong>, and <strong>Due this week</strong>. Check a task when complete;
+                finished items appear under <strong>Completed</strong>.
               </BillingTabGuideText>
+              {isAdmin ? (
+                <BillingTabGuideText>
+                  As admin, use <strong>Whole firm</strong> to review all assignments, or{" "}
+                  <strong>My items</strong> for your own list.
+                </BillingTabGuideText>
+              ) : (
+                <BillingTabGuideText>
+                  This list shows work assigned to you. Tap the client name to open the matter file.
+                </BillingTabGuideText>
+              )}
               {billingAccess ? (
                 <BillingTabGuideText>
                   To record client fees or print SOAs, go to{" "}
@@ -1306,8 +1417,8 @@ export function TasksApp() {
             title={formatDisplayDate(today)}
             subtitle={
               effectiveMyWorkScope === "mine" && sessionStaffName
-                ? `Due first and due today for ${sessionStaffName}.`
-                : "Due first and due today for the firm."
+                ? `Checklist for ${sessionStaffName}.`
+                : "Firm-wide assignment checklist."
             }
             action={
               <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row">
@@ -1331,15 +1442,22 @@ export function TasksApp() {
 
           <div className="my-work-panel my-work-panel--simple my-work-panel--elegant">
             <section className="card my-work-toolbar">
-              <div className="my-work-toolbar__block">
-                <p className="my-work-toolbar__label">Your view</p>
-                <MyWorkScopeToggle
-                  scope={effectiveMyWorkScope}
-                  staffName={sessionStaffName}
-                  practiceMode={false}
-                  onChange={handleMyWorkScopeChange}
-                />
-              </div>
+              {isAdmin && sessionStaffName ? (
+                <div className="my-work-toolbar__block">
+                  <p className="my-work-toolbar__label">View</p>
+                  <MyWorkScopeToggle
+                    scope={effectiveMyWorkScope}
+                    staffName={sessionStaffName}
+                    practiceMode={false}
+                    onChange={handleMyWorkScopeChange}
+                  />
+                </div>
+              ) : sessionStaffName ? (
+                <div className="my-work-toolbar__block">
+                  <p className="my-work-toolbar__label">Assignments</p>
+                  <p className="my-work-toolbar__scope-note">{sessionStaffName}</p>
+                </div>
+              ) : null}
               {todayCounts ? (
                 <div className="my-work-toolbar__block my-work-toolbar__block--stats">
                   <p className="my-work-toolbar__label">At a glance</p>
@@ -1358,7 +1476,7 @@ export function TasksApp() {
                   <p className="my-work-feed__eyebrow">Today</p>
                   <h2 className="my-work-feed__title">Today&apos;s work</h2>
                   <p className="my-work-feed__lede">
-                    Due first, due today, waiting/started, then completed today — billing to-do&apos;s last.
+                    Overdue, due now, due this week — then completed items below.
                   </p>
                 </div>
               </header>
@@ -1367,13 +1485,13 @@ export function TasksApp() {
                 <MyWorkTodayFeed
                   lists={{
                     overdue: todayLists.overdue ?? [],
-                    waitingAndStarted: todayLists.waitingAndStarted ?? [],
                     eventsToday: todayLists.eventsToday ?? [],
                     deadlinesToday: todayLists.deadlinesToday ?? [],
                     tasksDueToday: todayLists.tasksDueToday ?? [],
+                    dueThisWeek: todayLists.dueThisWeek ?? [],
                     doneToday: todayLists.doneToday ?? []
                   }}
-                  allItems={items}
+                  allItems={scheduleItems}
                   onToggleDone={toggleItemDone}
                   onSetStatus={updateItemStatus}
                   onResetWithDate={resetItemWithDate}
@@ -1382,19 +1500,19 @@ export function TasksApp() {
                   onTogglePrepChecklistItem={togglePrepChecklistItem}
                   onMutatePrepChecklistItem={mutatePrepChecklistItem}
                   onCreatePrepChecklist={createEventPrepChecklist}
-      onInitializePrepChecklist={initializePrepChecklist}
+                  onInitializePrepChecklist={initializePrepChecklist}
                   prepChecklistCreatingKey={prepChecklistCreatingKey}
                   onSaveEdit={saveItemEdit}
                   onCourtConfirmed={markCourtConfirmed}
-      onMarkSubmitted={markEventSubmitted}
-      onConfirmParentFiled={confirmParentFiled}
+                  onMarkSubmitted={markEventSubmitted}
+                  onConfirmParentFiled={confirmParentFiled}
                   formOptions={opts}
                   togglingKey={togglingKey}
-                  doneOpenPulse={doneOpenPulse}
-                  waitingOpenPulse={waitingOpenPulse}
+                  isAdmin={isAdmin}
                   viewerStaffName={sessionStaffName ?? undefined}
                   viewerPrepRole={viewerPrepRole}
-                  roster={data?.employees ?? []}
+                  roster={data.employees ?? []}
+                  doneOpenPulse={doneOpenPulse}
                   {...sectionEmailProps}
                 />
               ) : null}
@@ -1425,7 +1543,7 @@ export function TasksApp() {
                 <StaffRemindersPanel
                   layout="strip"
                   embedded
-                  items={items}
+                  items={scheduleItems}
                   today={today}
                   weekDates={weekDates}
                   directory={data.employeeDirectory}
@@ -1527,7 +1645,7 @@ export function TasksApp() {
           </TabPageHeader>
           <TabPageBody>
           <MonthlyCalendarView
-          items={items}
+          items={scheduleItems}
           today={today}
           onToggleDone={toggleItemDone}
           onSetStatus={updateItemStatus}
@@ -1560,7 +1678,7 @@ export function TasksApp() {
           </TabPageHeader>
           <TabPageBody>
           <WeeklyPlannerView
-          items={items}
+          items={scheduleItems}
           today={today}
           initialWeekStart={data.weekStart}
           onToggleDone={toggleItemDone}
@@ -1582,20 +1700,20 @@ export function TasksApp() {
       {tab === "team" && data && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="How to use Team workload">
+            <BillingTabGuide title="How to use Staff load">
               <BillingTabGuideText>
                 Pick a team member to see their open, due-today, this-week, and overdue work. Card counts show how much
-                each person has on their plate.
+                each person has on their plate. Atty. Robert Hernandez is listed first.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                Staff reminder emails (admin) are set up in <strong>Tools</strong>.
+                Staff reminder emails (admin) are set up in <strong>Admin tools</strong>.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
           <TabPageBody>
           <EmployeeTrackerView
           stats={data.employeeStats}
-          items={items}
+          items={scheduleItems}
           today={today}
           weekDates={weekDates}
           employeeDirectory={data.employeeDirectory}
@@ -1633,7 +1751,7 @@ export function TasksApp() {
               <BillingTabGuideText>
                 Client charges, payments, SOAs, and receipts are in{" "}
                 <SameWindowLink href="/billing" className="font-bold text-gold-dark underline">
-                  Accounts → Activity log
+                  Accounts → All activity
                 </SameWindowLink>
                 .
               </BillingTabGuideText>
@@ -1681,7 +1799,7 @@ export function TasksApp() {
                     spreadsheetId={data?.spreadsheetId}
           tasksAppsScriptConfigured={data?.tasksAppsScriptConfigured === true}
           employees={data?.employees || []}
-          items={items}
+          items={scheduleItems}
           today={today}
           weekDates={weekDates}
           employeeDirectory={data?.employeeDirectory || []}
@@ -1696,6 +1814,31 @@ export function TasksApp() {
           </TabPageBody>
         </>
       )}
+
+      {tab === "liaison" && data && opts && canViewLiaisonConfidential ? (
+        <LiaisonConfidentialPanel
+          items={items}
+          today={today}
+          isAdmin={isAdmin}
+          staffName={sessionStaffName ?? undefined}
+          roster={data.employees ?? []}
+          opts={opts}
+          busy={busy}
+          togglingKey={togglingKey}
+          onToggleDone={toggleItemDone}
+          onSetStatus={updateItemStatus}
+          onResetWithDate={resetItemWithDate}
+          onDeleteItem={deleteItem}
+          onUpdateNextAction={updateItemNextAction}
+          onSaveEdit={saveItemEdit}
+          onCourtConfirmed={markCourtConfirmed}
+          onMarkSubmitted={markEventSubmitted}
+          onConfirmParentFiled={confirmParentFiled}
+          onSubmitConfidentialTask={submitLiaisonConfidentialTask}
+          onScheduleEmailSent={handleScheduleEmailSent}
+          onStatus={showStatus}
+        />
+      ) : null}
 
       {(tab === "add-task" || tab === "add-event") && opts && !quickAddKind ? (
         <TabPageBody>
@@ -1783,7 +1926,7 @@ export function TasksApp() {
           </TabPageHeader>
           <TabPageBody>
           <SearchView
-          items={items}
+          items={scheduleItems}
           employees={data.employees}
           query={searchQ}
           busy={busy}

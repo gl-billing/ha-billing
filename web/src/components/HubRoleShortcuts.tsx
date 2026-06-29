@@ -4,6 +4,7 @@ import { SameWindowLink } from "@/components/SameWindowLink";
 import { billingHref } from "@/lib/billing-routes";
 import { firmAppHref } from "@/lib/firm-apps";
 import { tasksHref } from "@/lib/tasks-routes";
+import { BILLING_PAGE_LABELS, TASKS_TAB_LABELS } from "@/lib/workspace-labels";
 
 type Props = {
   billingAccess: boolean;
@@ -18,30 +19,30 @@ export function HubRoleShortcuts({ billingAccess, isAdmin, secretaryNav = false 
 
   if (secretaryNav) {
     shortcuts.push(
-      { label: "Log walk-in", href: billingHref({ page: "walkIns" }), description: "Today's office visitor" },
-      { label: "SOA / receipt", href: billingHref({ page: "documents" }), description: "Print statement or AR" },
-      { label: "My work", href: tasksHref({ tab: "today" }), description: "Today's task list" },
-      { label: "Write letter", href: tasksHref({ tab: "correspondence" }), description: "Firm letterhead" }
+      { label: BILLING_PAGE_LABELS.walkIns, href: billingHref({ page: "walkIns" }), description: "Today's office visitor" },
+      { label: BILLING_PAGE_LABELS.documents, href: billingHref({ page: "documents" }), description: "Print statement or AR" },
+      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Today's task list" },
+      { label: TASKS_TAB_LABELS.correspondence, href: tasksHref({ tab: "correspondence" }), description: "Firm letterhead" }
     );
   } else if (isAdmin) {
     shortcuts.push(
-      { label: "Overview", href: billingHref({ page: "home" }), description: "Balances & collections" },
-      { label: "My work", href: tasksHref({ tab: "today" }), description: "Today's hearings & tasks" },
-      { label: "Calendar", href: tasksHref({ tab: "calendar" }), description: "Month schedule" },
-      { label: "Reports", href: billingHref({ page: "reports" }), description: "Who owes & exports" }
+      { label: BILLING_PAGE_LABELS.home, href: billingHref({ page: "home" }), description: "Balances & collections" },
+      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Today's hearings & tasks" },
+      { label: TASKS_TAB_LABELS.calendar, href: tasksHref({ tab: "calendar" }), description: "Month schedule" },
+      { label: BILLING_PAGE_LABELS.reports, href: billingHref({ page: "reports" }), description: "Who owes & exports" }
     );
   } else if (billingAccess) {
     shortcuts.push(
-      { label: "My work", href: tasksHref({ tab: "today" }), description: "Today's task list" },
-      { label: "Charges & pay", href: billingHref({ page: "billing" }), description: "Record fee or payment" },
-      { label: "Find client", href: billingHref({ page: "clients" }), description: "Open billing file" },
-      { label: "Calendar", href: tasksHref({ tab: "calendar" }), description: "Month schedule" }
+      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Today's task list" },
+      { label: BILLING_PAGE_LABELS.billing, href: billingHref({ page: "billing" }), description: "Record fee or payment" },
+      { label: BILLING_PAGE_LABELS.clients, href: billingHref({ page: "clients" }), description: "Open billing file" },
+      { label: TASKS_TAB_LABELS.calendar, href: tasksHref({ tab: "calendar" }), description: "Month schedule" }
     );
   } else {
     shortcuts.push(
-      { label: "My work", href: tasksHref({ tab: "today" }), description: "Today's task list" },
-      { label: "Add task", href: tasksHref({ tab: "add-task" }), description: "Log new work" },
-      { label: "Calendar", href: tasksHref({ tab: "calendar" }), description: "Month schedule" }
+      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Today's task list" },
+      { label: TASKS_TAB_LABELS["add-task"], href: tasksHref({ tab: "add-task" }), description: "Log new work" },
+      { label: TASKS_TAB_LABELS.calendar, href: tasksHref({ tab: "calendar" }), description: "Month schedule" }
     );
   }
 

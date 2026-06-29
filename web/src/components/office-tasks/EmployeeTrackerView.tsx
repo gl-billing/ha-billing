@@ -9,11 +9,12 @@ import { FirmPrintLetterhead } from "@/components/FirmPrintLetterhead";
 import { EmployeeAvatar, EmptyState, ProgressRing, StatTile, ViewHero } from "@/components/office-tasks/PremiumUI";
 import { StaffRemindersPanel } from "@/components/office-tasks/StaffRemindersPanel";
 import type { EmployeeRecord } from "@/lib/office-tasks/sheets/employees";
+import { buildEmployeeRoleLookup } from "@/lib/office-tasks/employee-role-lookup";
 import type { ItemStatusUpdate } from "@/lib/office-tasks/status";
 import type { WorkItemFilingActionProps } from "@/lib/office-tasks/work-item-filing-actions";
 import type { PrepChecklistMutation } from "@/lib/office-tasks/prep-checklist-storage";
 import type { EmployeeItemGroups, EmployeeStat } from "@/lib/office-tasks/schedule";
-import { formatDisplayDate, getEmployeeItemGroups, getTeamEmployeeView, officeItemKey } from "@/lib/office-tasks/schedule";
+import { formatDisplayDate, getEmployeeItemGroups, getTeamEmployeeView, officeItemKey, sortTeamWorkloadStats } from "@/lib/office-tasks/schedule";
 import { resolveFirmOwnerAssignee, canonicalizeStaffName } from "@/lib/staff-assignee";
 import { openPrintPreview } from "@/lib/print-preview";
 
@@ -68,12 +69,24 @@ export function EmployeeTrackerView({
   togglingKey,
   onStatus
 }: Props) {
-  const [selectedName, setSelectedName] = useState<string | null>(stats[0]?.name || null);
-
   const roster = useMemo(
     () => employeeDirectory.map((employee) => employee.name).filter(Boolean),
     [employeeDirectory]
   );
+
+  const sortedStats = useMemo(() => sortTeamWorkloadStats(stats, roster), [stats, roster]);
+
+  const roleByName = useMemo(
+    () => buildEmployeeRoleLookup(employeeDirectory, roster, canonicalizeStaffName),
+    [employeeDirectory, roster]
+  );
+
+  const roleForName = (name: string) =>
+    roleByName.get(canonicalizeStaffName(name, roster).trim().toLowerCase()) ||
+    roleByName.get(name.trim().toLowerCase()) ||
+    "";
+
+  const [selectedName, setSelectedName] = useState<string | null>(sortedStats[0]?.name || null);
 
   const fullGroups = useMemo(() => {
     if (!selectedName) return null;
@@ -97,7 +110,7 @@ export function EmployeeTrackerView({
   );
   const isAndreaView = Boolean(operationsGroups);
 
-  const selectedStat = stats.find((s) => s.name === selectedName);
+  const selectedStat = sortedStats.find((s) => s.name === selectedName);
   const checklistSectionProps = {
     allItems: items,
     onTogglePrepChecklistItem,
@@ -107,7 +120,7 @@ export function EmployeeTrackerView({
     prepChecklistCreatingKey
   };
 
-  if (!stats.length) {
+  if (!sortedStats.length) {
     return (
       <EmptyState
         title="No team workload yet"
@@ -120,13 +133,13 @@ export function EmployeeTrackerView({
     <div id="print-team" className="print-root">
       <FirmPrintLetterhead
         onlyPrint
-        documentType="Team workload"
-        documentTitle="Employee task tracker"
+        documentType="Staff load"
+        documentTitle="Staff workload"
         documentSubtitle={selectedName ? selectedName : undefined}
       />
       <ViewHero
-        eyebrow="Team workload"
-        title="Employee task tracker"
+        eyebrow="Staff load"
+        title="Staff workload"
         subtitle="Select a team member to review every assignment — grouped by open, today, this week, and overdue."
         action={
           <button
@@ -140,8 +153,9 @@ export function EmployeeTrackerView({
       />
 
       <div className="no-print grid gap-3 sm:grid-cols-2">
-        {stats.map((row) => {
+        {sortedStats.map((row) => {
           const active = selectedName === row.name;
+          const roleLabel = roleForName(row.name);
           return (
             <button
               key={row.name}
@@ -155,6 +169,7 @@ export function EmployeeTrackerView({
                 <EmployeeAvatar name={row.name} />
                 <div className="min-w-0 flex-1">
                   <span className="font-display text-lg font-semibold text-ink">{row.name}</span>
+                  {roleLabel ? <p className="employee-card__role">{roleLabel}</p> : null}
                   <p className="text-[11px] font-semibold text-muted">
                     {row.open} open · {row.overdue > 0 ? `${row.overdue} overdue` : "on track"}
                   </p>
@@ -180,6 +195,9 @@ export function EmployeeTrackerView({
             <div className="flex-1">
               <p className="view-eyebrow">Selected</p>
               <h3 className="font-display text-2xl font-semibold tracking-tight text-ink">{selectedName}</h3>
+              {roleForName(selectedName) ? (
+                <p className="employee-card__role employee-card__role--detail">{roleForName(selectedName)}</p>
+              ) : null}
               <p className="mt-1 text-sm text-muted">
                 {selectedStat.total} assignment{selectedStat.total === 1 ? "" : "s"} · as of {formatDisplayDate(today, "short")}
               </p>

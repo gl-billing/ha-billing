@@ -128,12 +128,18 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
             >
               <div className="staff-salary__roster-item-main">
                 {isPartner ? (
-                  <span className="staff-salary__roster-partner-badge">Managing / Founding Partner</span>
-                ) : null}
-                <strong>{entry.displayName}</strong>
-                {entry.designation && !isPartner ? (
-                  <div className="staff-salary__roster-item-role text-muted">{entry.designation}</div>
-                ) : null}
+                  <>
+                    <span className="staff-salary__roster-partner-badge">Managing / Founding Partner</span>
+                    <strong>{entry.displayName}</strong>
+                  </>
+                ) : (
+                  <>
+                    <strong>{entry.displayName}</strong>
+                    {entry.designation ? (
+                      <div className="staff-salary__roster-item-role text-muted">{entry.designation}</div>
+                    ) : null}
+                  </>
+                )}
                 <div className="staff-salary__roster-item-meta text-muted">
                   {entry.email}
                   {" · "}

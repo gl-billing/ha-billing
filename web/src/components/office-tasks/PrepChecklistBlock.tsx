@@ -30,6 +30,7 @@ type Props = {
   creating?: boolean;
   /** body = interactive checklist; toolbar = compact add/enable actions */
   surface?: "body" | "toolbar";
+  compact?: boolean;
   onTogglePrepChecklistItem?: (item: ItemSummary, itemIndex: number, checked: boolean) => void;
   onMutatePrepChecklistItem?: (item: ItemSummary, mutation: PrepChecklistMutation) => void | Promise<void>;
   onCreatePrepChecklist?: (item: ItemSummary) => void;
@@ -60,6 +61,7 @@ export function PrepChecklistBlock({
   collapsedDefault = false,
   creating,
   surface = "body",
+  compact = false,
   onTogglePrepChecklistItem,
   onMutatePrepChecklistItem,
   onCreatePrepChecklist,
@@ -99,16 +101,20 @@ export function PrepChecklistBlock({
   if (initTarget && onInitializePrepChecklist && showChecklist) {
     const legacyPrep = initTarget.source === "Task" && looksLikePrepReminderTask(initTarget);
     const label = creating
-      ? "Adding…"
-      : hearing
-        ? "Hearing prep"
-        : legacyPrep
-          ? "Enable checklist"
-          : "Add checklist";
+      ? "…"
+      : compact
+        ? hearing
+          ? "Prep"
+          : "Checklist"
+        : hearing
+          ? "Hearing prep"
+          : legacyPrep
+            ? "Enable checklist"
+            : "Add checklist";
     return (
       <button
         type="button"
-        className="my-work-list__btn my-work-list__btn--ghost my-work-list__btn--accent"
+        className={compact ? "my-work-cmd my-work-cmd--emphasis" : "my-work-list__btn my-work-list__btn--ghost my-work-list__btn--accent"}
         disabled={disabled || creating}
         onClick={() => onInitializePrepChecklist(item)}
       >
@@ -118,14 +124,15 @@ export function PrepChecklistBlock({
   }
 
   if (canCreate && onCreatePrepChecklist && showChecklist) {
+    const label = creating ? "…" : compact ? (hearing ? "Prep" : "Filing") : hearing ? "Hearing prep" : "Filing prep";
     return (
       <button
         type="button"
-        className="my-work-list__btn my-work-list__btn--ghost my-work-list__btn--accent"
+        className={compact ? "my-work-cmd my-work-cmd--emphasis" : "my-work-list__btn my-work-list__btn--ghost my-work-list__btn--accent"}
         disabled={disabled || creating}
         onClick={() => onCreatePrepChecklist(item)}
       >
-        {creating ? "Creating…" : hearing ? "Hearing prep" : "Filing prep"}
+        {label}
       </button>
     );
   }

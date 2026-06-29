@@ -16,18 +16,37 @@ export function getSecretaryReminderEmails(): string[] {
   const fromEnv = uniqueEmails([
     ...parseEmailList(process.env.HEARING_REMINDER_SECRETARY_EMAILS),
     ...parseEmailList(process.env.SECRETARY_NAV_EMAILS),
-    process.env.SECRETARY_EMAIL?.trim().toLowerCase() || "",
-    process.env.ANDREA_EMAIL?.trim().toLowerCase() || ""
+    process.env.SECRETARY_EMAIL?.trim().toLowerCase() || ""
   ]);
   const defaults = FIRM_SECRETARIES.map((secretary) => secretary.email.toLowerCase());
   return uniqueEmails([...defaults, ...fromEnv]);
 }
 
-export function formatSecretaryDisplayNames(employees: EmployeeRecord[]): string {
-  if (!employees.length) {
-    return FIRM_SECRETARIES.map((secretary) => secretary.displayName).join(" & ");
-  }
-  return employees.map((employee) => employee.name.trim()).filter(Boolean).join(" & ");
+function isLegacySecretaryName(name: string): boolean {
+  const norm = name.trim().toLowerCase();
+  return norm.includes("andrea") || norm.includes("ellyza");
+}
+
+export function formatSecretaryDisplayNames(_employees?: EmployeeRecord[]): string {
+  return FIRM_SECRETARIES.map((secretary) => secretary.displayName).join(" & ");
+}
+
+function findSecretaryInDirectory(
+  secretary: (typeof FIRM_SECRETARIES)[number],
+  directory: EmployeeRecord[]
+): EmployeeRecord | null {
+  const byEmail = directory.find(
+    (employee) => employee.email.trim().toLowerCase() === secretary.email.toLowerCase()
+  );
+  if (byEmail && !isLegacySecretaryName(byEmail.name)) return byEmail;
+
+  const short = secretary.shortName.toLowerCase();
+  const byName = directory.find((employee) => {
+    const name = employee.name.toLowerCase();
+    if (isLegacySecretaryName(name)) return false;
+    return name.includes(short);
+  });
+  return byName || null;
 }
 
 const COURT_CONFIRMED_MARKER = "GL_COURT_CONFIRMED";
@@ -88,36 +107,17 @@ export function getSecretaryCourtConfirmationItems(items: OfficeItem[]): OfficeI
 }
 
 export function resolveSecretaryEmployees(directory: EmployeeRecord[]): EmployeeRecord[] {
-  const targetEmails = getSecretaryReminderEmails();
-  const matched = targetEmails
-    .map((email) => directory.find((employee) => employee.email.trim().toLowerCase() === email))
-    .filter((employee): employee is EmployeeRecord => Boolean(employee));
-
-  if (matched.length) {
-    const seen = new Set<string>();
-    return matched.filter((employee) => {
-      const key = employee.email.trim().toLowerCase();
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-  }
-
-  const byName = directory.filter((employee) => {
-    const name = employee.name.toLowerCase();
-    const role = employee.role.toLowerCase();
+  return FIRM_SECRETARIES.map((secretary) => {
+    const fromDirectory = findSecretaryInDirectory(secretary, directory);
     return (
-      name.includes("shiela") ||
-      name.includes("hiedee") ||
-      role.includes("secretary") ||
-      role.includes("court") ||
-      role.includes("liaison")
+      fromDirectory || {
+        name: secretary.displayName,
+        email: secretary.email,
+        role: "Secretary",
+        active: true
+      }
     );
   });
-
-  if (byName.length) return byName;
-
-  return directory.filter((employee) => employee.name.toLowerCase().includes("ellyza"));
 }
 
 export function resolveAndreaEmail(directory: EmployeeRecord[]): string | null {

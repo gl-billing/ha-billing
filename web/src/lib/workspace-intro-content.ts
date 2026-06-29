@@ -20,13 +20,15 @@ const TASKS_TAB_DESCRIPTIONS: Record<string, string> = {
   today: "Your daily list — overdue first, then due today and in progress.",
   "add-task": "Create a to-do: pick client, assignee, due date, and describe the work.",
   "add-event": "Book a hearing, meeting, or filing deadline with date, time, and client matter.",
-  correspondence: "Write letters on firm letterhead — demand letters, proposals, replies, and more.",
+  correspondence: "Draft demand letters, proposals, replies, and other letters on firm letterhead.",
   calendar: "Month view — tap a date to see hearings, deadlines, and tasks.",
   week: "Seven-day planner for coordinating the week ahead.",
   "all-items": "Search every open task, hearing, and event.",
-  team: "See who has what open — workload by staff member.",
+  team: "See each staff member's open work and how busy everyone is.",
   history: "Finished and past tasks and events for reference.",
-  tools: "Refresh sheets, sync Google Calendar, print lists, and admin settings."
+  tools: "Refresh sheets, sync Google Calendar, print lists, and admin settings.",
+  liaison:
+    "Confidential assignments from admin — visible only on this tab for the liaison officer and admin."
 };
 
 const BILLING_TAB_DESCRIPTIONS: Record<string, string> = {
@@ -69,7 +71,7 @@ export function getBillingIntroContent(tabs: NavTabDef[]): WorkspaceIntroContent
   return {
     title: "Accounts",
     lede:
-      "Client billing, money in and out, statements, and firm reports. Use Charges & payments for regular clients; Walk-ins and One-time fees for everyone else.",
+      "Client billing, money in and out, statements, and firm reports. Use Record fees & payments for regular clients; Log walk-ins and One-time payment for everyone else.",
     tip: "Hover a tab name for a short guide, or tap the (i) icon on each page for what to enter.",
     instructionsAnchor: "billing-tabs",
     items: buildItemsFromTabs(tabs, BILLING_TAB_DESCRIPTIONS)

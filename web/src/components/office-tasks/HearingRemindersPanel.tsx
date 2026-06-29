@@ -23,7 +23,7 @@ export function HearingRemindersPanel({ items, today, busy, isAdmin, directory, 
   const escalation = getEscalationCandidates(items, today, 2);
   const courtConfirmationItems = getSecretaryCourtConfirmationItems(items);
   const secretaries = resolveSecretaryEmployees(directory);
-  const secretaryLabel = formatSecretaryDisplayNames(secretaries);
+  const secretaryLabel = formatSecretaryDisplayNames();
   const roster = directory.map((employee) => employee.name).filter(Boolean);
   const secretaryOverdue = secretaries.reduce((total, secretary) => {
     return total + getEmployeeItemGroups(secretary.name, items, today, [], roster).overdue.length;

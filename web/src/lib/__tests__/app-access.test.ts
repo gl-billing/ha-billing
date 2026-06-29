@@ -128,10 +128,11 @@ describe("secretary desk nav", () => {
     expect(isSecretaryNavUser("partner@hernandezlaw.info")).toBe(false);
   });
 
-  it("gives secretary full billing except reports and admin tabs", () => {
+  it("gives secretary desk billing without reports, history, or admin tabs", () => {
     const tabs = billingNavTabsForUser(false, "secretary").map((tab) => tab.id);
     expect(tabs).toContain("home");
-    expect(tabs).toContain("history");
+    expect(tabs).toContain("billing");
+    expect(tabs).not.toContain("history");
     expect(tabs).not.toContain("reports");
     expect(tabs).not.toContain("staffSalary");
     expect(tabs).not.toContain("firmFinances");

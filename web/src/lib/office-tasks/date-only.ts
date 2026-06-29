@@ -45,6 +45,13 @@ export function addDaysYmd(ymd: string, days: number): string {
   return formatYmdFromUtcDate(d);
 }
 
+/** Whole calendar days between due date and today (positive when overdue). */
+export function daysBetweenYmd(fromYmd: string, toYmd: string): number {
+  const from = ymdToUtcDate(fromYmd).getTime();
+  const to = ymdToUtcDate(toYmd).getTime();
+  return Math.round((to - from) / 86_400_000);
+}
+
 export function getMondayOfWeekYmd(anchorYmd: string): string {
   const d = ymdToUtcDate(anchorYmd);
   const weekday = d.getUTCDay();
