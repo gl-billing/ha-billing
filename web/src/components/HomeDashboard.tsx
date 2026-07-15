@@ -141,7 +141,7 @@ export function HomeDashboard({ busy, onNavigate, onRefresh, onNotify }: Props) 
         </div>
       </section>
 
-      <nav className="nav-tabs-scroll home-dashboard-tabs" role="tablist" aria-label="Firm dashboard sections">
+      <nav className="nav-tabs-scroll home-dashboard-tabs" role="tablist" aria-label="Firm overview sections">
         {(
           [
             ["ops", "Ops queue"],

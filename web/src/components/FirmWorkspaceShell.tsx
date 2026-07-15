@@ -16,6 +16,7 @@ import { OfficeNav } from "@/components/OfficeNav";
 import { WorkspaceBreadcrumb } from "@/components/WorkspaceBreadcrumb";
 import { WorkspaceBootstrap } from "@/components/WorkspaceBootstrap";
 import { OfflineStatusBanner } from "@/components/OfflineStatusBanner";
+import { useStaffPresenceHeartbeat } from "@/hooks/useStaffPresenceHeartbeat";
 import type { TabShortcutItem } from "@/lib/workspace-tab-shortcuts";
 
 export type FirmWorkspace = "billing" | "tasks";
@@ -68,6 +69,7 @@ export function FirmWorkspaceShell({
   children
 }: Props) {
   useKeepFormFocusAlive();
+  useStaffPresenceHeartbeat({ workspace });
 
   const shellClass = [
     "app-shell",

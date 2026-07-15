@@ -189,7 +189,7 @@ export default function OfficeHubInstructionsPage() {
               </div>
 
               <div className="office-hub-instructions__cheatsheet-block office-hub-instructions__cheatsheet-block--wide">
-                <h3>Need help?</h3>
+                <h3>Office procedures</h3>
                 <p>
                   <strong>App / system</strong> → Atty. Janine · <strong>Files / SOA / walk-ins</strong> → Andrea + assigned
                   attorney · <strong>Calendar / hearings / field</strong> → Jas + assigned attorney
@@ -417,7 +417,7 @@ export default function OfficeHubInstructionsPage() {
               Normally use the matter page → <strong>Send SOA or AR</strong> instead.
             </p>
 
-            <h3>What is Firm dashboard?</h3>
+            <h3>What is Firm overview?</h3>
             <p>Firm-wide totals, batch SOA, document log, and aging overview — not for single-client daily entry.</p>
 
             <h3>What is History?</h3>

@@ -35,7 +35,7 @@
 }
 
 body {
-  background: linear-gradient(180deg, #f7f7f7 0%, #ffffff 45%, #f2f2f2 100%) !important;
+  background: #f7f7f7 !important;
   font-size: var(--ha-text-body) !important;
   line-height: var(--ha-leading) !important;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
@@ -493,6 +493,7 @@ html {
 }
 
 /* ── Office hub ── */
+.office-hub-page,
 .office-hub {
   --site-slate: #ffffff;
   --site-ink: #0a0a0a;
@@ -504,7 +505,7 @@ html {
   --site-text: #0a0a0a;
   --site-muted: #5c5c5c;
   --site-border: rgba(0, 0, 0, 0.14);
-  --site-surface: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+  --site-surface: #ffffff;
   --site-surface-alt: #ffffff;
   --site-surface-muted: #f5f5f5;
   --site-heading: #0a0a0a;
@@ -513,6 +514,12 @@ html {
   --site-cover-fade-mid: rgba(255, 255, 255, 0.8);
   --site-glance-gold-text: #111111;
   --site-instructions-note-bg: rgba(0, 0, 0, 0.05);
+  --site-surface-shadow: none;
+  --site-surface-shadow-lg: none;
+  background: #f7f7f7 !important;
+}
+
+.office-hub {
   background: #f7f7f7 !important;
 }
 
@@ -566,7 +573,8 @@ html {
 }
 
 .office-hub__accent {
-  background: linear-gradient(90deg, transparent, var(--ink) 50%, transparent) !important;
+  background: var(--ink) !important;
+  height: 2px !important;
 }
 
 .office-hub__brand-amp {
@@ -607,7 +615,7 @@ html {
 .office-hub__launcher:hover {
   transform: none !important;
   background: #f7f7f7 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: none !important;
 }
 
 .office-hub__launcher--billing,
@@ -749,11 +757,12 @@ html {
   color: var(--muted) !important;
 }
 
-/* ── Quick-start shortcuts ── */
+/* ── Office shortcuts ── */
 .hub-role-shortcuts__label {
   font-size: 0.6875rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
   color: var(--muted) !important;
 }
 
@@ -3263,5 +3272,232 @@ a.btn-secondary,
 .firm-workspace .my-work-checklist__row--done .my-work-checklist__actions,
 .firm-workspace .my-work-checklist__row--done .my-work-cmd {
   text-decoration: none;
+}
+
+/* ── Premium letterhead polish — shared chrome (Tasks + Accounts + Hub) ── */
+.office-hub__help {
+  margin-top: 1.25rem !important;
+  text-align: center !important;
+}
+
+.office-hub__help-link {
+  font-size: var(--ha-text-meta) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: var(--ink) !important;
+  text-decoration: underline !important;
+  text-underline-offset: 0.2em !important;
+  text-decoration-color: rgba(10, 10, 10, 0.35) !important;
+}
+
+.office-hub__help-link:hover {
+  color: var(--ink) !important;
+  text-decoration-color: var(--ink) !important;
+}
+
+.office-hub__clock {
+  font-family: var(--font-display), Arial, sans-serif !important;
+  letter-spacing: 0.04em !important;
+  color: var(--ink) !important;
+}
+
+.view-hero,
+.firm-workspace .view-hero,
+.tab-view-hero {
+  border: 2px solid var(--ink) !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+.view-hero::before,
+.firm-workspace .view-hero::before,
+.tab-view-hero::before {
+  display: none !important;
+}
+
+.view-eyebrow,
+.firm-workspace .view-eyebrow {
+  color: var(--muted) !important;
+  letter-spacing: 0.14em !important;
+}
+
+.hint-bar,
+.firm-workspace .hint-bar {
+  border: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  min-height: 2.75rem !important;
+}
+
+.hint-bar__icon,
+.firm-workspace .hint-bar__icon {
+  color: var(--ink) !important;
+}
+
+.empty-state,
+.firm-workspace .empty-state {
+  border: 1px dashed var(--line) !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.empty-state__mark,
+.firm-workspace .empty-state__mark {
+  border-color: var(--ink) !important;
+  box-shadow: none !important;
+}
+
+.stat-tile,
+.firm-workspace .stat-tile,
+.stat-tile--default,
+.stat-tile--gold,
+.stat-tile--green,
+.stat-tile--blue,
+.stat-tile--rose,
+.stat-tile--red,
+.stat-tile--muted,
+.stat-tile--sage {
+  border: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.stat-tile--row.stat-tile--red,
+.stat-tile--row.stat-tile--sage,
+.stat-tile--row.stat-tile--rose,
+.stat-tile--row.stat-tile--green,
+.stat-tile--row.stat-tile--blue,
+.stat-tile--row.stat-tile--gold {
+  border-left-color: var(--ink) !important;
+}
+
+.stat-tile--clickable:hover,
+.stat-tile--clickable.stat-tile--sage:hover,
+.stat-tile--clickable.stat-tile--gold:hover,
+.stat-tile--clickable.stat-tile--green:hover,
+.stat-tile--clickable.stat-tile--blue:hover,
+.stat-tile--clickable.stat-tile--rose:hover,
+.stat-tile--clickable.stat-tile--red:hover {
+  border-color: var(--ink) !important;
+  background: var(--soft) !important;
+  box-shadow: none !important;
+}
+
+.office-hub__announcement-wrap,
+.office-hub__announcement-panel,
+.office-hub-pwa-hint,
+.office-hub .card {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.attendance-register {
+  width: 100% !important;
+  max-width: 48rem !important;
+  min-width: 0 !important;
+}
+
+.attendance-register__table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.attendance-register__table {
+  min-width: 28rem !important;
+}
+
+.attendance-register__refresh {
+  min-height: 2.75rem !important;
+  padding: 0.35rem 0 !important;
+}
+
+@media (max-width: 639px) {
+  .office-hub__welcome {
+    padding: 1.1rem 1rem !important;
+  }
+
+  .office-hub__greeting {
+    font-size: 1rem !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .office-hub__clock-main {
+    font-size: clamp(1.75rem, 9vw, 2.35rem) !important;
+    line-height: 1.1 !important;
+  }
+
+  .office-hub__launcher {
+    padding: 1.1rem 1rem !important;
+    min-height: 7.5rem !important;
+  }
+
+  .office-hub__launcher-cta {
+    min-height: 2.75rem !important;
+    padding: 0.55rem 0.9rem !important;
+  }
+
+  .hub-role-shortcuts__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.55rem !important;
+  }
+
+  .hub-role-shortcuts__card {
+    min-height: 4.75rem !important;
+    padding: 0.7rem 0.75rem !important;
+  }
+
+  .view-hero,
+  .firm-workspace .view-hero,
+  .tab-view-hero {
+    padding: 1rem !important;
+  }
+
+  .attendance-register__title {
+    font-size: 1rem !important;
+  }
+
+  .attendance-register__title-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.35rem !important;
+  }
+
+  .attendance-register__table th,
+  .attendance-register__table td {
+    padding-right: 0.75rem !important;
+    font-size: 0.8125rem !important;
+  }
+
+  .attendance-register__table th:last-child,
+  .attendance-register__table td:last-child {
+    padding-right: 0 !important;
+  }
+
+  .firm-workspace .nav-tabs-scroll {
+    margin-left: calc(-1 * var(--ha-shell-pad-x)) !important;
+    margin-right: calc(-1 * var(--ha-shell-pad-x)) !important;
+    padding-left: var(--ha-shell-pad-x) !important;
+    padding-right: var(--ha-shell-pad-x) !important;
+    width: auto !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .firm-workspace .nav-tab {
+    min-height: 2.75rem !important;
+    white-space: nowrap !important;
+  }
 }
 

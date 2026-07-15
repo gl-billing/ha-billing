@@ -80,7 +80,7 @@ export function HintBar({ children, className = "" }: { children: ReactNode; cla
   return (
     <p className={`hint-bar no-print ${className}`.trim()}>
       <span className="hint-bar__icon" aria-hidden>
-        ◆
+        ‖
       </span>
       {children}
     </p>

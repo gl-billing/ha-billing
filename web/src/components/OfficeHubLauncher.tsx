@@ -21,6 +21,7 @@ import { getLastWorkspace, setLastWorkspace, type WorkspaceId } from "@/lib/offi
 import type { OfficeAnnouncementDraft } from "@/lib/sheets/settings";
 import { OFFICE_TIMEZONE } from "@/lib/office-tasks/date-only";
 import { formatStaffDisplayName } from "@/lib/user-display";
+import { useStaffPresenceHeartbeat } from "@/hooks/useStaffPresenceHeartbeat";
 
 const OFFICE_LOCATION = "Philippines";
 const tasksHref = firmAppHref("/app");
@@ -89,6 +90,7 @@ function launcherClass(base: string, workspace: WorkspaceId, lastWorkspace: Work
 export function OfficeHubLauncher({ initialSummary, hubUser }: Props) {
   const billingAccess = hubUser.billingAccess;
   const displayLabel = formatStaffDisplayName(hubUser.name, hubUser.email) || "team";
+  useStaffPresenceHeartbeat({ workspace: "hub" });
 
   const [now, setNow] = useState(() => new Date());
   const [lastWorkspace, setLastWorkspaceState] = useState<WorkspaceId | null>(null);
@@ -277,7 +279,7 @@ export function OfficeHubLauncher({ initialSummary, hubUser }: Props) {
 
             <p className="office-hub__help">
               <SameWindowLink href="/office-hub/instructions" className="office-hub__help-link">
-                Need help?
+                Office procedures
               </SameWindowLink>
             </p>
 

@@ -70,8 +70,10 @@ import {
 import { SameWindowLink } from "@/components/SameWindowLink";
 import { MyWorkScopeToggle } from "@/components/office-tasks/MyWorkScopeToggle";
 import { LiaisonConfidentialPanel } from "@/components/office-tasks/LiaisonConfidentialPanel";
+import { StaffPresencePanel } from "@/components/office-tasks/StaffPresencePanel";
 import { excludeLiaisonConfidentialItems } from "@/lib/office-tasks/liaison-confidential";
 import { canViewLiaisonTab } from "@/lib/app-access";
+import { isFirmOwnerEmail } from "@/lib/firm-team-config";
 import { filterItemsForMyWork } from "@/lib/office-tasks/my-work-filter";
 import { applyEventJoinLinkPatch, type EventScheduleEmailSentPatch } from "@/lib/office-tasks/event-join-link";
 import { getSavedMyWorkScope, saveMyWorkScope, type MyWorkScope } from "@/lib/my-work-scope";
@@ -139,7 +141,8 @@ type Tab =
   | "all-items"
   | "correspondence"
   | "tools"
-  | "liaison";
+  | "liaison"
+  | "presence";
 
 type PendingDuplicateEntry = {
   kind: "task" | "event";
@@ -218,6 +221,7 @@ export function TasksApp() {
   const email = session?.user?.email?.trim() || "";
   const sessionDisplayName = session?.user?.displayName || session?.user?.name || "";
   const isAdminUser = session?.user?.isAdmin === true;
+  const canViewPresenceTab = isFirmOwnerEmail(email || session?.user?.email);
   const canViewLiaisonConfidentialEarly = canViewLiaisonTab({
     email,
     staffName: sessionDisplayName,
@@ -237,14 +241,15 @@ export function TasksApp() {
   const selectTab = useCallback(
     (next: Tab) => {
       const allowed = isAllowedTasksTab(next, billingAccess, navProfile, {
-        canViewLiaisonTab: canViewLiaisonConfidentialEarly
+        canViewLiaisonTab: canViewLiaisonConfidentialEarly,
+        canViewPresenceTab
       })
         ? next
         : "today";
       setTab(allowed);
       saveTasksTab(allowed);
     },
-    [billingAccess, navProfile, canViewLiaisonConfidentialEarly]
+    [billingAccess, navProfile, canViewLiaisonConfidentialEarly, canViewPresenceTab]
   );
 
   async function runEventsSheetCheck() {
@@ -416,14 +421,14 @@ export function TasksApp() {
     if (introGate) return;
 
     const tabParam = params.get("tab");
-    if (tabParam && isAllowedTasksTab(tabParam as Tab, billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidentialEarly })) {
+    if (tabParam && isAllowedTasksTab(tabParam as Tab, billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidentialEarly, canViewPresenceTab })) {
       selectTab(tabParam as Tab);
     } else {
       const saved = getSavedTasksTab();
-      if (saved && isAllowedTasksTab(saved, billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidentialEarly })) selectTab(saved);
+      if (saved && isAllowedTasksTab(saved, billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidentialEarly, canViewPresenceTab })) selectTab(saved);
       else selectTab("today");
     }
-  }, [billingAccess, introGate, load, navProfile, selectTab, canViewLiaisonConfidentialEarly]);
+  }, [billingAccess, introGate, load, navProfile, selectTab, canViewLiaisonConfidentialEarly, canViewPresenceTab]);
 
   function itemActionKey(item: ItemSummary) {
     return officeItemKey(item);
@@ -1111,8 +1116,12 @@ export function TasksApp() {
     [data?.canViewLiaisonConfidential, email, sessionStaffName, sessionDisplayName, isAdmin]
   );
   const navTabs = useMemo(
-    () => tasksNavTabsForUser(billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidential }),
-    [billingAccess, navProfile, canViewLiaisonConfidential]
+    () =>
+      tasksNavTabsForUser(billingAccess, navProfile, {
+        canViewLiaisonTab: canViewLiaisonConfidential,
+        canViewPresenceTab
+      }),
+    [billingAccess, navProfile, canViewLiaisonConfidential, canViewPresenceTab]
   );
   const introContent = useMemo(() => getTasksIntroContent(navTabs), [navTabs]);
   const tabShortcuts = useMemo(() => buildTabShortcutHelp(navTabs), [navTabs]);
@@ -1217,11 +1226,11 @@ export function TasksApp() {
   };
 
   useEffect(() => {
-    if (!isAllowedTasksTab(tab, billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidential })) {
+    if (!isAllowedTasksTab(tab, billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidential, canViewPresenceTab })) {
       setTab("today");
       saveTasksTab("today");
     }
-  }, [billingAccess, navProfile, tab, canViewLiaisonConfidential]);
+  }, [billingAccess, navProfile, tab, canViewLiaisonConfidential, canViewPresenceTab]);
 
   return (
     <>
@@ -1706,7 +1715,7 @@ export function TasksApp() {
                 each person has on their plate. Atty. Robert Hernandez is listed first.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                Staff reminder emails (admin) are set up in <strong>Admin tools</strong>.
+                Staff reminder emails (administration) are set up in <strong>Administration</strong>.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -1838,6 +1847,22 @@ export function TasksApp() {
           onScheduleEmailSent={handleScheduleEmailSent}
           onStatus={showStatus}
         />
+      ) : null}
+
+      {tab === "presence" && canViewPresenceTab ? (
+        <>
+          <TabPageHeader resetKey={tab}>
+            <BillingTabGuide title="Staff attendance">
+              <BillingTabGuideText>
+                Confidential register for firm management. Present means the account had activity in this
+                system within the last three minutes. Names are shown without email addresses.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+            <StaffPresencePanel onStatus={showStatus} />
+          </TabPageBody>
+        </>
       ) : null}
 
       {(tab === "add-task" || tab === "add-event") && opts && !quickAddKind ? (

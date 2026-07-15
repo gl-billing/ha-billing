@@ -26,23 +26,24 @@ const TASKS_TAB_DESCRIPTIONS: Record<string, string> = {
   "all-items": "Search every open task, hearing, and event.",
   team: "See each staff member's open work and how busy everyone is.",
   history: "Finished and past tasks and events for reference.",
-  tools: "Refresh sheets, sync Google Calendar, print lists, and admin settings.",
+  tools: "Refresh sheets, sync Google Calendar, print lists, and administration.",
   liaison:
-    "Confidential assignments from admin — visible only on this tab for the liaison officer and admin."
+    "Confidential assignments from admin — visible only on this tab for the liaison officer and admin.",
+  presence: "Confidential attendance register for firm management."
 };
 
 const BILLING_TAB_DESCRIPTIONS: Record<string, string> = {
   billing:
     "Record fees and payments for regular clients — date, amount, category, description.",
-  walkIns: "Log today's walk-in visitors — name, visit type, fee, and payment.",
+  walkIns: "Walk-in log — name, visit type, fee, and payment.",
   spotBilling: "One-time payers not on the main client list — name, fee, and payment.",
-  notarizations: "Notary records — book/page numbers, document type, fee, payment method.",
+  notarizations: "Notary register — book/page numbers, document type, fee, payment method.",
   newClient: "Full intake for a retained client — contact info, case details, agreement.",
   clients: "Find a client by name or code and open their billing file.",
-  documents: "Print or email SOA statements and payment receipts (AR).",
+  documents: "Print or email SOA statements and payment receipts.",
   history: "Office-wide log of posted charges, payments, SOAs, and changes.",
-  home: "Firm balances, collections overview, birthdays, and quick links.",
-  reports: "Overdue balances, monthly collections, CSV exports, and admin tools.",
+  home: "Firm overview — balances, collections, birthdays, and links.",
+  reports: "Overdue balances, monthly collections, CSV exports, and administration.",
   fieldDispatch: "Track field trips — advance, service fee, and client billing.",
   staffSalary: "Semi-monthly payroll, allowances, and cash advances.",
   firmFinances: "Firm income split into expense, savings, and other buckets."

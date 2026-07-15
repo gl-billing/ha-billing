@@ -15,7 +15,8 @@ export type SavedTasksTab =
   | "all-items"
   | "correspondence"
   | "tools"
-  | "liaison";
+  | "liaison"
+  | "presence";
 
 export type SavedBillingPage =
   | "home"
@@ -63,7 +64,8 @@ export function getSavedTasksTab(): SavedTasksTab | null {
     "all-items",
     "correspondence",
     "tools",
-    "liaison"
+    "liaison",
+    "presence"
   ];
   return allowed.includes(value as SavedTasksTab) ? (value as SavedTasksTab) : null;
 }

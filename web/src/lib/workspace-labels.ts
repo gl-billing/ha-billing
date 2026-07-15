@@ -6,16 +6,17 @@ export type NavUserProfile = "full" | "tasks-only" | "secretary" | "associate";
 
 export const TASKS_TAB_LABELS: Record<SavedTasksTab, string> = {
   today: "My work",
-  calendar: "View calendar",
-  week: "View week",
+  calendar: "Calendar",
+  week: "This week",
   team: "Staff load",
   history: "Completed",
   "add-task": "New task",
-  "add-event": "New hearing and filing",
+  "add-event": "New hearing & filing",
   "all-items": "Find item",
-  correspondence: "Draft letters",
-  tools: "Admin tools",
-  liaison: "Liaison"
+  correspondence: "Correspondence",
+  tools: "Administration",
+  liaison: "Liaison",
+  presence: "Staff attendance"
 };
 
 export const TASKS_TAB_DESCRIPTIONS: Record<SavedTasksTab, string> = {
@@ -33,9 +34,11 @@ export const TASKS_TAB_DESCRIPTIONS: Record<SavedTasksTab, string> = {
   "all-items": "Search every open task, hearing, and event by keyword, client, or staff member.",
   correspondence:
     "Write demand letters, proposals, replies, and other letters on firm letterhead — pick a template and fill in the details.",
-  tools: "Refresh data, sync Google Calendar, print lists, and other admin settings.",
+  tools: "Refresh data, sync Google Calendar, print lists, and other administration.",
   liaison:
-    "Confidential assignments from admin to the liaison officer — not visible on other schedule tabs."
+    "Confidential assignments from admin to the liaison officer — not visible on other schedule tabs.",
+  presence:
+    "Confidential attendance register — who is signed in to Office, and last activity (firm management only)."
 };
 
 export type BillingNavTabGroup = "daily" | "clients" | "overview" | "admin";
@@ -43,11 +46,11 @@ export type TasksNavTabGroup = "daily" | "actions" | "schedule" | "browse" | "ov
 export type NavTabGroup = BillingNavTabGroup | TasksNavTabGroup;
 
 export const NAV_TAB_GROUP_LABELS: Record<NavTabGroup, string> = {
-  daily: "Every day",
-  actions: "Add new",
-  clients: "Client directory",
+  daily: "Daily",
+  actions: "New",
+  clients: "Clients",
   overview: "Overview",
-  admin: "Admin only",
+  admin: "Administration",
   schedule: "Calendar",
   browse: "Search",
   oversight: "Staff"
@@ -111,6 +114,12 @@ export const TASKS_NAV_TABS: NavTabDef<SavedTasksTab>[] = [
     label: TASKS_TAB_LABELS.liaison,
     description: TASKS_TAB_DESCRIPTIONS.liaison,
     group: "oversight"
+  },
+  {
+    id: "presence",
+    label: TASKS_TAB_LABELS.presence,
+    description: TASKS_TAB_DESCRIPTIONS.presence,
+    group: "admin"
   }
 ];
 
@@ -129,15 +138,15 @@ const FULL_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
 ];
 
 export const BILLING_PAGE_LABELS: Record<SavedBillingPage, string> = {
-  home: "Firm dashboard",
+  home: "Firm overview",
   billing: "Record fees & payments",
   clients: "Client directory",
-  walkIns: "Log walk-ins",
+  walkIns: "Walk-in log",
   spotBilling: "One-time payment",
-  notarizations: "Record notary",
+  notarizations: "Notary register",
   fieldDispatch: "Field dispatch",
   newClient: "New client intake",
-  documents: "Send SOA/AR",
+  documents: "Statements & receipts",
   history: "Billing activity",
   reports: "Firm reports",
   firmFinances: "Firm income",
@@ -146,7 +155,7 @@ export const BILLING_PAGE_LABELS: Record<SavedBillingPage, string> = {
 
 export const BILLING_PAGE_DESCRIPTIONS: Record<SavedBillingPage, string> = {
   home:
-    "Firm snapshot — total balances, who owes money, client birthdays, and quick links to common tasks.",
+    "Firm balances, collections overview, client birthdays, and links to common accounts work.",
   billing:
     "Record a fee or payment for a regular client. Pick the client, then enter date, amount, category, and a short description.",
   clients:
@@ -357,7 +366,7 @@ export function billingNavTabsForUser(
 export function tasksNavTabsForUser(
   billingAccess: boolean,
   profile: NavUserProfile = "full",
-  options?: { canViewLiaisonTab?: boolean }
+  options?: { canViewLiaisonTab?: boolean; canViewPresenceTab?: boolean }
 ): typeof TASKS_NAV_TABS {
   let tabs: typeof TASKS_NAV_TABS;
   if (profile === "associate") {
@@ -375,6 +384,11 @@ export function tasksNavTabsForUser(
     if (liaisonTab) tabs = [...tabs, liaisonTab];
   }
 
+  if (options?.canViewPresenceTab && !tabs.some((tab) => tab.id === "presence")) {
+    const presenceTab = TASKS_NAV_TABS.find((entry) => entry.id === "presence");
+    if (presenceTab) tabs = [...tabs, presenceTab];
+  }
+
   return tabs;
 }
 
@@ -382,8 +396,9 @@ export function isAllowedTasksTab(
   tab: SavedTasksTab,
   billingAccess: boolean,
   profile: NavUserProfile = "full",
-  options?: { canViewLiaisonTab?: boolean }
+  options?: { canViewLiaisonTab?: boolean; canViewPresenceTab?: boolean }
 ): boolean {
+  if (tab === "presence") return options?.canViewPresenceTab === true;
   if (tab === "liaison") return options?.canViewLiaisonTab === true;
   if (tab === "correspondence" && profile === "associate") return true;
   if (tab === "correspondence" && !billingAccess && profile !== "associate") return false;

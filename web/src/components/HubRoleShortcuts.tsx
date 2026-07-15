@@ -10,7 +10,7 @@ type Props = {
   billingAccess: boolean;
   isAdmin: boolean;
   secretaryNav: boolean;
-  };
+};
 
 type Shortcut = { label: string; href: string; description: string };
 
@@ -19,38 +19,38 @@ export function HubRoleShortcuts({ billingAccess, isAdmin, secretaryNav = false 
 
   if (secretaryNav) {
     shortcuts.push(
-      { label: BILLING_PAGE_LABELS.walkIns, href: billingHref({ page: "walkIns" }), description: "Today's office visitor" },
-      { label: BILLING_PAGE_LABELS.documents, href: billingHref({ page: "documents" }), description: "Print statement or AR" },
-      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Today's task list" },
-      { label: TASKS_TAB_LABELS.correspondence, href: tasksHref({ tab: "correspondence" }), description: "Firm letterhead" }
+      { label: BILLING_PAGE_LABELS.walkIns, href: billingHref({ page: "walkIns" }), description: "Walk-in log" },
+      { label: BILLING_PAGE_LABELS.documents, href: billingHref({ page: "documents" }), description: "Statements & receipts" },
+      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Assigned work today" },
+      { label: TASKS_TAB_LABELS.correspondence, href: tasksHref({ tab: "correspondence" }), description: "Firm correspondence" }
     );
   } else if (isAdmin) {
     shortcuts.push(
       { label: BILLING_PAGE_LABELS.home, href: billingHref({ page: "home" }), description: "Balances & collections" },
-      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Today's hearings & tasks" },
-      { label: TASKS_TAB_LABELS.calendar, href: tasksHref({ tab: "calendar" }), description: "Month schedule" },
-      { label: BILLING_PAGE_LABELS.reports, href: billingHref({ page: "reports" }), description: "Who owes & exports" }
+      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Hearings & assigned work" },
+      { label: TASKS_TAB_LABELS.calendar, href: tasksHref({ tab: "calendar" }), description: "Month calendar" },
+      { label: BILLING_PAGE_LABELS.reports, href: billingHref({ page: "reports" }), description: "Aging & exports" }
     );
   } else if (billingAccess) {
     shortcuts.push(
-      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Today's task list" },
-      { label: BILLING_PAGE_LABELS.billing, href: billingHref({ page: "billing" }), description: "Record fee or payment" },
-      { label: BILLING_PAGE_LABELS.clients, href: billingHref({ page: "clients" }), description: "Open billing file" },
-      { label: TASKS_TAB_LABELS.calendar, href: tasksHref({ tab: "calendar" }), description: "Month schedule" }
+      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Assigned work today" },
+      { label: BILLING_PAGE_LABELS.billing, href: billingHref({ page: "billing" }), description: "Post fee or payment" },
+      { label: BILLING_PAGE_LABELS.clients, href: billingHref({ page: "clients" }), description: "Open matter file" },
+      { label: TASKS_TAB_LABELS.calendar, href: tasksHref({ tab: "calendar" }), description: "Month calendar" }
     );
   } else {
     shortcuts.push(
-      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Today's task list" },
-      { label: TASKS_TAB_LABELS["add-task"], href: tasksHref({ tab: "add-task" }), description: "Log new work" },
-      { label: TASKS_TAB_LABELS.calendar, href: tasksHref({ tab: "calendar" }), description: "Month schedule" }
+      { label: TASKS_TAB_LABELS.today, href: tasksHref({ tab: "today" }), description: "Assigned work today" },
+      { label: TASKS_TAB_LABELS["add-task"], href: tasksHref({ tab: "add-task" }), description: "Create a task" },
+      { label: TASKS_TAB_LABELS.calendar, href: tasksHref({ tab: "calendar" }), description: "Month calendar" }
     );
   }
 
   if (!shortcuts.length) return null;
 
   return (
-    <section className="hub-role-shortcuts firm-auth-animate firm-auth-animate--2" aria-label="Quick shortcuts for your role">
-      <p className="hub-role-shortcuts__label">Quick start</p>
+    <section className="hub-role-shortcuts firm-auth-animate firm-auth-animate--2" aria-label="Office shortcuts">
+      <p className="hub-role-shortcuts__label">Shortcuts</p>
       <div className="hub-role-shortcuts__grid">
         {shortcuts.map((shortcut) => (
           <SameWindowLink key={shortcut.href + shortcut.label} href={shortcut.href} className="hub-role-shortcuts__card">
