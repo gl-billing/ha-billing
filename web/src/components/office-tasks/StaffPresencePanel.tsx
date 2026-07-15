@@ -46,10 +46,10 @@ export function StaffPresencePanel({ onStatus }: Props) {
         error?: string;
       }>(res);
       if (!res.ok) {
-        throw new Error(json.error || "Unable to load the attendance register.");
+        throw new Error(json?.error || "Unable to load the attendance register.");
       }
-      setEntries(Array.isArray(json.entries) ? json.entries : []);
-      setGeneratedAt(json.generatedAt ?? null);
+      setEntries(Array.isArray(json?.entries) ? json.entries : []);
+      setGeneratedAt(json?.generatedAt ?? null);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Unable to load the attendance register.";
