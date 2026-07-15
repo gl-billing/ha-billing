@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }
-    const message = error instanceof Error ? error.message : "Failed to load 13th month pay.";
+    const message = error instanceof Error ? error.message : "Unable to load 13th month pay.";
     const status =
       message.startsWith("Unauthorized") || message.includes("firm admins")
         ? 403

@@ -78,7 +78,7 @@ export function BillingHistoryPanel({ busy, onOpenClient }: Props) {
           disabled={loading || busy}
           onClick={() => void load(filter)}
         >
-          Reload
+          Update
         </button>
       </div>
 

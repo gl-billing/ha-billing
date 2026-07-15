@@ -226,6 +226,7 @@ export function MatterPage({ matterCode, user }: Props) {
   const [actionBusy, setActionBusy] = useState(false);
   const [timelineLoading, setTimelineLoading] = useState(true);
   const [statusMsg, setStatusMsg] = useState("");
+  const [statusIsError, setStatusIsError] = useState(false);
   const [prepChecklistCreatingKey, setPrepChecklistCreatingKey] = useState<string | null>(null);
   const [togglingKey, setTogglingKey] = useState<string | null>(null);
   const [billingMissing, setBillingMissing] = useState(false);
@@ -327,6 +328,7 @@ export function MatterPage({ matterCode, user }: Props) {
     setLoading(true);
     setTimelineLoading(true);
     setStatusMsg("");
+    setStatusIsError(false);
     setBillingMissing(false);
     clearMatterBillingState();
 
@@ -441,6 +443,7 @@ export function MatterPage({ matterCode, user }: Props) {
     } catch (error) {
       if (requestId !== loadRequestRef.current) return;
       setStatusMsg(error instanceof Error ? error.message : "Could not load matter.");
+      setStatusIsError(true);
     } finally {
       if (requestId !== loadRequestRef.current) return;
       setLoading(false);
@@ -476,7 +479,8 @@ export function MatterPage({ matterCode, user }: Props) {
         if (!res.ok) throw new Error(json.error || "Save failed");
         await reloadTaskItems();
       } catch (e) {
-        setStatusMsg(`⚠ ${e instanceof Error ? e.message : "Could not update checklist."}`);
+        setStatusMsg(e instanceof Error ? e.message : "Could not update checklist.");
+        setStatusIsError(true);
       }
     },
     [reloadTaskItems]
@@ -497,7 +501,8 @@ export function MatterPage({ matterCode, user }: Props) {
         if (!res.ok) throw new Error(json.error || "Save failed");
         await reloadTaskItems();
       } catch (e) {
-        setStatusMsg(`⚠ ${e instanceof Error ? e.message : "Could not update checklist."}`);
+        setStatusMsg(e instanceof Error ? e.message : "Could not update checklist.");
+        setStatusIsError(true);
       }
     },
     [reloadTaskItems]
@@ -516,9 +521,11 @@ export function MatterPage({ matterCode, user }: Props) {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Create failed");
         setStatusMsg(json.message || "Prep checklist created.");
+        setStatusIsError(false);
         await reloadTaskItems();
       } catch (e) {
-        setStatusMsg(`⚠ ${e instanceof Error ? e.message : "Could not create prep checklist."}`);
+        setStatusMsg(e instanceof Error ? e.message : "Could not create prep checklist.");
+        setStatusIsError(true);
       } finally {
         setPrepChecklistCreatingKey(null);
       }
@@ -539,9 +546,11 @@ export function MatterPage({ matterCode, user }: Props) {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Enable failed");
         setStatusMsg(json.message || "Interactive checklist enabled.");
+        setStatusIsError(false);
         await reloadTaskItems();
       } catch (e) {
-        setStatusMsg(`⚠ ${e instanceof Error ? e.message : "Could not enable checklist."}`);
+        setStatusMsg(e instanceof Error ? e.message : "Could not enable checklist.");
+        setStatusIsError(true);
       } finally {
         setPrepChecklistCreatingKey(null);
       }
@@ -561,9 +570,11 @@ export function MatterPage({ matterCode, user }: Props) {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Update failed");
         setStatusMsg(json.message || (done ? "Marked done." : "Reopened."));
+        setStatusIsError(false);
         await reloadTaskItems();
       } catch (e) {
-        setStatusMsg(`⚠ ${e instanceof Error ? e.message : "Update failed."}`);
+        setStatusMsg(e instanceof Error ? e.message : "Update failed.");
+        setStatusIsError(true);
       } finally {
         setTogglingKey(null);
       }
@@ -583,9 +594,11 @@ export function MatterPage({ matterCode, user }: Props) {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Update failed");
         setStatusMsg(json.message || "Status updated.");
+        setStatusIsError(false);
         await reloadTaskItems();
       } catch (e) {
-        setStatusMsg(`⚠ ${e instanceof Error ? e.message : "Update failed."}`);
+        setStatusMsg(e instanceof Error ? e.message : "Update failed.");
+        setStatusIsError(true);
       } finally {
         setTogglingKey(null);
       }
@@ -605,9 +618,11 @@ export function MatterPage({ matterCode, user }: Props) {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Update failed");
         setStatusMsg(json.message || "Court confirmed.");
+        setStatusIsError(false);
         await reloadTaskItems();
       } catch (e) {
-        setStatusMsg(`⚠ ${e instanceof Error ? e.message : "Update failed."}`);
+        setStatusMsg(e instanceof Error ? e.message : "Update failed.");
+        setStatusIsError(true);
       } finally {
         setTogglingKey(null);
       }
@@ -627,9 +642,11 @@ export function MatterPage({ matterCode, user }: Props) {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Update failed");
         setStatusMsg(json.message || "Marked filed / submitted.");
+        setStatusIsError(false);
         await reloadTaskItems();
       } catch (e) {
-        setStatusMsg(`⚠ ${e instanceof Error ? e.message : "Update failed."}`);
+        setStatusMsg(e instanceof Error ? e.message : "Update failed.");
+        setStatusIsError(true);
       } finally {
         setTogglingKey(null);
       }
@@ -658,9 +675,11 @@ export function MatterPage({ matterCode, user }: Props) {
         if (!doneRes.ok) throw new Error(doneJson.error || "Could not complete follow-up task.");
 
         setStatusMsg("Parent event marked filed; follow-up task done.");
+        setStatusIsError(false);
         await reloadTaskItems();
       } catch (e) {
-        setStatusMsg(`⚠ ${e instanceof Error ? e.message : "Update failed."}`);
+        setStatusMsg(e instanceof Error ? e.message : "Update failed.");
+        setStatusIsError(true);
       } finally {
         setTogglingKey(null);
       }
@@ -965,6 +984,7 @@ export function MatterPage({ matterCode, user }: Props) {
 
   function handleClientCodeRenamed(newCode: string) {
     setStatusMsg(`Client code renamed to ${newCode}.`);
+    setStatusIsError(false);
     router.push(matterLink(newCode), { scroll: false });
   }
 
@@ -985,7 +1005,7 @@ export function MatterPage({ matterCode, user }: Props) {
       onCreatePrepChecklist={createEventPrepChecklist}
       onInitializePrepChecklist={initializePrepChecklist}
       prepChecklistCreatingKey={prepChecklistCreatingKey}
-      onNotice={(message, isError) => setStatusMsg(isError ? `⚠ ${message}` : message)}
+      onNotice={(message, isError) => { setStatusMsg(message); setStatusIsError(!!isError); }}
     >
       <MatterLabelSync
         code={matterCode}
@@ -1004,7 +1024,7 @@ export function MatterPage({ matterCode, user }: Props) {
       breadcrumbPage={headerLabel}
       breadcrumbDetail={profileTitle}
       statusMessage={statusMsg || undefined}
-      statusVariant={statusMsg.startsWith("⚠") ? "error" : "ok"}
+      statusVariant={statusIsError ? "error" : "ok"}
       chromeTopBanner={undefined}
     >
       <div className="matter-page">
@@ -1209,9 +1229,7 @@ export function MatterPage({ matterCode, user }: Props) {
 
             {walkInHighlight ? (
               <section className="matter-walkin-success no-print" role="status">
-                <div className="matter-walkin-success__icon" aria-hidden>
-                  ✓
-                </div>
+                <div className="matter-walkin-success__icon" aria-hidden />
                 <div className="matter-walkin-success__body">
                   <p className="matter-walkin-success__eyebrow">Walk-in promoted</p>
                   <p className="matter-walkin-success__title">
@@ -1263,7 +1281,7 @@ export function MatterPage({ matterCode, user }: Props) {
                   events={events}
                   clientCode={billingCode || matterCode}
                   busy={busy || actionBusy}
-                  onStatus={(msg, err) => setStatusMsg(err ? `⚠ ${msg}` : msg)}
+                  onStatus={(msg, err) => { setStatusMsg(msg); setStatusIsError(!!err); }}
                   onRefresh={load}
                   onDraftCharge={handleDraftCharge}
                 />
@@ -1321,7 +1339,7 @@ export function MatterPage({ matterCode, user }: Props) {
                   focused={billingSection === "add"}
                   chargeDraft={chargeDraft}
                   onChargeDraftApplied={() => setChargeDraft(null)}
-                  onStatus={(msg, err) => setStatusMsg(err ? `⚠ ${msg}` : msg)}
+                  onStatus={(msg, err) => { setStatusMsg(msg); setStatusIsError(!!err); }}
                   onSaved={() => void refreshBillingData()}
                 />
 
@@ -1331,7 +1349,7 @@ export function MatterPage({ matterCode, user }: Props) {
                   busy={busy}
                   readOnly
                   onBusy={setActionBusy}
-                  onStatus={(msg, err) => setStatusMsg(err ? `⚠ ${msg}` : msg)}
+                  onStatus={(msg, err) => { setStatusMsg(msg); setStatusIsError(!!err); }}
                   onSaved={() => void refreshBillingData()}
                 />
 
@@ -1355,7 +1373,7 @@ export function MatterPage({ matterCode, user }: Props) {
                     preferredGreeting={clientDetail.preferredGreeting}
                     paymentMethods={paymentMethods}
                     onBusy={() => undefined}
-                    onStatus={(msg, err) => setStatusMsg(err ? `⚠ ${msg}` : msg)}
+                    onStatus={(msg, err) => { setStatusMsg(msg); setStatusIsError(!!err); }}
                   />
                 </section>
 
@@ -1387,7 +1405,7 @@ export function MatterPage({ matterCode, user }: Props) {
                     balance={clientDetail.balance}
                     email={clientDetail.email}
                     busy={busy}
-                    onStatus={(msg, err) => setStatusMsg(err ? `⚠ ${msg}` : msg)}
+                    onStatus={(msg, err) => { setStatusMsg(msg); setStatusIsError(!!err); }}
                   />
                 ) : null}
 
@@ -1398,7 +1416,7 @@ export function MatterPage({ matterCode, user }: Props) {
                   balance={clientDetail.balance}
                   email={clientDetail.email}
                   busy={busy}
-                  onStatus={(msg, err) => setStatusMsg(err ? `⚠ ${msg}` : msg)}
+                  onStatus={(msg, err) => { setStatusMsg(msg); setStatusIsError(!!err); }}
                 />
                 </div>
               </section>
@@ -1438,7 +1456,7 @@ export function MatterPage({ matterCode, user }: Props) {
                 openOnMount={billingSection === "advanced"}
                 autoEdit={wantEditClient && billingSection === "advanced"}
                 onBusy={setActionBusy}
-                onStatus={(msg, err) => setStatusMsg(err ? `⚠ ${msg}` : msg)}
+                onStatus={(msg, err) => { setStatusMsg(msg); setStatusIsError(!!err); }}
                 onSaved={() => void refreshBillingData()}
                 onCodeRenamed={handleClientCodeRenamed}
                 onDeleted={handleClientDeleted}
@@ -1528,7 +1546,7 @@ export function MatterPage({ matterCode, user }: Props) {
           busy={actionBusy}
           onBusy={setActionBusy}
           onSent={() => void refreshBillingData()}
-          onStatus={(msg, err) => setStatusMsg(err ? `⚠ ${msg}` : msg)}
+          onStatus={(msg, err) => { setStatusMsg(msg); setStatusIsError(!!err); }}
         />
       ) : null}
     </FirmWorkspaceShell>

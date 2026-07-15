@@ -286,7 +286,7 @@ export function ClientPortalView({ token, snapshot, expiresLabel, payUrl, paymen
             {view.documents.map((doc, index) => (
               <article
                 key={doc.logRow ? `vault-${doc.logRow}` : `vault-${index}-${doc.pdfUrl}-${doc.amount}`}
-                className="client-portal__vault-card firm-hover-lift"
+                className="client-portal__vault-card"
               >
                 <div className="client-portal__vault-card-head">
                   <span className="client-portal__vault-type">{doc.documentType}</span>
@@ -331,7 +331,7 @@ export function ClientPortalView({ token, snapshot, expiresLabel, payUrl, paymen
               </thead>
               <tbody>
                 {payments.map((payment) => (
-                  <tr key={`${payment.date}-${payment.amount}-${payment.description}`} className="firm-hover-lift-row">
+                  <tr key={`${payment.date}-${payment.amount}-${payment.description}`}>
                     <td className="amount-serif font-semibold text-ink">{formatPeso(payment.amount)}</td>
                     <td className="text-muted">
                       {payment.description}
@@ -513,7 +513,7 @@ function StatCard({
 }) {
   return (
     <div
-      className={`client-portal__stat firm-hover-lift rounded-xl border p-3 text-center ${
+      className={`client-portal__stat rounded-xl border p-3 text-center ${
         highlight ? "client-portal__stat--due border-gold/30 bg-gradient-to-br from-white to-[#faf6ee]" : "border-line bg-white"
       }`}
     >

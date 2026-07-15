@@ -609,7 +609,7 @@ function EmployeeSection({
         <span className="collapsible-section__action shrink-0">{toggleLabel}</span>
       </button>
       {!open && items.length > 0 && (
-        <p className="mt-1 text-[11px] text-muted">{items.length} hidden — tap to expand</p>
+        <p className="mt-1 text-[11px] text-muted">{items.length} hidden — select to expand</p>
       )}
       <ul className={`bucket-section__items my-work-list my-work-panel--elegant ${open ? "" : "my-work-list--collapsed"}`}>
           {items.length === 0 ? (

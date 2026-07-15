@@ -16,7 +16,7 @@ export async function GET() {
     const groups = ["Monthly", "Quarterly", "Annual"] as const;
     return NextResponse.json({ deadlines, groups });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load tax deadlines.";
+    const message = error instanceof Error ? error.message : "Unable to load tax deadlines.";
     const status = message.includes("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });
   }

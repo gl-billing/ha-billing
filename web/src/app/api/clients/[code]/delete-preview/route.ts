@@ -44,7 +44,7 @@ export async function GET(_request: Request, context: RouteContext) {
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }
-    const message = error instanceof Error ? error.message : "Failed to load delete preview.";
+    const message = error instanceof Error ? error.message : "Unable to load delete preview.";
     const status =
       message.includes("owners/admins") || message.startsWith("Unauthorized") ? 403 : 500;
     return NextResponse.json({ error: message }, { status });

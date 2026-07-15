@@ -13,7 +13,7 @@ export async function GET(_request: Request, context: RouteContext) {
     const appearanceFees = await getAppearanceFees(accessToken, clientCode);
     return NextResponse.json({ appearanceFees });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load appearance fees.";
+    const message = error instanceof Error ? error.message : "Unable to load appearance fees.";
     const status = message.startsWith("Unauthorized") ? 401 : 400;
     return NextResponse.json({ error: message }, { status });
   }

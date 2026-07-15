@@ -106,7 +106,7 @@ export async function GET(request: Request, context: RouteContext) {
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }
-    const message = error instanceof Error ? error.message : "Failed to load billing record.";
+    const message = error instanceof Error ? error.message : "Unable to load billing record.";
     const status = message.startsWith("Unauthorized") || message.includes("access") ? 403 : 500;
     return NextResponse.json({ error: message }, { status });
   }

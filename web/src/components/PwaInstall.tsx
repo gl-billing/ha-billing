@@ -121,12 +121,12 @@ export function PwaInstallBanner() {
             {iosMode === "safari" ? (
               <ol className="mt-1 list-decimal space-y-0.5 pl-4 text-[11px] leading-relaxed text-white/85">
                 <li>
-                  Tap <strong>Share</strong> at the bottom of Safari
+                  Select <strong>Share</strong> at the bottom of Safari
                 </li>
                 <li>
-                  Scroll and tap <strong>Add to Home Screen</strong>
+                  Scroll and select <strong>Add to Home Screen</strong>
                 </li>
-                <li>Tap <strong>Add</strong></li>
+                <li>Select <strong>Add</strong></li>
               </ol>
             ) : iosMode === "other" ? (
               <p className="mt-1 text-[11px] leading-relaxed text-white/85">
@@ -134,7 +134,7 @@ export function PwaInstallBanner() {
               </p>
             ) : (
               <p className="mt-1 text-[11px] text-white/80">
-                Install for quick access — works like an app.
+                Install for desk access from the home screen.
               </p>
             )}
           </div>

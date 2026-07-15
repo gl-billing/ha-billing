@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ entries });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load document log.";
+    const message = error instanceof Error ? error.message : "Unable to load document log.";
     const status = message.startsWith("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });
   }

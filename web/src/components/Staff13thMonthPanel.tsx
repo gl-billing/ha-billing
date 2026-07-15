@@ -57,10 +57,10 @@ export function Staff13thMonthPanel({
         `/api/staff-salary/thirteenth-month?staffId=${encodeURIComponent(staffId)}&year=${year}`
       );
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to load 13th month pay.");
+      if (!res.ok) throw new Error(json.error || "Unable to load 13th month pay.");
       setReport(json as Staff13thMonthReport);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to load 13th month pay.";
+      const message = err instanceof Error ? err.message : "Unable to load 13th month pay.";
       setError(message);
       setReport(null);
     } finally {
@@ -315,7 +315,7 @@ export function Staff13thMonthPanel({
           </div>
 
           <div className="staff-salary__tool-block">
-            <p className="staff-salary__tool-block-label">Tap months to include</p>
+            <p className="staff-salary__tool-block-label">Select months to include</p>
             <div className="staff-salary__13th-month-grid">
               {report.months.map((line) => {
                 const active = line.included;

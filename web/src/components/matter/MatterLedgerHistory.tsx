@@ -114,7 +114,7 @@ export function MatterLedgerHistory({
             <p className="matter-billing-section__help mb-3">
               {readOnly
                 ? "View past charges and payments. Ask the office admin if a line needs to be corrected."
-                : "To correct a mistake, tap Edit or Void on the line below. Lines already on a sent SOA or with an AR issued cannot be changed here."}
+                : "To correct a mistake, select Edit or Void on the line below. Lines already on a sent SOA or with an AR issued cannot be changed here."}
             </p>
           </>
         ) : (

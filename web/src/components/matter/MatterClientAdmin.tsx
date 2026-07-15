@@ -34,6 +34,7 @@ import {
 import { notifyBirthdaysRefresh } from "@/components/TodayBirthdaysProvider";
 import { UndoBar } from "@/components/UndoBar";
 import { parseApiJson } from "@/lib/parse-api-response";
+import { formatDisplayDate as formatRegisterDate } from "@/lib/office-tasks/date-only";
 
 type Props = {
   detail: ClientDetail;
@@ -68,9 +69,13 @@ function InfoRow({ label, value }: { label: string; value: ReactNode }) {
 
 function formatDisplayDate(value: string): string {
   if (!value) return "—";
+  const ymd = value.trim().slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(ymd)) {
+    return formatRegisterDate(ymd, "register");
+  }
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  return d.toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" });
 }
 
 function statusBadge(status: string): ReactNode {

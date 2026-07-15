@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     const items = await getFirmBillingHistory(accessToken, { limit, filter });
     return NextResponse.json({ items });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load billing history.";
+    const message = error instanceof Error ? error.message : "Unable to load billing history.";
     const status = message.includes("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });
   }

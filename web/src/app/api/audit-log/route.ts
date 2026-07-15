@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const entries = await getAuditLog(accessToken, { clientCode, limit });
     return NextResponse.json({ entries });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load audit log.";
+    const message = error instanceof Error ? error.message : "Unable to load audit log.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -30,11 +30,11 @@ export function BillingOpsQueuePanel({ busy, onNavigate }: Props) {
     try {
       const res = await fetch("/api/billing/ops-queue");
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to load ops queue.");
+      if (!res.ok) throw new Error(json.error || "Unable to load ops queue.");
       setQueue(json as BillingOpsQueue);
     } catch (err) {
       setQueue(null);
-      setError(err instanceof Error ? err.message : "Failed to load ops queue.");
+      setError(err instanceof Error ? err.message : "Unable to load ops queue.");
     } finally {
       setLoading(false);
     }
@@ -93,7 +93,7 @@ export function BillingOpsQueuePanel({ busy, onNavigate }: Props) {
             </span>
           ) : null}
           <button type="button" className="btn-secondary px-3 py-1.5 text-xs" disabled={busy} onClick={() => void load()}>
-            Reload
+            Update
           </button>
         </div>
       </div>

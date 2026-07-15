@@ -21,14 +21,14 @@ export function NewStaffHint({ email }: Props) {
   if (!visible) return null;
 
   return (
-    <aside className="new-staff-hint firm-auth-animate firm-auth-animate--1" aria-label="New here">
-      <p className="new-staff-hint__title">New here?</p>
+    <aside className="new-staff-hint firm-auth-animate firm-auth-animate--1" aria-label="Desk procedures">
+      <p className="new-staff-hint__title">Desk procedures</p>
       <p className="new-staff-hint__text">
-        Read the 5-minute office guide for daily workflows, who to ask, and how billing and tasks connect.
+        Morning register, task vs event, walk-ins, charges, SOA/AR, and who to contact — kept as desk procedures for the firm.
       </p>
       <div className="new-staff-hint__actions">
         <SameWindowLink href="/office-hub/instructions" className="new-staff-hint__link">
-          Open guide →
+          Open procedures →
         </SameWindowLink>
         <button
           type="button"
@@ -38,7 +38,7 @@ export function NewStaffHint({ email }: Props) {
             setVisible(false);
           }}
         >
-          Got it
+          Dismiss
         </button>
       </div>
     </aside>

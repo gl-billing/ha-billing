@@ -32,7 +32,7 @@ export async function GET(_request: Request, context: RouteContext) {
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }
-    const message = error instanceof Error ? error.message : "Failed to load field dispatches.";
+    const message = error instanceof Error ? error.message : "Unable to load field dispatches.";
     const status = message.startsWith("Unauthorized") ? 401 : 400;
     return NextResponse.json({ error: message }, { status });
   }

@@ -13,7 +13,7 @@ export async function GET() {
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }
-    const message = error instanceof Error ? error.message : "Failed to load walk-in clients.";
+    const message = error instanceof Error ? error.message : "Unable to load walk-in clients.";
     const status =
       message.includes("do not have access") ? 403 : message.startsWith("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });

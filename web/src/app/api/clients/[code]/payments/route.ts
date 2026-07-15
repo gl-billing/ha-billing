@@ -16,7 +16,7 @@ export async function GET(request: Request, context: RouteContext) {
     const payments = await getClientPayments(accessToken, clientCode, onlyWithoutAr);
     return NextResponse.json({ payments });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load payments.";
+    const message = error instanceof Error ? error.message : "Unable to load payments.";
     const status = message.startsWith("Unauthorized") ? 401 : 400;
     return NextResponse.json({ error: message }, { status });
   }

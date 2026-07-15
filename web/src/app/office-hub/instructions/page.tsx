@@ -74,7 +74,7 @@ export default function OfficeHubInstructionsPage() {
   if (status === "loading" || status === "unauthenticated") {
     return (
       <div className="office-hub office-hub--loading">
-        <p className="office-hub__loading-text">Loading instructions…</p>
+        <p className="office-hub__loading-text">Loading desk procedures…</p>
       </div>
     );
   }
@@ -84,7 +84,7 @@ export default function OfficeHubInstructionsPage() {
       <div className="office-hub__shell">
         <FirmBrandHeader
           className="office-hub__header"
-          subtitle="Instructions · staff guide"
+          subtitle="Desk procedures"
           name={session?.user?.name}
           email={session?.user?.email}
           displayName={displayLabel}
@@ -96,21 +96,21 @@ export default function OfficeHubInstructionsPage() {
             ← Back to Office Hub
           </SameWindowLink>
 
-          <h1 className="office-hub-instructions__title">HA Office — staff guide</h1>
+          <h1 className="office-hub-instructions__title">HA Office — desk procedures</h1>
           <p className="office-hub-instructions__lead">
-            Common questions about Tasks &amp; calendar, billing, and client matters. Sign in once with your firm
-            Google account. Use <strong>Office hub</strong> in the header to switch between Tasks and Billing without
-            signing out again.
+            Firm desk procedures for Tasks &amp; calendar, Accounts, and client matters. Sign in once with your firm
+            Google account. Use <strong>Office hub</strong> in the header to move between Schedule and Accounts
+            without signing out again.
           </p>
 
-          <section id="cheatsheet" className="office-hub-instructions__card office-hub-instructions__cheatsheet">
-            <h2 className="office-hub-instructions__question">Desk reference — Andrea &amp; Jas</h2>
-            <p className="office-hub-instructions__cheatsheet-lead">
-              Print or keep this open on a second tab. Full explanations are in the questions below.
+          <section id="register" className="office-hub-instructions__card office-hub-instructions__register">
+            <h2 className="office-hub-instructions__question">Morning register — Andrea &amp; Jas</h2>
+            <p className="office-hub-instructions__register-lead">
+              Keep this open on a second tab or print for the desk. Full procedures follow below.
             </p>
 
-            <div className="office-hub-instructions__cheatsheet-grid">
-              <div className="office-hub-instructions__cheatsheet-block">
+            <div className="office-hub-instructions__register-grid">
+              <div className="office-hub-instructions__register-block">
                 <h3>Every morning (both)</h3>
                 <ol>
                   <li>
@@ -124,7 +124,7 @@ export default function OfficeHubInstructionsPage() {
                 </ol>
               </div>
 
-              <div className="office-hub-instructions__cheatsheet-block">
+              <div className="office-hub-instructions__register-block">
                 <h3>Task or Event?</h3>
                 <p>
                   <strong>Event (+ Event)</strong> — on the calendar: hearing, consultation, meeting, filing/submission
@@ -139,7 +139,7 @@ export default function OfficeHubInstructionsPage() {
                 </p>
               </div>
 
-              <div className="office-hub-instructions__cheatsheet-block">
+              <div className="office-hub-instructions__register-block">
                 <h3>Andrea — desk &amp; billing</h3>
                 <p className="office-hub-instructions__note">
                   Sign in as <strong>info@hernandezassociates.com</strong> for the simplified desk view — core tabs only
@@ -167,7 +167,7 @@ export default function OfficeHubInstructionsPage() {
                 </ul>
               </div>
 
-              <div className="office-hub-instructions__cheatsheet-block">
+              <div className="office-hub-instructions__register-block">
                 <h3>Jas — calendar &amp; field</h3>
                 <ul>
                   <li>
@@ -188,7 +188,7 @@ export default function OfficeHubInstructionsPage() {
                 </ul>
               </div>
 
-              <div className="office-hub-instructions__cheatsheet-block office-hub-instructions__cheatsheet-block--wide">
+              <div className="office-hub-instructions__register-block office-hub-instructions__register-block--wide">
                 <h3>Office procedures</h3>
                 <p>
                   <strong>App / system</strong> → Atty. Janine · <strong>Files / SOA / walk-ins</strong> → Andrea + assigned
@@ -199,28 +199,28 @@ export default function OfficeHubInstructionsPage() {
           </section>
 
           <section className="office-hub-instructions__card">
-            <h2 className="office-hub-instructions__question">Jump to a question</h2>
-            <nav className="office-hub-instructions__toc" aria-label="Questions">
-              <a href="#cheatsheet">Desk reference</a>
-              <a href="#roles">Who does what on the team?</a>
-              <a href="#daily">What should I do first each morning?</a>
-              <a href="#bell">What does the bell show?</a>
-              <a href="#tasks-tabs">What are the Tasks &amp; calendar tabs for?</a>
-              <a href="#billing-tabs">What are the Billing system tabs for?</a>
-              <a href="#matter">How do I use the client matter page?</a>
-              <a href="#consultation">How do I handle consultations and walk-ins?</a>
-              <a href="#task-vs-event">What is the difference between a task and an event?</a>
-              <a href="#hearings">How do I plot a task or event?</a>
-              <a href="#charges">How do I add a charge?</a>
-              <a href="#payment">How do I record a payment?</a>
-              <a href="#soa">How do I send an SOA?</a>
-              <a href="#ar">How do I send an AR?</a>
-              <a href="#admin">What are Advanced settings?</a>
-              <a href="#help">Who do I contact for help?</a>
+            <h2 className="office-hub-instructions__question">Jump to a procedure</h2>
+            <nav className="office-hub-instructions__toc" aria-label="Procedures">
+              <a href="#register">Morning register</a>
+              <a href="#roles">Team roles</a>
+              <a href="#daily">Morning procedure</a>
+              <a href="#bell">Notifications bell</a>
+              <a href="#tasks-tabs">Schedule tabs</a>
+              <a href="#billing-tabs">Accounts tabs</a>
+              <a href="#matter">Client matter page</a>
+              <a href="#consultation">Consultations and walk-ins</a>
+              <a href="#task-vs-event">Task vs event</a>
+              <a href="#hearings">Plotting a task or event</a>
+              <a href="#charges">Recording a charge</a>
+              <a href="#payment">Recording a payment</a>
+              <a href="#soa">Sending an SOA</a>
+              <a href="#ar">Sending an AR</a>
+              <a href="#admin">Advanced settings</a>
+              <a href="#help">Who to contact</a>
             </nav>
           </section>
 
-          <InstructionsQuestion id="roles" question="Who does what on the team?">
+          <InstructionsQuestion id="roles" question="Team roles">
             <p>
               HA Office is shared — everyone signs in with their firm Google account. Knowing who usually handles what
               helps you know who to coordinate with and what to plot on the calendar vs record in billing.
@@ -246,12 +246,12 @@ export default function OfficeHubInstructionsPage() {
               </li>
             </ul>
             <InstructionsTip>
-              <strong>Tip:</strong> The assigned attorney on each client profile is the lead on that matter. Andrea and
+              <strong>Note:</strong> The assigned attorney on each client profile is the lead on that matter. Andrea and
               Jas handle day-to-day plotting and desk work; attorneys approve strategy and sign off on major steps.
             </InstructionsTip>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="daily" question="What should I do first each morning?">
+          <InstructionsQuestion id="daily" question="Morning procedure">
             <p>
               The firm task sheet drives the bell, My work, and overdue counts. If overdue items pile up, the whole team
               loses visibility on what is urgent. Start every day by clearing or updating overdue work before new entries.
@@ -286,7 +286,7 @@ export default function OfficeHubInstructionsPage() {
             </InstructionsTip>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="bell" question="What does the bell show?">
+          <InstructionsQuestion id="bell" question="Notifications bell">
             <p>
               The bell is a firm-wide overdue list — not billing alerts. It pulls from the same task sheet as Tasks → My
               work, so anything red on the bell should be worked or updated that day.
@@ -305,7 +305,7 @@ export default function OfficeHubInstructionsPage() {
             </InstructionsTip>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="tasks-tabs" question="What are the Tasks & calendar tabs for?">
+          <InstructionsQuestion id="tasks-tabs" question="Schedule tabs">
             <p>
               Tasks &amp; calendar is where Jas plots hearings and deadlines and where everyone checks what is due. Think
               of it as the firm&apos;s shared task and calendar board. Billing lives in a separate app — use Office hub
@@ -341,8 +341,8 @@ export default function OfficeHubInstructionsPage() {
             <h3>When do I use + Task vs + Event?</h3>
             <p>
               These are <strong>not</strong> two ways to do the same thing — pick the one that matches the work. See{" "}
-              <a href="#task-vs-event">What is the difference between a task and an event?</a> for a full list, then{" "}
-              <a href="#hearings">How do I plot a task or event?</a> for steps.
+              <a href="#task-vs-event">Task vs event</a> for a full list, then{" "}
+              <a href="#hearings">Plotting a task or event</a> for steps.
             </p>
             <p>
               <strong>+ Task</strong> — office or field work assigned to someone with a due date (serve demand letter,
@@ -372,7 +372,7 @@ export default function OfficeHubInstructionsPage() {
             </p>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="billing-tabs" question="What are the Billing system tabs for?">
+          <InstructionsQuestion id="billing-tabs" question="Accounts tabs">
             <p>
               Billing system is where Andrea records money in and out, opens new client files, and sends SOA/AR. Most
               tabs are for a specific job — use the desk reference above if you are unsure which tab to open.
@@ -385,9 +385,9 @@ export default function OfficeHubInstructionsPage() {
 
             <h3>What is the Billing tab?</h3>
             <p>
-              Quick ledger form: switch <strong>Add Charge</strong> or <strong>Add Payment</strong>, pick client code,
+              Ledger form: switch <strong>Add Charge</strong> or <strong>Add Payment</strong>, pick client code,
               enter amount and details. This is Option A for daily charge and payment entry — see{" "}
-              <a href="#charges">How do I add a charge?</a> and <a href="#payment">How do I record a payment?</a>.
+              <a href="#charges">Recording a charge</a> and <a href="#payment">Recording a payment</a>.
             </p>
 
             <h3>When do I use Intake?</h3>
@@ -405,7 +405,7 @@ export default function OfficeHubInstructionsPage() {
             <p>
               Same-day consultations and one-off visitors. Log name and topic; optionally bill consultation fee
               immediately. <strong>Promote</strong> to a full client file when the matter is retained. See{" "}
-              <a href="#consultation">How do I handle consultations and walk-ins?</a>.
+              <a href="#consultation">Consultations and walk-ins</a>.
             </p>
 
             <h3>What is Client Directory?</h3>
@@ -427,7 +427,7 @@ export default function OfficeHubInstructionsPage() {
             <p>Export and reporting tools for partners and admin.</p>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="matter" question="How do I use the client matter page?">
+          <InstructionsQuestion id="matter" question="Client matter page">
             <p>
               The matter page is one stop for a single client: profile, balance, billing steps, tasks, hearings, and
               timeline. Andrea often uses it for SOA/AR and reviewing a file; Jas uses it to see what is open on that
@@ -457,7 +457,7 @@ export default function OfficeHubInstructionsPage() {
                 <strong>Client profile</strong> — code, name, case title, balance, contact, open task counts.
               </li>
               <li>
-                <strong>What do you need to do?</strong> — shortcuts to add billing or send documents.
+                <strong>Next steps</strong> — shortcuts to add billing or send documents.
               </li>
               <li>
                 <strong>Step 1</strong> — add charge or payment inline.
@@ -482,14 +482,14 @@ export default function OfficeHubInstructionsPage() {
             </InstructionsTip>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="consultation" question="How do I handle consultations and walk-ins?">
+          <InstructionsQuestion id="consultation" question="Consultations and walk-ins">
             <p>
               Consultations are usually Andrea&apos;s desk workflow; Jas plots them on the calendar so the team sees
               date and time. A walk-in who has not hired the firm yet stays on Walk-ins — do not run Intake until they
               retain.
             </p>
 
-            <h3>How do I plot a consultation for a client already on file?</h3>
+            <h3>Consultation for a client already on file</h3>
             <p>
               A consultation is an <strong>event</strong> — use <strong>Tasks → + Event</strong>, not + Task.
             </p>
@@ -505,11 +505,11 @@ export default function OfficeHubInstructionsPage() {
               </li>
               <li>
                 If a fee is collected at the desk, record it — see{" "}
-                <a href="#payment">How do I record a payment?</a> or <a href="#charges">How do I add a charge?</a>.
+                <a href="#payment">Recording a payment</a> or <a href="#charges">Recording a charge</a>.
               </li>
             </ol>
 
-            <h3>How do I handle a walk-in who is not yet a client file?</h3>
+            <h3>Walk-in not yet on the Master List</h3>
             <p>
               Log them first so the consultation is on record even if they do not hire the firm. You can log a walk-in
               two ways:
@@ -560,7 +560,7 @@ export default function OfficeHubInstructionsPage() {
               </li>
               <li>
                 <strong>Existing client:</strong> Record payment via Billing or the matter page — see{" "}
-                <a href="#payment">How do I record a payment?</a>. For partial pay, add the charge first. Send{" "}
+                <a href="#payment">Recording a payment</a>. For partial pay, add the charge first. Send{" "}
                 <strong>AR</strong> after payment.
               </li>
               <li>
@@ -591,7 +591,7 @@ export default function OfficeHubInstructionsPage() {
                 <strong>Court Follow-up</strong> or <strong>Task</strong>) — assign who will go out or send it, with a
                 due date.
               </li>
-              <li>Bill the professional fee if not yet charged — see <a href="#charges">How do I add a charge?</a>.</li>
+              <li>Bill the professional fee if not yet charged — see <a href="#charges">Recording a charge</a>.</li>
               <li>
                 Optional: add a <strong>Client Follow-up</strong> <strong>task</strong> to track the client&apos;s
                 response after sending.
@@ -599,7 +599,7 @@ export default function OfficeHubInstructionsPage() {
             </ol>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="task-vs-event" question="What is the difference between a task and an event?">
+          <InstructionsQuestion id="task-vs-event" question="Task vs event">
             <p>
               This is the most common mix-up. A <strong>task</strong> and an <strong>event</strong> are not two ways to
               enter the same thing — they are two different kinds of work. Pick the form first, then fill it in.
@@ -659,7 +659,7 @@ export default function OfficeHubInstructionsPage() {
             </p>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="hearings" question="How do I plot a task or event?">
+          <InstructionsQuestion id="hearings" question="Plotting a task or event">
             <p>
               After you know task vs event (see above), go to Tasks and open <strong>+ Task</strong> or{" "}
               <strong>+ Event</strong>. Every entry needs a client/case so it links to the right matter and shows on the
@@ -667,7 +667,7 @@ export default function OfficeHubInstructionsPage() {
               <a href="#task-vs-event">task vs event</a> first if you are unsure which form to use.
             </p>
 
-            <h3>How do I plot a task (+ Task)?</h3>
+            <h3>Plotting a task (+ Task)</h3>
             <p>Use when someone needs to <em>do</em> something — go somewhere, send something, follow up, research.</p>
             <ol>
               <li>
@@ -682,7 +682,7 @@ export default function OfficeHubInstructionsPage() {
               <li>When finished, set status to <strong>Done</strong>.</li>
             </ol>
 
-            <h3>How do I plot an event (+ Event)?</h3>
+            <h3>Plotting an event (+ Event)</h3>
             <p>
               Use when something happens <em>on</em> a date — hearing, consultation, meeting, or a deadline the calendar
               should show.
@@ -735,7 +735,7 @@ export default function OfficeHubInstructionsPage() {
             </ul>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="charges" question="How do I add a charge?">
+          <InstructionsQuestion id="charges" question="Recording a charge">
             <p>
               A charge adds fees to what the client owes (professional fee, filing fee, notarial fee, etc.). Always pick
               the correct client code so the balance on the matter page stays accurate.
@@ -769,7 +769,7 @@ export default function OfficeHubInstructionsPage() {
             </InstructionsTip>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="payment" question="How do I record a payment?">
+          <InstructionsQuestion id="payment" question="Recording a payment">
             <p>
               Record a payment when the firm receives money. After saving, send an <strong>AR</strong> if the client
               needs an acknowledgment receipt (see below).
@@ -805,7 +805,7 @@ export default function OfficeHubInstructionsPage() {
             </InstructionsTip>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="soa" question="How do I send an SOA?">
+          <InstructionsQuestion id="soa" question="Sending an SOA">
             <p>
               An SOA (statement of account) tells the client what they owe and what work has been done. Send when billing
               is due or when the client asks for an update. The client needs an email on file for Send Now.
@@ -836,7 +836,7 @@ export default function OfficeHubInstructionsPage() {
             </InstructionsOptions>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="ar" question="How do I send an AR (acknowledgment receipt)?">
+          <InstructionsQuestion id="ar" question="Sending an AR">
             <p>
               An AR confirms payment received. Send one after each payment when the client needs a receipt — usually
               right after recording the payment on the matter page or Billing tab.
@@ -849,7 +849,7 @@ export default function OfficeHubInstructionsPage() {
                   <li>Go to Step 3 → <strong>AR</strong> tab.</li>
                   <li>Select the payment row to acknowledge.</li>
                   <li>Confirm method and details → Send Now or PDF.</li>
-                  <li>Each payment can only have one AR — system tracks AR pending on the dashboard.</li>
+                  <li>Each payment can only have one AR — system tracks AR pending on the firm overview.</li>
                 </ol>
               </InstructionsOption>
               <InstructionsOption label="Option B" title="Billing → SOA / AR tab">
@@ -865,7 +865,7 @@ export default function OfficeHubInstructionsPage() {
             </InstructionsOptions>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="admin" question="What are Advanced settings?">
+          <InstructionsQuestion id="admin" question="Advanced settings">
             <p>
               Only firm admins see this section. It is for correcting mistakes or closing files — not for everyday
               billing. If you entered a charge wrong and are not an admin, ask Atty. Janine or a firm admin instead of
@@ -889,7 +889,7 @@ export default function OfficeHubInstructionsPage() {
             </p>
           </InstructionsQuestion>
 
-          <InstructionsQuestion id="help" question="Who do I contact for help?">
+          <InstructionsQuestion id="help" question="Who to contact">
             <p>Use this list so questions go to the right person the first time:</p>
             <p>
               System access, balances, or how to use the app: contact{" "}
@@ -908,6 +908,9 @@ export default function OfficeHubInstructionsPage() {
 
         <footer className="office-hub__footer">
           <p className="office-hub__footer-brand">Hernandez &amp; Associates · Law Office</p>
+          <p className="office-hub__footer-confidential">
+            Confidential — Hernandez &amp; Associates · for authorized staff only
+          </p>
           <FirmCopyright className="office-hub__footer-copyright" />
         </footer>
       </div>

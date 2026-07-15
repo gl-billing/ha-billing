@@ -20,7 +20,7 @@ export async function GET(_request: Request, context: RouteContext) {
     const activity = await getClientActivity(accessToken, clientCode, detail);
     return NextResponse.json({ activity });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load activity.";
+    const message = error instanceof Error ? error.message : "Unable to load activity.";
     const status = message.startsWith("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });
   }

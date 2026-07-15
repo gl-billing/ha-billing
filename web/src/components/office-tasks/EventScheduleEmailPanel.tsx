@@ -149,7 +149,7 @@ export function EventScheduleEmailPanel({
             <p className="schedule-email-callout__title">Google Meet</p>
             <p className="schedule-email-callout__text">
               A secure meeting link is created automatically when you send this confirmation, and it will appear on the
-              event card right away.
+              event entry right away.
             </p>
           </div>
         ) : null}

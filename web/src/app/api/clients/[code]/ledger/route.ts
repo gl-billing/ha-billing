@@ -13,7 +13,7 @@ export async function GET(_request: Request, context: RouteContext) {
     const ledger = await getClientLedger(accessToken, clientCode);
     return NextResponse.json(ledger);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load ledger.";
+    const message = error instanceof Error ? error.message : "Unable to load ledger.";
     const status = message.startsWith("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });
   }

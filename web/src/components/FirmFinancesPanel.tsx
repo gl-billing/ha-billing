@@ -111,11 +111,11 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
     try {
       const res = await fetch(`/api/firm-finances/split?year=${year}&month=${month}`);
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to load income split.");
+      if (!res.ok) throw new Error(json.error || "Unable to load income split.");
       const nextReport = json as MonthlyAllocationReport;
       setReport(nextReport);
     } catch (error) {
-      const msg = error instanceof Error ? error.message : "Failed to load income split.";
+      const msg = error instanceof Error ? error.message : "Unable to load income split.";
       setReportError(msg);
       setReport(null);
     } finally {

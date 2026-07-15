@@ -4845,55 +4845,55 @@ html {
     border-left: 3px solid rgba(184, 145, 61, 0.55);
   }
 
-  .office-hub-instructions__cheatsheet-lead {
+  .office-hub-instructions__register-lead {
     @apply mt-2 text-sm leading-relaxed;
     color: var(--site-muted);
   }
 
-  .office-hub-instructions__cheatsheet-grid {
+  .office-hub-instructions__register-grid {
     @apply mt-4 grid gap-3 sm:grid-cols-2;
   }
 
-  .office-hub-instructions__cheatsheet-block {
+  .office-hub-instructions__register-block {
     @apply rounded-lg border px-4 py-3;
     border-color: rgba(184, 145, 61, 0.22);
     background: var(--site-instructions-note-bg);
   }
 
-  .office-hub-instructions__cheatsheet-block--wide {
+  .office-hub-instructions__register-block--wide {
     @apply sm:col-span-2;
   }
 
-  .office-hub-instructions__cheatsheet-block h3 {
+  .office-hub-instructions__register-block h3 {
     @apply mt-0 text-xs font-extrabold uppercase tracking-[0.12em];
     color: var(--site-gold-strong);
   }
 
-  .office-hub-instructions__cheatsheet-block p,
-  .office-hub-instructions__cheatsheet-block li {
+  .office-hub-instructions__register-block p,
+  .office-hub-instructions__register-block li {
     @apply mt-1.5 text-xs leading-relaxed;
     color: var(--site-text);
   }
 
-  .office-hub-instructions__cheatsheet-block ol {
+  .office-hub-instructions__register-block ol {
     @apply mt-2 list-decimal space-y-1 pl-4;
   }
 
-  .office-hub-instructions__cheatsheet-block ul {
+  .office-hub-instructions__register-block ul {
     @apply mt-2 list-inside list-disc space-y-1;
   }
 
-  .office-hub-instructions__cheatsheet-block a {
+  .office-hub-instructions__register-block a {
     @apply font-semibold no-underline;
     color: var(--site-gold-strong);
   }
 
-  .office-hub-instructions__cheatsheet-block a:hover {
+  .office-hub-instructions__register-block a:hover {
     color: var(--site-gold);
   }
 
   @media print {
-    .office-hub-instructions__cheatsheet {
+    .office-hub-instructions__register {
       break-inside: avoid;
     }
   }

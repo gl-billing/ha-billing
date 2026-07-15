@@ -435,7 +435,7 @@ export function CorrespondenceDraftPanel({
             disabled={actionsDisabled}
             onClick={() => applyKindTemplate(letter.kind)}
           >
-            Reload starter text
+            Update starter text
           </button>
         </div>
       </section>

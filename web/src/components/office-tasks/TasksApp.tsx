@@ -1402,7 +1402,7 @@ export function TasksApp() {
               ) : (
                 <BillingTabGuideText>
                   Use <strong>Calendar</strong> for other dates. Select <strong>New task</strong> or <strong>New hearing &amp; filing</strong>{" "}
-                  to log new work — add remarks on the form or edit a card after saving.
+                  to log new work — add remarks on the form or edit an entry after saving.
                 </BillingTabGuideText>
               )}
               {billingAccess ? (

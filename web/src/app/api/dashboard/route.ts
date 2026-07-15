@@ -8,7 +8,7 @@ export async function GET() {
     const dashboard = await getDashboard(accessToken);
     return NextResponse.json(dashboard);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load dashboard.";
+    const message = error instanceof Error ? error.message : "Unable to load firm overview.";
     const status = message.startsWith("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });
   }

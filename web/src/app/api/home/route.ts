@@ -9,7 +9,7 @@ export async function GET() {
     const home = await getHomeDashboard(accessToken);
     return NextResponse.json(home);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load dashboard.";
+    const message = error instanceof Error ? error.message : "Unable to load firm overview.";
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }

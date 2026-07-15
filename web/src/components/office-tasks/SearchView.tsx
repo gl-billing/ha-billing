@@ -278,7 +278,7 @@ export function SearchView({
                 ? `${items.length} tasks and events loaded from your sheet, but none match the current search or filters. Reset filters or clear the search bar above.`
                 : hasQuery
                   ? "Try another keyword or reset filters."
-                  : "Your sheet has no tasks or events yet, or data could not load (check for a quota message above and wait 60 seconds, then Reload)."
+                  : "Your sheet has no tasks or events yet, or data could not load (check for a quota message above and wait 60 seconds, then Update)."
             }
           />
           {items.length > 0 ? (

@@ -18,7 +18,7 @@ export async function GET() {
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }
-    const message = error instanceof Error ? error.message : "Failed to load payroll roster.";
+    const message = error instanceof Error ? error.message : "Unable to load payroll roster.";
     const status =
       message.startsWith("Unauthorized") || message.includes("firm admins") ? 403 : 500;
     return NextResponse.json({ error: message }, { status });

@@ -83,7 +83,7 @@ export async function GET(request: Request) {
     const { report, directory, period } = await loadPaidPayRun(parseQueryParams(request));
     return NextResponse.json(buildStaffPayRunPayslipPreview(report, period, directory));
   } catch (error) {
-    return errorResponse(error, "Failed to load payslip preview.");
+    return errorResponse(error, "Unable to load payslip preview.");
   }
 }
 

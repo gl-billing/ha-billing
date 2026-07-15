@@ -24,8 +24,8 @@ type Props = {
 
 export function MatterStaffActions({ activeSection, onSelect, correspondenceHref }: Props) {
   return (
-    <section className="matter-staff-actions no-print" aria-label="What do you need to do?">
-      <p className="matter-staff-actions__heading">What do you need to do?</p>
+    <section className="matter-staff-actions no-print" aria-label="Next steps">
+      <p className="matter-staff-actions__heading">Next steps</p>
       <div className="matter-staff-actions__grid matter-staff-actions__grid--staff">
         {STAFF_ACTIONS.map((action) => (
           <button

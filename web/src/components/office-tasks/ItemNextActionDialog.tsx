@@ -34,7 +34,7 @@ export function ItemNextActionDialog({ item, open, busy, onClose, onConfirm }: P
           {item.clientCase || "—"} · {item.id || "no code"}
         </p>
         <label className="mt-4 block text-xs font-bold uppercase tracking-wide text-muted">
-          What to do next
+          Next action
           <textarea
             className="field-input mt-1.5 min-h-[88px] w-full resize-y"
             value={text}

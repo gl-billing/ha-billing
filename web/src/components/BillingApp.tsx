@@ -327,7 +327,7 @@ export function BillingApp() {
 
       if (!clientsRes.ok) {
         const err = await clientsRes.json();
-        throw new Error(err.error || "Failed to load clients.");
+        throw new Error(err.error || "Unable to load clients.");
       }
 
       const clientsData = (await clientsRes.json()) as ClientsResponse;
@@ -355,7 +355,7 @@ export function BillingApp() {
       }
       setSheetsAccessHint(null);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to load data.";
+      const message = error instanceof Error ? error.message : "Unable to load data.";
       setSheetsAccessHint(formatSheetsAccessHint(message, email));
       reportError(message);
     } finally {
@@ -488,7 +488,7 @@ export function BillingApp() {
 
   async function refreshSpreadsheetDashboard() {
     setBusy(true);
-    setAppStatus("Refreshing spreadsheet dashboard…", false, true);
+    setAppStatus("Updating spreadsheet overview…", false, true);
     try {
       const response = await fetch("/api/documents", {
         method: "POST",
@@ -614,7 +614,7 @@ export function BillingApp() {
                 <strong>Contract of legal services</strong> or <strong>Retainership agreement</strong> to send.
               </BillingTabGuideText>
               <BillingTabGuideText>
-                <strong>Quick register</strong> (expand at bottom) — adds the client to the list and opens their billing
+                <strong>Client register</strong> (expand at bottom) — adds the client to the list and opens their billing
                 file only, when you are not sending letters or starter tasks yet.
               </BillingTabGuideText>
             </BillingTabGuide>
@@ -636,7 +636,7 @@ export function BillingApp() {
             }}
           />
           <details className="card mt-4">
-            <summary className="cursor-pointer text-xs font-bold text-muted">Quick register (single form)</summary>
+            <summary className="cursor-pointer text-xs font-bold text-muted">Client register (single form)</summary>
             <div className="mt-3">
               <NewClientForm busy={busy} onSubmit={submitNewClient} onStatus={setAppStatus} />
             </div>
@@ -650,7 +650,7 @@ export function BillingApp() {
           <TabPageHeader resetKey={page}>
             <BillingTabGuide title="find a client">
               <BillingTabGuideText>
-                Search by client code or name. Tap a row to see contact details, or open the <strong>matter page</strong>{" "}
+                Search by client code or name. Select a row to see contact details, or open the <strong>matter page</strong>{" "}
                 for their ledger, tasks, and documents.
               </BillingTabGuideText>
             </BillingTabGuide>
@@ -1174,7 +1174,7 @@ export function BillingApp() {
           onClick={() => void refreshSpreadsheetDashboard()}
           className="btn-gold"
         >
-          Refresh spreadsheet dashboard
+          Update spreadsheet overview
         </button>
         <button
           type="button"
@@ -1182,7 +1182,7 @@ export function BillingApp() {
           onClick={() => void loadData()}
           className="btn-gold"
         >
-          Reload
+          Update
         </button>
       </aside>
       </TabPageBody>

@@ -56,7 +56,7 @@ export function OfficeHubPwaHint() {
         </p>
       )}
       <button type="button" className="office-hub__pwa-hint-dismiss" onClick={dismiss}>
-        Got it
+        Dismiss
       </button>
     </aside>
   );

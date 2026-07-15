@@ -27,7 +27,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
     return NextResponse.json({ client });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load client.";
+    const message = error instanceof Error ? error.message : "Unable to load client.";
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }

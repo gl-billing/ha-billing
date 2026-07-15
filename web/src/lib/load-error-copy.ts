@@ -46,7 +46,7 @@ export function classifyLoadError(message: string, status?: number): LoadErrorKi
 const CONTEXT_TITLES: Record<LoadErrorContext, string> = {
   tasks: "Could not load office data",
   billing: "Could not load billing data",
-  dashboard: "Could not load firm dashboard",
+  dashboard: "Could not load firm overview",
   generic: "Could not load data"
 };
 
@@ -74,7 +74,7 @@ export function resolveLoadErrorEmptyState(
         title: title || "Google Sheets is busy",
         message:
           message ||
-          "Too many spreadsheet reads at once. Wait about 60 seconds, then tap Try again once — avoid opening many tabs at the same time.",
+          "Too many spreadsheet reads at once. Wait about 60 seconds, then select Try again once — avoid opening many tabs at the same time.",
         showSignIn: false,
         showRetry: true,
         retryLabel: "Try again in a minute"
@@ -96,7 +96,7 @@ export function resolveLoadErrorEmptyState(
         title: title || "You appear to be offline",
         message:
           message ||
-          "We could not reach the server. Your changes may be queued locally when you post charges or payments. Reconnect and tap Try again.",
+          "We could not reach the server. Your changes may be queued locally when you post charges or payments. Reconnect and select Try again.",
         showSignIn: false,
         showRetry: true,
         retryLabel: "Try again"

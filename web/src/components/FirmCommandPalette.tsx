@@ -130,7 +130,7 @@ export function FirmCommandPalette({ workspace, billingAccess = true }: Props) {
       actions.unshift(
         {
           id: "billing-home",
-          label: "Billing dashboard",
+          label: "Firm overview",
           hint: "Firm numbers & documents",
           run: () => {
             saveBillingPage("home");

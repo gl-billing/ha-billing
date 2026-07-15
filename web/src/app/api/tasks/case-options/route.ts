@@ -52,7 +52,7 @@ export async function GET(request: Request) {
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }
-    const message = error instanceof Error ? error.message : "Failed to load case options.";
+    const message = error instanceof Error ? error.message : "Unable to load case options.";
     const status = message.startsWith("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });
   }

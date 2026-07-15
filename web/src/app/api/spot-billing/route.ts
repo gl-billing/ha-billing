@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }
-    const message = error instanceof Error ? error.message : "Failed to load spot billing.";
+    const message = error instanceof Error ? error.message : "Unable to load spot billing.";
     const status =
       message.startsWith("Unauthorized") || message.includes("do not have access") ? 403 : 500;
     return NextResponse.json({ error: message }, { status });

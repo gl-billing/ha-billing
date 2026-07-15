@@ -168,8 +168,8 @@ export function StaffSalaryPanel({ busy, onStatus }: Props) {
       ]);
       const staffJson = await staffRes.json();
       const lawyersJson = await lawyersRes.json();
-      if (!staffRes.ok) throw new Error(staffJson.error || "Failed to load payroll roster.");
-      if (!lawyersRes.ok) throw new Error(lawyersJson.error || "Failed to load lawyers roster.");
+      if (!staffRes.ok) throw new Error(staffJson.error || "Unable to load payroll roster.");
+      if (!lawyersRes.ok) throw new Error(lawyersJson.error || "Unable to load lawyers roster.");
       const nextStaff = (staffJson.roster || []) as StaffPayrollRosterEntry[];
       const nextLawyers = (lawyersJson.roster || []) as FirmLawyerRosterEntry[];
       setRoster(nextStaff);
@@ -179,7 +179,7 @@ export function StaffSalaryPanel({ busy, onStatus }: Props) {
         return nextStaff[0]?.id || "";
       });
     } catch (error) {
-      onStatus(error instanceof Error ? error.message : "Failed to load team roster.", true);
+      onStatus(error instanceof Error ? error.message : "Unable to load team roster.", true);
       setRoster([]);
       setLawyers([]);
       setStaffId("");
@@ -202,12 +202,12 @@ export function StaffSalaryPanel({ busy, onStatus }: Props) {
         `/api/staff-salary?staffId=${encodeURIComponent(staffId)}&year=${year}&month=${month}`
       );
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to load staff salary.");
+      if (!res.ok) throw new Error(json.error || "Unable to load staff salary.");
       const nextReport = json as StaffSalaryReport;
       setReport(nextReport);
       setBaseSalary(String(nextReport.baseSalary || ""));
     } catch (error) {
-      const msg = error instanceof Error ? error.message : "Failed to load staff salary.";
+      const msg = error instanceof Error ? error.message : "Unable to load staff salary.";
       setReportError(msg);
       setReport(null);
     } finally {
@@ -1004,7 +1004,7 @@ export function StaffSalaryPanel({ busy, onStatus }: Props) {
               disabled={busy || reportLoading}
               onClick={() => void loadReport()}
             >
-              {reportLoading ? "Reloading…" : "Reload"}
+              {reportLoading ? "Updating…" : "Update"}
             </button>
           </div>
         </div>

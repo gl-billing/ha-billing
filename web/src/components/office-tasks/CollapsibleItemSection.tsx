@@ -74,7 +74,7 @@ export function CollapsibleItemSection({
         </button>
 
         <p className="collapsible-section__summary text-xs text-muted no-print">
-          {open ? `${count} item${count === 1 ? "" : "s"}` : `${count} hidden — tap to expand`}
+          {open ? `${count} item${count === 1 ? "" : "s"}` : `${count} hidden — select to expand`}
         </p>
       </div>
 

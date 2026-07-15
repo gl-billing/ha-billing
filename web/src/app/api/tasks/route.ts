@@ -17,7 +17,7 @@ export async function GET() {
     const tasks = items.filter((i) => i.source === "Task");
     return NextResponse.json({ tasks });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load tasks.";
+    const message = error instanceof Error ? error.message : "Unable to load tasks.";
     const status = message.includes("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });
   }

@@ -34,8 +34,8 @@ export function MyWorkHubSummary({
       const { data } = await cachedFetchJson("my-work-billing", async () => {
         const res = await fetch("/api/my-work/billing");
         const json = await readJsonResponse<MyWorkBillingSummary & { error?: string }>(res);
-        if (!res.ok) throw new Error(json?.error || "Failed to load billing summary.");
-        if (!json) throw new Error("Failed to load billing summary.");
+        if (!res.ok) throw new Error(json?.error || "Unable to load billing summary.");
+        if (!json) throw new Error("Unable to load billing summary.");
         return json;
       });
       setBilling(data);

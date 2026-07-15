@@ -50,10 +50,10 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
     try {
       const res = await fetch("/api/reports/aging");
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to load aging report.");
+      if (!res.ok) throw new Error(json.error || "Unable to load aging report.");
       setAging(json as ArAgingReport);
     } catch (error) {
-      const msg = error instanceof Error ? error.message : "Failed to load aging report.";
+      const msg = error instanceof Error ? error.message : "Unable to load aging report.";
       setAgingError(msg);
       setAging(null);
     } finally {
@@ -67,10 +67,10 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
     try {
       const res = await fetch(`/api/reports/collections?year=${year}&month=${month}`);
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to load collections report.");
+      if (!res.ok) throw new Error(json.error || "Unable to load collections report.");
       setCollections(json as MonthlyCollectionsReport);
     } catch (error) {
-      const msg = error instanceof Error ? error.message : "Failed to load collections report.";
+      const msg = error instanceof Error ? error.message : "Unable to load collections report.";
       setCollectionsError(msg);
       setCollections(null);
     } finally {
@@ -105,7 +105,7 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
     try {
       const res = await fetch("/api/export/backup-status");
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to load backup status.");
+      if (!res.ok) throw new Error(json.error || "Unable to load backup status.");
       setLastPdfBackupAt(json.lastBackupAt ?? null);
     } catch {
       setLastPdfBackupAt(null);
@@ -398,7 +398,7 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
               void fetch("/api/reports/partner-weekly")
                 .then(async (res) => {
                   const json = await res.json();
-                  if (!res.ok) throw new Error(json.error || "Failed to load report.");
+                  if (!res.ok) throw new Error(json.error || "Unable to load report.");
                   setPartnerReport(json.report);
                   onStatus("Weekly report loaded.");
                 })
@@ -528,8 +528,8 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
         ) : scriptStatus?.ok ? (
           <p className="reports-maintenance-banner reports-maintenance-banner--ok">
             Apps Script connected
-            {scriptStatus.scriptUser ? ` as ${scriptStatus.scriptUser}` : ""}. SOA, dashboard refresh, and
-            hourly sync can run from here. On Vercel, dashboard also refreshes hourly via cron when{" "}
+            {scriptStatus.scriptUser ? ` as ${scriptStatus.scriptUser}` : ""}. SOA, overview refresh, and
+            hourly update can run from here. On Vercel, dashboard also refreshes hourly via cron when{" "}
             <code>CRON_SECRET</code> is set.
           </p>
         ) : (
@@ -557,9 +557,9 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
             type="button"
             disabled={maintenanceDisabled || !scriptStatus?.ok}
             className="btn-secondary whitespace-normal text-xs leading-snug"
-            onClick={() => void runMaintenance("setupAutoRefreshTrigger", "Installing hourly sync")}
+            onClick={() => void runMaintenance("setupAutoRefreshTrigger", "Installing hourly update")}
           >
-            {maintenanceBusy ? "Working…" : "Enable hourly dashboard sync"}
+            {maintenanceBusy ? "Working…" : "Enable hourly overview sync"}
           </button>
           <button
             type="button"
@@ -583,9 +583,9 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
             type="button"
             disabled={maintenanceDisabled || !scriptStatus?.ok}
             className="btn-secondary whitespace-normal text-xs leading-snug"
-            onClick={() => void runMaintenance("refreshDashboard", "Refreshing dashboard")}
+            onClick={() => void runMaintenance("refreshDashboard", "Updating overview")}
           >
-            Refresh dashboard now
+            Update overview now
           </button>
         </div>
         {isAdmin ? (

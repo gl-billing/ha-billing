@@ -811,7 +811,7 @@ export function EventAddForm({
                     <div className="event-optional-panel__body">
                       <PrepChecklistEditor
                         label="Checklist items"
-                        hint="Tick items to track on the event card after saving. Add custom items as needed."
+                        hint="Tick items to track on the event entry after saving. Add custom items as needed."
                         standardOptions={HEARING_PREP_ITEMS}
                         selectedItems={hearingPrepSelected}
                         onToggleStandard={toggleHearingPrep}
@@ -884,12 +884,12 @@ export function EventAddForm({
                       </label>
                     </div>
                     <EventSegmentedControl
-                      label="Quick period"
+                      label="Filing period"
                       compact
                       options={PERIOD_PRESETS.map((days) => `${days} days`)}
                       value={`${periodDays} days`}
                       onChange={(label) => setPeriodDays(label.replace(/\s*days$/, ""))}
-                      aria-label="Quick period to file"
+                      aria-label="Filing period to file"
                     />
                     <div className="event-computed-date">
                       <span className="event-computed-date__label">Computed filing deadline</span>

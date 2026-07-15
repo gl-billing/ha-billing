@@ -21,7 +21,7 @@ export async function GET() {
     const events = items.filter((i) => i.source === "Event");
     return NextResponse.json({ events });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load events.";
+    const message = error instanceof Error ? error.message : "Unable to load events.";
     const status = message.includes("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });
   }

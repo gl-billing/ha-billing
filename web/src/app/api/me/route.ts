@@ -25,7 +25,7 @@ export async function GET() {
       officeAccess: isStaffEmail(session.user.email)
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load profile.";
+    const message = error instanceof Error ? error.message : "Unable to load profile.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

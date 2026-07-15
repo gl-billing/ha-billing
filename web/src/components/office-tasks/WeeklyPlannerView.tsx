@@ -99,7 +99,7 @@ export function WeeklyPlannerView({
       <ViewHero
         eyebrow="Weekly planner"
         title={weekLabel}
-        subtitle="Scan the week at a glance, then tap a day for hearings, filings, and tasks in full detail."
+        subtitle="Scan the week at a glance, then select a day for hearings, filings, and tasks in full detail."
         action={
           <button type="button" className="btn-primary w-full shrink-0 px-4 py-2 text-xs sm:w-auto sm:max-w-[150px]" onClick={() => openPrintPreview({ title: `HA Office Weekly Plan ${weekLabel}`, sourceId: "print-weekly" })}>
             Print
@@ -133,8 +133,8 @@ export function WeeklyPlannerView({
         <StatTile label="Selected day" value={selectedItems.length} variant="green" />
       </div>
 
-      <HintBar className="md:hidden">Tap a day below — full details appear underneath. Swipe sideways for Sat–Sun.</HintBar>
-      <HintBar className="hidden md:block">Mon–Fri shown first — scroll sideways for Sat–Sun, then tap a day for full details below.</HintBar>
+      <HintBar className="md:hidden">Select a day below — full details appear underneath. Swipe sideways for Sat–Sun.</HintBar>
+      <HintBar className="hidden md:block">Mon–Fri shown first — scroll sideways for Sat–Sun, then select a day for full details below.</HintBar>
       <ToneLegend className="mb-3" />
 
       <div ref={boardRef} className="no-print weekly-board scroll-panel-hint">

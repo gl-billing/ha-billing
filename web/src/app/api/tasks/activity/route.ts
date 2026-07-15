@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     const activity = await getTaskActivity(token, { limit, clientCode, clientName });
     return NextResponse.json({ activity });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load activity.";
+    const message = error instanceof Error ? error.message : "Unable to load activity.";
     const status = message.includes("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });
   }

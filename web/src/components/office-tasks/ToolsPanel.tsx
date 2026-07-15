@@ -182,7 +182,7 @@ export function ToolsPanel({
             onClick={onPrintToday}
             variant="primary"
           />
-          <ToolButton label="Reload data" disabled={busy} onClick={onReload} />
+          <ToolButton label="Update data" disabled={busy} onClick={onReload} />
         </div>
         <p className="mt-4 text-xs leading-relaxed text-muted">
           Opens the <strong>Today</strong> tab and prints the prioritized list (overdue first). Use{" "}

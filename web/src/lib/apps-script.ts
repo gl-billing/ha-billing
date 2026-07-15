@@ -105,7 +105,7 @@ export async function callAppsScriptWebApp(
     }
     if (/ScriptApp|trigger|permission/i.test(err)) {
       throw new Error(
-        `${err} In Apps Script, run installHourlyDashboardRefresh() once from the editor to authorize triggers, then retry. On Vercel, hourly sync also runs automatically via cron when CRON_SECRET is set.`
+        `${err} In Apps Script, run installHourlyDashboardRefresh() once from the editor to authorize triggers, then retry. On Vercel, hourly update also runs automatically via cron when CRON_SECRET is set.`
       );
     }
     throw new Error(err);

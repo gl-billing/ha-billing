@@ -28,7 +28,7 @@ export async function GET() {
       canManage: canDeleteNotarizations(session?.user?.email)
     });
   } catch (error) {
-    return errorResponse(error, "Failed to load notarizations.");
+    return errorResponse(error, "Unable to load notarizations.");
   }
 }
 

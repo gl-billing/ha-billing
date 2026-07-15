@@ -35,6 +35,7 @@ import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { UndoBar } from "@/components/UndoBar";
 import { truncateForDisplay } from "@/lib/link-display";
 import type { ClientDeletePreview } from "@/lib/sheets/client-delete-preview";
+import { formatDisplayDate as formatRegisterDate } from "@/lib/office-tasks/date-only";
 
 export type ProfileNavigate = {
   page: "billing" | "documents";
@@ -58,9 +59,13 @@ type ViewMode = "list" | "profile";
 
 function formatDisplayDate(value: string): string {
   if (!value) return "—";
+  const ymd = value.trim().slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(ymd)) {
+    return formatRegisterDate(ymd, "register");
+  }
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  return d.toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" });
 }
 
 function InfoRow({ label, value }: { label: string; value: ReactNode }) {
@@ -278,7 +283,7 @@ export function ClientProfile({
       const response = await fetch(`/api/clients/${encodeURIComponent(code)}/profile`);
       const data = await response.json();
       if (requestId !== profileRequestRef.current) return;
-      if (!response.ok) throw new Error(data.error || "Failed to load client.");
+      if (!response.ok) throw new Error(data.error || "Unable to load client.");
 
       const client = data.client as ClientDetail;
       setDetail(client);
@@ -920,7 +925,7 @@ export function ClientProfile({
           />
 
           <section className="card">
-            <p className="section-label">Quick actions</p>
+            <p className="section-label">Desk actions</p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <button
                 type="button"

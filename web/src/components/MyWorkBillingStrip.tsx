@@ -26,11 +26,11 @@ export function MyWorkBillingStrip({ className = "", embedded = false }: Props) 
       const { ok, data: json } = await fetchJson<MyWorkBillingSummary & { error?: string }>(
         "/api/my-work/billing"
       );
-      if (!ok) throw new Error(json.error || "Could not load billing to do's.");
+      if (!ok) throw new Error(json.error || "Could not load billing tasks.");
       setData(json);
     } catch (err) {
       setData(null);
-      setError(err instanceof Error ? err.message : "Could not load billing to do's.");
+      setError(err instanceof Error ? err.message : "Could not load billing tasks.");
     } finally {
       setLoading(false);
     }
@@ -47,7 +47,7 @@ export function MyWorkBillingStrip({ className = "", embedded = false }: Props) 
   if (loading && !data) {
     return (
       <section className={rootClass} aria-busy="true">
-        {embedded ? null : <p className="my-work-billing__eyebrow">Billing to do&apos;s</p>}
+        {embedded ? null : <p className="my-work-billing__eyebrow">Billing tasks</p>}
         <p className="my-work-billing__loading">Loading collections and receipts…</p>
       </section>
     );
@@ -56,7 +56,7 @@ export function MyWorkBillingStrip({ className = "", embedded = false }: Props) 
   if (error) {
     return (
       <section className={rootClass}>
-        {embedded ? null : <p className="my-work-billing__eyebrow">Billing to do&apos;s</p>}
+        {embedded ? null : <p className="my-work-billing__eyebrow">Billing tasks</p>}
         <p className="my-work-billing__loading">{error}</p>
       </section>
     );
@@ -86,7 +86,7 @@ export function MyWorkBillingStrip({ className = "", embedded = false }: Props) 
       ) : (
         <div className="my-work-billing__head">
           <div>
-            <p className="my-work-billing__eyebrow">Billing to do&apos;s</p>
+            <p className="my-work-billing__eyebrow">Billing tasks</p>
             <p className="my-work-billing__scope">
               {data.scope === "firm" ? "Firm-wide" : "Your assigned clients"} · SOA, AR, collections
             </p>

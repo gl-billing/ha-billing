@@ -129,7 +129,7 @@ export function MonthlyCalendarView({
 
       <div className="no-print mb-3 flex justify-center">{nav}</div>
 
-      <HintBar>Tap a date — details appear below. Scroll sideways for Sat–Sun.</HintBar>
+      <HintBar>Select a date — details appear below. Scroll sideways for Sat–Sun.</HintBar>
 
       <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         <StatTile label="All" value={stats.total} variant="gold" />

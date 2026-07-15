@@ -70,7 +70,7 @@ export async function GET(request: Request, context: RouteContext) {
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }
-    const message = error instanceof Error ? error.message : "Failed to load client profile.";
+    const message = error instanceof Error ? error.message : "Unable to load client profile.";
     const status = message.startsWith("Unauthorized") ? 401 : 500;
     return NextResponse.json({ error: message }, { status });
   }

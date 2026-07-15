@@ -26,7 +26,7 @@ export function ClientsDirectory({ busy }: Props) {
 
       const response = await fetch(`/api/clients?${params.toString()}`);
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to load clients.");
+      if (!response.ok) throw new Error(data.error || "Unable to load clients.");
       setClients(data.clients);
     } catch {
       setClients([]);

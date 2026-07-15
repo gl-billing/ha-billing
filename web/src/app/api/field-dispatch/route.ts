@@ -46,7 +46,7 @@ export async function GET() {
       isAdmin: isAdminEmail(session?.user?.email)
     });
   } catch (error) {
-    return errorResponse(error, "Failed to load field dispatches.");
+    return errorResponse(error, "Unable to load field dispatches.");
   }
 }
 

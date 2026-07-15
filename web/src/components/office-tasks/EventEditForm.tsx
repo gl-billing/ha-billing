@@ -362,11 +362,11 @@ export function EventEditForm({ item, options, busy, onClose, onConfirm }: Props
               </div>
               <EventSegmentedControl
                 compact
-                label="Quick period"
+                label="Filing period"
                 options={PERIOD_PRESETS.map((days) => `${days} days`)}
                 value={`${periodDays} days`}
                 onChange={(label) => setPeriodDays(label.replace(/\s*days$/, ""))}
-                aria-label="Quick period to file"
+                aria-label="Filing period to file"
               />
               <div className="event-computed-date">
                 <span className="event-computed-date__label">Computed filing deadline</span>
