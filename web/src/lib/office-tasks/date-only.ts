@@ -68,7 +68,15 @@ export function getWeekDatesYmd(weekStartMonday: string): string[] {
   return dates;
 }
 
-export function formatDisplayDate(ymd: string, style: "long" | "short" = "long"): string {
+export function formatDisplayDate(ymd: string, style: "long" | "short" | "register" = "long"): string {
+  if (style === "register") {
+    return ymdToUtcDate(ymd).toLocaleDateString("en-GB", {
+      timeZone: "UTC",
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+  }
   return ymdToUtcDate(ymd).toLocaleDateString("en-PH", {
     timeZone: "UTC",
     weekday: style === "long" ? "long" : undefined,

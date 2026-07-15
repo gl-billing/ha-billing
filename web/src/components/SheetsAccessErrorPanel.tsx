@@ -18,7 +18,7 @@ export function SheetsAccessErrorPanel({ hint, onReload, reloadBusy }: Props) {
         <div className="sheets-access-error__actions">
           {hint.showReload && onReload ? (
             <button type="button" className="btn-primary btn-sm" disabled={reloadBusy} onClick={onReload}>
-              {reloadBusy ? "Reloading…" : "Reload"}
+              {reloadBusy ? "Updating…" : "Update"}
             </button>
           ) : null}
           {hint.showSignIn ? (

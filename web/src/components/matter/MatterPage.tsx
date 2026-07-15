@@ -830,7 +830,7 @@ export function MatterPage({ matterCode, user }: Props) {
 
   const pendingCount = pendingTasks.length;
   const shellWorkspace = billingClient && billingAccess ? "billing" : "tasks";
-  const headerLabel = billingClient && billingAccess ? "Client profile" : "Client matter";
+  const headerLabel = billingClient && billingAccess ? "Matter file" : "Matter";
   const clientDetail = useMemo(
     () => profileDetail ?? (billingClient ? billingClientToDetail(billingClient) : null),
     [profileDetail, billingClient]
@@ -1031,21 +1031,39 @@ export function MatterPage({ matterCode, user }: Props) {
           </section>
         ) : (
           <>
-            <header ref={headerRef} className="card matter-page__header client-matter-panel__header firm-hover-lift">
+            <header ref={headerRef} className="card matter-page__header client-matter-panel__header matter-letterhead">
               <p className="matter-page__header-label">{headerLabel}</p>
 
               <div className="matter-page__header-row">
-                <div className="client-matter-panel__identity">
-                  <span className="client-matter-panel__code">{billingCode || matterCode}</span>
-                  <div className="client-matter-panel__title-block">
-                    <h1 className="client-matter-panel__name matter-page__client-name">{profileTitle}</h1>
-                    {caseLine ? <p className="client-matter-panel__case">{caseLine}</p> : null}
-                    {caseRole ? (
-                      <p className="client-matter-panel__role">
-                        <span className="client-matter-panel__role-badge">{caseRole}</span>
-                      </p>
+                <div className="client-matter-panel__identity matter-letterhead__identity">
+                  <h1 className="client-matter-panel__name matter-page__client-name">{profileTitle}</h1>
+                  <p className="matter-letterhead__caption">
+                    <span className="matter-letterhead__code">{billingCode || matterCode}</span>
+                    {caseLine ? (
+                      <>
+                        <span className="matter-letterhead__dot" aria-hidden>
+                          ·
+                        </span>
+                        <span className="matter-letterhead__matter">{caseLine}</span>
+                      </>
                     ) : null}
-                  </div>
+                    {billingClient ? (
+                      <>
+                        <span className="matter-letterhead__dot" aria-hidden>
+                          ·
+                        </span>
+                        <span className="matter-letterhead__counsel">
+                          {displayValue(
+                            formatClientAssignedLawyers(
+                              billingClient.assignedAttorney,
+                              billingClient.coAssignedAttorney
+                            )
+                          )}
+                        </span>
+                      </>
+                    ) : null}
+                  </p>
+                  {caseRole ? <p className="matter-letterhead__role">{caseRole}</p> : null}
                 </div>
                 <button
                   type="button"

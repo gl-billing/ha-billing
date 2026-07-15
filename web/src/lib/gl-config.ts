@@ -1117,7 +1117,7 @@ export function normalizePaymentMethod(value: string): string {
 }
 
 export function formatPeso(value: number): string {
-  return `₱${(Number(value) || 0).toLocaleString("en-US", {
+  return `₱${(Number(value) || 0).toLocaleString("en-PH", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })}`;

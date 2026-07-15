@@ -288,6 +288,9 @@ export function OfficeHubLauncher({ initialSummary, hubUser }: Props) {
 
           <footer className="office-hub__footer">
             <p className="office-hub__footer-brand">Hernandez &amp; Associates</p>
+            <p className="office-hub__footer-confidential">
+              Confidential — Hernandez &amp; Associates · for authorized staff only
+            </p>
             <FirmCopyright className="office-hub__footer-copyright" />
           </footer>
         </div>

@@ -21,20 +21,20 @@ export const TASKS_TAB_LABELS: Record<SavedTasksTab, string> = {
 
 export const TASKS_TAB_DESCRIPTIONS: Record<SavedTasksTab, string> = {
   today:
-    "Your daily list — overdue items first, then due today, in progress, and finished today. Tap a card to open details.",
+    "Assigned work for today — overdue first, then due today, in progress, and finished today.",
   calendar:
-    "Month view of hearings, filing deadlines, meetings, and tasks. Tap a date to see what is scheduled.",
-  week: "See what is due over the next seven days — useful when planning the week ahead.",
-  team: "See each staff member's open work, overdue items, and how busy everyone is.",
-  history: "Look up finished or past tasks and events when you need to check what was done.",
+    "Month calendar of hearings, filing deadlines, meetings, and tasks. Select a date to open the docket.",
+  week: "Work due over the next seven days.",
+  team: "Each staff member’s open work, overdue items, and capacity.",
+  history: "Finished or past tasks and events.",
   "add-task":
-    "Create a to-do (drafting, follow-up, prep). Enter the client matter, assignee, due date, and what needs to be done.",
+    "Create a task (drafting, follow-up, prep). Enter the matter, assignee, due date, and particulars.",
   "add-event":
-    "Book a hearing, meeting, or filing deadline. Enter the date, client matter, location or court, and any notes.",
-  "all-items": "Search every open task, hearing, and event by keyword, client, or staff member.",
+    "Enter a hearing, meeting, or filing deadline with date, matter, venue or court, and notes.",
+  "all-items": "Search open tasks, hearings, and events by keyword, client, or staff member.",
   correspondence:
-    "Write demand letters, proposals, replies, and other letters on firm letterhead — pick a template and fill in the details.",
-  tools: "Refresh data, sync Google Calendar, print lists, and other administration.",
+    "Draft demand letters, proposals, replies, and other letters on firm letterhead.",
+  tools: "Update data, sync Google Calendar, print lists, and other administration.",
   liaison:
     "Confidential assignments from admin to the liaison officer — not visible on other schedule tabs.",
   presence:

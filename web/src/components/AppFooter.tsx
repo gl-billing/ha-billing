@@ -11,11 +11,14 @@ export function AppFooter() {
 
       <FirmPublicContactDetails className="brand-footer__contact" />
 
+      <p className="brand-footer__confidential">
+        Confidential — Hernandez &amp; Associates · for authorized staff only
+      </p>
+
       <div className="brand-footer__legal">
         <Link href="/privacy">Privacy &amp; confidentiality</Link>
         <span aria-hidden>·</span>
         <Link href="/terms">Terms of use</Link>
-        <span>Authorized staff only · Client data is confidential</span>
       </div>
 
       <FirmCopyright className="brand-footer__copyright" />

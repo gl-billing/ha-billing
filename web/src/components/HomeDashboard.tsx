@@ -42,14 +42,14 @@ export function HomeDashboard({ busy, onNavigate, onRefresh, onNotify }: Props) 
       const { data: json, fetchedAt } = await cachedFetchJson("billing-home-dashboard", async () => {
         const res = await fetch("/api/home");
         const body = await res.json();
-        if (!res.ok) throw new Error(body.error || "Failed to load dashboard.");
+        if (!res.ok) throw new Error(body.error || "Unable to load firm overview.");
         return body as HomeDashboard;
       });
       setData(json);
       setLastSyncedAt(fetchedAt);
     } catch (error) {
       setData(null);
-      setLoadError(error instanceof Error ? error.message : "Failed to load dashboard.");
+      setLoadError(error instanceof Error ? error.message : "Unable to load firm overview.");
     } finally {
       setLoading(false);
     }
@@ -104,7 +104,7 @@ export function HomeDashboard({ busy, onNavigate, onRefresh, onNotify }: Props) 
   if (!data) {
     return (
       <SmartLoadEmptyState
-        errorMessage={loadError || "Could not load firm dashboard."}
+        errorMessage={loadError || "Unable to load firm overview."}
         context="dashboard"
         onRetry={() => void load(true)}
       />

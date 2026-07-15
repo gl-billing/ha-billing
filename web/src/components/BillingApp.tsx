@@ -577,7 +577,7 @@ export function BillingApp() {
       {page === "home" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About overview">
+            <BillingTabGuide title="overview">
               <BillingTabGuideText>
                 Firm-wide snapshot — who owes money, recent documents, client birthdays, and batch SOA tools.
               </BillingTabGuideText>
@@ -607,7 +607,7 @@ export function BillingApp() {
       {page === "newClient" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="How to add a new client">
+            <BillingTabGuide title="add a new client">
               <BillingTabGuideText>
                 <strong>Full intake</strong> — for a retained client. You will enter client code (surname in CAPS, e.g.{" "}
                 <em>SMITH</em>), full name, contact details (email or phone and address), case type, and choose a{" "}
@@ -648,7 +648,7 @@ export function BillingApp() {
       {page === "clients" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="How to find a client">
+            <BillingTabGuide title="find a client">
               <BillingTabGuideText>
                 Search by client code or name. Tap a row to see contact details, or open the <strong>matter page</strong>{" "}
                 for their ledger, tasks, and documents.
@@ -664,7 +664,7 @@ export function BillingApp() {
       {page === "walkIns" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="How to log a walk-in">
+            <BillingTabGuide title="log a walk-in">
               <BillingTabGuideText>
                 For someone who visited the office today and is <strong>not yet a regular client</strong>. Enter their
                 name, visit type (consultation, retainer visit, etc.), amount charged, and payment if they paid now.
@@ -696,7 +696,7 @@ export function BillingApp() {
       {page === "spotBilling" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="How to record one-time fees">
+            <BillingTabGuide title="record one-time fees">
               <BillingTabGuideText>
                 For people who pay once or twice and do <strong>not</strong> need a full client file — e.g. a single
                 document review or a one-off legal service. Enter their name, the fee, and how they paid.
@@ -716,7 +716,7 @@ export function BillingApp() {
       {page === "notarizations" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="How to log a notarization">
+            <BillingTabGuide title="log a notarization">
               <BillingTabGuideText>
                 Enter the document type, notarial book and page numbers, document number, fee amount, and payment method.
                 Then print the <strong>acknowledgment receipt</strong> for the signatory.
@@ -740,7 +740,7 @@ export function BillingApp() {
       {page === "fieldDispatch" && adminResolved && isAdmin && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="How to track field visits">
+            <BillingTabGuide title="track field visits">
               <BillingTabGuideText>
                 Admin only. When staff travels out of town for a client: enter the advance given, service fee, and returned
                 change when they are back. Use <strong>Bill client</strong> to post expenses and the liaison fee to the
@@ -766,7 +766,7 @@ export function BillingApp() {
       {page === "documents" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="How to print SOA or receipt">
+            <BillingTabGuide title="print SOA or receipt">
               <BillingTabGuideText>
                 Pick a client, then choose <strong>Statement of Account (SOA)</strong> to show what they owe, or{" "}
                 <strong>Acknowledgment Receipt (AR)</strong> for a payment already recorded on their ledger.
@@ -811,7 +811,7 @@ export function BillingApp() {
       {page === "reports" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About reports">
+            <BillingTabGuide title="reports">
               <BillingTabGuideText>
                 See who owes money (AR aging), monthly collections, and partner summaries. Admins can export CSV files,
                 run data health checks, and download incremental backup PDFs under Maintenance.
@@ -827,7 +827,7 @@ export function BillingApp() {
       {page === "firmFinances" && adminResolved && isAdmin && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About firm income">
+            <BillingTabGuide title="firm income">
               <BillingTabGuideText>
                 Admin only. Review firm income each month and split it into expense, savings, travel, and emergency
                 buckets. Notarial fees from the Notary log tab are included automatically.
@@ -843,7 +843,7 @@ export function BillingApp() {
       {page === "staffSalary" && adminResolved && canOpenPayroll && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About payroll">
+            <BillingTabGuide title="payroll">
               <BillingTabGuideText>
                 Admin only. Run semi-monthly payroll on the 15th and last day of each month (or the prior business day if
                 it falls on a weekend). Enter allowances, cash advances, and adjustments before closing each pay period.
@@ -859,7 +859,7 @@ export function BillingApp() {
       {page === "history" && (
         <>
           <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="About activity log">
+            <BillingTabGuide title="activity log">
               <BillingTabGuideText>
                 See everything posted office-wide — charges, payments, SOAs, receipts, and client record changes. Filter
                 by type or open a client from any row.
@@ -880,7 +880,7 @@ export function BillingApp() {
       {page === "billing" && (
         <>
       <TabPageHeader resetKey={page}>
-        <BillingTabGuide title="How to post charges & payments">
+        <BillingTabGuide title="post charges & payments">
           <BillingTabGuideText>
             Pick a regular client, choose <strong>Charge</strong> or <strong>Payment</strong>, then enter the date,
             amount, category (Professional fee, Filing fee, Notarial fee, etc.), and a short description of the work or

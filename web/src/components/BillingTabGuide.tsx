@@ -15,7 +15,7 @@ export function TabPageHeader({
   resetKey
 }: {
   children?: React.ReactNode;
-  /** When this changes (e.g. active nav tab), info guides collapse. */
+  /** When this changes (e.g. active nav tab), procedure disclosures collapse. */
   resetKey?: string | number;
 }) {
   if (!children) return null;
@@ -26,6 +26,7 @@ export function TabPageHeader({
   );
 }
 
+/** Quiet closed-by-default procedure note — not a tutorial banner. */
 export function BillingTabGuide({ title, children, className = "" }: Props) {
   const resetKey = useContext(TabGuideResetContext);
   const [open, setOpen] = useState(false);
@@ -44,8 +45,10 @@ export function BillingTabGuide({ title, children, className = "" }: Props) {
         <span className="tab-info-guide__icon" aria-hidden="true">
           i
         </span>
+        <span className="tab-info-guide__label">Procedure</span>
       </summary>
       <div className="tab-info-guide__panel">
+        <p className="tab-info-guide__heading">{title}</p>
         <div className="tab-info-guide__body">{children}</div>
       </div>
     </details>

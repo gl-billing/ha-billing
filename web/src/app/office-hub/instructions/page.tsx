@@ -104,7 +104,7 @@ export default function OfficeHubInstructionsPage() {
           </p>
 
           <section id="cheatsheet" className="office-hub-instructions__card office-hub-instructions__cheatsheet">
-            <h2 className="office-hub-instructions__question">Quick cheat sheet — Andrea &amp; Jas</h2>
+            <h2 className="office-hub-instructions__question">Desk reference — Andrea &amp; Jas</h2>
             <p className="office-hub-instructions__cheatsheet-lead">
               Print or keep this open on a second tab. Full explanations are in the questions below.
             </p>
@@ -118,7 +118,7 @@ export default function OfficeHubInstructionsPage() {
                     <strong>Overdue</strong> first
                   </li>
                   <li>
-                    Tap 🔔 bell → work through overdue tasks &amp; hearings
+                    Open notifications → work through overdue tasks &amp; hearings
                   </li>
                   <li>Mark <strong>Done</strong> or <strong>Submitted</strong> when finished</li>
                 </ol>
@@ -131,7 +131,7 @@ export default function OfficeHubInstructionsPage() {
                   deadline, drafting deadline.
                 </p>
                 <p>
-                  <strong>Task (+ Task)</strong> — to-do with a due date: serve letter, go to court/agency, follow-up,
+                  <strong>Task (+ Task)</strong> — task with a due date: serve letter, go to court/agency, follow-up,
                   research, errands.
                 </p>
                 <p>
@@ -201,7 +201,7 @@ export default function OfficeHubInstructionsPage() {
           <section className="office-hub-instructions__card">
             <h2 className="office-hub-instructions__question">Jump to a question</h2>
             <nav className="office-hub-instructions__toc" aria-label="Questions">
-              <a href="#cheatsheet">Quick cheat sheet</a>
+              <a href="#cheatsheet">Desk reference</a>
               <a href="#roles">Who does what on the team?</a>
               <a href="#daily">What should I do first each morning?</a>
               <a href="#bell">What does the bell show?</a>
@@ -296,7 +296,7 @@ export default function OfficeHubInstructionsPage() {
               pulled from the office task sheet. The red badge shows how many are open.
             </p>
             <ul>
-              <li>Tap an item to open that client&apos;s matter page (or Tasks if there is no billing file).</li>
+              <li>Select an item to open that client&apos;s matter page (or Tasks if there is no billing file).</li>
               <li>Clear overdue items by completing work and updating status — the bell refreshes when you reopen it.</li>
             </ul>
             <InstructionsTip>
@@ -308,7 +308,7 @@ export default function OfficeHubInstructionsPage() {
           <InstructionsQuestion id="tasks-tabs" question="What are the Tasks & calendar tabs for?">
             <p>
               Tasks &amp; calendar is where Jas plots hearings and deadlines and where everyone checks what is due. Think
-              of it as the firm&apos;s shared to-do and calendar board. Billing lives in a separate app — use Office hub
+              of it as the firm&apos;s shared task and calendar board. Billing lives in a separate app — use Office hub
               in the header to switch.
             </p>
             <p>
@@ -375,7 +375,7 @@ export default function OfficeHubInstructionsPage() {
           <InstructionsQuestion id="billing-tabs" question="What are the Billing system tabs for?">
             <p>
               Billing system is where Andrea records money in and out, opens new client files, and sends SOA/AR. Most
-              tabs are for a specific job — use the cheat sheet above if you are unsure which tab to open.
+              tabs are for a specific job — use the desk reference above if you are unsure which tab to open.
             </p>
             <p>
               Open from Office Hub → <strong>Billing system</strong>. For charges and payments, the{" "}

@@ -21,7 +21,7 @@ import {
 } from "@/components/office-tasks/EventScheduleEmailDialog";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import { isHearingPendingCourtConfirmation } from "@/lib/hearing-escalation";
-import { normalizeOfficeStatus } from "@/lib/office-tasks/date-only";
+import { normalizeOfficeStatus, formatDisplayDate } from "@/lib/office-tasks/date-only";
 import {
   canAutoSendScheduleConfirmation,
   previewSavedEventScheduleRecipients,
@@ -197,7 +197,9 @@ export function MyWorkListRow({
   const joinUrl = item.source === "Event" ? resolveEventJoinUrl(item) : null;
   const venueDisplay = eventVenueDisplay(item.venue, joinUrl);
   const metaParts = [
-    item.date,
+    item.date && /^\d{4}-\d{2}-\d{2}$/.test(item.date)
+      ? formatDisplayDate(item.date, "register")
+      : item.date,
     item.startTime,
     venueDisplay ? `Venue: ${venueDisplay}` : "",
     item.assignedTo?.trim(),

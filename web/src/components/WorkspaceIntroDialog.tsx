@@ -27,26 +27,19 @@ export function WorkspaceIntroDialog({ open, content, onSelectTab, onClose }: Pr
 
   if (!open || typeof document === "undefined") return null;
 
+  const firstTab = content.items[0]?.tabId;
+
   return createPortal(
     <div className="workspace-intro-backdrop" role="presentation">
       <div
-        className="workspace-intro-modal"
+        className="workspace-intro-modal workspace-intro-modal--formal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="workspace-intro-title"
         aria-describedby="workspace-intro-lede"
       >
-        <button
-          type="button"
-          className="workspace-intro-modal__close"
-          aria-label="Close guide"
-          title="Close"
-          onClick={onClose}
-        >
-          ×
-        </button>
         <header className="workspace-intro-modal__head">
-          <p className="workspace-intro-modal__eyebrow">HA Office</p>
+          <p className="workspace-intro-modal__eyebrow">Hernandez &amp; Associates</p>
           <h2 id="workspace-intro-title" className="workspace-intro-modal__title">
             {content.title}
           </h2>
@@ -55,32 +48,23 @@ export function WorkspaceIntroDialog({ open, content, onSelectTab, onClose }: Pr
           </p>
         </header>
 
-        <div className="workspace-intro-modal__body">
-          <ul className="workspace-intro-section__list">
-            {content.items.map((item) => (
-              <li key={item.tabId} className="workspace-intro-section__item">
-                <button
-                  type="button"
-                  className="workspace-intro-section__item-link"
-                  onClick={() => onSelectTab(item.tabId)}
-                >
-                  {item.label}
-                </button>
-                <span className="workspace-intro-section__item-desc">{item.description}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <p className="workspace-intro-modal__tip">{content.tip}</p>
-
-        <footer className="workspace-intro-modal__foot workspace-intro-modal__foot--solo">
+        <footer className="workspace-intro-modal__foot">
           <SameWindowLink
             href={`/office-hub/instructions#${content.instructionsAnchor}`}
             className="workspace-intro-modal__link"
           >
-            Full guide
+            Office procedures
           </SameWindowLink>
+          <button
+            type="button"
+            className="workspace-intro-modal__continue"
+            onClick={() => {
+              if (firstTab) onSelectTab(firstTab);
+              else onClose();
+            }}
+          >
+            Continue
+          </button>
         </footer>
       </div>
     </div>,

@@ -118,16 +118,16 @@ export function FirmWorkspaceShell({
           <WorkspaceBreadcrumb workspace={workspace} page={breadcrumbPage} detail={breadcrumbDetail} className="firm-shell-chrome__crumb" />
           {onReplayWorkspaceGuide ? (
             <button type="button" className="workspace-guide-replay firm-shell-chrome__guide" onClick={onReplayWorkspaceGuide}>
-              Show guide again
+              Office procedures
             </button>
           ) : null}
         </div>
 
         {navTabs ? <div className="firm-workspace-nav no-print min-w-0">{navTabs}</div> : null}
 
-        <div className="firm-workspace-body min-w-0">{children}</div>
-
         <FirmStatusToast message={statusMessage} variant={statusVariant} />
+
+        <div className="firm-workspace-body min-w-0">{children}</div>
 
         <AppFooter />
 

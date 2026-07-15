@@ -19,7 +19,7 @@ export function formatSheetsAccessHint(message: string, email?: string | null): 
   ) {
     return {
       title: "Spreadsheet access needed",
-      body: `Share the Office Tasks and Billing workbooks with ${signInEmail}, then sign out and sign in again. If you just shared, wait about one minute and tap Reload.`,
+      body: `Share the Office Tasks and Billing workbooks with ${signInEmail}, then sign out and sign in again. If you just shared, wait about one minute and select Update.`,
       showReload: true,
       showSignIn: true
     };
@@ -28,7 +28,7 @@ export function formatSheetsAccessHint(message: string, email?: string | null): 
   if (/quota|rate limit|429|too many requests|read limit/i.test(lower)) {
     return {
       title: "Google Sheets is busy",
-      body: "The read limit was reached. Wait about 60 seconds, then tap Reload once — avoid clicking Reload repeatedly.",
+      body: "The read limit was reached. Wait about 60 seconds, then select Update once — avoid repeating Update repeatedly.",
       showReload: true
     };
   }
@@ -36,7 +36,7 @@ export function formatSheetsAccessHint(message: string, email?: string | null): 
   if (/session expired|unauthorized|sign in again|invalid_grant|token/i.test(lower)) {
     return {
       title: "Sign-in expired",
-      body: "Your Google session may have expired. Sign out and sign in again, then reload this page.",
+      body: "Your Google session may have expired. Sign out and sign in again, then update this page.",
       showReload: true,
       showSignIn: true
     };

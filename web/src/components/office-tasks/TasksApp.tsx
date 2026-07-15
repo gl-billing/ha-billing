@@ -363,7 +363,7 @@ export function TasksApp() {
         if (status === 429) {
           const quotaMsg =
             json.error ||
-            "Google Sheets read limit reached. Wait about 60 seconds, then use Reload once.";
+            "Google Sheets read limit reached. Wait about 60 seconds, then Update once.";
           setSheetsAccessHint(formatSheetsAccessHint(quotaMsg, email));
           setLastLoadError(quotaMsg);
           reportWarn(quotaMsg);
@@ -761,7 +761,7 @@ export function TasksApp() {
     const found = refreshed.items.some((item) => item.id === savedId);
     if (found) return;
     reportWarn(
-      `${savedId} was saved but did not appear after reload — wait 60s and tap Reload, or open the Office Tasks spreadsheet and search for that ID.${
+      `${savedId} was saved but did not appear after update — wait 60s and select Update, or open the Office Tasks spreadsheet and search for that ID.${
         spreadsheetId ? ` Sheet: …${spreadsheetId.slice(-8)}` : ""
       }`
     );
@@ -1372,7 +1372,7 @@ export function TasksApp() {
             }
           />
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="How to use My work">
+            <BillingTabGuide title="My work">
               <BillingTabGuideText>
                 Your assignment checklist. Open items are grouped as <strong>Overdue</strong>,{" "}
                 <strong>Due now</strong>, and <strong>Due this week</strong>. Check a task when complete;
@@ -1385,7 +1385,7 @@ export function TasksApp() {
                 </BillingTabGuideText>
               ) : (
                 <BillingTabGuideText>
-                  This list shows work assigned to you. Tap the client name to open the matter file.
+                  This list shows work assigned to you. Select the client name to open the matter file.
                 </BillingTabGuideText>
               )}
               {billingAccess ? (
@@ -1401,7 +1401,7 @@ export function TasksApp() {
                 </BillingTabGuideText>
               ) : (
                 <BillingTabGuideText>
-                  Use <strong>Calendar</strong> for other dates. Tap <strong>Add task</strong> or <strong>Add event</strong>{" "}
+                  Use <strong>Calendar</strong> for other dates. Select <strong>New task</strong> or <strong>New hearing &amp; filing</strong>{" "}
                   to log new work — add remarks on the form or edit a card after saving.
                 </BillingTabGuideText>
               )}
@@ -1432,7 +1432,7 @@ export function TasksApp() {
             action={
               <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row">
                 <button type="button" className="btn-secondary" disabled={busy} onClick={() => load(undefined, true)}>
-                  Reload
+                  Update
                 </button>
                 <button
                   type="button"
@@ -1534,7 +1534,7 @@ export function TasksApp() {
                   <div className="my-work-feed__group-head">
                     <span className="my-work-feed__tone my-work-feed__tone--billing" aria-hidden />
                     <div className="my-work-feed__group-copy">
-                      <h3 className="my-work-feed__group-title">Billing to-do&apos;s</h3>
+                      <h3 className="my-work-feed__group-title">Billing tasks</h3>
                       <p className="my-work-feed__group-hint">Collections, SOA, and receipts — after today&apos;s task queue</p>
                     </div>
                   </div>
@@ -1645,9 +1645,9 @@ export function TasksApp() {
       {tab === "calendar" && data && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="How to use Calendar">
+            <BillingTabGuide title="Calendar">
               <BillingTabGuideText>
-                See the whole month — hearings, filing deadlines, and tasks on each date. Tap a date for details below
+                See the whole month — hearings, filing deadlines, and tasks on each date. Select a date for details below
                 (overdue items first). Philippine holidays are highlighted. Use <strong>Print</strong> for a wall calendar.
               </BillingTabGuideText>
             </BillingTabGuide>
@@ -1675,9 +1675,9 @@ export function TasksApp() {
       {tab === "week" && data && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="How to use Week planner">
+            <BillingTabGuide title="Week planner">
               <BillingTabGuideText>
-                See the next seven days in a grid — overdue items at the top, then each day&apos;s work. Tap a day for
+                See the next seven days in a grid — overdue items at the top, then each day&apos;s work. Select a day for
                 details below. Best when planning ahead for the week.
               </BillingTabGuideText>
               <BillingTabGuideText>
@@ -1709,7 +1709,7 @@ export function TasksApp() {
       {tab === "team" && data && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="How to use Staff load">
+            <BillingTabGuide title="Staff load">
               <BillingTabGuideText>
                 Pick a team member to see their open, due-today, this-week, and overdue work. Card counts show how much
                 each person has on their plate. Atty. Robert Hernandez is listed first.
@@ -1753,9 +1753,9 @@ export function TasksApp() {
       {tab === "history" && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="About past tasks">
+            <BillingTabGuide title="past tasks">
               <BillingTabGuideText>
-                Look up finished or past tasks and events. Reload for the newest entries first.
+                Look up finished or past tasks and events. Update for the newest entries first.
               </BillingTabGuideText>
               <BillingTabGuideText>
                 Client charges, payments, SOAs, and receipts are in{" "}
@@ -1778,7 +1778,7 @@ export function TasksApp() {
                 disabled={activityLoading}
                 onClick={() => loadActivity()}
               >
-                Reload
+                Update
               </button>
             }
           />
@@ -1794,7 +1794,7 @@ export function TasksApp() {
       {tab === "tools" && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="About tools">
+            <BillingTabGuide title="tools">
               <BillingTabGuideText>
                 Refresh sheet data, <strong>sync Google Calendar</strong>, and print today&apos;s list, the week planner,
                 or calendar. Admins also get BIR tax deadlines and data health checks.
@@ -1894,7 +1894,7 @@ export function TasksApp() {
       {tab === "add-event" && opts && quickAddKind === "event" ? (
         <>
           <TabPageHeader resetKey={`${tab}-${eventAddKind}`}>
-            <BillingTabGuide title="How to add an event">
+            <BillingTabGuide title="add an event">
               <BillingTabGuideText>
                 Choose <strong>Hearings &amp; meetings</strong> for court appearances, consultations, client calls, and
                 internal meetings — or <strong>Court filings &amp; submissions</strong> for pleading deadlines and filing
@@ -1942,10 +1942,10 @@ export function TasksApp() {
       {tab === "all-items" && data && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="How to search all items">
+            <BillingTabGuide title="search all items">
               <BillingTabGuideText>
                 Find any open task, hearing, or event. Type in the search box or filter by type, status, and assignee.
-                Tap a card to open details or update its status.
+                Select an entry to open details or update its status.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -1984,7 +1984,7 @@ export function TasksApp() {
       {tab === "correspondence" && billingAccess && (
         <>
           <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="How to write a letter">
+            <BillingTabGuide title="write a letter">
               <BillingTabGuideText>
                 Choose a letter type (demand letter, proposal, reply, request, or general letter). Pick a client to fill
                 in their name and address automatically, then edit the body text.

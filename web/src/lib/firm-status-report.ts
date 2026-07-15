@@ -16,5 +16,8 @@ export function firmStatusDismissMs(variant: FirmStatusVariant): number {
 }
 
 export function formatSuccessReport(action: string, detail?: string): string {
-  return detail ? `✓ ${action} — ${detail}` : `✓ ${action}`;
+  const trimmed = action.trim();
+  if (!trimmed) return "Saved.";
+  if (/^saved\.?$/i.test(trimmed) && !detail) return "Saved.";
+  return detail ? `${trimmed} — ${detail}` : trimmed.endsWith(".") ? trimmed : `${trimmed}.`;
 }
