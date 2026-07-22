@@ -1,0 +1,25 @@
+/* Print styles shared by billing desk, correspondence, and my-work views. */
+@media print {
+  .no-print,
+  .ha-clio-rail,
+  .ha-clio-subtabs,
+  .brand-header__toolbar,
+  .offline-status-banner,
+  .firm-shell-chrome,
+  .workspace-guide-replay {
+    display: none !important;
+  }
+
+  .firm-letter-document,
+  .firm-letter-body,
+  .soa-preview-document,
+  .my-work-print-root {
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .day-detail-panel,
+  .day-schedule-view__detail-anchor {
+    break-inside: avoid;
+  }
+}

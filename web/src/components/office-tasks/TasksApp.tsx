@@ -16,8 +16,9 @@ import { FirmWorkspaceShell } from "@/components/FirmWorkspaceShell";
 import { ClioRail } from "@/components/clio/ClioRail";
 import { ClioSubTabs } from "@/components/clio/ClioSubTabs";
 import { ToolsPanel } from "@/components/office-tasks/ToolsPanel";
-import { WeeklyPlannerView } from "@/components/office-tasks/WeeklyPlannerView";
-import { DayScheduleView } from "@/components/office-tasks/DayScheduleView";
+import { TasksWeekTabView } from "@/components/office-tasks/tabs/TasksWeekTabView";
+import type { TasksHomeData } from "@/lib/office-tasks/home-data";
+import { useTasksHomeData } from "@/hooks/useTasksHomeData";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import type { PrepChecklistMutation } from "@/lib/office-tasks/prep-checklist-storage";
 import { computeTodayCounts, filterTodayLists } from "@/lib/office-tasks/today-lists";
@@ -52,12 +53,18 @@ import { setLastWorkspace } from "@/lib/office-hub/storage";
 import { getSavedTasksTab, saveTasksTab, type SavedTasksTab } from "@/lib/staff-prefs";
 import { TASKS_TAB_LABELS, isAllowedTasksTab, resolveNavUserProfile, tasksNavTabsForUser } from "@/lib/workspace-labels";
 import {
+  buildClioHref,
+  defaultClioSectionForUser,
   findClioPrimary,
   findClioSection,
   HA_BILLING_PATH,
+  isClioSectionAllowed,
+  parseCalendarModeParam,
   parseClioNavParam,
+  readSavedClioNav,
   resolveClioFromTasksTab,
-  saveClioNav
+  saveClioNav,
+  type ClioVisibilityOptions
 } from "@/lib/clio/workspace-nav";
 import { firmAppHref, getTasksAppUrl } from "@/lib/firm-apps";
 import { useFirmStatusReport } from "@/hooks/useFirmStatusReport";
@@ -74,6 +81,16 @@ import {
 import { mergeTaskWorkDetails, resolveTaskType, validateTaskFormInput } from "@/lib/office-tasks/task-form-utils";
 import { FilingFollowUpAlertBar } from "@/components/office-tasks/FilingFollowUpAlertBar";
 import { listFilingDeadlineAlerts } from "@/lib/office-tasks/filing-confirmation";
+import { DEFAULT_FIRM_ALERT_RULES } from "@/lib/firm-alert-rules";
+import { NextQueueStrip } from "@/components/NextQueueStrip";
+import { buildNextQueue } from "@/lib/next-queue";
+import type { OfficeHubSummary } from "@/lib/office-hub/summary";
+import {
+  isOfflineQueued,
+  mutateTaskComplete,
+  mutateTaskNextAction,
+  mutateTaskStatus
+} from "@/lib/office-tasks/task-mutations";
 import {
   prepChecklistCreateUrl,
   prepChecklistInitializeUrl
@@ -105,41 +122,7 @@ const LETTER_WALKIN_PREFIX = "walkin:";
 
 type Props = Record<string, never>;
 
-type Counts = {
-  tasksDueToday: number;
-  eventsToday: number;
-  deadlinesToday: number;
-  overdueOpen: number;
-  dueThisWeek: number;
-  waitingAndStarted: number;
-  completedToday: number;
-};
-
-type HomeData = {
-  counts: Counts;
-  lists: {
-    overdue: OfficeItem[];
-    eventsToday: OfficeItem[];
-    deadlinesToday: OfficeItem[];
-    tasksDueToday: OfficeItem[];
-    dueThisWeek: OfficeItem[];
-    waitingAndStarted: OfficeItem[];
-    doneToday: OfficeItem[];
-  };
-  employees: string[];
-  employeeDirectory: EmployeeRecord[];
-  options: EntryFormOptions;
-  searchResults: OfficeItem[];
-  items: OfficeItem[];
-  today: string;
-  weekStart: string;
-  employeeStats: EmployeeStat[];
-  spreadsheetId?: string;
-  tasksAppsScriptConfigured?: boolean;
-  tasksSpreadsheetFallback?: boolean;
-  isAdmin?: boolean;
-  canViewLiaisonConfidential?: boolean;
-};
+type HomeData = TasksHomeData;
 
 type Tab =
   | "today"
@@ -173,9 +156,6 @@ export function TasksApp() {
   const [tab, setTab] = useState<Tab>("today");
   /** Clio Calendar Day/Week/Month — day mounts hourly DayScheduleView on the week tab. */
   const [calendarMode, setCalendarMode] = useState<"day" | "week" | "month">("week");
-  const [data, setData] = useState<HomeData | null>(null);
-  const [lastLoadStatus, setLastLoadStatus] = useState<number | undefined>(undefined);
-  const [lastLoadError, setLastLoadError] = useState<string | null>(null);
   const {
     message: statusMsg,
     variant: statusVariant,
@@ -193,7 +173,6 @@ export function TasksApp() {
   }
 
   const [busy, setBusy] = useState(false);
-  const [reloading, setReloading] = useState(false);
   const [searchQ, setSearchQ] = useState("");
   const [togglingKey, setTogglingKey] = useState<string | null>(null);
   const [doneOpenPulse, setDoneOpenPulse] = useState(0);
@@ -211,7 +190,6 @@ export function TasksApp() {
   const [letterClientCode, setLetterClientCode] = useState("");
   const [letterBusy, setLetterBusy] = useState(false);
   const [quickAddKind, setQuickAddKind] = useState<"task" | "event" | null>(null);
-  const [sheetsAccessHint, setSheetsAccessHint] = useState<SheetsAccessHint | null>(null);
   const [duplicateWarning, setDuplicateWarning] = useState<{
     match: DuplicateEntryMatch;
     pending: PendingDuplicateEntry;
@@ -235,6 +213,15 @@ export function TasksApp() {
     secretaryNav: session?.user?.secretaryNav
   });
   const email = session?.user?.email?.trim() || "";
+  const {
+    data,
+    setData,
+    reloading,
+    lastLoadStatus,
+    lastLoadError,
+    sheetsAccessHint,
+    load
+  } = useTasksHomeData(email, clearUnlessProcessing, reportError, reportWarn);
   const sessionDisplayName = session?.user?.displayName || session?.user?.name || "";
   const isAdminUser = session?.user?.isAdmin === true;
   const canViewPresenceTab = isFirmOwnerEmail(email || session?.user?.email);
@@ -255,7 +242,7 @@ export function TasksApp() {
   }, [email]);
 
   const selectTab = useCallback(
-    (next: Tab) => {
+    (next: Tab, options?: { calendarMode?: "day" | "week" | "month"; syncUrl?: boolean }) => {
       const allowed = isAllowedTasksTab(next, billingAccess, navProfile, {
         canViewLiaisonTab: canViewLiaisonConfidentialEarly,
         canViewPresenceTab
@@ -264,11 +251,48 @@ export function TasksApp() {
         : "today";
       setTab(allowed);
       saveTasksTab(allowed);
-      // Non-Clio callers (empty states, post-save) land on week planner / month — not day schedule.
-      if (allowed === "week") setCalendarMode("week");
-      else if (allowed === "calendar") setCalendarMode("month");
+      let nextMode: "day" | "week" | "month" = "week";
+      // Prefer explicit Clio calendar mode (Day hourly) over week-tab default.
+      if (options?.calendarMode) {
+        nextMode = options.calendarMode;
+        setCalendarMode(options.calendarMode);
+      } else if (allowed === "week") {
+        nextMode = "week";
+        setCalendarMode("week");
+      } else if (allowed === "calendar") {
+        nextMode = "month";
+        setCalendarMode("month");
+      }
+      if (options?.syncUrl) {
+        const clio = resolveClioFromTasksTab(
+          allowed as SavedTasksTab,
+          allowed === "week" || allowed === "calendar" ? nextMode : null
+        );
+        saveClioNav(clio.nav, clio.section);
+        const href = buildClioHref(clio.nav, clio.section, { billingPath, tasksPath });
+        const nextParams = new URLSearchParams(href.split("?")[1] || "");
+        const q = searchParams.get("q")?.trim();
+        const client = searchParams.get("client")?.trim();
+        const eventKind = searchParams.get("eventKind")?.trim();
+        if (q) nextParams.set("q", q);
+        if (client) nextParams.set("client", client);
+        if (eventKind) nextParams.set("eventKind", eventKind);
+        const nextSearch = nextParams.toString();
+        if (searchParams.toString() !== nextSearch) {
+          router.replace(nextSearch ? `${tasksPath}?${nextSearch}` : tasksPath, { scroll: false });
+        }
+      }
     },
-    [billingAccess, navProfile, canViewLiaisonConfidentialEarly, canViewPresenceTab]
+    [
+      billingAccess,
+      billingPath,
+      navProfile,
+      canViewLiaisonConfidentialEarly,
+      canViewPresenceTab,
+      router,
+      searchParams,
+      tasksPath
+    ]
   );
 
   async function runEventsSheetCheck() {
@@ -362,55 +386,6 @@ export function TasksApp() {
     });
   }, []);
 
-  const load = useCallback(async (q?: string, fresh = false, options?: { keepStatus?: boolean }) => {
-    setReloading(true);
-    if (!options?.keepStatus) clearUnlessProcessing();
-    try {
-      const params = new URLSearchParams();
-      if (q) params.set("q", q);
-      if (fresh) params.set("fresh", "1");
-      const query = params.toString();
-      const url = query ? `/api/tasks/home?${query}` : "/api/tasks/home";
-      const { ok, status, data: json } = await fetchJson<HomeData & { error?: string }>(url, {
-        timeoutMs: 90_000
-      });
-      if (!ok) {
-        setLastLoadStatus(status);
-        if (status === 401) {
-          throw new Error("Session expired — sign out and sign in again at /login.");
-        }
-        if (status === 429) {
-          const quotaMsg =
-            json.error ||
-            "Google Sheets read limit reached. Wait about 60 seconds, then Update once.";
-          setSheetsAccessHint(formatSheetsAccessHint(quotaMsg, email));
-          setLastLoadError(quotaMsg);
-          reportWarn(quotaMsg);
-          setLastLoadStatus(status);
-          setData((prev) => prev ?? null);
-          return { data: null, quotaBlocked: true };
-        }
-        throw new Error(json.error || `Load failed (${status}).`);
-      }
-      setData(json);
-      setLastLoadStatus(undefined);
-      setLastLoadError(null);
-      setSheetsAccessHint(null);
-      if (!options?.keepStatus) clearUnlessProcessing();
-      return { data: json, quotaBlocked: false };
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "Could not load data.";
-      setSheetsAccessHint(formatSheetsAccessHint(message, email));
-      setLastLoadError(message);
-      setData(null);
-      setLastLoadStatus(undefined);
-      reportError(message);
-      return { data: null, quotaBlocked: false };
-    } finally {
-      setReloading(false);
-    }
-  }, [clearUnlessProcessing, email, reportError, reportWarn]);
-
   useEffect(() => {
     if (tab !== "add-task" && tab !== "add-event") {
       setQuickAddKind(null);
@@ -423,9 +398,20 @@ export function TasksApp() {
     addTabRef.current = tab;
   }, [tab]);
 
+  const searchQParam = searchParams.get("q")?.trim() || "";
+
   useEffect(() => {
+    if (searchQParam) setSearchQ(searchQParam);
+    void load(searchQParam || undefined, false);
+  }, [load, searchQParam]);
+
+  useEffect(() => {
+    if (introGate) return;
+
     const params = new URLSearchParams(searchParams.toString());
-    const q = params.get("q")?.trim() || "";
+    const modeFromUrl = parseCalendarModeParam(params);
+    if (modeFromUrl) setCalendarMode(modeFromUrl);
+
     const clientParam = params.get("client")?.trim().toUpperCase();
     const eventKindParam = params.get("eventKind");
     const clioNav = parseClioNavParam(params.get("nav"));
@@ -436,54 +422,72 @@ export function TasksApp() {
     if (eventKindParam === "filings" || eventKindParam === "appearances") {
       setEventAddKind(eventKindParam);
     }
-    if (q) setSearchQ(q);
-
-    void load(q || undefined, false);
-
-    if (introGate) return;
 
     const tabOpts = {
       canViewLiaisonTab: canViewLiaisonConfidentialEarly,
       canViewPresenceTab
     };
+    const visibility: ClioVisibilityOptions = {
+      billingAccess,
+      navProfile,
+      isAdmin: isAdminUser,
+      email,
+      canViewLiaisonTab: canViewLiaisonConfidentialEarly,
+      canViewPresenceTab
+    };
     const tabParam = params.get("tab");
-
-    if (calParam === "day" || calParam === "week" || calParam === "month") {
-      setCalendarMode(calParam);
-    } else if (clioSection === "day" || clioSection === "week" || clioSection === "month") {
-      setCalendarMode(clioSection);
-    }
 
     if (clioNav) {
       const primary = findClioPrimary(clioNav);
-      const section = findClioSection(primary, clioSection);
+      const requested = findClioSection(primary, clioSection);
+      if (requested.billingPage) {
+        router.replace(buildClioHref(clioNav, requested.id, { billingPath, tasksPath }), {
+          scroll: false
+        });
+        return;
+      }
+      const section = isClioSectionAllowed(requested, visibility)
+        ? requested
+        : defaultClioSectionForUser(primary, visibility);
       if (section.tasksTab && isAllowedTasksTab(section.tasksTab as Tab, billingAccess, navProfile, tabOpts)) {
-        selectTab(section.tasksTab as Tab);
         if (section.calendarMode) setCalendarMode(section.calendarMode);
+        selectTab(section.tasksTab as Tab, {
+          calendarMode: section.calendarMode
+        });
         saveClioNav(clioNav, section.id);
+        if (section.id !== requested.id) {
+          router.replace(buildClioHref(clioNav, section.id, { billingPath, tasksPath }), {
+            scroll: false
+          });
+        }
         return;
       }
     }
 
     if (tabParam && isAllowedTasksTab(tabParam as Tab, billingAccess, navProfile, tabOpts)) {
-      selectTab(tabParam as Tab);
-      if (calParam === "day" || calParam === "week" || calParam === "month") {
-        setCalendarMode(calParam);
-      }
-    } else {
+      const calMode =
+        modeFromUrl ||
+        (calParam === "day" || calParam === "week" || calParam === "month" ? calParam : undefined);
+      selectTab(tabParam as Tab, calMode ? { calendarMode: calMode } : undefined);
+    } else if (!params.get("nav") && !params.get("tab")) {
       const saved = getSavedTasksTab();
-      if (saved && isAllowedTasksTab(saved, billingAccess, navProfile, tabOpts)) selectTab(saved);
-      else selectTab("today");
+      if (saved && isAllowedTasksTab(saved, billingAccess, navProfile, tabOpts)) {
+        selectTab(saved, { syncUrl: true });
+      } else {
+        selectTab("today", { syncUrl: true });
+      }
     }
   }, [
     billingAccess,
+    billingPath,
     introGate,
-    load,
     navProfile,
     selectTab,
     canViewLiaisonConfidentialEarly,
     canViewPresenceTab,
-    searchParams
+    router,
+    searchParams,
+    tasksPath
   ]);
 
   function itemActionKey(item: ItemSummary) {
@@ -493,17 +497,30 @@ export function TasksApp() {
   async function toggleItemDone(item: ItemSummary, done: boolean) {
     setTogglingKey(itemActionKey(item));
     reportProcessing(done ? "Marking done…" : "Reopening…");
+    setData((prev) => {
+      if (!prev) return prev;
+      const items = prev.items.map((row) =>
+        row.source === item.source && row.rowNumber === item.rowNumber
+          ? { ...row, done, status: done ? "Done" : row.status }
+          : row
+      );
+      return {
+        ...prev,
+        items,
+        counts: computeTodayCounts(items),
+        lists: filterTodayLists(items)
+      };
+    });
     try {
-      const res = await fetch("/api/tasks/items/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...itemActionPayload(item), done })
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Update failed");
-      reportSuccess(formatSuccessReport(json.message || "Item updated."));
-      await load(searchQ || undefined);
+      const result = await mutateTaskComplete(item, done);
+      if (isOfflineQueued(result)) {
+        reportSuccess(result.message);
+        return;
+      }
+      if (!result.ok) throw new Error(result.data.error || "Update failed");
+      reportSuccess(formatSuccessReport(result.data.message || "Item updated."));
     } catch (e) {
+      await load(searchQ || undefined);
       reportError(e instanceof Error ? e.message : "Update failed.");
     } finally {
       setTogglingKey(null);
@@ -516,14 +533,14 @@ export function TasksApp() {
     const shouldHighlightWaiting = status === "Waiting" || status === "Started";
 
     try {
-      const res = await fetch("/api/tasks/items/status", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...itemActionPayload(item), status, note: options?.note })
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Update failed");
+      const result = await mutateTaskStatus(item, status, options?.note);
+      if (isOfflineQueued(result)) {
+        reportSuccess(result.message);
+        return;
+      }
+      if (!result.ok) throw new Error(result.data.error || "Update failed");
 
+      const json = result.data;
       const savedStatus =
         typeof json.status === "string" ? json.status : resolveStatusLabel(item.source, status);
       const savedRemarks = typeof json.remarks === "string" ? json.remarks : item.remarks;
@@ -565,17 +582,13 @@ export function TasksApp() {
     setTogglingKey(itemActionKey(item));
     reportProcessing("Saving next action…");
     try {
-      const res = await fetch("/api/tasks/items/next-action", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...itemActionPayload(item),
-          nextAction
-        })
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Save failed");
-      reportSuccess(formatSuccessReport(json.message || "Next action saved."));
+      const result = await mutateTaskNextAction(item, nextAction);
+      if (isOfflineQueued(result)) {
+        reportSuccess(result.message);
+        return;
+      }
+      if (!result.ok) throw new Error(result.data.error || "Save failed");
+      reportSuccess(formatSuccessReport(result.data.message || "Next action saved."));
       await load(searchQ || undefined);
     } catch (e) {
       reportError(e instanceof Error ? e.message : "Save failed.");
@@ -1183,13 +1196,28 @@ export function TasksApp() {
   const tabShortcuts = useMemo(() => buildTabShortcutHelp(navTabs), [navTabs]);
 
   const clioActive = useMemo(() => {
+    function sectionMatchesView(section: ReturnType<typeof findClioSection>): boolean {
+      if (section.tasksTab && section.tasksTab !== tab) return false;
+      if (section.calendarMode && section.calendarMode !== calendarMode) return false;
+      return true;
+    }
+
     const fromUrl = parseClioNavParam(searchParams.get("nav"));
     const sectionFromUrl = searchParams.get("section")?.trim();
     if (fromUrl) {
-      return {
-        nav: fromUrl,
-        section: sectionFromUrl || findClioPrimary(fromUrl).defaultSectionId
-      };
+      const primary = findClioPrimary(fromUrl);
+      const section = findClioSection(primary, sectionFromUrl);
+      if (sectionMatchesView(section)) {
+        return { nav: fromUrl, section: section.id };
+      }
+    }
+    const saved = readSavedClioNav();
+    if (saved) {
+      const primary = findClioPrimary(saved.nav);
+      const section = findClioSection(primary, saved.section);
+      if (sectionMatchesView(section)) {
+        return { nav: saved.nav, section: section.id };
+      }
     }
     return resolveClioFromTasksTab(tab as SavedTasksTab, calendarMode);
   }, [searchParams, tab, calendarMode]);
@@ -1214,7 +1242,7 @@ export function TasksApp() {
     (tabId: string) => {
       markWorkspaceIntroSeen("tasks", email);
       const allowed = navTabs.some((tab) => tab.id === tabId);
-      selectTab(allowed ? (tabId as Tab) : "today");
+      selectTab(allowed ? (tabId as Tab) : "today", { syncUrl: true });
       setIntroState("closed");
       const params = new URLSearchParams(window.location.search);
       if (params.has("tab") || params.has("eventKind")) {
@@ -1240,7 +1268,28 @@ export function TasksApp() {
     );
   }, [introOpen, navTabs, selectTab]);
 
-  const filingDeadlineAlerts = useMemo(() => listFilingDeadlineAlerts(scheduleItems, today), [scheduleItems, today]);
+  const [filingHorizonDays, setFilingHorizonDays] = useState(
+    DEFAULT_FIRM_ALERT_RULES.filingAlertHorizonDays
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetch("/api/firm/alert-rules")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (cancelled || !json?.rules?.filingAlertHorizonDays) return;
+        setFilingHorizonDays(Number(json.rules.filingAlertHorizonDays));
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filingDeadlineAlerts = useMemo(
+    () => listFilingDeadlineAlerts(scheduleItems, today, { alertHorizonDays: filingHorizonDays }),
+    [scheduleItems, today, filingHorizonDays]
+  );
 
   const viewerPrepRole = useMemo(
     () => resolvePrepRoleFromSession(session?.user, data?.employeeDirectory ?? []),
@@ -1257,6 +1306,34 @@ export function TasksApp() {
   const todayCounts = effectiveMyWorkScope === "mine" ? myWorkCounts : counts;
   const todayLists = effectiveMyWorkScope === "mine" ? myWorkLists : data?.lists;
   const calendarSyncItems = effectiveMyWorkScope === "mine" ? myWorkItems : scheduleItems;
+
+  const nextQueueSummary = useMemo((): OfficeHubSummary => {
+    return {
+      announcement: null,
+      announcementDraft: { message: "", from: "", until: "" },
+      isAdmin,
+      tasks: todayCounts
+        ? {
+            tasksDueToday: todayCounts.tasksDueToday,
+            eventsToday: todayCounts.eventsToday,
+            overdueOpen: todayCounts.overdueOpen,
+            nextHearing: null
+          }
+        : null,
+      billingOverdueClients: null
+    };
+  }, [isAdmin, todayCounts]);
+
+  const nextQueueItems = useMemo(
+    () =>
+      buildNextQueue({
+        summary: nextQueueSummary,
+        billingAccess,
+        filingAlerts: filingDeadlineAlerts,
+        limit: 6
+      }),
+    [nextQueueSummary, billingAccess, filingDeadlineAlerts]
+  );
 
   const handleShareMyWorkList = useCallback(async () => {
     if (!todayLists) return;
@@ -1356,6 +1433,7 @@ export function TasksApp() {
         }}
         statusMessage={statusMsg || undefined}
         statusVariant={statusMsg ? statusVariant : "ok"}
+        onOfflineStatus={showStatus}
         breadcrumbPage={tab === "week" && calendarMode === "day" ? "Day" : TASKS_TAB_LABELS[tab as SavedTasksTab] ?? "Tasks"}
         chromeTopBanner={
           deleteUndo.pending ? (
@@ -1382,6 +1460,7 @@ export function TasksApp() {
         navTabs={
           <ClioRail
             activeNav={clioActive.nav}
+            activeSection={clioActive.section}
             billingPath={billingPath}
             tasksPath={tasksPath}
             isAdmin={isAdmin}
@@ -1446,7 +1525,7 @@ export function TasksApp() {
         />
       ) : null}
 
-      <PageTransition pageKey={tab}>
+      <PageTransition pageKey={tab === "week" ? `week-${calendarMode}` : tab}>
       {tab === "today" && counts && data && (
         <div className="page-stagger">
         <div id="print-today" className="print-root">
@@ -1537,6 +1616,8 @@ export function TasksApp() {
               </div>
             }
           />
+
+          <NextQueueStrip items={nextQueueItems} className="card" />
 
           <div className="my-work-panel my-work-panel--simple my-work-panel--elegant">
             <section className="card my-work-toolbar">
@@ -1705,7 +1786,11 @@ export function TasksApp() {
                     ) : null}
                     {billingAccess ? (
                       <>
-                        <button type="button" className="btn-secondary text-sm" onClick={() => selectTab("week")}>
+                        <button
+                          type="button"
+                          className="btn-secondary text-sm"
+                          onClick={() => selectTab("week", { calendarMode: "week", syncUrl: true })}
+                        >
                           Week planner
                         </button>
                         <button type="button" className="btn-secondary text-sm" onClick={() => selectTab("all-items")}>
@@ -1761,71 +1846,24 @@ export function TasksApp() {
         </>
       )}
 
-      {tab === "week" && data && calendarMode === "day" ? (
-        <>
-          <TabPageHeader resetKey="day">
-            <BillingTabGuide title="About day schedule">
-              <BillingTabGuideText>
-                Hourly lanes for one day — hearings and meetings with start times, plus untimed items.
-              </BillingTabGuideText>
-              <BillingTabGuideText>
-                Switch to <strong>Week</strong> or <strong>Month</strong> in the left rail for a wider view.
-              </BillingTabGuideText>
-            </BillingTabGuide>
-          </TabPageHeader>
-          <TabPageBody>
-            <DayScheduleView
-              items={scheduleItems}
-              today={today}
-              initialDate={today}
-              onToggleDone={toggleItemDone}
-              onSetStatus={updateItemStatus}
-              onResetWithDate={resetItemWithDate}
-              onDeleteItem={deleteItem}
-              onUpdateNextAction={updateItemNextAction}
-              onSaveEdit={saveItemEdit}
-              onCourtConfirmed={markCourtConfirmed}
-              onMarkSubmitted={markEventSubmitted}
-              onConfirmParentFiled={confirmParentFiled}
-              formOptions={opts}
-              togglingKey={togglingKey}
-            />
-          </TabPageBody>
-        </>
-      ) : null}
-
-      {tab === "week" && data && calendarMode !== "day" ? (
-        <>
-          <TabPageHeader resetKey={tab}>
-            <BillingTabGuide title="Week planner">
-              <BillingTabGuideText>
-                See the next seven days in a grid — overdue items at the top, then each day&apos;s work. Select a day for
-                details below. Best when planning ahead for the week.
-              </BillingTabGuideText>
-              <BillingTabGuideText>
-                For today&apos;s priority list, use <strong>My work</strong>.
-              </BillingTabGuideText>
-            </BillingTabGuide>
-          </TabPageHeader>
-          <TabPageBody>
-          <WeeklyPlannerView
+      {tab === "week" && data ? (
+        <TasksWeekTabView
+          calendarMode={calendarMode}
           items={scheduleItems}
           today={today}
-          initialWeekStart={data.weekStart}
+          weekStart={data.weekStart}
           onToggleDone={toggleItemDone}
           onSetStatus={updateItemStatus}
           onResetWithDate={resetItemWithDate}
           onDeleteItem={deleteItem}
           onUpdateNextAction={updateItemNextAction}
           onSaveEdit={saveItemEdit}
-        onCourtConfirmed={markCourtConfirmed}
-      onMarkSubmitted={markEventSubmitted}
-      onConfirmParentFiled={confirmParentFiled}
+          onCourtConfirmed={markCourtConfirmed}
+          onMarkSubmitted={markEventSubmitted}
+          onConfirmParentFiled={confirmParentFiled}
           formOptions={opts}
           togglingKey={togglingKey}
         />
-          </TabPageBody>
-        </>
       ) : null}
 
       {tab === "team" && data && (

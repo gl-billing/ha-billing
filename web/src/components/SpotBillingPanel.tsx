@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
+import { SmartLoadEmptyState } from "@/components/SmartLoadEmptyState";
 import { TableSkeleton } from "@/components/Skeleton";
 import { fetchJson } from "@/lib/fetch-json";
 import type { SpotBillingEntry, SpotBillingTransactionKind, SpotBillingTransactionPayload } from "@/lib/gl-config";
@@ -95,6 +96,7 @@ export function SpotBillingPanel({ busy, onBusy, onStatus, paymentMethods }: Pro
   const [entries, setEntries] = useState<SpotBillingEntry[]>([]);
   const [filter, setFilter] = useState<Filter>("active");
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
   const [transactionEntry, setTransactionEntry] = useState<SpotBillingEntry | null>(null);
 
@@ -126,13 +128,16 @@ export function SpotBillingPanel({ busy, onBusy, onStatus, paymentMethods }: Pro
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError("");
     try {
       const res = await fetch(`/api/spot-billing?status=${filter === "all" ? "" : filter}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Could not load spot billing.");
       setEntries(json.entries || []);
     } catch (error) {
-      onStatus(error instanceof Error ? error.message : "Could not load spot billing.", true);
+      const message = error instanceof Error ? error.message : "Could not load spot billing.";
+      setLoadError(message);
+      onStatus(message, true);
     } finally {
       setLoading(false);
     }
@@ -544,6 +549,8 @@ export function SpotBillingPanel({ busy, onBusy, onStatus, paymentMethods }: Pro
 
         {loading ? (
           <TableSkeleton rows={4} />
+        ) : loadError ? (
+          <SmartLoadEmptyState errorMessage={loadError} context="billing" onRetry={() => void load()} />
         ) : entries.length === 0 ? (
           <EmptyState
             message="No spot billing entries yet."
@@ -554,8 +561,8 @@ export function SpotBillingPanel({ busy, onBusy, onStatus, paymentMethods }: Pro
             }
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px] text-left text-xs">
+          <div className="scroll-panel-hint firm-ledger-table-wrap">
+            <table className="firm-ledger-table firm-ledger-table--responsive-stack w-full min-w-[820px] text-left text-xs">
               <thead>
                 <tr className="border-b border-line text-muted">
                   <th className="py-2 pr-3 font-bold">ID</th>
@@ -569,16 +576,16 @@ export function SpotBillingPanel({ busy, onBusy, onStatus, paymentMethods }: Pro
               <tbody>
                 {entries.map((entry) => (
                   <tr key={entry.spotId} className="border-b border-line/60 align-top">
-                    <td className="py-3 pr-3 font-mono text-[11px]">{entry.spotId}</td>
-                    <td className="py-3 pr-3">
+                    <td data-label="ID" className="py-3 pr-3 font-mono text-[11px]">{entry.spotId}</td>
+                    <td data-label="Payer" className="py-3 pr-3">
                       <p className="font-bold text-ink">{entry.payerName}</p>
                       {entry.linkedClientCode ? <p className="text-muted">Ref {entry.linkedClientCode}</p> : null}
                       {entry.assignedAttorney ? <p className="text-muted">{entry.assignedAttorney}</p> : null}
                     </td>
-                    <td className="py-3 pr-3">{entry.serviceDescription}</td>
-                    <td className="py-3 pr-3">{billingSummary(entry)}</td>
-                    <td className="py-3 pr-3">{entry.status}</td>
-                    <td className="py-3">
+                    <td data-label="Service" className="py-3 pr-3">{entry.serviceDescription}</td>
+                    <td data-label="Billing" className="py-3 pr-3">{billingSummary(entry)}</td>
+                    <td data-label="Status" className="py-3 pr-3">{entry.status}</td>
+                    <td data-label="Actions" className="py-3">
                       <div className="flex flex-wrap gap-2">
                         {entry.status === "Active" ? (
                           <>

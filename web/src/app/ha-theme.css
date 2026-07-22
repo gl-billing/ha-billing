@@ -20,9 +20,11 @@
   --ha-frame-width: 1px;
   --app-ui-scale: 1;
   --radius-control: 0;
-  --ha-shell-max: 72rem;
-  --ha-shell-pad-x: clamp(0.875rem, 2.5vw, 1.375rem);
-  --ha-shell-pad-y: clamp(0.75rem, 1.5vw, 1rem);
+  --ha-shell-max: 100%;
+  --ha-shell-pad-x: clamp(1rem, 3.25vw, 2.25rem);
+  --ha-shell-pad-y: clamp(0.625rem, 1.75vw, 1.125rem);
+  --ha-viewport-bg: #eeedea;
+  --ha-viewport-bg-top: #f4f3f0;
   /* Proportional type ladder (16px root) */
   --ha-text-body: 1rem;
   --ha-text-ui: 0.875rem;
@@ -36,16 +38,20 @@
 }
 
 body {
-  background: var(--cream) !important;
+  background: linear-gradient(180deg, var(--ha-viewport-bg-top) 0%, var(--ha-viewport-bg) 100%) !important;
+  background-attachment: fixed !important;
   font-size: var(--ha-text-body) !important;
   line-height: var(--ha-leading) !important;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+  min-height: 100dvh;
 }
 
 html {
   font-size: 16px !important;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  min-height: 100%;
+  height: 100%;
 }
 
 .firm-workspace,
@@ -3219,11 +3225,7 @@ a.btn-secondary,
   :root {
     --ha-block-gap: 1rem;
     --ha-tab-gap: 1rem;
-  }
-
-  .firm-workspace,
-  .office-hub {
-    --ha-shell-pad-x: clamp(1rem, 4vw, 1.25rem);
+    --ha-shell-pad-x: max(0.875rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
   }
 
   .firm-workspace .card,

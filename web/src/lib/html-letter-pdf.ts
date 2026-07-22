@@ -55,7 +55,7 @@ export async function renderLetterHtmlToPdf(html: string, pageSize: FirmPageSize
 
   try {
     const page = await browser.newPage();
-    await page.setContent(prepared, { waitUntil: "networkidle" });
+    await page.setContent(prepared, { waitUntil: "load" });
     await page.evaluate(async () => {
       if (document.fonts?.ready) await document.fonts.ready;
     });

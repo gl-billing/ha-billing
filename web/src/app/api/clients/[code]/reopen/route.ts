@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { requireSessionAccessToken } from "@/lib/api-auth";
-import { authOptions } from "@/lib/auth";
+import { requireBillingAccessToken, sessionAuditEmail } from "@/lib/api-auth";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import { invalidateCache, isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 import { reopenClient } from "@/lib/sheets/master";
@@ -10,15 +8,14 @@ type RouteContext = { params: Promise<{ code: string }> };
 
 export async function POST(_request: Request, context: RouteContext) {
   try {
-    const accessToken = await requireSessionAccessToken();
+    const accessToken = await requireBillingAccessToken();
     const { code } = await context.params;
     const clientCode = decodeURIComponent(code);
 
     const result = await reopenClient(accessToken, clientCode);
 
-    const session = await getServerSession(authOptions);
     await appendAuditLog(accessToken, {
-      user: session?.user?.email || "unknown",
+      user: await sessionAuditEmail(),
       action: "client.reopen",
       clientCode,
       summary: "Client reopened",

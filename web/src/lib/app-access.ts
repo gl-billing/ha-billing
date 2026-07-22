@@ -30,9 +30,24 @@ export function isStaffEmail(email: string | null | undefined): boolean {
   const domain = process.env.ALLOWED_EMAIL_DOMAIN?.trim().toLowerCase();
   if (domain && normalized.endsWith(`@${domain}`)) return true;
 
-  if (!allowedList.length && !domain) return true;
+  // Production: deny when no allowlist is configured (dev may stay open for local testing).
+  if (!allowedList.length && !domain) {
+    return process.env.NODE_ENV !== "production";
+  }
 
   return false;
+}
+
+/** Log a startup warning when production has no staff allowlist configured. */
+export function warnProductionAllowlistUnset(): void {
+  if (process.env.NODE_ENV !== "production") return;
+  const allowedList = parseEmailList(process.env.ALLOWED_EMAILS);
+  const domain = process.env.ALLOWED_EMAIL_DOMAIN?.trim();
+  if (!allowedList.length && !domain) {
+    console.error(
+      "[ha-billing] CRITICAL: Set ALLOWED_EMAILS or ALLOWED_EMAIL_DOMAIN in production — all sign-ins are denied until configured."
+    );
+  }
 }
 
 export function canAccessOfficeHub(email: string | null | undefined): boolean {

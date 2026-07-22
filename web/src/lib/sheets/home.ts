@@ -1,4 +1,5 @@
 import type { FollowUpClient, HomeDashboard } from "@/lib/gl-config";
+import { readFirmAlertRulesFromSettings } from "@/lib/firm-alert-rules-server";
 import { withCache } from "@/lib/sheets/cache";
 import { getDocumentLog } from "@/lib/sheets/document-log";
 import { dashboardFromMasterRows, getAllMasterRows } from "@/lib/sheets/master";
@@ -29,13 +30,14 @@ export async function getHomeDashboard(accessToken: string): Promise<HomeDashboa
       (row) => row[0] && String(row[20] || "Active").toLowerCase() !== "closed"
     );
 
-    const [pendingAr, recentDocuments] = await Promise.all([
+    const [pendingAr, recentDocuments, alertRules] = await Promise.all([
       getPendingArEntries(accessToken, master),
-      getDocumentLog(accessToken, { limit: 15 })
+      getDocumentLog(accessToken, { limit: 15 }),
+      readFirmAlertRulesFromSettings(accessToken)
     ]);
 
     const overdueList = active
-      .filter((row) => String(row[15]) === "Overdue" && Number(row[11]) > 0)
+      .filter((row) => String(row[15]) === "Overdue" && Number(row[11]) >= alertRules.overdueBalanceMin)
       .map((row) => ({
         code: String(row[0]),
         name: String(row[1] || ""),
@@ -48,7 +50,8 @@ export async function getHomeDashboard(accessToken: string): Promise<HomeDashboa
     const followUpThisWeek: FollowUpClient[] = active
       .filter((row) => {
         const followUp = parseDate(row[18]);
-        return followUp && isWithinDays(followUp, 7);
+        const balance = Number(row[11]) || 0;
+        return followUp && balance >= alertRules.balanceAlertMin && isWithinDays(followUp, alertRules.followUpHorizonDays);
       })
       .map((row) => ({
         code: String(row[0]),

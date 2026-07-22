@@ -38,13 +38,17 @@ import {
   resolveNavUserProfile
 } from "@/lib/workspace-labels";
 import {
+  buildClioHref,
+  defaultClioSectionForUser,
   findClioPrimary,
   findClioSection,
   HA_BILLING_PATH,
+  isClioSectionAllowed,
   parseClioNavParam,
   readSavedClioNav,
   resolveClioFromBillingPage,
-  saveClioNav
+  saveClioNav,
+  type ClioVisibilityOptions
 } from "@/lib/clio/workspace-nav";
 import { matterHref } from "@/lib/matter-routes";
 import { BillingTabGuide, BillingTabGuideText, TabPageHeader } from "@/components/BillingTabGuide";
@@ -68,8 +72,10 @@ import { WorkspaceIntroDialog } from "@/components/WorkspaceIntroDialog";
 import { getBillingIntroContent } from "@/lib/workspace-intro-content";
 import { clearWorkspaceIntroSeen, hasSeenWorkspaceIntro, markWorkspaceIntroSeen } from "@/lib/workspace-intro-storage";
 import { SheetsAccessErrorPanel } from "@/components/SheetsAccessErrorPanel";
-import { formatSheetsAccessHint, type SheetsAccessHint } from "@/lib/sheets-access-help";
 import { bindWorkspaceTabShortcuts, buildTabShortcutHelp } from "@/lib/workspace-tab-shortcuts";
+import { canViewLiaisonTab } from "@/lib/app-access";
+import { isFirmOwnerEmail } from "@/lib/firm-team-config";
+import { useBillingClients } from "@/hooks/useBillingClients";
 
 type Props = Record<string, never>;
 
@@ -88,12 +94,6 @@ type AppPage =
   | "staffSalary"
   | "history";
 
-type ClientsResponse = {
-  clients: ClientSummary[];
-  chargeCategories: string[];
-  paymentMethods: string[];
-};
-
 function todayLocal(): string {
   const date = new Date();
   date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
@@ -110,11 +110,8 @@ export function BillingApp() {
   const tasksPath = firmAppHref("/app", getTasksAppUrl()) || "/app";
   const [introState, setIntroState] = useState<IntroState>("pending");
   const { goTo } = useMatterNavigation();
-  const [clients, setClients] = useState<ClientSummary[]>([]);
-  const [chargeCategories, setChargeCategories] = useState<string[]>([...GL.chargeCategories]);
-  const [paymentMethods, setPaymentMethods] = useState<string[]>([...GL.paymentMethods]);
-  const [clientCode, setClientCode] = useState("");
   const [page, setPage] = useState<AppPage>("home");
+  const [ledgerSaving, setLedgerSaving] = useState(false);
   const [docTab, setDocTab] = useState<"soa" | "ar">("soa");
   const [tab, setTab] = useState<"charge" | "payment">("charge");
   const {
@@ -125,10 +122,6 @@ export function BillingApp() {
     reportError,
     onStatus
   } = useFirmStatusReport();
-  const [loading, setLoading] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [ledgerSaving, setLedgerSaving] = useState(false);
-  const [sheetsAccessHint, setSheetsAccessHint] = useState<SheetsAccessHint | null>(null);
   const chargeAmountRef = useRef<HTMLInputElement>(null);
   const paymentAmountRef = useRef<HTMLInputElement>(null);
   const clientCodeRef = useRef<HTMLSelectElement>(null);
@@ -147,6 +140,46 @@ export function BillingApp() {
     secretaryNav: session?.user?.secretaryNav
   });
   const email = session?.user?.email?.trim() || "";
+  const {
+    clients,
+    chargeCategories,
+    paymentMethods,
+    clientCode,
+    setClientCode,
+    loading,
+    loadFailed,
+    lastLoadStatus,
+    lastLoadError,
+    sheetsAccessHint,
+    loadData
+  } = useBillingClients(email, reportProcessing, reportSuccess, reportError);
+  const [busy, setBusy] = useState(false);
+  const canViewPresenceTab = isFirmOwnerEmail(email || session?.user?.email);
+  const canViewLiaisonConfidential = canViewLiaisonTab({
+    email,
+    staffName: session?.user?.displayName || session?.user?.name,
+    isAdmin
+  });
+  const clioVisibility: ClioVisibilityOptions = useMemo(
+    () => ({
+      billingAccess,
+      navProfile,
+      isAdmin,
+      email,
+      canManageTeamRoster,
+      canViewLiaisonTab: canViewLiaisonConfidential,
+      canViewPresenceTab
+    }),
+    [
+      billingAccess,
+      navProfile,
+      isAdmin,
+      email,
+      canManageTeamRoster,
+      canViewLiaisonConfidential,
+      canViewPresenceTab
+    ]
+  );
   const introOpen = introState === "open";
   const introGate = introState !== "closed";
 
@@ -159,6 +192,21 @@ export function BillingApp() {
       setIntroState("open");
     }
   }, [email]);
+
+  const syncBillingClioUrl = useCallback(
+    (next: AppPage, nav?: ReturnType<typeof resolveClioFromBillingPage>) => {
+      const clio = nav || resolveClioFromBillingPage(next);
+      saveClioNav(clio.nav, clio.section);
+      const href = buildClioHref(clio.nav, clio.section, { billingPath, tasksPath });
+      const nextParams = new URLSearchParams(href.split("?")[1] || "");
+      if (clientCode) nextParams.set("client", clientCode);
+      const nextSearch = nextParams.toString();
+      const current = searchParams.toString();
+      if (current === nextSearch) return;
+      router.replace(nextSearch ? `${billingPath}?${nextSearch}` : billingPath, { scroll: false });
+    },
+    [billingPath, clientCode, router, searchParams, tasksPath]
+  );
 
   const goToPage = useCallback(
     (next: AppPage) => {
@@ -181,10 +229,17 @@ export function BillingApp() {
       }
       setPage(next);
       saveBillingPage(next);
-      const clio = resolveClioFromBillingPage(next);
-      saveClioNav(clio.nav, clio.section);
+      syncBillingClioUrl(next);
     },
-    [adminResolved, canManageTeamRoster, email, isAdmin, navProfile, onStatus]
+    [
+      adminResolved,
+      canManageTeamRoster,
+      email,
+      isAdmin,
+      navProfile,
+      onStatus,
+      syncBillingClioUrl
+    ]
   );
 
   const billingNavTabs = useMemo(
@@ -207,10 +262,9 @@ export function BillingApp() {
       markWorkspaceIntroSeen("billing", email);
       const allowed = billingNavTabs.some((tab) => tab.id === tabId);
       goToPage(allowed ? (tabId as AppPage) : "billing");
-      router.replace("/billing", { scroll: false });
       setIntroState("closed");
     },
-    [billingNavTabs, email, goToPage, router]
+    [billingNavTabs, email, goToPage]
   );
 
   const replayWorkspaceGuide = useCallback(() => {
@@ -240,7 +294,16 @@ export function BillingApp() {
 
     if (clioNav) {
       const primary = findClioPrimary(clioNav);
-      const section = findClioSection(primary, clioSection);
+      const requested = findClioSection(primary, clioSection);
+      if (requested.tasksTab) {
+        router.replace(buildClioHref(clioNav, requested.id, { billingPath, tasksPath }), {
+          scroll: false
+        });
+        return;
+      }
+      const section = isClioSectionAllowed(requested, clioVisibility)
+        ? requested
+        : defaultClioSectionForUser(primary, clioVisibility);
       if (section.billingPage) {
         const nextPage = section.billingPage;
         if (
@@ -252,13 +315,22 @@ export function BillingApp() {
           saveBillingPage(nextPage);
         }
         saveClioNav(clioNav, section.id);
+        if (section.id !== requested.id) {
+          router.replace(buildClioHref(clioNav, section.id, { billingPath, tasksPath }), {
+            scroll: false
+          });
+        }
       }
-    } else if (deepLink?.page) {
-      setPage(deepLink.page);
-      saveBillingPage(deepLink.page);
     } else {
-      const saved = getSavedBillingPage();
-      if (saved) setPage(saved);
+      const resolvedPage: AppPage = deepLink?.page || getSavedBillingPage() || "home";
+      if (deepLink?.page) {
+        setPage(deepLink.page);
+        saveBillingPage(deepLink.page);
+      } else {
+        const saved = getSavedBillingPage();
+        if (saved) setPage(saved);
+      }
+      syncBillingClioUrl(resolvedPage);
     }
 
     if (deepLink?.clientCode) setClientCode(deepLink.clientCode);
@@ -271,24 +343,30 @@ export function BillingApp() {
     isAdmin,
     navProfile,
     email,
-    canManageTeamRoster
+    canManageTeamRoster,
+    clioVisibility,
+    billingPath,
+    tasksPath,
+    syncBillingClioUrl
   ]);
 
   const clioActive = useMemo(() => {
     const fromUrl = parseClioNavParam(searchParams.get("nav"));
     const sectionFromUrl = searchParams.get("section")?.trim();
     if (fromUrl) {
-      return {
-        nav: fromUrl,
-        section: sectionFromUrl || findClioPrimary(fromUrl).defaultSectionId
-      };
+      const primary = findClioPrimary(fromUrl);
+      const section = findClioSection(primary, sectionFromUrl);
+      // Prefer URL only when it still describes the current billing page (duplicate Matters/Contacts paths).
+      if (!section.billingPage || section.billingPage === page) {
+        return { nav: fromUrl, section: section.id };
+      }
     }
     const saved = readSavedClioNav();
     if (saved) {
       const primary = findClioPrimary(saved.nav);
       const section = findClioSection(primary, saved.section);
       if (!section.billingPage || section.billingPage === page) {
-        return saved;
+        return { nav: saved.nav, section: section.id };
       }
     }
     return resolveClioFromBillingPage(page as SavedBillingPage);
@@ -306,7 +384,6 @@ export function BillingApp() {
   }, [session?.user?.canManageTeamRoster, session?.user?.isAdmin]);
 
   useEffect(() => {
-    
     let cancelled = false;
     void fetch("/api/me")
       .then((res) => (res.ok ? res.json() : null))
@@ -331,6 +408,7 @@ export function BillingApp() {
     if (isAdminBillingPage(page) && !(page === "staffSalary" && canManageTeamRoster)) {
       setPage("billing");
       saveBillingPage("billing");
+      syncBillingClioUrl("billing");
       return;
     }
     if (
@@ -339,8 +417,18 @@ export function BillingApp() {
     ) {
       setPage("billing");
       saveBillingPage("billing");
+      syncBillingClioUrl("billing");
     }
-  }, [canManageTeamRoster, introGate, adminResolved, email, isAdmin, navProfile, page]);
+  }, [
+    canManageTeamRoster,
+    introGate,
+    adminResolved,
+    email,
+    isAdmin,
+    navProfile,
+    page,
+    syncBillingClioUrl
+  ]);
 
   useEffect(() => {
     if (tab !== "payment" || !clientCode) return;
@@ -373,55 +461,6 @@ export function BillingApp() {
   const [paymentIncomeType, setPaymentIncomeType] = useState<PaymentIncomeType>("Professional Fee");
   const [paymentDefaultHint, setPaymentDefaultHint] = useState("");
   const [openCharges, setOpenCharges] = useState<OpenChargeOption[]>([]);
-
-  const loadData = useCallback(async (options?: { quiet?: boolean }) => {
-    setLoading(true);
-    if (!options?.quiet) reportProcessing("Loading billing controls…");
-
-    try {
-      const clientsRes = await fetch("/api/clients");
-
-      if (!clientsRes.ok) {
-        const err = await clientsRes.json();
-        throw new Error(err.error || "Unable to load clients.");
-      }
-
-      const clientsData = (await clientsRes.json()) as ClientsResponse;
-      setClients(clientsData.clients);
-      setChargeCategories(clientsData.chargeCategories);
-      setPaymentMethods(clientsData.paymentMethods);
-
-      const params =
-        typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
-      const deepLink = parseBillingDeepLink(params);
-      const legacyClient = params.get("client")?.trim().toUpperCase();
-
-      if (legacyClient && !deepLink?.page && !params.get("doc")) {
-        router.replace(matterHref(legacyClient, undefined));
-      } else {
-        setClientCode((prev) => prev || deepLink?.clientCode || clientsData.clients[0]?.code || "");
-      }
-
-      if (!options?.quiet) {
-        reportSuccess(
-          clientsData.clients.length
-            ? "Ready."
-            : "No active clients found. Add clients in Master List."
-        );
-      }
-      setSheetsAccessHint(null);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to load data.";
-      setSheetsAccessHint(formatSheetsAccessHint(message, email));
-      reportError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [email, reportError, reportProcessing, reportSuccess, router]);
-
-  useEffect(() => {
-    void loadData({ quiet: true });
-  }, [loadData]);
 
   useEffect(() => {
     if (introOpen) return;
@@ -596,7 +635,6 @@ export function BillingApp() {
       />
     <ClientMatterProvider lazyLoadItems onNotice={setAppStatus}>
       <FirmWorkspaceShell
-                signOutCallbackUrl={undefined}
         workspace="billing"
         wide
         name={session?.user?.name}
@@ -605,6 +643,7 @@ export function BillingApp() {
         billingAccess={billingAccess}
         statusMessage={status}
         statusVariant={status ? statusVariant : "ok"}
+        onOfflineStatus={(message, isError) => setAppStatus(message, isError)}
         breadcrumbPage={BILLING_PAGE_LABELS[page as SavedBillingPage] ?? "Billing"}
         chromeTopBanner={
           sheetsAccessHint ? (
@@ -627,6 +666,8 @@ export function BillingApp() {
             navProfile={navProfile}
             email={email}
             canManageTeamRoster={canManageTeamRoster}
+            canViewLiaisonTab={canViewLiaisonConfidential}
+            canViewPresenceTab={canViewPresenceTab}
             billingPath={billingPath}
             tasksPath={tasksPath}
           />
@@ -634,6 +675,7 @@ export function BillingApp() {
         navTabs={
           <ClioRail
             activeNav={clioActive.nav}
+            activeSection={clioActive.section}
             billingPath={billingPath}
             tasksPath={tasksPath}
             isAdmin={isAdmin}
@@ -641,9 +683,24 @@ export function BillingApp() {
             navProfile={navProfile}
             email={email}
             canManageTeamRoster={canManageTeamRoster}
+            canViewLiaisonTab={canViewLiaisonConfidential}
+            canViewPresenceTab={canViewPresenceTab}
           />
         }
       >
+      {!loading && loadFailed ? (
+        <SmartLoadEmptyState
+          errorMessage={
+            lastLoadError ||
+            status ||
+            "Something went wrong reading billing data from Google Sheets."
+          }
+          context="billing"
+          status={lastLoadStatus}
+          onRetry={() => void loadData()}
+        />
+      ) : null}
+      {!loadFailed ? (
       <PageTransition pageKey={page}>
       {page === "home" && (
         <>
@@ -655,10 +712,10 @@ export function BillingApp() {
               <BillingTabGuideText>
                 To record a new fee or payment, go to <strong>Charges &amp; payments</strong>. For tasks and deadlines, go to{" "}
                 <SameWindowLink
-                  href={firmAppHref("/app?tab=today")}
+                  href={buildClioHref("checklist", "today", { billingPath, tasksPath })}
                   className="font-bold text-gold-dark underline"
                 >
-                  Schedule → My work
+                  My work
                 </SameWindowLink>
                 .
               </BillingTabGuideText>
@@ -1260,6 +1317,7 @@ export function BillingApp() {
         </>
       )}
       </PageTransition>
+      ) : null}
 
       </FirmWorkspaceShell>
     </ClientMatterProvider>

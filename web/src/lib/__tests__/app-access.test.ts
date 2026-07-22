@@ -72,6 +72,28 @@ describe("app-access", () => {
     expect(resolvePostLoginPath("staff@example.com")).toBe("/office-hub");
   });
 
+  it("denies unknown emails in production when allowlist is unset", () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+    delete process.env.ALLOWED_EMAILS;
+    delete process.env.ALLOWED_EMAIL_DOMAIN;
+    process.env.NODE_ENV = "production";
+
+    expect(isStaffEmail("random@gmail.com")).toBe(false);
+
+    process.env.NODE_ENV = originalNodeEnv;
+  });
+
+  it("allows unknown emails in development when allowlist is unset", () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+    delete process.env.ALLOWED_EMAILS;
+    delete process.env.ALLOWED_EMAIL_DOMAIN;
+    process.env.NODE_ENV = "development";
+
+    expect(isStaffEmail("random@gmail.com")).toBe(true);
+
+    process.env.NODE_ENV = originalNodeEnv;
+  });
+
   it("always allows the firm owner email even outside ALLOWED_EMAIL_DOMAIN", () => {
     process.env.ALLOWED_EMAILS = "staff@example.com";
     process.env.ALLOWED_EMAIL_DOMAIN = "hernandezlaw.info";

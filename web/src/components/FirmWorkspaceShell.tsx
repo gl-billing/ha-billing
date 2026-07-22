@@ -35,6 +35,7 @@ type Props = {
   searchBusy?: boolean;
   statusMessage?: string;
   statusVariant?: FirmStatusVariant;
+  onOfflineStatus?: (message: string, isError?: boolean) => void;
   chromeTopBanner?: ReactNode;
   /** Clio secondary sections above firm search. */
   clioSectionTabs?: ReactNode;
@@ -65,6 +66,7 @@ export function FirmWorkspaceShell({
   searchBusy,
   statusMessage,
   statusVariant = "ok",
+  onOfflineStatus,
   chromeTopBanner,
   clioSectionTabs,
   navTabs,
@@ -112,7 +114,7 @@ export function FirmWorkspaceShell({
               <div className="firm-shell-chrome no-print">
                 <div className="firm-shell-chrome__top">
                   {chromeTopBanner}
-                  <OfflineStatusBanner />
+                  <OfflineStatusBanner onStatus={onOfflineStatus} />
                   <WorkspaceBootstrap billingAccess={billingAccess} />
                   <TodayBirthdaysBanner billingAccess={billingAccess} />
                   {clioSectionTabs}
@@ -153,7 +155,7 @@ export function FirmWorkspaceShell({
             <div className="firm-shell-chrome no-print">
               <div className="firm-shell-chrome__top">
                 {chromeTopBanner}
-                <OfflineStatusBanner />
+                <OfflineStatusBanner onStatus={onOfflineStatus} />
                 <WorkspaceBootstrap billingAccess={billingAccess} />
                 <TodayBirthdaysBanner billingAccess={billingAccess} />
                 {clioSectionTabs}

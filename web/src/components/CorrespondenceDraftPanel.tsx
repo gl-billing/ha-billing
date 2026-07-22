@@ -12,6 +12,7 @@ import {
   type CorrespondenceKind,
   type CorrespondenceLetterInput
 } from "@/lib/firm-correspondence-preview";
+import { prepareLetterPreviewHtml } from "@/lib/letter-preview-html";
 import {
   buildSoaPreviewHtml,
   buildSoaPreviewInputFromClient
@@ -110,7 +111,11 @@ export function CorrespondenceDraftPanel({
     [letter, mergeContext]
   );
 
-  const previewHtml = useMemo(() => buildCorrespondenceLetterHtml(resolvedLetter), [resolvedLetter]);
+  const previewHtml = useMemo(() => {
+    const html = buildCorrespondenceLetterHtml(resolvedLetter);
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    return prepareLetterPreviewHtml(html, origin);
+  }, [resolvedLetter]);
   const soaPreviewHtml = useMemo(
     () =>
       buildSoaPreviewHtml(

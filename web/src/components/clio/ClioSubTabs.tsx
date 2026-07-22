@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { SameWindowLink } from "@/components/SameWindowLink";
+import { navigateClioHref } from "@/lib/clio/navigate-clio";
 import {
   buildClioHref,
   clioSectionsForUser,
@@ -26,12 +27,6 @@ type Props = {
   billingPath?: string;
   tasksPath?: string;
 };
-
-function hrefAppPath(href: string, billingPath: string, tasksPath: string): string {
-  if (href.startsWith(tasksPath)) return tasksPath;
-  if (href.startsWith(billingPath)) return billingPath;
-  return href.split("?")[0] || href;
-}
 
 /** Horizontal secondary sections for the active Clio primary — above firm search. */
 export function ClioSubTabs({
@@ -65,13 +60,12 @@ export function ClioSubTabs({
   if (sections.length <= 1) return null;
 
   function navigateClio(href: string) {
-    const targetPath = hrefAppPath(href, billingPath, tasksPath);
-    const here = pathname.split("?")[0] || "";
-    if (here !== targetPath) {
-      window.location.assign(href);
-      return;
-    }
-    router.push(href);
+    navigateClioHref(href, {
+      pathname,
+      billingPath,
+      tasksPath,
+      push: (next) => router.push(next)
+    });
   }
 
   return (

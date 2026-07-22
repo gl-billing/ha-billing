@@ -46,6 +46,9 @@ export async function fetchJson<T>(
     const { timeoutMs: _t, ...rest } = init || {};
     const res = await fetch(url, { ...rest, signal: controller.signal });
     const text = await res.text();
+    if (res.status === 401) {
+      throw new Error("Session expired — sign out and sign in again at /login.");
+    }
     const data = parseResponseText<T>(text, res.status);
     return { ok: res.ok, status: res.status, data };
   } catch (e) {
@@ -66,6 +69,14 @@ export type OfflineQueuedResult = {
 
 /** POST/PATCH/PUT/DELETE with offline queue fallback for billing writes. */
 export async function postJsonWithOfflineQueue<T>(
+  url: string,
+  init: RequestInit & { timeoutMs?: number; offlineLabel: string }
+): Promise<{ ok: boolean; status: number; data: T } | OfflineQueuedResult> {
+  return mutateJsonWithOfflineQueue<T>(url, init);
+}
+
+/** Mutating request with offline queue fallback (POST/PATCH/PUT/DELETE). */
+export async function mutateJsonWithOfflineQueue<T>(
   url: string,
   init: RequestInit & { timeoutMs?: number; offlineLabel: string }
 ): Promise<{ ok: boolean; status: number; data: T } | OfflineQueuedResult> {

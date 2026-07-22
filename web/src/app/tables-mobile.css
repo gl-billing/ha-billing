@@ -1,0 +1,85 @@
+/**
+ * Responsive ledger tables — stack rows as labeled cards on phone.
+ * Apply firm-ledger-table--responsive-stack and data-label on each <td>.
+ */
+@media (max-width: 640px) {
+  .firm-ledger-table-wrap:has(.firm-ledger-table--responsive-stack) {
+    overflow: visible;
+  }
+
+  .firm-ledger-table--responsive-stack {
+    min-width: 0 !important;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .firm-ledger-table--responsive-stack thead {
+    display: none;
+  }
+
+  .firm-ledger-table--responsive-stack tbody tr {
+    display: block;
+    margin-bottom: 0.65rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--line);
+    background: var(--paper);
+  }
+
+  .firm-ledger-table--responsive-stack tbody td {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    border: none;
+    text-align: right;
+  }
+
+  .firm-ledger-table--responsive-stack tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 38%;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+  }
+
+  .firm-ledger-table--responsive-stack tbody td[data-label=""]::before,
+  .firm-ledger-table--responsive-stack tbody td:not([data-label])::before {
+    content: none;
+  }
+
+  .firm-ledger-table--responsive-stack .field-dispatch-panel__col-actions,
+  .firm-ledger-table--responsive-stack .notarization-panel__row-actions,
+  .firm-ledger-table--responsive-stack td:last-child:has(.btn-gold, .btn-secondary, button) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .firm-ledger-table--responsive-stack .field-dispatch-panel__row-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .home-dashboard-pending-item {
+    border-radius: 0 !important;
+    background: var(--paper) !important;
+  }
+
+  .home-dashboard-pending-item .btn-gold,
+  .home-dashboard-pending-item .btn-secondary {
+    min-height: 2.75rem;
+    flex: 1 1 auto;
+  }
+
+  .client-list-table.firm-ledger-table--responsive-stack tbody td.client-list-table__col-balance {
+    justify-content: flex-end;
+  }
+
+  .client-list-table.firm-ledger-table--responsive-stack tbody td.client-list-table__col-balance::before {
+    text-align: left;
+  }
+}

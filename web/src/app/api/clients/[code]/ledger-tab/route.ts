@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireSessionAccessToken } from "@/lib/api-auth";
+import { requireBillingAccessToken } from "@/lib/api-auth";
 import { sanitizeSheetName } from "@/lib/gl-config";
 import { repairClientLedgerTab } from "@/lib/sheets/clients-create";
 import { invalidateCache } from "@/lib/sheets/cache";
@@ -8,7 +8,7 @@ type RouteContext = { params: Promise<{ code: string }> };
 
 export async function POST(_request: Request, context: RouteContext) {
   try {
-    const accessToken = await requireSessionAccessToken();
+    const accessToken = await requireBillingAccessToken();
     const { code } = await context.params;
     const clientCode = sanitizeSheetName(decodeURIComponent(code));
     const result = await repairClientLedgerTab(accessToken, clientCode);

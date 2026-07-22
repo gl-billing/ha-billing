@@ -258,7 +258,7 @@ export function HomeDashboard({ busy, onNavigate, onRefresh, onNotify }: Props) 
               {data.pendingAr.map((p) => (
                 <article
                   key={`${p.clientCode}-${p.sheetRow}`}
-                  className="rounded-lg border border-line/70 bg-[#faf9f7] p-2.5 text-sm"
+                  className="home-dashboard-pending-item rounded-lg border border-line/70 bg-[#faf9f7] p-2.5 text-sm"
                 >
                   <p className="font-bold text-ink">
                     {p.clientCode} — {p.clientName}
@@ -299,7 +299,7 @@ export function HomeDashboard({ busy, onNavigate, onRefresh, onNotify }: Props) 
             <EmptyState message="No SOAs or receipts logged yet — your document trail starts here." />
           ) : (
             <div className="scroll-panel-hint firm-ledger-table-wrap">
-              <table className="firm-ledger-table w-full min-w-[720px] text-left">
+              <table className="firm-ledger-table firm-ledger-table--responsive-stack w-full min-w-[720px] text-left">
                 <thead>
                   <tr>
                     <th>Date</th>
@@ -313,28 +313,28 @@ export function HomeDashboard({ busy, onNavigate, onRefresh, onNotify }: Props) 
                 <tbody>
                   {data.recentDocuments.map((doc) => (
                     <tr key={doc.logRow}>
-                      <td className="whitespace-nowrap text-muted">{doc.timestamp}</td>
-                      <td>
+                      <td data-label="Date" className="whitespace-nowrap text-muted">{doc.timestamp}</td>
+                      <td data-label="Client">
                         <p className="font-bold text-ink">
                           <ClientCodeButton code={doc.clientCode} className="no-underline" />
                         </p>
                         <p className="mt-0.5 text-[11px] text-muted">{doc.clientName}</p>
                       </td>
-                      <td>
+                      <td data-label="Document">
                         <p className="font-semibold text-ink">
                           {doc.documentType} {doc.documentNumber}
                         </p>
                         {doc.email ? <p className="mt-0.5 text-[11px] text-muted">{doc.email}</p> : null}
                       </td>
-                      <td className="amount-serif text-right font-semibold text-ink">
+                      <td data-label="Amount" className="amount-serif text-right font-semibold text-ink">
                         {formatPeso(doc.amount)}
                       </td>
-                      <td>
+                      <td data-label="Status">
                         <span className="inline-flex rounded-full border border-gold/25 bg-gold/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold-dark">
                           {doc.status}
                         </span>
                       </td>
-                      <td className="text-right">
+                      <td data-label="Actions" className="text-right">
                         <div className="flex flex-wrap justify-end gap-1">
                           {doc.pdfUrl ? (
                             <a
@@ -380,7 +380,7 @@ function Metric({
 }) {
   return (
     <div
-      className={`rounded-lg border px-2 py-2 text-center ${
+      className={`home-dashboard-stat-cell rounded-lg border px-2 py-2 text-center ${
         alert
           ? "border-red-200 bg-red-50 ring-1 ring-red-200"
           : highlight

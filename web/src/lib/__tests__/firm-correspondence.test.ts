@@ -43,7 +43,7 @@ describe("firm correspondence", () => {
     expect(html).toContain("Dear Sir/Ma'am John Smith");
     expect(html).toContain("Demand letter");
     expect(html).toContain("Matter reference: Smith v. Doe");
-    expect(html).toContain("info@hernandezassociates.com");
+    expect(html).toContain("legal@hernandezlaw.info");
     expect(html).not.toContain("INFO@");
   });
 

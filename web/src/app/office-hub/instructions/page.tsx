@@ -6,7 +6,7 @@ import { useEffect, type ReactNode } from "react";
 import { FirmBrandHeader } from "@/components/FirmBrandHeader";
 import { FirmCopyright } from "@/components/FirmCopyright";
 import { SameWindowLink } from "@/components/SameWindowLink";
-import { firmAppHref } from "@/lib/firm-apps";
+import { buildClioHref } from "@/lib/clio/workspace-nav";
 import { formatStaffDisplayName } from "@/lib/user-display";
 
 function InstructionsQuestion({
@@ -114,7 +114,7 @@ export default function OfficeHubInstructionsPage() {
                 <h3>Every morning (both)</h3>
                 <ol>
                   <li>
-                    <SameWindowLink href={firmAppHref("/app?tab=today")}>Tasks → My work</SameWindowLink> → clear{" "}
+                    <SameWindowLink href={buildClioHref("checklist", "today")}>Tasks → My work</SameWindowLink> → clear{" "}
                     <strong>Overdue</strong> first
                   </li>
                   <li>
@@ -258,7 +258,7 @@ export default function OfficeHubInstructionsPage() {
             </p>
             <ol>
               <li>
-                Open <SameWindowLink href={firmAppHref("/app?tab=today")}>Tasks → My work</SameWindowLink> every
+                Open <SameWindowLink href={buildClioHref("checklist", "today")}>Tasks → My work</SameWindowLink> every
                 morning. Work the <strong>Overdue</strong> section before anything else.
               </li>
               <li>

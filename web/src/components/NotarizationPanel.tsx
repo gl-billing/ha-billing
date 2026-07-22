@@ -544,7 +544,7 @@ export function NotarizationPanel({ busy, onBusy, onStatus, paymentMethods }: Pr
           />
         ) : (
           <div className="notarization-panel__table-wrap firm-ledger-table-wrap">
-            <table className="notarization-panel__table firm-ledger-table">
+            <table className="notarization-panel__table firm-ledger-table firm-ledger-table--responsive-stack">
               <thead>
                 <tr>
                   <th>Receipt</th>

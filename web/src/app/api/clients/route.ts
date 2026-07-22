@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireSessionAccessToken } from "@/lib/api-auth";
+import { requireBillingAccessToken } from "@/lib/api-auth";
 import { filterClientsByQuery, GL, type NewClientPayload } from "@/lib/gl-config";
 import { createClient } from "@/lib/sheets/clients-create";
 import { invalidateCache, isQuotaError, quotaErrorMessage, withCache } from "@/lib/sheets/cache";
@@ -7,7 +7,7 @@ import { getClients } from "@/lib/sheets/master";
 
 export async function GET(request: Request) {
   try {
-    const accessToken = await requireSessionAccessToken();
+    const accessToken = await requireBillingAccessToken();
     const url = new URL(request.url);
     const q = url.searchParams.get("q") || "";
     const includeClosed = url.searchParams.get("includeClosed") === "1";
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const accessToken = await requireSessionAccessToken();
+    const accessToken = await requireBillingAccessToken();
     const body = (await request.json()) as NewClientPayload;
     const result = await createClient(accessToken, body);
     invalidateCache(accessToken, "clients");

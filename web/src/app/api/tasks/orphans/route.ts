@@ -1,21 +1,13 @@
 import { NextResponse } from "next/server";
-import { requireSessionAccessToken } from "@/lib/api-auth";
-import { isAdminEmail } from "@/lib/admin";
+import { requireAdminSessionAccessToken } from "@/lib/api-auth";
 import { findOrphanTaskItems } from "@/lib/office-tasks/orphan-tasks";
 import { deleteOfficeItemsPermanently } from "@/lib/office-tasks/sheets/delete-items";
 import { getCachedAllItems, invalidateTasksDataCache } from "@/lib/office-tasks/tasks-cache";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    if (!isAdminEmail(session?.user?.email)) {
-      return NextResponse.json({ error: "Admin only." }, { status: 403 });
-    }
-
-    const token = await requireSessionAccessToken();
+    const { token } = await requireAdminSessionAccessToken();
     const items = await getCachedAllItems(token);
     const orphans = await findOrphanTaskItems(token, items);
     return NextResponse.json({ orphans, count: orphans.length });
@@ -24,18 +16,14 @@ export async function GET() {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }
     const message = error instanceof Error ? error.message : "Could not scan orphan tasks.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const status = message === "Admin only." ? 403 : message.includes("Unauthorized") ? 401 : 500;
+    return NextResponse.json({ error: message }, { status });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!isAdminEmail(session?.user?.email)) {
-      return NextResponse.json({ error: "Admin only." }, { status: 403 });
-    }
-
-    const token = await requireSessionAccessToken();
+    const { token } = await requireAdminSessionAccessToken();
     const body = (await request.json()) as {
       items?: Array<{ source: "Task" | "Event"; rowNumber: number }>;
     };
@@ -61,6 +49,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });
     }
     const message = error instanceof Error ? error.message : "Delete failed.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const status = message === "Admin only." ? 403 : message.includes("Unauthorized") ? 401 : 500;
+    return NextResponse.json({ error: message }, { status });
   }
 }

@@ -28,6 +28,7 @@ import {
   type PaymentIncomeType
 } from "@/lib/payment-income";
 import { Skeleton } from "@/components/Skeleton";
+import { SmartLoadEmptyState } from "@/components/SmartLoadEmptyState";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 
 type Props = {
@@ -328,7 +329,13 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
           </div>
         </div>
 
-        {reportError ? <p className="firm-finances__error">{reportError}</p> : null}
+        {reportError ? (
+          <SmartLoadEmptyState
+            errorMessage={reportError}
+            context="billing"
+            onRetry={() => void loadReport()}
+          />
+        ) : null}
 
         {reportLoading ? <Skeleton className="h-36 w-full rounded-2xl" /> : null}
 

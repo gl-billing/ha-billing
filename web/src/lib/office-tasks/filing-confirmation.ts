@@ -1,9 +1,9 @@
 import { isPleadingCategory } from "@/lib/office-tasks/event-form-utils";
 import { addDaysYmd } from "@/lib/office-tasks/date-only";
+import { DEFAULT_FIRM_ALERT_RULES } from "@/lib/firm-alert-rules";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 
 const FILING_CATEGORIES = new Set(["Deadline", "Submission", "Court Filing"]);
-const FILING_ALERT_HORIZON_DAYS = 21;
 
 export type FilingDeadlineUrgency = "overdue" | "due-today" | "due-soon" | "confirm-soon";
 
@@ -48,7 +48,8 @@ function urgencyRank(urgency: FilingDeadlineUrgency): number {
 
 export function filingDeadlineUrgency(
   item: Pick<OfficeItem, "source" | "category" | "filingDeadline" | "status" | "done" | "reminderDays">,
-  todayYmd: string
+  todayYmd: string,
+  options?: { alertHorizonDays?: number }
 ): FilingDeadlineUrgency | null {
   if (!isOpenFilingEvent(item)) return null;
 
@@ -62,17 +63,21 @@ export function filingDeadlineUrgency(
   const showFrom = addDaysYmd(deadline, -leadDays);
   if (todayYmd >= showFrom) return "confirm-soon";
 
-  const horizon = addDaysYmd(todayYmd, FILING_ALERT_HORIZON_DAYS);
+  const horizon = addDaysYmd(todayYmd, options?.alertHorizonDays ?? DEFAULT_FIRM_ALERT_RULES.filingAlertHorizonDays);
   if (deadline <= horizon) return "due-soon";
 
   return null;
 }
 
-export function listFilingDeadlineAlerts(items: OfficeItem[], todayYmd: string): FilingDeadlineAlert[] {
+export function listFilingDeadlineAlerts(
+  items: OfficeItem[],
+  todayYmd: string,
+  options?: { alertHorizonDays?: number }
+): FilingDeadlineAlert[] {
   const alerts: FilingDeadlineAlert[] = [];
 
   for (const item of items) {
-    const urgency = filingDeadlineUrgency(item, todayYmd);
+    const urgency = filingDeadlineUrgency(item, todayYmd, options);
     if (!urgency) continue;
     alerts.push({
       item,

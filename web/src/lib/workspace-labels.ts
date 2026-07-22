@@ -7,7 +7,7 @@ export type NavUserProfile = "full" | "tasks-only" | "secretary" | "associate";
 export const TASKS_TAB_LABELS: Record<SavedTasksTab, string> = {
   today: "My work",
   calendar: "Calendar",
-  week: "This week",
+  week: "Week planner",
   team: "Staff load",
   history: "Completed",
   "add-task": "New task",

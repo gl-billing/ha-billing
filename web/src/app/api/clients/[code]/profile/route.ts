@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireSessionAccessToken } from "@/lib/api-auth";
+import { requireBillingAccessToken } from "@/lib/api-auth";
 import { sanitizeSheetName } from "@/lib/gl-config";
 import { getUnifiedClientTimeline } from "@/lib/sheets/unified-timeline";
 import { taskCodeForBillingClient } from "@/lib/office-tasks/client-matter";
@@ -14,7 +14,7 @@ type RouteContext = { params: Promise<{ code: string }> };
 
 export async function GET(request: Request, context: RouteContext) {
   try {
-    const accessToken = await requireSessionAccessToken();
+    const accessToken = await requireBillingAccessToken();
     const { code } = await context.params;
     const clientCode = sanitizeSheetName(decodeURIComponent(code));
     const includeTasks = new URL(request.url).searchParams.get("includeTasks") === "1";

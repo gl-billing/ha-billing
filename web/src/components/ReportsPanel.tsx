@@ -5,6 +5,7 @@ import type { ArAgingReport, MonthlyCollectionsReport } from "@/lib/gl-config";
 import { formatPeso } from "@/lib/gl-config";
 import { MetricSkeleton, Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
+import { SmartLoadEmptyState } from "@/components/SmartLoadEmptyState";
 import { HealthChecksPanel } from "@/components/HealthChecksPanel";
 import { useFirmAdmin } from "@/hooks/useFirmAdmin";
 import type { PartnerWeeklyReport } from "@/lib/sheets/partner-weekly";
@@ -186,7 +187,7 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="reports-panel space-y-3">
       <section className="card">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <p className="section-label !mb-0">Reports &amp; exports</p>
@@ -221,17 +222,16 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
         {section === "aging" && (
           <>
             {agingError ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
-                {agingError}
-                <button type="button" className="btn-gold ml-2" onClick={() => void loadAging()}>
-                  Retry
-                </button>
-              </div>
+              <SmartLoadEmptyState
+                errorMessage={agingError}
+                context="billing"
+                onRetry={() => void loadAging()}
+              />
             ) : aging ? (
               <div className="space-y-3">
                 <p className="text-sm text-muted">
                   Total outstanding:{" "}
-                  <strong className="text-[#8b1e1e]">{formatPeso(aging.totalOutstanding)}</strong>
+                  <strong className="reports-panel__accent">{formatPeso(aging.totalOutstanding)}</strong>
                 </p>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {(
@@ -242,7 +242,7 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
                       ["90+", "90+ days"]
                     ] as const
                   ).map(([key, label]) => (
-                    <div key={key} className="rounded-md bg-[#f5f3ef] p-2 text-center">
+                    <div key={key} className="reports-panel__metric rounded-md p-2 text-center">
                       <p className="text-[10px] font-bold uppercase text-muted">{label}</p>
                       <p className="mt-1 text-sm font-extrabold text-ink">
                         {aging.buckets[key].length}
@@ -324,16 +324,11 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
             </div>
 
             {collectionsError ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
-                {collectionsError}
-                <button
-                  type="button"
-                  className="btn-gold ml-2 mt-1"
-                  onClick={() => void loadCollections()}
-                >
-                  Retry
-                </button>
-              </div>
+              <SmartLoadEmptyState
+                errorMessage={collectionsError}
+                context="billing"
+                onRetry={() => void loadCollections()}
+              />
             ) : collectionsLoading && !collections ? (
               <Skeleton lines={3} />
             ) : collections ? (

@@ -15,6 +15,7 @@ type Props = {
   date: string;
   items: OfficeItem[];
   today: string;
+  highlightItemKey?: string | null;
   onClear?: () => void;
   onToggleDone?: (item: ItemSummary, done: boolean) => void;
   onSetStatus?: (item: ItemSummary, status: ItemStatusUpdate) => void;
@@ -39,6 +40,7 @@ export function DayDetailPanel({
   date,
   items,
   today,
+  highlightItemKey = null,
   onClear,
   onToggleDone,
   onSetStatus,
@@ -68,6 +70,12 @@ export function DayDetailPanel({
     prevDateRef.current = date;
     panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [date]);
+
+  useEffect(() => {
+    if (!highlightItemKey) return;
+    const el = panelRef.current?.querySelector(`[data-item-key="${highlightItemKey}"]`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [highlightItemKey]);
 
   return (
     <section ref={panelRef} className="day-detail-panel no-print">
@@ -122,6 +130,7 @@ export function DayDetailPanel({
                     onConfirmParentFiled={onConfirmParentFiled}
                     formOptions={formOptions}
                     togglingKey={togglingKey}
+                    highlightItemKey={highlightItemKey}
                   />
                 );
               }
@@ -138,22 +147,29 @@ export function DayDetailPanel({
                     {list.map((item, index) => {
                       const itemKey = officeItemKey(item, index);
                       return (
-                        <ItemCard
+                        <li
                           key={itemKey}
-                          item={item}
-                          variant="day-detail"
-                          onToggleDone={onToggleDone}
-                          onSetStatus={onSetStatus}
-                          onResetWithDate={onResetWithDate}
-                          onDeleteItem={onDeleteItem}
-                          onUpdateNextAction={onUpdateNextAction}
-                          onSaveEdit={onSaveEdit}
-                          onCourtConfirmed={onCourtConfirmed}
-                          onMarkSubmitted={onMarkSubmitted}
-                          onConfirmParentFiled={onConfirmParentFiled}
-                          formOptions={formOptions}
-                          toggling={togglingKey === itemKey}
-                        />
+                          data-item-key={itemKey}
+                          className={
+                            highlightItemKey === itemKey ? "day-detail-panel__item day-detail-panel__item--highlight" : "day-detail-panel__item"
+                          }
+                        >
+                          <ItemCard
+                            item={item}
+                            variant="day-detail"
+                            onToggleDone={onToggleDone}
+                            onSetStatus={onSetStatus}
+                            onResetWithDate={onResetWithDate}
+                            onDeleteItem={onDeleteItem}
+                            onUpdateNextAction={onUpdateNextAction}
+                            onSaveEdit={onSaveEdit}
+                            onCourtConfirmed={onCourtConfirmed}
+                            onMarkSubmitted={onMarkSubmitted}
+                            onConfirmParentFiled={onConfirmParentFiled}
+                            formOptions={formOptions}
+                            toggling={togglingKey === itemKey}
+                          />
+                        </li>
                       );
                     })}
                   </ul>
@@ -182,7 +198,8 @@ function DoneBucket({
   onMarkSubmitted,
   onConfirmParentFiled,
   formOptions,
-  togglingKey
+  togglingKey,
+  highlightItemKey
 }: {
   title: string;
   icon: string;
@@ -197,6 +214,7 @@ function DoneBucket({
   onCourtConfirmed?: Props["onCourtConfirmed"];
   formOptions?: Props["formOptions"];
   togglingKey?: string | null;
+  highlightItemKey?: string | null;
 } & WorkItemFilingActionProps) {
   const [open, setOpen] = useState(false);
   const count = items.length;
@@ -224,22 +242,29 @@ function DoneBucket({
         {items.map((item, index) => {
           const itemKey = officeItemKey(item, index);
           return (
-            <ItemCard
+            <li
               key={itemKey}
-              item={item}
-              variant="day-detail"
-              onToggleDone={onToggleDone}
-              onSetStatus={onSetStatus}
-              onResetWithDate={onResetWithDate}
-              onDeleteItem={onDeleteItem}
-              onUpdateNextAction={onUpdateNextAction}
-              onSaveEdit={onSaveEdit}
-              onCourtConfirmed={onCourtConfirmed}
-              onMarkSubmitted={onMarkSubmitted}
-              onConfirmParentFiled={onConfirmParentFiled}
-              formOptions={formOptions}
-              toggling={togglingKey === itemKey}
-            />
+              data-item-key={itemKey}
+              className={
+                highlightItemKey === itemKey ? "day-detail-panel__item day-detail-panel__item--highlight" : "day-detail-panel__item"
+              }
+            >
+              <ItemCard
+                item={item}
+                variant="day-detail"
+                onToggleDone={onToggleDone}
+                onSetStatus={onSetStatus}
+                onResetWithDate={onResetWithDate}
+                onDeleteItem={onDeleteItem}
+                onUpdateNextAction={onUpdateNextAction}
+                onSaveEdit={onSaveEdit}
+                onCourtConfirmed={onCourtConfirmed}
+                onMarkSubmitted={onMarkSubmitted}
+                onConfirmParentFiled={onConfirmParentFiled}
+                formOptions={formOptions}
+                toggling={togglingKey === itemKey}
+              />
+            </li>
           );
         })}
       </ul>

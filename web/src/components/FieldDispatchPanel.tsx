@@ -418,7 +418,7 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
       <section className="card mb-4">
         <p className="field-dispatch-panel__section-title">Location guide (1-day trip)</p>
         <div className="field-dispatch-panel__table-wrap firm-ledger-table-wrap">
-          <table className="field-dispatch-panel__table field-dispatch-panel__table--guide firm-ledger-table">
+          <table className="field-dispatch-panel__table field-dispatch-panel__table--guide firm-ledger-table firm-ledger-table--responsive-stack">
             <thead>
               <tr>
                 <th>Area</th>
@@ -436,16 +436,16 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
             <tbody>
               {locationGuide.map(({ name, preset, breakdown, stat, hours }) => (
                 <tr key={name}>
-                  <td className="field-dispatch-panel__col-area">{name}</td>
-                  <td className="field-dispatch-panel__col-time">{formatFieldDispatchTravelHours(hours)}</td>
-                  <td className="field-dispatch-panel__col-money">{formatPeso(breakdown.busRoundTrip)}</td>
-                  <td className="field-dispatch-panel__col-money" title={`${breakdown.mealCount} × ₱${FIELD_DISPATCH_MEAL_ALLOWANCE}`}>
+                  <td data-label="Area" className="field-dispatch-panel__col-area">{name}</td>
+                  <td data-label="Drive" className="field-dispatch-panel__col-time">{formatFieldDispatchTravelHours(hours)}</td>
+                  <td data-label="Bus (RT)" className="field-dispatch-panel__col-money">{formatPeso(breakdown.busRoundTrip)}</td>
+                  <td data-label="Meals" className="field-dispatch-panel__col-money" title={`${breakdown.mealCount} × ₱${FIELD_DISPATCH_MEAL_ALLOWANCE}`}>
                     {breakdown.mealCount ? formatPeso(breakdown.mealTotal) : "—"}
                   </td>
-                  <td className="field-dispatch-panel__col-money">{formatPeso(breakdown.tricycleLocal)}</td>
-                  <td className="field-dispatch-panel__col-money">{formatPeso(preset.defaultAdvance)}</td>
-                  <td className="field-dispatch-panel__col-money">{formatPeso(preset.serviceFee)}</td>
-                  <td className="field-dispatch-panel__col-money">
+                  <td data-label="Local" className="field-dispatch-panel__col-money">{formatPeso(breakdown.tricycleLocal)}</td>
+                  <td data-label="Advance" className="field-dispatch-panel__col-money">{formatPeso(preset.defaultAdvance)}</td>
+                  <td data-label="Fee" className="field-dispatch-panel__col-money">{formatPeso(preset.serviceFee)}</td>
+                  <td data-label="Avg billable" className="field-dispatch-panel__col-money">
                     {stat && stat.avgBillable > 0 ? formatPeso(stat.avgBillable) : "—"}
                   </td>
                 </tr>
@@ -625,7 +625,7 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
           <EmptyState message="No field dispatches yet — register Jas's next out-of-town trip here." />
         ) : (
           <div className="field-dispatch-panel__table-wrap field-dispatch-panel__table-wrap--register firm-ledger-table-wrap">
-            <table className="field-dispatch-panel__table field-dispatch-panel__table--register firm-ledger-table">
+            <table className="field-dispatch-panel__table field-dispatch-panel__table--register firm-ledger-table firm-ledger-table--responsive-stack">
               <colgroup>
                 <col className="field-dispatch-panel__col-w-id" />
                 <col className="field-dispatch-panel__col-w-date" />
@@ -663,11 +663,11 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
               <tbody>
                 {filtered.map((entry) => (
                   <tr key={entry.dispatchId}>
-                    <td className="field-dispatch-panel__col-id">{entry.dispatchId}</td>
-                    <td className="field-dispatch-panel__col-time">{entry.date}</td>
-                    <td className="field-dispatch-panel__col-days">{entry.days}</td>
-                    <td className="field-dispatch-panel__col-area">{entry.location}</td>
-                    <td className="field-dispatch-panel__col-client">
+                    <td data-label="ID" className="field-dispatch-panel__col-id">{entry.dispatchId}</td>
+                    <td data-label="Date" className="field-dispatch-panel__col-time">{entry.date}</td>
+                    <td data-label="Days" className="field-dispatch-panel__col-days">{entry.days}</td>
+                    <td data-label="Location" className="field-dispatch-panel__col-area">{entry.location}</td>
+                    <td data-label="Client" className="field-dispatch-panel__col-client">
                       {entry.clientCode ? (
                         onOpenBilling ? (
                           <button
@@ -684,18 +684,19 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
                         "—"
                       )}
                     </td>
-                    <td className="field-dispatch-panel__col-purpose" title={entry.purpose}>
+                    <td data-label="Purpose" className="field-dispatch-panel__col-purpose" title={entry.purpose}>
                       {entry.purpose}
                     </td>
-                    <td className="field-dispatch-panel__col-money">{formatPeso(entry.advanceGiven)}</td>
-                    <td className="field-dispatch-panel__col-money">
+                    <td data-label="Advance" className="field-dispatch-panel__col-money">{formatPeso(entry.advanceGiven)}</td>
+                    <td data-label="Spent" className="field-dispatch-panel__col-money">
                       {fieldDispatchIsReconciled(entry) ? formatPeso(entry.actualExpenses) : "—"}
                     </td>
-                    <td className="field-dispatch-panel__col-money">
+                    <td data-label="Returned" className="field-dispatch-panel__col-money">
                       {entry.returnedToOffice ? formatPeso(entry.returnedToOffice) : "—"}
                     </td>
-                    <td className="field-dispatch-panel__col-money">{formatPeso(entry.serviceFee)}</td>
+                    <td data-label="Fee" className="field-dispatch-panel__col-money">{formatPeso(entry.serviceFee)}</td>
                     <td
+                      data-label="Billable"
                       className="field-dispatch-panel__col-money field-dispatch-panel__col-billable"
                       title={
                         fieldDispatchIsReconciled(entry)
@@ -705,12 +706,12 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
                     >
                       {formatPeso(entry.billableTotal)}
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <span className={`field-dispatch-panel__status ${dispatchStatusClass(entry.reimbursementStatus)}`}>
                         {entry.reimbursementStatus}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Jas pay">
                       {fieldDispatchSalaryCreditForEntry(entry) > 0 ? (
                         <span
                           className={`field-dispatch-panel__status ${dispatchStaffPayClass(entry)}`}
@@ -726,7 +727,7 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
                         <span className="text-xs text-muted">—</span>
                       )}
                     </td>
-                    <td className="field-dispatch-panel__col-actions">
+                    <td data-label="Actions" className="field-dispatch-panel__col-actions">
                       <div className="field-dispatch-panel__row-actions">
                         {entry.reimbursementStatus !== "Paid" && entry.status !== "Closed" && (
                           <button

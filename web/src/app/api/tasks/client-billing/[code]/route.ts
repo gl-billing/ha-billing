@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { requireBillingAccessToken } from "@/lib/api-auth";
-import { canAccessBilling } from "@/lib/app-access";
-import { authOptions } from "@/lib/auth";
 import { collectAllItems } from "@/lib/office-tasks/sheets/items";
 import { getTaskActivity } from "@/lib/office-tasks/sheets/activity-log";
 import { isQuotaError, quotaErrorMessage, withCache } from "@/lib/sheets/cache";
@@ -17,15 +14,6 @@ type RouteContext = { params: Promise<{ code: string }> };
 
 export async function GET(request: Request, context: RouteContext) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-    }
-
-    if (!canAccessBilling(session.user.email)) {
-      return NextResponse.json({ available: false });
-    }
-
     const accessToken = await requireBillingAccessToken();
     const { code } = await context.params;
     const taskCode = decodeURIComponent(code).trim().toUpperCase();

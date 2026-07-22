@@ -1,0 +1,279 @@
+/**
+ * Office Hub — light letterhead entry theme (matches firm desk; no OS dark flip).
+ * Loaded after ha-theme.css to override hub dark-mode tokens.
+ */
+.office-hub-page {
+  color-scheme: light;
+  --site-slate: #f6f6f4;
+  --site-ink: #0a0a0a;
+  --site-panel: #ffffff;
+  --site-panel-2: #fafafa;
+  --site-gold: #0a0a0a;
+  --site-gold-strong: #0a0a0a;
+  --site-gold-soft: rgba(10, 10, 10, 0.06);
+  --site-text: #0a0a0a;
+  --site-muted: #454545;
+  --site-border: rgba(10, 10, 10, 0.12);
+  --site-surface: #ffffff;
+  --site-surface-alt: #ffffff;
+  --site-surface-muted: #f6f6f4;
+  --site-surface-shadow: 0 1px 0 rgba(10, 10, 10, 0.08);
+  --site-surface-shadow-lg: 0 8px 24px rgba(10, 10, 10, 0.06);
+  --site-heading: #0a0a0a;
+  --site-heading-strong: #0a0a0a;
+  --site-field-bg: #ffffff;
+  --site-field-border: rgba(10, 10, 10, 0.15);
+  --site-field-text: #0a0a0a;
+  --site-field-placeholder: rgba(10, 10, 10, 0.45);
+  --site-input-scheme: light;
+  --site-letterhead-top: #0a0a0a;
+  --site-cover-fade-mid: rgba(246, 246, 244, 0.92);
+  --site-glance-bg: #ffffff;
+  --site-glance-hover: #fafafa;
+  --site-pwa-bg: #f6f6f4;
+  --site-pwa-title: #0a0a0a;
+  --site-instructions-strong: #0a0a0a;
+  --site-instructions-shadow: 0 1px 0 rgba(10, 10, 10, 0.08);
+  --site-instructions-note-bg: rgba(10, 10, 10, 0.04);
+  --site-glance-text: #0a0a0a;
+  --site-glance-text-hover: #0a0a0a;
+  --site-glance-gold-text: #0a0a0a;
+  --site-glance-warn-text: #8b1e1e;
+  --site-btn-hover-border: rgba(10, 10, 10, 0.2);
+  --site-btn-hover-bg: rgba(10, 10, 10, 0.04);
+  --site-footer-copy: #454545;
+  background: var(--site-slate);
+  color: var(--site-text);
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-hub-page {
+    color-scheme: light;
+    background: var(--site-slate);
+    color: var(--site-text);
+  }
+}
+
+body:has(.office-hub-page) {
+  background: linear-gradient(180deg, #f4f3f0 0%, #eeedea 100%) !important;
+  background-attachment: fixed !important;
+  color: #0a0a0a !important;
+  min-height: 100dvh;
+}
+
+@media (prefers-color-scheme: dark) {
+  body:has(.office-hub-page) {
+    background: #f6f6f4 !important;
+    color: #0a0a0a !important;
+  }
+}
+
+.office-hub-page .office-hub__shell {
+  background: transparent;
+  box-shadow: none;
+}
+
+.office-hub-page .office-hub__desk-enter,
+.office-hub-page .office-hub__desk-primary,
+.office-hub-page .office-hub-instructions__card,
+.office-hub-page .office-hub__announcement {
+  border-radius: 0;
+  border-color: var(--site-border);
+  background: var(--site-panel);
+  box-shadow: none;
+}
+
+.office-hub-page .office-hub__letterhead {
+  border-bottom: 1px solid var(--site-border);
+}
+
+.office-hub-page .office-hub__desk-primary:hover,
+.office-hub-page .office-hub__desk-enter:hover {
+  background: rgba(10, 10, 10, 0.04);
+  border-color: var(--site-ink);
+}
+
+.office-hub-page .my-work-hub-summary,
+.office-hub-page .my-work-billing {
+  border-radius: 0;
+  border-color: var(--site-border);
+  background: var(--site-panel);
+  box-shadow: none;
+}
+
+/* Prioritized "Next up" queue (hub + My work) */
+.next-queue-strip {
+  margin-top: 0.5rem;
+  border: 1px solid rgba(138, 107, 42, 0.22);
+  border-radius: 0.75rem;
+  background: linear-gradient(180deg, #fffdf8 0%, #faf6ee 100%);
+  padding: 0.75rem 0.85rem;
+}
+
+.next-queue-strip__head {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.next-queue-strip__title {
+  margin: 0;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(138, 107, 42, 0.95);
+}
+
+.next-queue-strip__primary {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(26, 22, 18, 0.08);
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.next-queue-strip__primary:hover {
+  border-color: rgba(138, 107, 42, 0.35);
+  box-shadow: 0 1px 0 rgba(26, 22, 18, 0.04);
+}
+
+.next-queue-strip__badge {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.12rem 0.45rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.next-queue-strip__badge--urgent {
+  background: #fde8e8;
+  color: #8b1e1e;
+}
+
+.next-queue-strip__badge--high {
+  background: #faf0dd;
+  color: #8a6b2a;
+}
+
+.next-queue-strip__badge--normal {
+  background: #eef5f0;
+  color: #1f5c3f;
+}
+
+.next-queue-strip__primary-label {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1a1612;
+}
+
+.next-queue-strip__primary-detail {
+  font-size: 0.72rem;
+  color: rgba(26, 22, 18, 0.62);
+}
+
+.next-queue-strip__list {
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.next-queue-strip__link {
+  display: block;
+  padding: 0.28rem 0.35rem;
+  border-radius: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: rgba(26, 22, 18, 0.82);
+  text-decoration: none;
+}
+
+.next-queue-strip__link:hover {
+  background: rgba(138, 107, 42, 0.08);
+  color: #1a1612;
+}
+
+.my-work-hub-summary__queue {
+  margin-top: 0.35rem;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.my-work-hub-summary__queue .next-queue-strip__primary {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.reports-panel__metric {
+  background: #f5f3ef;
+}
+
+.reports-panel__accent {
+  color: #8b1e1e;
+}
+
+.firm-clio-shell .reports-panel__metric {
+  background: transparent !important;
+  border: 1px solid var(--line);
+}
+
+.activity-timeline__filter-pill {
+  border-radius: 999px;
+  border: 1px solid var(--line, rgba(26, 22, 18, 0.12));
+  background: #fff;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(26, 22, 18, 0.55);
+}
+
+.activity-timeline__filter-pill--active {
+  border-color: rgba(138, 107, 42, 0.45);
+  background: #faf6ee;
+  color: #1a1612;
+}
+
+.activity-timeline__entry--highlight .history-entry {
+  box-shadow: 0 0 0 2px rgba(138, 107, 42, 0.55);
+  background: #fffdf6;
+}
+
+@media (max-width: 720px) {
+  .my-work-checklist__tap-bar {
+    display: flex;
+    margin-top: 0.35rem;
+  }
+
+  .my-work-checklist__tap-btn {
+    flex: 1;
+    min-height: 2.5rem;
+    border-radius: 0.55rem;
+    border: 1px solid rgba(138, 107, 42, 0.35);
+    background: linear-gradient(180deg, #faf6ee 0%, #f3ebdc 100%);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #1a1612;
+  }
+
+  .my-work-checklist__tap-btn:disabled {
+    opacity: 0.55;
+  }
+}
+
+@media (min-width: 721px) {
+  .my-work-checklist__tap-bar {
+    display: none;
+  }
+}

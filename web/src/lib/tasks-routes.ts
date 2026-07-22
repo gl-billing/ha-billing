@@ -1,4 +1,4 @@
-import { firmAppHref } from "@/lib/firm-apps";
+import { buildClioHref, resolveClioFromTasksTab } from "@/lib/clio/workspace-nav";
 import type { SavedTasksTab } from "@/lib/staff-prefs";
 
 export type TasksDeepLink = {
@@ -8,13 +8,14 @@ export type TasksDeepLink = {
 };
 
 export function tasksHref(link: TasksDeepLink): string {
-  const base = firmAppHref("/app");
+  const tab = link.tab || "today";
+  const clio = resolveClioFromTasksTab(tab);
   const params = new URLSearchParams();
-  if (link.tab) params.set("tab", link.tab);
   if (link.clientCode) params.set("client", link.clientCode.trim().toUpperCase());
   if (link.q) params.set("q", link.q);
   const qs = params.toString();
-  return qs ? `${base}?${qs}` : base;
+  const href = buildClioHref(clio.nav, clio.section);
+  return qs ? `${href}${href.includes("?") ? "&" : "?"}${qs}` : href;
 }
 
 export function correspondenceHref(clientCode?: string): string {

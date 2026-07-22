@@ -127,8 +127,8 @@ export const HA_CLIO_NAV: ClioPrimary[] = [
     sections: [
       {
         id: "all",
-        label: "All matters",
-        description: BILLING_PAGE_DESCRIPTIONS.clients,
+        label: "Active matters",
+        description: "Open client files and matter caseload — retained clients, walk-ins, and intake.",
         billingPage: "clients"
       },
       {
@@ -161,7 +161,7 @@ export const HA_CLIO_NAV: ClioPrimary[] = [
   {
     id: "contacts",
     label: "Contacts",
-    description: "Client directory.",
+    description: "Client directory — search names, codes, phone, and email.",
     app: "billing",
     defaultSectionId: "clients",
     sections: [
@@ -441,7 +441,7 @@ export function resolveClioFromTasksTab(
 ): { nav: ClioNavId; section: string } {
   if (tab === "calendar") return { nav: "calendar", section: "month" };
   if (tab === "week") return { nav: "calendar", section: calendarMode === "day" ? "day" : "week" };
-  if (tab === "today" && calendarMode === "day") return { nav: "calendar", section: "day" };
+  // calendarMode only applies to the week tab — never remap My work → Calendar Day.
   if (tab === "today") return { nav: "checklist", section: "today" };
   if (tab === "correspondence") return { nav: "communications", section: "letters" };
   if (tab === "tools") return { nav: "settings", section: "firm" };
@@ -509,4 +509,17 @@ export function parseClioNavParam(value: string | null | undefined): ClioNavId |
   const normalized = value?.trim().toLowerCase();
   if (!normalized) return null;
   return HA_CLIO_NAV.some((item) => item.id === normalized) ? (normalized as ClioNavId) : null;
+}
+
+/** Read Calendar day/week/month mode from URL (`cal` or calendar `section`). */
+export function parseCalendarModeParam(
+  params: URLSearchParams | string
+): "day" | "week" | "month" | null {
+  const search = typeof params === "string" ? new URLSearchParams(params) : params;
+  const cal = search.get("cal")?.trim().toLowerCase();
+  if (cal === "day" || cal === "week" || cal === "month") return cal;
+  if (parseClioNavParam(search.get("nav")) !== "calendar") return null;
+  const sectionId = search.get("section")?.trim().toLowerCase();
+  if (sectionId === "day" || sectionId === "week" || sectionId === "month") return sectionId;
+  return null;
 }

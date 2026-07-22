@@ -31,6 +31,11 @@ import type { TaskActivityEntry } from "@/lib/office-tasks/sheets/activity-log";
 import { isItemOpen, officeItemKey } from "@/lib/office-tasks/schedule";
 import type { ItemStatusOptions, ItemStatusUpdate } from "@/lib/office-tasks/status";
 import {
+  isOfflineQueued,
+  mutateTaskComplete,
+  mutateTaskStatus
+} from "@/lib/office-tasks/task-mutations";
+import {
   prepChecklistCreateUrl,
   prepChecklistInitializeUrl
 } from "@/lib/office-tasks/prep-checklist-actions";
@@ -227,6 +232,7 @@ export function MatterPage({ matterCode, user }: Props) {
   const wantBirthdayGreeting = searchParams.get("birthdayGreeting") === "1";
   const caseHint = searchParams.get("case")?.trim() || undefined;
   const highlightTaskId = searchParams.get("highlightTask")?.trim() || undefined;
+  const highlightTimelineId = searchParams.get("highlightTimeline")?.trim() || undefined;
   const matterReturn = readMatterReturnFromSearchParams(searchParams) || undefined;
   const [birthdayDialogOpen, setBirthdayDialogOpen] = useState(false);
   const [items, setItems] = useState<OfficeItem[]>([]);
@@ -254,6 +260,7 @@ export function MatterPage({ matterCode, user }: Props) {
   const [billingMissing, setBillingMissing] = useState(false);
   const loadRequestRef = useRef(0);
   const highlightHandledRef = useRef<string | null>(null);
+  const timelineHighlightHandledRef = useRef<string | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const [stickyBarVisible, setStickyBarVisible] = useState(false);
 
@@ -584,14 +591,15 @@ export function MatterPage({ matterCode, user }: Props) {
     async (item: ItemSummary, done: boolean) => {
       setTogglingKey(matterItemActionKey(item));
       try {
-        const res = await fetch("/api/tasks/items/complete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...matterItemActionPayload(item), done })
-        });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error || "Update failed");
-        setStatusMsg(json.message || (done ? "Marked done." : "Reopened."));
+        const result = await mutateTaskComplete(item, done);
+        if (isOfflineQueued(result)) {
+          setStatusMsg(result.message);
+          setStatusIsError(false);
+          setIsOffline(true);
+          return;
+        }
+        if (!result.ok) throw new Error(result.data.error || "Update failed");
+        setStatusMsg(result.data.message || (done ? "Marked done." : "Reopened."));
         setStatusIsError(false);
         await reloadTaskItems();
       } catch (e) {
@@ -608,14 +616,15 @@ export function MatterPage({ matterCode, user }: Props) {
     async (item: ItemSummary, status: ItemStatusUpdate, options?: ItemStatusOptions) => {
       setTogglingKey(matterItemActionKey(item));
       try {
-        const res = await fetch("/api/tasks/items/status", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...matterItemActionPayload(item), status, note: options?.note })
-        });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error || "Update failed");
-        setStatusMsg(json.message || "Status updated.");
+        const result = await mutateTaskStatus(item, status, options?.note);
+        if (isOfflineQueued(result)) {
+          setStatusMsg(result.message);
+          setStatusIsError(false);
+          setIsOffline(true);
+          return;
+        }
+        if (!result.ok) throw new Error(result.data.error || "Update failed");
+        setStatusMsg(result.data.message || "Status updated.");
         setStatusIsError(false);
         await reloadTaskItems();
       } catch (e) {
@@ -885,7 +894,8 @@ export function MatterPage({ matterCode, user }: Props) {
 
   useEffect(() => {
     highlightHandledRef.current = null;
-  }, [matterCode, highlightTaskId]);
+    timelineHighlightHandledRef.current = null;
+  }, [matterCode, highlightTaskId, highlightTimelineId]);
 
   useEffect(() => {
     if (loading || !highlightTaskId) return;
@@ -898,6 +908,18 @@ export function MatterPage({ matterCode, user }: Props) {
       scrollToMatterItem(matterItemAnchorId(match));
     }, 220);
   }, [loading, highlightTaskId, tasks, events, scrollToMatterItem, scrollToTasks]);
+
+  useEffect(() => {
+    if (timelineLoading || !highlightTimelineId) return;
+    if (timelineHighlightHandledRef.current === highlightTimelineId) return;
+    const match = timeline.find((item) => item.id === highlightTimelineId);
+    if (!match) return;
+    timelineHighlightHandledRef.current = highlightTimelineId;
+    window.setTimeout(() => {
+      document.getElementById("matter-timeline")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById(`timeline-${highlightTimelineId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 220);
+  }, [timelineLoading, highlightTimelineId, timeline]);
 
   useEffect(() => {
     if (loading) {
@@ -1066,6 +1088,7 @@ export function MatterPage({ matterCode, user }: Props) {
       navTabs={
         <ClioRail
           activeNav="matters"
+          activeSection="all"
           billingPath={billingPath}
           tasksPath={tasksPath}
           isAdmin={isAdmin}
@@ -1496,6 +1519,7 @@ export function MatterPage({ matterCode, user }: Props) {
                 onMatterJump={handleMatterJump}
                 coloredDots
                 showDotLegend
+                highlightId={highlightTimelineId}
               />
             </section>
 

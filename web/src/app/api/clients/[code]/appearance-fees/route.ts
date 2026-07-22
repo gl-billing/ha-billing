@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireSessionAccessToken } from "@/lib/api-auth";
+import { requireBillingAccessToken } from "@/lib/api-auth";
 import { sanitizeSheetName } from "@/lib/gl-config";
 import { getAppearanceFees } from "@/lib/sheets/ledger-read";
 
@@ -7,7 +7,7 @@ type RouteContext = { params: Promise<{ code: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
-    const accessToken = await requireSessionAccessToken();
+    const accessToken = await requireBillingAccessToken();
     const { code } = await context.params;
     const clientCode = sanitizeSheetName(decodeURIComponent(code));
     const appearanceFees = await getAppearanceFees(accessToken, clientCode);

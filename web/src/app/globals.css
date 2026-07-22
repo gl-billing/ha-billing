@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Domain styles also live in: office-hub.css, tables-mobile.css, ha-clio-shell.css, print.css */
+
 :root {
   --ink: #0a0a0a;
   --muted: #5a5a5a;
@@ -6277,30 +6279,50 @@ html {
 
   .client-list-table {
     table-layout: fixed;
+    width: 100%;
+  }
+
+  .client-list-table th,
+  .client-list-table td {
+    vertical-align: middle;
   }
 
   .client-list-table__col-code {
-    width: 7.75rem;
-    padding: 0.75rem 1rem 0.75rem 0.65rem;
+    width: 7.25rem;
+    padding: 0.65rem 0.75rem 0.65rem 0.5rem;
   }
 
   .client-list-table__col-name {
-    width: 20%;
-    min-width: 6.5rem;
-    padding: 0.75rem 0.65rem 0.75rem 1rem;
+    width: 18%;
+    min-width: 5.5rem;
+    padding: 0.65rem 0.5rem;
   }
 
   .client-list-table__col-case {
-    width: 34%;
-    min-width: 8rem;
+    width: auto;
+    max-width: 0;
+    padding: 0.65rem 0.5rem;
   }
 
   .client-list-table__col-balance {
-    width: 5.5rem;
+    width: 9.25rem;
+    min-width: 9.25rem;
+    padding: 0.65rem 0.5rem;
+    text-align: right;
+    white-space: nowrap;
   }
 
   .client-list-table__col-status {
-    width: 5.5rem;
+    width: 6.25rem;
+    min-width: 6.25rem;
+    padding: 0.65rem 0.5rem 0.65rem 0.25rem;
+  }
+
+  .client-list-table__balance-amount {
+    display: inline-block;
+    white-space: nowrap;
+    font-size: var(--type-body-sm);
+    line-height: 1.2;
   }
 
   .client-list-row__name-cell {
@@ -6313,15 +6335,21 @@ html {
 
   .client-list-row__name {
     @apply min-w-0 font-bold text-ink;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
     overflow-wrap: anywhere;
-    word-break: break-word;
   }
 
   .client-list-row__case-cell {
     @apply block min-w-0 text-muted leading-snug;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
     overflow-wrap: anywhere;
     word-break: break-word;
-    white-space: normal;
   }
 
   .client-list-row:hover .client-list-row__name,

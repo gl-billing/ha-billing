@@ -113,7 +113,7 @@ export function ClientListTable({ clients, busy, onOpenClient }: Props) {
       </div>
 
       <div className="scroll-panel-hint firm-ledger-table-wrap overflow-x-auto">
-        <table className="client-list-table firm-ledger-table w-full min-w-[640px] text-left text-xs">
+        <table className="client-list-table firm-ledger-table firm-ledger-table--responsive-stack w-full min-w-[42rem] text-left text-xs">
           <thead>
             <tr>
               <th className="client-list-table__col-code py-2"><SortBtn label="Code" col="code" /></th>
@@ -122,7 +122,9 @@ export function ClientListTable({ clients, busy, onOpenClient }: Props) {
                 <SortBtn label="Case / matter" col="caseTitle" />
               </th>
               <th className="client-list-table__col-balance px-2 py-2 text-right">
-                <SortBtn label="Balance" col="balance" />
+                <div className="text-right">
+                  <SortBtn label="Balance" col="balance" />
+                </div>
               </th>
               <th className="client-list-table__col-status px-2 py-2"><SortBtn label="Status" col="status" /></th>
             </tr>
@@ -134,7 +136,7 @@ export function ClientListTable({ clients, busy, onOpenClient }: Props) {
                   className="client-list-row"
                   onClick={() => onOpenClient(client.code)}
                 >
-                  <td className="client-list-table__col-code py-2">
+                  <td data-label="Code" className="client-list-table__col-code py-2">
                     <button
                       type="button"
                       className="client-code-link font-bold text-ink no-underline"
@@ -146,7 +148,7 @@ export function ClientListTable({ clients, busy, onOpenClient }: Props) {
                       {client.code}
                     </button>
                   </td>
-                  <td className="client-list-table__col-name py-2">
+                  <td data-label="Name" className="client-list-table__col-name py-2">
                     <button
                       type="button"
                       className="client-list-row__name-cell"
@@ -155,22 +157,27 @@ export function ClientListTable({ clients, busy, onOpenClient }: Props) {
                         onOpenClient(client.code);
                       }}
                     >
-                      <span className="client-list-row__name-line">
+                      <span className="client-list-row__name-line" title={client.name || undefined}>
                         <span className="client-list-row__name">{client.name || "—"}</span>
                         {isBirthdayToday(client.birthday) ? <ClientBirthdayCake /> : null}
                       </span>
                     </button>
                   </td>
-                  <td className="client-list-table__col-case px-2 py-2">
-                    <span className="client-list-row__case-cell">{formatMatterDirectoryCaseLabel(client)}</span>
+                  <td data-label="Case / matter" className="client-list-table__col-case px-2 py-2">
+                    <span
+                      className="client-list-row__case-cell"
+                      title={formatMatterDirectoryCaseLabel(client)}
+                    >
+                      {formatMatterDirectoryCaseLabel(client)}
+                    </span>
                   </td>
-                  <td className="client-list-table__col-balance px-2 py-2 text-right">
+                  <td data-label="Balance" className="client-list-table__col-balance px-2 py-2 text-right">
                     <AmountDisplay
                       value={client.balance}
-                      className={client.balance > 0 ? "text-[#8b1e1e]" : "text-muted"}
+                      className={`client-list-table__balance-amount ${client.balance > 0 ? "text-[#8b1e1e]" : "text-muted"}`}
                     />
                   </td>
-                  <td className="client-list-table__col-status px-2 py-2">
+                  <td data-label="Status" className="client-list-table__col-status px-2 py-2">
                     <span className={`matter-status-badge ${statusBadgeClass(client.status)}`}>
                       {client.status}
                     </span>

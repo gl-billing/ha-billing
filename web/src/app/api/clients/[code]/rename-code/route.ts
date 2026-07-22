@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { requireAdminEmail } from "@/lib/admin";
-import { requireSessionAccessToken } from "@/lib/api-auth";
-import { authOptions } from "@/lib/auth";
+import { requireAdminBillingAccessToken } from "@/lib/api-auth";
 import { sanitizeSheetName } from "@/lib/gl-config";
 import { renameTaskSourceIdsForClientCode } from "@/lib/office-tasks/sheets/rename-client-code";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
@@ -13,10 +10,7 @@ type RouteContext = { params: Promise<{ code: string }> };
 
 export async function POST(request: Request, context: RouteContext) {
   try {
-    const accessToken = await requireSessionAccessToken();
-    const session = await getServerSession(authOptions);
-    const email = session?.user?.email;
-    requireAdminEmail(email);
+    const { token: accessToken, email } = await requireAdminBillingAccessToken();
 
     const { code } = await context.params;
     const oldCode = sanitizeSheetName(decodeURIComponent(code));
@@ -39,7 +33,7 @@ export async function POST(request: Request, context: RouteContext) {
     const taskResult = await renameTaskSourceIdsForClientCode(accessToken, oldCode, newCode);
 
     await appendAuditLog(accessToken, {
-      user: email || "unknown",
+      user: email,
       action: "client.rename",
       clientCode: billingResult.newCode,
       summary: `Client code renamed ${billingResult.oldCode} → ${billingResult.newCode}`,
@@ -70,7 +64,7 @@ export async function POST(request: Request, context: RouteContext) {
     }
     const message = error instanceof Error ? error.message : "Failed to rename client code.";
     const status =
-      message.includes("ADMIN_EMAILS") || message.includes("firm admins") || message.startsWith("Unauthorized")
+      message === "Admin only." || message.includes("ADMIN_EMAILS") || message.includes("firm admins") || message.startsWith("Unauthorized")
         ? 403
         : 400;
     return NextResponse.json({ error: message }, { status });

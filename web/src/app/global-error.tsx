@@ -16,17 +16,60 @@ function retry(reset?: () => void) {
 export default function GlobalError({ error, reset }: Props) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">
-        <div className="page-loading min-h-screen">
-          <p className="page-loading__title">HA Office could not load</p>
-          <p className="mt-2 max-w-md text-sm text-muted">{error.message || "An unexpected error occurred."}</p>
-          <button
-            type="button"
-            className="btn-primary mt-5 max-w-[200px] text-sm"
-            onClick={() => retry(reset)}
+      <body
+        style={{
+          margin: 0,
+          fontFamily: "Arial, Helvetica, sans-serif",
+          background: "#f6f6f4",
+          color: "#0a0a0a"
+        }}
+      >
+        <div style={{ maxWidth: "32rem", margin: "4rem auto", padding: "0 1.25rem" }}>
+          <p
+            style={{
+              margin: "0 0 0.5rem",
+              fontSize: "0.72rem",
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "#454545"
+            }}
           >
-            Try again
-          </button>
+            Hernandez &amp; Associates
+          </p>
+          <h1 style={{ margin: "0 0 0.75rem", fontSize: "1.35rem", fontWeight: 800 }}>Desk could not load</h1>
+          <p style={{ margin: 0, fontSize: "0.95rem", lineHeight: 1.5, color: "#454545" }}>
+            {error.message || "An unexpected error occurred. Try again or return to Office Hub."}
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "1.25rem" }}>
+            <button
+              type="button"
+              onClick={() => retry(reset)}
+              style={{
+                padding: "0.55rem 1rem",
+                border: "1px solid #0a0a0a",
+                background: "#0a0a0a",
+                color: "#fff",
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+            >
+              Try again
+            </button>
+            <a
+              href="/office-hub"
+              style={{
+                padding: "0.55rem 1rem",
+                border: "1px solid #0a0a0a",
+                background: "transparent",
+                color: "#0a0a0a",
+                fontWeight: 700,
+                textDecoration: "none"
+              }}
+            >
+              Office Hub
+            </a>
+          </div>
         </div>
       </body>
     </html>

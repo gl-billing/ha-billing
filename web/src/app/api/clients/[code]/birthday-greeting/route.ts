@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { requireSessionAccessToken } from "@/lib/api-auth";
-import { authOptions } from "@/lib/auth";
+import { requireBillingAccessToken, sessionAuditEmail } from "@/lib/api-auth";
 import { sanitizeSheetName } from "@/lib/gl-config";
 import {
   birthdayGreetingSubject,
@@ -16,8 +14,8 @@ type RouteContext = { params: Promise<{ code: string }> };
 
 export async function POST(request: Request, context: RouteContext) {
   try {
-    const accessToken = await requireSessionAccessToken();
-    const session = await getServerSession(authOptions);
+    const accessToken = await requireBillingAccessToken();
+    const actorEmail = await sessionAuditEmail();
     const { code } = await context.params;
     const clientCode = sanitizeSheetName(decodeURIComponent(code));
     const body = (await request.json()) as { action?: "preview" | "send"; force?: boolean };
@@ -45,8 +43,8 @@ export async function POST(request: Request, context: RouteContext) {
 
     const result = await sendBirthdayGreetingForClient(accessToken, {
       clientCode,
-      fromEmail: session?.user?.email || undefined,
-      actorEmail: session?.user?.email || "unknown",
+      fromEmail: actorEmail === "unknown" ? undefined : actorEmail,
+      actorEmail,
       force: body.force === true
     });
 

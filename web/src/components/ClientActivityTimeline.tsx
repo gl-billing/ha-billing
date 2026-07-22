@@ -70,6 +70,8 @@ type Props = {
   coloredDots?: boolean;
   /** Show a dot color key above the timeline. */
   showDotLegend?: boolean;
+  /** Scroll/highlight a timeline row by activity id (from matter deep links). */
+  highlightId?: string;
 };
 
 function TimelineDot({ kind, className = "" }: { kind: ActivityItem["kind"]; className?: string }) {
@@ -140,7 +142,8 @@ export function ClientActivityTimeline({
   enableMatterJump = false,
   onMatterJump,
   coloredDots = false,
-  showDotLegend = false
+  showDotLegend = false,
+  highlightId
 }: Props) {
   const [filter, setFilter] = useState<TimelineFilter>("all");
   const visible = useMemo(() => filterTimelineItems(items, filter), [items, filter]);
@@ -161,11 +164,7 @@ export function ClientActivityTimeline({
             <button
               key={id}
               type="button"
-              className={`rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide ${
-                filter === id
-                  ? "bg-gradient-to-br from-[#1a1612] to-[#3d3018] text-white"
-                  : "border border-line bg-white text-muted"
-              }`}
+              className={`activity-timeline__filter-pill${filter === id ? " activity-timeline__filter-pill--active" : ""}`}
               onClick={() => setFilter(id)}
             >
               {label}
@@ -190,7 +189,11 @@ export function ClientActivityTimeline({
               Boolean(item.matterAnchor);
 
             return (
-              <article key={item.id} className="relative pb-4 last:pb-0">
+              <article
+                key={item.id}
+                id={`timeline-${item.id}`}
+                className={`relative pb-4 last:pb-0${highlightId === item.id ? " activity-timeline__entry--highlight" : ""}`}
+              >
                 <div
                   className={`absolute -left-4 top-1.5 h-3 w-3 rounded-full border-2 ${
                     coloredDots ? kindDotClasses[item.kind] : "border-gold bg-white"

@@ -82,9 +82,9 @@ describe("contract PDF layout", () => {
 
     expect(html).not.toContain("letterhead-a4.jpg");
     expect(html).toContain('class="firm-lh"');
-    expect(html).toContain("H E R N A N D E Z");
-    expect(html).toContain("info@hernandezassociates.com");
-    expect(html).toContain("hernandezassociates.com");
+    expect(html).toContain("Hernandez &amp; Associates");
+    expect(html).toContain("legal@hernandezlaw.info");
+    expect(html).toContain("hernandezlaw.info");
     expect(html).toContain("size: legal");
   });
 
@@ -106,7 +106,7 @@ describe("contract PDF layout", () => {
     expect(html).toContain('class="firm-lh"');
     expect(html).toContain("firm-letter-body");
     expect(html).toContain("size: A4");
-    expect(html).toContain("H E R N A N D E Z");
+    expect(html).toContain("Hernandez &amp; Associates");
   });
 
   it("builds legal-size contract PDF", async () => {

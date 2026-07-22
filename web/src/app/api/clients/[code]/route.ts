@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { requireAdminEmail } from "@/lib/admin";
-import { requireSessionAccessToken } from "@/lib/api-auth";
-import { authOptions } from "@/lib/auth";
+import { requireAdminBillingAccessToken, requireBillingAccessToken, sessionAuditEmail } from "@/lib/api-auth";
 import { sanitizeSheetName, type UpdateClientPayload } from "@/lib/gl-config";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import { deleteClientPermanently } from "@/lib/sheets/client-delete";
@@ -16,7 +13,7 @@ type RouteContext = { params: Promise<{ code: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
-    const accessToken = await requireSessionAccessToken();
+    const accessToken = await requireBillingAccessToken();
     const { code } = await context.params;
     const clientCode = sanitizeSheetName(decodeURIComponent(code));
     const client = await getClientDetail(accessToken, clientCode);
@@ -38,15 +35,14 @@ export async function GET(_request: Request, context: RouteContext) {
 
 export async function PATCH(request: Request, context: RouteContext) {
   try {
-    const accessToken = await requireSessionAccessToken();
+    const accessToken = await requireBillingAccessToken();
     const { code } = await context.params;
     const clientCode = sanitizeSheetName(decodeURIComponent(code));
     const body = (await request.json()) as UpdateClientPayload;
     const result = await updateClient(accessToken, clientCode, body);
 
-    const session = await getServerSession(authOptions);
     await appendAuditLog(accessToken, {
-      user: session?.user?.email || "unknown",
+      user: await sessionAuditEmail(),
       action: "client.update",
       clientCode,
       summary: "Client profile updated",
@@ -70,10 +66,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
 export async function DELETE(request: Request, context: RouteContext) {
   try {
-    const accessToken = await requireSessionAccessToken();
-    const session = await getServerSession(authOptions);
-    const email = session?.user?.email;
-    requireAdminEmail(email);
+    const { token: accessToken, email } = await requireAdminBillingAccessToken();
 
     const { code } = await context.params;
     const clientCode = sanitizeSheetName(decodeURIComponent(code));

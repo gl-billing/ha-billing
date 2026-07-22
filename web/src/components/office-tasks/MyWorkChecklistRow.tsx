@@ -19,6 +19,8 @@ import type { PrepWorkloadViewRole } from "@/lib/office-tasks/prep-workload-view
 import { myWorkItemKindLabel } from "@/lib/office-tasks/schedule";
 import type { ItemStatusUpdate } from "@/lib/office-tasks/status";
 import type { WorkItemFilingActionProps } from "@/lib/office-tasks/work-item-filing-actions";
+import { isHearingPendingCourtConfirmation } from "@/lib/hearing-escalation";
+import { needsFilingConfirmation } from "@/lib/office-tasks/filing-confirmation";
 
 type Props = {
   item: ItemSummary;
@@ -98,6 +100,28 @@ export function MyWorkChecklistRow({
   const kind = myWorkItemKindLabel(item);
   const assigned = item.assignedTo?.trim() || "Unassigned";
 
+  const showCourtConfirmed =
+    item.source === "Event" &&
+    onCourtConfirmed &&
+    isHearingPendingCourtConfirmation(item as OfficeItem) &&
+    !isDone &&
+    status !== "Cancelled";
+  const showMarkFiled =
+    item.source === "Event" &&
+    isAdmin &&
+    onMarkSubmitted &&
+    needsFilingConfirmation(item as OfficeItem, todayYmd()) &&
+    !isDone &&
+    status !== "Cancelled";
+
+  const mobileTapAction = showCourtConfirmed
+    ? { label: "Court OK", onClick: () => onCourtConfirmed?.(item) }
+    : showMarkFiled
+      ? { label: "Filed", onClick: () => onMarkSubmitted?.(item) }
+      : canToggle && !isDone
+        ? { label: "Done", onClick: () => onToggleDone?.(item, true) }
+        : null;
+
   return (
     <li
       className={`my-work-checklist__row${isDone ? " my-work-checklist__row--done" : ""}${showOverdueSince && overdueLabel ? " my-work-checklist__row--overdue" : ""}`}
@@ -161,6 +185,19 @@ export function MyWorkChecklistRow({
               roster={roster}
             />
           </div>
+
+          {mobileTapAction ? (
+            <div className="my-work-checklist__tap-bar no-print">
+              <button
+                type="button"
+                className="my-work-checklist__tap-btn"
+                disabled={toggling}
+                onClick={mobileTapAction.onClick}
+              >
+                {toggling ? "…" : mobileTapAction.label}
+              </button>
+            </div>
+          ) : null}
 
           <dl className="my-work-checklist__meta">
             <div>

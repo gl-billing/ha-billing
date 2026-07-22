@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { requireBillingAccessToken } from "@/lib/api-auth";
-import { authOptions } from "@/lib/auth";
 import {
   buildCorrespondenceEmailPreview,
   buildCorrespondenceLetterHtml,
@@ -10,6 +8,7 @@ import {
   type CorrespondenceKind,
   type CorrespondenceLetterInput
 } from "@/lib/firm-correspondence";
+import { inlineLetterHtmlAssets } from "@/lib/html-letter-pdf";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import {
   getGmailAccountEmail,
@@ -55,10 +54,7 @@ function validateLetter(letter: CorrespondenceLetterInput | undefined): Correspo
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const accessToken = await requireBillingAccessToken();
 
     const body = (await request.json()) as Body;
     const action = body.action || "preview";
@@ -66,13 +62,11 @@ export async function POST(request: Request) {
 
     if (action === "preview") {
       return NextResponse.json({
-        html: buildCorrespondenceLetterHtml(letter),
+        html: inlineLetterHtmlAssets(buildCorrespondenceLetterHtml(letter)),
         email: buildCorrespondenceEmailPreview(letter),
         filename: correspondenceLetterFilename(letter)
       });
     }
-
-    const accessToken = await requireBillingAccessToken();
 
     const pdfBytes = await buildCorrespondenceLetterPdf(letter);
     const filename = correspondenceLetterFilename(letter);

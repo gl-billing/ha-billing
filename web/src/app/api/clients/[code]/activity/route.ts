@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireSessionAccessToken } from "@/lib/api-auth";
+import { requireBillingAccessToken } from "@/lib/api-auth";
 import { sanitizeSheetName } from "@/lib/gl-config";
 import { getClientActivity } from "@/lib/sheets/activity";
 import { getClientDetail } from "@/lib/sheets/master";
@@ -8,7 +8,7 @@ type RouteContext = { params: Promise<{ code: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
-    const accessToken = await requireSessionAccessToken();
+    const accessToken = await requireBillingAccessToken();
     const { code } = await context.params;
     const clientCode = sanitizeSheetName(decodeURIComponent(code));
     const detail = await getClientDetail(accessToken, clientCode);

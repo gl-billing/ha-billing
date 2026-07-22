@@ -129,13 +129,26 @@ export function MyWorkTodayFeed({
 }: Props) {
   const dueNow = useMemo(() => mergeDueNow(lists), [lists]);
   const [doneOpen, setDoneOpen] = useState(false);
+  const [mobilePriorityFeed, setMobilePriorityFeed] = useState(false);
 
   useEffect(() => {
     if (doneOpenPulse > 0) setDoneOpen(true);
   }, [doneOpenPulse]);
 
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 720px)");
+    const sync = () => setMobilePriorityFeed(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
   const hasOpen =
     lists.overdue.length > 0 || dueNow.length > 0 || lists.dueThisWeek.length > 0;
+
+  const splitDueGroups =
+    mobilePriorityFeed &&
+    (lists.eventsToday.length > 0 || lists.deadlinesToday.length > 0 || lists.tasksDueToday.length > 0);
 
   return (
     <div className="my-work-feed__body my-work-feed__body--checklist">
@@ -156,7 +169,43 @@ export function MyWorkTodayFeed({
         />
       ) : null}
 
-      {dueNow.length > 0 ? (
+      {splitDueGroups ? (
+        <>
+          {lists.eventsToday.length > 0 ? (
+            <ChecklistGroup
+              id="today-hearings"
+              tone="due"
+              label="Hearings today"
+              hint="Court appearances and scheduled hearings"
+              count={lists.eventsToday.length}
+              items={lists.eventsToday}
+              {...rowProps}
+            />
+          ) : null}
+          {lists.deadlinesToday.length > 0 ? (
+            <ChecklistGroup
+              id="today-filings"
+              tone="due"
+              label="Filings & deadlines"
+              hint="Submissions and filing deadlines due today"
+              count={lists.deadlinesToday.length}
+              items={lists.deadlinesToday}
+              {...rowProps}
+            />
+          ) : null}
+          {lists.tasksDueToday.length > 0 ? (
+            <ChecklistGroup
+              id="today-tasks"
+              tone="due"
+              label="Tasks due today"
+              hint="Drafting, follow-ups, and prep work"
+              count={lists.tasksDueToday.length}
+              items={lists.tasksDueToday}
+              {...rowProps}
+            />
+          ) : null}
+        </>
+      ) : dueNow.length > 0 ? (
         <ChecklistGroup
           id="today-due"
           tone="due"

@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { requireAdminEmail } from "@/lib/admin";
-import { requireSessionAccessToken } from "@/lib/api-auth";
-import { authOptions } from "@/lib/auth";
+import { requireAdminBillingAccessToken } from "@/lib/api-auth";
 import { sanitizeSheetName } from "@/lib/gl-config";
 import { buildClientDeletePreview } from "@/lib/sheets/client-delete-preview";
 import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
@@ -15,9 +12,7 @@ type RouteContext = { params: Promise<{ code: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
-    const accessToken = await requireSessionAccessToken();
-    const session = await getServerSession(authOptions);
-    requireAdminEmail(session?.user?.email);
+    const { token: accessToken } = await requireAdminBillingAccessToken();
 
     const { code } = await context.params;
     const clientCode = sanitizeSheetName(decodeURIComponent(code));
@@ -46,7 +41,7 @@ export async function GET(_request: Request, context: RouteContext) {
     }
     const message = error instanceof Error ? error.message : "Unable to load delete preview.";
     const status =
-      message.includes("owners/admins") || message.startsWith("Unauthorized") ? 403 : 500;
+      message === "Admin only." || message.includes("owners/admins") || message.startsWith("Unauthorized") ? 403 : 500;
     return NextResponse.json({ error: message }, { status });
   }
 }

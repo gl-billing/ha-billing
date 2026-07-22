@@ -12,6 +12,7 @@ export type MatterQuery = {
   birthdayGreeting?: boolean;
   from?: string;
   highlightTask?: string;
+  highlightTimeline?: string;
 };
 
 export function matterHref(code: string, tab?: MatterTab, extra?: Omit<MatterQuery, "tab">): string {
@@ -28,6 +29,7 @@ export function matterHref(code: string, tab?: MatterTab, extra?: Omit<MatterQue
   if (extra?.birthdayGreeting) params.set("birthdayGreeting", "1");
   if (extra?.from?.trim()) params.set("from", extra.from.trim());
   if (extra?.highlightTask?.trim()) params.set("highlightTask", extra.highlightTask.trim());
+  if (extra?.highlightTimeline?.trim()) params.set("highlightTimeline", extra.highlightTimeline.trim());
   const qs = params.toString();
   return qs ? `${base}?${qs}` : base;
 }

@@ -3,6 +3,7 @@ import {
   HA_CLIO_NAV,
   clioPrimariesForUser,
   clioSectionsForUser,
+  parseCalendarModeParam,
   resolveClioFromBillingPage,
   resolveClioFromTasksTab
 } from "@/lib/clio/workspace-nav";
@@ -104,14 +105,24 @@ describe("HA_CLIO_NAV inventory", () => {
     expect(resolveClioFromTasksTab("today")).toEqual({ nav: "checklist", section: "today" });
     expect(resolveClioFromTasksTab("week")).toEqual({ nav: "calendar", section: "week" });
     expect(resolveClioFromTasksTab("week", "day")).toEqual({ nav: "calendar", section: "day" });
-    expect(resolveClioFromTasksTab("today", "day")).toEqual({ nav: "calendar", section: "day" });
+    // Leftover day mode must not steal My work highlighting.
+    expect(resolveClioFromTasksTab("today", "day")).toEqual({ nav: "checklist", section: "today" });
     expect(resolveClioFromTasksTab("calendar")).toEqual({ nav: "calendar", section: "month" });
   });
 
-  it("maps Calendar Day section to week tab with day mode", () => {
+  it("maps Calendar Day section to week tab with day mode (hourly schedule)", () => {
     const calendar = HA_CLIO_NAV.find((item) => item.id === "calendar")!;
     const day = calendar.sections.find((s) => s.id === "day")!;
     expect(day.tasksTab).toBe("week");
     expect(day.calendarMode).toBe("day");
+    expect(resolveClioFromTasksTab("week", "day")).toEqual({ nav: "calendar", section: "day" });
+    expect(resolveClioFromTasksTab("week", "week")).toEqual({ nav: "calendar", section: "week" });
+  });
+
+  it("parseCalendarModeParam reads cal and calendar section from URL", () => {
+    expect(parseCalendarModeParam("cal=day&nav=calendar&section=day&tab=week")).toBe("day");
+    expect(parseCalendarModeParam("nav=calendar&section=day&tab=week")).toBe("day");
+    expect(parseCalendarModeParam("nav=calendar&section=week&tab=week")).toBe("week");
+    expect(parseCalendarModeParam("nav=checklist&section=today")).toBe(null);
   });
 });

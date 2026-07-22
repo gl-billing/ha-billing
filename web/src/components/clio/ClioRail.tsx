@@ -3,6 +3,8 @@
 import { useId } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { SameWindowLink } from "@/components/SameWindowLink";
+import { navigateClioHref } from "@/lib/clio/navigate-clio";
+import { sectionForPrimarySwitch } from "@/lib/clio/section-for-primary";
 import {
   buildClioHref,
   clioPrimariesForUser,
@@ -17,6 +19,7 @@ import type { NavUserProfile } from "@/lib/workspace-labels";
 
 type Props = {
   activeNav: ClioNavId;
+  activeSection?: string;
   billingPath?: string;
   tasksPath?: string;
   isAdmin?: boolean;
@@ -28,15 +31,10 @@ type Props = {
   canViewPresenceTab?: boolean;
 };
 
-function hrefAppPath(href: string, billingPath: string, tasksPath: string): string {
-  if (href.startsWith(tasksPath)) return tasksPath;
-  if (href.startsWith(billingPath)) return billingPath;
-  return href.split("?")[0] || href;
-}
-
 /** Clio-style primary left rail — HA layout (monochrome theme unchanged). */
 export function ClioRail({
   activeNav,
+  activeSection = "",
   billingPath = HA_BILLING_PATH,
   tasksPath = HA_TASKS_PATH,
   isAdmin = false,
@@ -67,13 +65,20 @@ export function ClioRail({
     : primaries[0]?.id || activeNav;
 
   function navigateClio(href: string) {
-    const targetPath = hrefAppPath(href, billingPath, tasksPath);
-    const here = pathname.split("?")[0] || "";
-    if (here !== targetPath) {
-      window.location.assign(href);
-      return;
+    navigateClioHref(href, {
+      pathname,
+      billingPath,
+      tasksPath,
+      push: (next) => router.push(next)
+    });
+  }
+
+  function sectionForPrimary(next: ClioNavId) {
+    if (activeSection) {
+      return sectionForPrimarySwitch(next, activeNav, activeSection, visibility);
     }
-    router.push(href);
+    const primary = findClioPrimary(next);
+    return defaultClioSectionForUser(primary, visibility);
   }
 
   return (
@@ -87,8 +92,7 @@ export function ClioRail({
         value={selectValue}
         onChange={(event) => {
           const next = event.target.value as ClioNavId;
-          const primary = findClioPrimary(next);
-          const section = defaultClioSectionForUser(primary, visibility);
+          const section = sectionForPrimary(next);
           navigateClio(buildClioHref(next, section.id, pathOpts));
         }}
       >
