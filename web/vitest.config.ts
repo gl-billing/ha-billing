@@ -5,13 +5,31 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: "node",
-    environmentMatchGlobs: [["**/*.test.tsx", "happy-dom"]],
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
-    setupFiles: ["src/test/setup-component.ts"],
-    env: {
-      CORRESPONDENCE_PDF_ENGINE: "lib"
-    }
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "unit",
+          include: ["src/**/*.test.ts"],
+          environment: "node",
+          env: {
+            CORRESPONDENCE_PDF_ENGINE: "lib"
+          }
+        }
+      },
+      {
+        extends: true,
+        test: {
+          name: "component",
+          include: ["src/**/*.test.tsx"],
+          environment: "happy-dom",
+          setupFiles: ["src/test/setup-component.ts"],
+          env: {
+            CORRESPONDENCE_PDF_ENGINE: "lib"
+          }
+        }
+      }
+    ]
   },
   resolve: {
     alias: {

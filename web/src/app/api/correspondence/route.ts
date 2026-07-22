@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireBillingAccessToken } from "@/lib/api-auth";
+import { requireBillingAccessToken, sessionAuditEmail } from "@/lib/api-auth";
 import {
   buildCorrespondenceEmailPreview,
   buildCorrespondenceLetterHtml,
@@ -85,21 +85,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Recipient email is required to send the letter." }, { status: 400 });
     }
 
-    const email = buildCorrespondenceEmailPreview(letter);
-    const bccEmail = await getGmailAccountEmail(accessToken, session?.user?.email || undefined);
+    const emailPreview = buildCorrespondenceEmailPreview(letter);
+    const auditEmail = await sessionAuditEmail();
+    const bccEmail = await getGmailAccountEmail(accessToken, auditEmail === "unknown" ? undefined : auditEmail);
     const delivery = await sendHtmlEmailWithAttachmentsViaGmail({
       accessToken,
       to: recipient,
-      subject: email.subject,
-      html: email.html,
-      plain: email.body,
+      subject: emailPreview.subject,
+      html: emailPreview.html,
+      plain: emailPreview.body,
       bcc: bccEmail,
       attachments: [{ filename, mimeType: "application/pdf", content: pdfBytes }],
       mode: action === "draft" ? "draft" : "send"
     });
 
     await appendAuditLog(accessToken, {
-      user: session?.user?.email || "unknown",
+      user: auditEmail,
       action: action === "draft" ? "correspondence.draft" : "correspondence.send",
       clientCode: letter.clientCode || undefined,
       summary: action === "draft" ? "Correspondence Gmail draft created" : "Correspondence letter sent",
