@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { canAccessBilling } from "@/lib/app-access";
@@ -15,5 +16,9 @@ export default async function BillingPage() {
     redirect("/office-hub");
   }
 
-  return <BillingApp />;
+  return (
+    <Suspense fallback={null}>
+      <BillingApp />
+    </Suspense>
+  );
 }

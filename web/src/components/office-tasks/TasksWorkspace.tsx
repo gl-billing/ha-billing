@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { signOut } from "next-auth/react";
 import { TasksApp } from "@/components/office-tasks/TasksApp";
 
@@ -24,5 +25,9 @@ export function TasksWorkspace({ sessionError }: Props) {
     );
   }
 
-  return <TasksApp />;
+  return (
+    <Suspense fallback={null}>
+      <TasksApp />
+    </Suspense>
+  );
 }

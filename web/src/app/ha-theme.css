@@ -6,17 +6,18 @@
 :root {
   --ink: #0a0a0a;
   --muted: #454545;
-  --line: #d0d0d0;
+  --line: #e0e0e0;
   --paper: #ffffff;
-  --cream: #f7f7f7;
-  --soft: #f0f0f0;
+  --cream: #f6f6f4;
+  --soft: #f0f0ee;
   --gold: #111111;
   --gold-light: #333333;
   --gold-dark: #000000;
   --charcoal: #1a1a1a;
   --client-link-hover: #000000;
   --ha-frame: #0a0a0a;
-  --ha-frame-width: 2px;
+  /* Hairline structure — avoid stacked 2px frames */
+  --ha-frame-width: 1px;
   --app-ui-scale: 1;
   --radius-control: 0;
   --ha-shell-max: 72rem;
@@ -35,7 +36,7 @@
 }
 
 body {
-  background: #f7f7f7 !important;
+  background: var(--cream) !important;
   font-size: var(--ha-text-body) !important;
   line-height: var(--ha-leading) !important;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
@@ -243,9 +244,9 @@ html {
 }
 
 .brand-header__inner {
-  padding: 0.625rem var(--ha-shell-pad-x) 0.75rem !important;
-  border: var(--ha-frame-width) solid var(--ink) !important;
-  border-top: none !important;
+  padding: 0.75rem var(--ha-shell-pad-x) 0.85rem !important;
+  border: none !important;
+  border-bottom: 1px solid var(--ink) !important;
 }
 
 .brand-header__meta-row {
@@ -291,9 +292,9 @@ html {
 }
 
 .brand-header__toolbar {
-  border-top: var(--ha-frame-width) solid var(--ink) !important;
-  margin-top: 0.625rem !important;
-  padding-top: 0.625rem !important;
+  border-top: 1px solid var(--line) !important;
+  margin-top: 0.7rem !important;
+  padding-top: 0.7rem !important;
   gap: 0.625rem !important;
 }
 
@@ -396,10 +397,10 @@ html {
 }
 
 .firm-auth-card {
-  border: 2px solid var(--ink) !important;
+  border: 1px solid var(--ink) !important;
   border-radius: 0 !important;
   background: #fff !important;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: none !important;
 }
 
 .firm-auth--login .firm-auth-card::before,
@@ -408,7 +409,8 @@ html {
 }
 
 .firm-auth-footer {
-  border: 2px solid var(--ink) !important;
+  border: none !important;
+  border-top: 1px solid var(--ink) !important;
   border-radius: 0 !important;
   background: #fff !important;
   padding: 0.65rem 0.75rem 0.55rem !important;
@@ -498,16 +500,16 @@ html {
   --site-slate: #ffffff;
   --site-ink: #0a0a0a;
   --site-panel: #ffffff;
-  --site-panel-2: #f7f7f7;
+  --site-panel-2: #f6f6f4;
   --site-gold: #111111;
   --site-gold-strong: #000000;
   --site-gold-soft: rgba(0, 0, 0, 0.06);
   --site-text: #0a0a0a;
   --site-muted: #5c5c5c;
-  --site-border: rgba(0, 0, 0, 0.14);
+  --site-border: rgba(0, 0, 0, 0.12);
   --site-surface: #ffffff;
   --site-surface-alt: #ffffff;
-  --site-surface-muted: #f5f5f5;
+  --site-surface-muted: #f5f5f3;
   --site-heading: #0a0a0a;
   --site-heading-strong: #000000;
   --site-letterhead-top: #ffffff;
@@ -516,11 +518,11 @@ html {
   --site-instructions-note-bg: rgba(0, 0, 0, 0.05);
   --site-surface-shadow: none;
   --site-surface-shadow-lg: none;
-  background: #f7f7f7 !important;
+  background: var(--cream) !important;
 }
 
 .office-hub {
-  background: #f7f7f7 !important;
+  background: var(--cream) !important;
 }
 
 .office-hub__letterhead {
@@ -538,7 +540,8 @@ html {
 .office-hub__letterhead .firm-logo-banner {
   width: 100% !important;
   max-width: none !important;
-  border: var(--ha-frame-width) solid var(--ink) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--ink) !important;
 }
 
 .office-hub__top {
@@ -595,102 +598,179 @@ html {
   color: var(--ink) !important;
 }
 
+/* Unified firm desk — open letterhead sections (no nested boxes) */
+.office-hub__desk {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.35rem !important;
+  margin-top: 0.5rem !important;
+  padding-top: 0.35rem !important;
+}
+
+.office-hub__desk-enter {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 1rem 1.5rem !important;
+  min-height: 0 !important;
+  padding: 1.35rem 0 1.25rem !important;
+  border: none !important;
+  border-top: 1px solid var(--ink) !important;
+  border-bottom: 1px solid var(--ink) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-align: left !important;
+  text-decoration: none !important;
+  color: inherit !important;
+  transform: none !important;
+}
+
+.office-hub__desk-enter:hover {
+  background: transparent !important;
+}
+
+.office-hub__desk-enter:hover .office-hub__desk-enter-title {
+  text-decoration: underline !important;
+  text-underline-offset: 0.18em !important;
+}
+
+.office-hub__desk-enter-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0.4rem !important;
+  min-width: 0 !important;
+  flex: 1 1 14rem !important;
+}
+
+.office-hub__desk-enter-eyebrow {
+  font-size: 0.6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+
+.office-hub__desk-enter-title {
+  font-family: var(--font-display), "Arial Black", Arial, sans-serif !important;
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: var(--ink) !important;
+  margin: 0 !important;
+}
+
+.office-hub__desk-enter-desc {
+  font-size: var(--ha-text-meta) !important;
+  line-height: var(--ha-leading-tight) !important;
+  color: var(--muted) !important;
+  margin: 0 !important;
+  max-width: 36rem !important;
+}
+
+.office-hub__desk-enter-cta {
+  align-self: flex-end !important;
+  padding: 0.55rem 1.1rem !important;
+  font-size: var(--ha-text-meta) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  border: 1px solid var(--ink) !important;
+  border-radius: 0 !important;
+  background: var(--ink) !important;
+  color: #fff !important;
+  white-space: nowrap !important;
+  min-height: var(--touch-min, 44px) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.office-hub__desk-enter:hover .office-hub__desk-enter-cta {
+  background: #fff !important;
+  color: var(--ink) !important;
+}
+
+.office-hub__desk-primaries {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.office-hub__desk-primaries-label {
+  margin: 0 0 0.65rem !important;
+  font-size: 0.6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+
+.office-hub__desk-primaries-list {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  border-top: 1px solid var(--line) !important;
+}
+
+@media (min-width: 640px) {
+  .office-hub__desk-primaries-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+.office-hub__desk-primary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-height: var(--touch-min, 44px) !important;
+  padding: 0.65rem 0.15rem !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
+  background: transparent !important;
+  color: var(--ink) !important;
+  text-decoration: none !important;
+  text-align: left !important;
+}
+
+.office-hub__desk-primary:hover {
+  background: transparent !important;
+  color: var(--ink) !important;
+}
+
+.office-hub__desk-primary:hover .office-hub__desk-primary-label {
+  text-decoration: underline !important;
+  text-underline-offset: 0.18em !important;
+}
+
+.office-hub__desk-primary-label {
+  font-size: var(--ha-text-ui) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1.3 !important;
+}
+
+/* Legacy launcher class hooks (unused) — keep open letterhead if anything still references them */
 .office-hub__launcher {
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
   justify-content: space-between !important;
   gap: 1rem !important;
-  min-height: 0 !important;
-  padding: 1.25rem 1.35rem !important;
-  border: 2px solid var(--ink) !important;
+  padding: 1.25rem 0 !important;
+  border: none !important;
+  border-bottom: 1px solid var(--ink) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   box-shadow: none !important;
   text-align: left !important;
-  overflow: visible !important;
-  transform: none !important;
-}
-
-.office-hub__launcher:hover {
-  transform: none !important;
-  background: #f7f7f7 !important;
-  box-shadow: none !important;
-}
-
-.office-hub__launcher--billing,
-.office-hub__launcher--tasks {
-  background: #fff !important;
-  border-color: var(--ink) !important;
-  box-shadow: none !important;
-}
-
-.office-hub__launcher--last {
-  box-shadow: inset 0 0 0 2px var(--ink) !important;
-  --tw-ring-offset-color: #f7f7f7 !important;
-  --tw-ring-color: var(--ink) !important;
-}
-
-.office-hub__launcher-inner {
-  display: flex !important;
-  flex: 1 1 auto !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  justify-content: center !important;
-  gap: 0.35rem !important;
-  padding: 0 !important;
-  min-width: 0 !important;
-}
-
-.office-hub__launcher-title {
-  font-family: var(--font-display), "Arial Black", Arial, sans-serif !important;
-  font-size: var(--ha-text-ui) !important;
-  font-weight: 600 !important;
-  line-height: 1.35 !important;
-  letter-spacing: 0.04em !important;
-  text-transform: uppercase !important;
-  color: var(--ink) !important;
-  margin: 0 !important;
-  overflow-wrap: anywhere !important;
-  word-break: break-word !important;
-}
-
-.office-hub__launcher-desc {
-  font-size: var(--ha-text-meta) !important;
-  line-height: var(--ha-leading-tight) !important;
-  color: var(--muted) !important;
-  max-width: none !important;
-  margin: 0 !important;
-}
-
-.office-hub__launcher-cta {
-  align-self: flex-start !important;
-  margin-top: 0 !important;
-  padding: 0.45rem 0.85rem !important;
-  font-size: var(--ha-text-meta) !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.05em !important;
-  text-transform: uppercase !important;
-  border: var(--ha-frame-width) solid var(--ink) !important;
-  border-radius: 0 !important;
-  background: var(--ink) !important;
-  color: #fff !important;
-  white-space: nowrap !important;
-  min-height: calc(var(--ha-row-h) - 0.25rem) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-}
-
-.office-hub__launcher--billing .office-hub__launcher-cta,
-.office-hub__launcher--tasks .office-hub__launcher-cta {
-  border-color: var(--ink) !important;
-  background: var(--ink) !important;
-  color: #fff !important;
-}
-
-.office-hub__launcher:hover .office-hub__launcher-cta {
-  background: #fff !important;
-  color: var(--ink) !important;
 }
 
 .office-hub__launchers {
@@ -699,18 +779,13 @@ html {
   gap: 0.75rem !important;
 }
 
-@media (min-width: 640px) {
-  .office-hub__launchers:not(.office-hub__launchers--single) {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
-
 .office-hub__welcome {
-  border: 2px solid var(--ink) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   box-shadow: none !important;
-  padding: 1.35rem 1.25rem !important;
+  padding: 1.1rem 0 1.25rem !important;
 }
 
 .office-hub__greeting {
@@ -736,7 +811,7 @@ html {
 }
 
 .office-hub__footer {
-  border-top: 2px solid var(--ink) !important;
+  border-top: 1px solid var(--ink) !important;
   padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
   text-align: center !important;
   background: #fff !important;
@@ -774,11 +849,12 @@ html {
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
-  min-height: 4.5rem !important;
-  padding: 0.75rem 0.85rem !important;
-  border: 2px solid var(--line) !important;
+  min-height: 4.25rem !important;
+  padding: 0.75rem 0.15rem !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   box-shadow: none !important;
   min-width: 0 !important;
   overflow: hidden !important;
@@ -786,7 +862,7 @@ html {
 
 .hub-role-shortcuts__card:hover {
   border-color: var(--ink) !important;
-  background: #f7f7f7 !important;
+  background: transparent !important;
 }
 
 .hub-role-shortcuts__card-title {
@@ -807,10 +883,11 @@ html {
 
 /* ── My work hub strip ── */
 .my-work-hub-summary {
-  border: 2px solid var(--line) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
-  padding: 1rem !important;
+  background: transparent !important;
+  padding: 1rem 0 !important;
   text-align: left !important;
 }
 
@@ -832,20 +909,22 @@ html {
   white-space: nowrap !important;
 }
 
-/* ── Workspace shell: cards, fields, buttons ── */
+/* ── Workspace shell: open sections, hairline structure ── */
 .card,
 .card-elevated {
-  border: 2px solid var(--line) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: var(--paper) !important;
   box-shadow: none !important;
-  padding: 1.1rem 1.15rem !important;
+  padding: 1.15rem 0 !important;
   overflow: visible !important;
   min-width: 0 !important;
 }
 
 .card-elevated {
-  border-color: rgba(0, 0, 0, 0.18) !important;
+  border-color: var(--line) !important;
+  background: var(--paper) !important;
 }
 
 .btn-primary {
@@ -855,7 +934,7 @@ html {
   gap: 0.5rem !important;
   min-height: 2.875rem !important;
   padding: 0.65rem 1.15rem !important;
-  border: 2px solid var(--ink) !important;
+  border: 1px solid var(--ink) !important;
   border-radius: 0 !important;
   background: var(--ink) !important;
   color: #fff !important;
@@ -882,7 +961,7 @@ html {
   gap: 0.5rem !important;
   min-height: 2.75rem !important;
   padding: 0.6rem 1.1rem !important;
-  border: 2px solid var(--ink) !important;
+  border: 1px solid var(--ink) !important;
   border-radius: 0 !important;
   background: #fff !important;
   color: var(--ink) !important;
@@ -899,7 +978,7 @@ html {
 }
 
 .btn-gold {
-  border: 2px solid var(--ink) !important;
+  border: 1px solid var(--ink) !important;
   border-radius: 0 !important;
   background: #fff !important;
   color: var(--ink) !important;
@@ -922,7 +1001,7 @@ select.field,
 select.field-input,
 textarea.field,
 textarea.field-input {
-  border: 2px solid var(--line) !important;
+  border: 1px solid var(--line) !important;
   border-radius: 0 !important;
   font-size: 1rem !important;
   line-height: 1.5 !important;
@@ -1153,11 +1232,12 @@ textarea.field-input:focus {
 
 .brand-footer {
   background: #fff !important;
-  border: 2px solid var(--ink) !important;
+  border: none !important;
+  border-top: 1px solid var(--ink) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   color: var(--ink) !important;
-  padding: 0.65rem 0.75rem 0.55rem !important;
+  padding: 0.85rem 0.75rem 0.65rem !important;
   text-align: center !important;
 }
 
@@ -1337,18 +1417,20 @@ textarea.field-input:focus {
 /* ── Tools panel action buttons ── */
 .tool-action-btn {
   min-height: 3.5rem !important;
-  padding: 0.85rem 1rem !important;
-  border: 2px solid var(--line) !important;
+  padding: 0.85rem 0.15rem !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
   align-items: center !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
   min-width: 0 !important;
   overflow: hidden !important;
+  background: transparent !important;
 }
 
 .tool-action-btn--primary {
-  border-color: var(--ink) !important;
-  background: var(--ink) !important;
+  border-bottom-color: var(--ink) !important;
+  background: transparent !important;
 }
 
 .tool-action-btn__label {
@@ -1370,7 +1452,7 @@ textarea.field-input:focus {
 }
 
 .tool-action-btn--primary .tool-action-btn__label {
-  color: #fff !important;
+  color: var(--ink) !important;
 }
 
 /* ── Section labels & status ── */
@@ -1616,7 +1698,8 @@ a.btn-secondary,
 }
 
 .item-card {
-  border: 2px solid var(--line) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
   min-width: 0 !important;
 }
@@ -1876,7 +1959,9 @@ a.btn-secondary,
 
 /* ── Task / event entry forms — monochrome, logo-aligned ── */
 .entry-form {
-  border: var(--ha-frame-width) solid var(--ink) !important;
+  border: none !important;
+  border-top: 1px solid var(--ink) !important;
+  border-bottom: 1px solid var(--ink) !important;
   border-radius: 0 !important;
   background: #fff !important;
   box-shadow: none !important;
@@ -2136,7 +2221,9 @@ a.btn-secondary,
 .task-event-chooser {
   margin-bottom: 1rem;
   padding: 0;
-  border: var(--ha-frame-width) solid var(--ink);
+  border: none;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
   background: #fff;
 }
 
@@ -2388,23 +2475,24 @@ a.btn-secondary,
   line-height: var(--ha-leading-tight) !important;
 }
 
-/* ── Task cards — monochrome framed rows (HA logo / UI) ── */
+/* ── Task cards — open ledger rows (hairline rules, left ink mark) ── */
 .firm-workspace .my-work-list,
 .firm-workspace .my-work-panel--elegant .my-work-list {
-  gap: 0.65rem !important;
+  gap: 0 !important;
 }
 
 .firm-workspace .my-work-list__row,
 .firm-workspace .my-work-panel--elegant .my-work-list__row,
 .firm-workspace .my-work-panel--elegant .my-work-list__row:nth-child(even) {
-  border: var(--ha-frame-width) solid var(--ink) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   background-image: none !important;
   box-shadow: none !important;
-  padding: 0.85rem 1rem 0.85rem 1.1rem !important;
+  padding: 0.95rem 0.15rem 0.95rem 0.85rem !important;
   transform: none !important;
-  transition: background 0.12s ease, border-color 0.12s ease !important;
+  transition: background 0.12s ease !important;
 }
 
 .firm-workspace .my-work-list__row::after {
@@ -2412,9 +2500,10 @@ a.btn-secondary,
 }
 
 .firm-workspace .my-work-list__row::before {
-  top: 0.5rem !important;
-  bottom: 0.5rem !important;
-  width: 3px !important;
+  top: 0.65rem !important;
+  bottom: 0.65rem !important;
+  left: 0 !important;
+  width: 2px !important;
   border-radius: 0 !important;
   background: var(--ink) !important;
   box-shadow: none !important;
@@ -2422,7 +2511,7 @@ a.btn-secondary,
 
 .firm-workspace .my-work-list__row:hover,
 .firm-workspace .my-work-panel--elegant .my-work-list__row:hover {
-  border-color: var(--ink) !important;
+  border-color: var(--line) !important;
   background: var(--soft) !important;
   background-image: none !important;
   box-shadow: none !important;
@@ -2432,7 +2521,7 @@ a.btn-secondary,
 .firm-workspace .my-work-list__row--done {
   opacity: 1 !important;
   border-color: var(--line) !important;
-  background: var(--cream) !important;
+  background: transparent !important;
 }
 
 .firm-workspace .my-work-list__row--done::before {
@@ -2442,7 +2531,7 @@ a.btn-secondary,
 .firm-workspace .my-work-list__row--overdue::before,
 .firm-workspace .my-work-list__row--deadline::before {
   background: var(--ink) !important;
-  width: 4px !important;
+  width: 3px !important;
 }
 
 .firm-workspace .my-work-list__row--event::before,
@@ -2617,9 +2706,10 @@ a.btn-secondary,
 
 .firm-workspace .item-card,
 .firm-workspace .item-tone {
-  border: var(--ha-frame-width) solid var(--ink) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   background-image: none !important;
   box-shadow: none !important;
   color: var(--ink) !important;
@@ -2633,8 +2723,8 @@ a.btn-secondary,
 .firm-workspace .item-tone--waiting,
 .firm-workspace .item-tone--done,
 .firm-workspace .item-tone--cancelled {
-  border-color: var(--ink) !important;
-  background: #fff !important;
+  border-color: var(--line) !important;
+  background: transparent !important;
   color: var(--ink) !important;
 }
 
@@ -2666,9 +2756,10 @@ a.btn-secondary,
 .firm-workspace .my-work-toolbar,
 .firm-workspace .my-work-sidecard,
 .firm-workspace .bucket-section {
-  border: var(--ha-frame-width) solid var(--ink) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   background-image: none !important;
   box-shadow: none !important;
 }
@@ -2721,7 +2812,7 @@ a.btn-secondary,
 }
 
 .firm-workspace .item-details-dialog {
-  border: var(--ha-frame-width) solid var(--ink) !important;
+  border: 1px solid var(--ink) !important;
   border-radius: 0 !important;
   background: #fff !important;
   background-image: none !important;
@@ -2729,14 +2820,15 @@ a.btn-secondary,
 }
 
 .firm-workspace .item-details-dialog__accent {
-  height: var(--ha-frame-width) !important;
+  height: 1px !important;
   background: var(--ink) !important;
 }
 
 .firm-workspace .item-details-dialog__section {
-  border: 1px solid var(--line) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   background-image: none !important;
 }
 
@@ -2868,9 +2960,10 @@ a.btn-secondary,
 .firm-workspace .tab-subnav.nav-tabs {
   margin: 0 !important;
   padding: 0 !important;
-  border: 1px solid var(--line) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   gap: 0 !important;
 }
 
@@ -2878,12 +2971,19 @@ a.btn-secondary,
   flex: 1 1 0;
   min-height: var(--ha-row-h) !important;
   border: none !important;
-  border-right: 1px solid var(--line) !important;
+  border-right: none !important;
+  border-bottom: 2px solid transparent !important;
   border-radius: 0 !important;
+  margin-bottom: -1px !important;
 }
 
 .firm-workspace .tab-subnav .nav-tab:last-child {
   border-right: none !important;
+}
+
+.firm-workspace .tab-subnav .nav-tab.active,
+.firm-workspace .tab-subnav .nav-tab-active {
+  border-bottom-color: var(--ink) !important;
 }
 
 .firm-workspace .tab-form-panel {
@@ -2909,10 +3009,11 @@ a.btn-secondary,
 .firm-workspace .tab-utility-panel {
   display: grid;
   gap: 0.5rem;
-  padding: 0.85rem 1rem;
-  border: 1px solid var(--line) !important;
+  padding: 0.85rem 0;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: var(--soft) !important;
+  background: transparent !important;
 }
 
 .firm-workspace .tab-utility-panel .btn-gold {
@@ -2921,12 +3022,13 @@ a.btn-secondary,
 }
 
 .firm-workspace .view-hero {
-  border: 2px solid var(--ink) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--ink) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   background-image: none !important;
   box-shadow: none !important;
-  padding: 0.85rem 1rem !important;
+  padding: 0.35rem 0 0.95rem !important;
   margin: 0 !important;
 }
 
@@ -3029,15 +3131,16 @@ a.btn-secondary,
 }
 
 .firm-workspace .employee-card {
-  border: 1px solid var(--line) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   box-shadow: none !important;
 }
 
 .firm-workspace .employee-card--active {
   border-color: var(--ink) !important;
-  border-width: 2px !important;
+  border-width: 0 0 1px !important;
   background: var(--soft) !important;
 }
 
@@ -3127,7 +3230,7 @@ a.btn-secondary,
   .matter-page .card.matter-page__section,
   .matter-page .card.matter-page__pending,
   .matter-page .card.matter-page__header {
-    padding: 1rem !important;
+    padding: 1rem 0 !important;
   }
 
   .firm-workspace .nav-tab,
@@ -3305,9 +3408,10 @@ a.btn-secondary,
 .view-hero,
 .firm-workspace .view-hero,
 .tab-view-hero {
-  border: 2px solid var(--ink) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--ink) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   box-shadow: none !important;
   background-image: none !important;
 }
@@ -3326,13 +3430,16 @@ a.btn-secondary,
 
 .hint-bar,
 .firm-workspace .hint-bar {
-  border: 1px solid var(--line) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: transparent !important;
   box-shadow: none !important;
   justify-content: flex-start !important;
   text-align: left !important;
   min-height: 2.75rem !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .hint-bar__icon,
@@ -3558,7 +3665,7 @@ a.btn-secondary,
   margin: 0.5rem 0 0 !important;
   padding: 0.55rem 0 !important;
   border-top: 1px solid var(--line) !important;
-  border-bottom: 1px solid var(--line) !important;
+  border-bottom: none !important;
   background: transparent !important;
   box-shadow: none !important;
 }
@@ -3632,7 +3739,7 @@ a.btn-secondary,
 
 .workspace-intro-modal--formal {
   max-width: 26rem !important;
-  border: 2px solid var(--ink) !important;
+  border: 1px solid var(--ink) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   padding: 1.35rem 1.25rem !important;
@@ -3673,10 +3780,11 @@ a.btn-secondary,
 }
 
 .matter-letterhead {
-  border: 2px solid var(--ink) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--ink) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  background: #fff !important;
+  background: transparent !important;
 }
 
 .matter-letterhead__caption {

@@ -22,10 +22,30 @@ import type { OfficeAnnouncementDraft } from "@/lib/sheets/settings";
 import { OFFICE_TIMEZONE } from "@/lib/office-tasks/date-only";
 import { formatStaffDisplayName } from "@/lib/user-display";
 import { useStaffPresenceHeartbeat } from "@/hooks/useStaffPresenceHeartbeat";
+import {
+  buildClioHref,
+  clioPrimariesForUser,
+  defaultClioSectionForUser,
+  findClioPrimary,
+  readSavedClioNav,
+  type ClioNavId,
+  type ClioPrimary
+} from "@/lib/clio/workspace-nav";
+import { resolveNavUserProfile } from "@/lib/workspace-labels";
 
 const OFFICE_LOCATION = "Philippines";
 const tasksHref = firmAppHref("/app");
 const billingHref = "/billing";
+
+/** Hub overview — Clio primaries staff jump into most often (rail remains full nav). */
+const HUB_PRIMARY_ORDER: ClioNavId[] = [
+  "checklist",
+  "calendar",
+  "matters",
+  "billing",
+  "activities",
+  "documents"
+];
 
 type HubUser = {
   name?: string | null;
@@ -83,8 +103,59 @@ function formatDateLine(date: Date): string {
   });
 }
 
-function launcherClass(base: string, workspace: WorkspaceId, lastWorkspace: WorkspaceId | null): string {
-  return lastWorkspace === workspace ? `${base} office-hub__launcher--last` : base;
+function resolveDeskEntry(billingAccess: boolean): { href: string; workspace: WorkspaceId; label: string } {
+  const saved = readSavedClioNav();
+  if (saved) {
+    const primary = findClioPrimary(saved.nav);
+    if (primary.app === "billing" && !billingAccess) {
+      /* fall through */
+    } else {
+      return {
+        href: buildClioHref(saved.nav, saved.section || primary.defaultSectionId),
+        workspace: primary.app === "billing" ? "billing" : "tasks",
+        label: primary.label
+      };
+    }
+  }
+
+  const last = getAllowedLastWorkspace(billingAccess);
+  if (last === "billing" && billingAccess) {
+    const primary = findClioPrimary("billing");
+    return {
+      href: buildClioHref("billing", primary.defaultSectionId),
+      workspace: "billing",
+      label: primary.label
+    };
+  }
+
+  const primary = findClioPrimary("checklist");
+  return {
+    href: buildClioHref("checklist", primary.defaultSectionId),
+    workspace: "tasks",
+    label: primary.label
+  };
+}
+
+function hubPrimariesForUser(
+  primaries: ClioPrimary[],
+  visibility: Parameters<typeof clioPrimariesForUser>[0]
+): Array<{ id: ClioNavId; label: string; description: string; href: string; workspace: WorkspaceId }> {
+  const byId = new Map(primaries.map((p) => [p.id, p]));
+  const ordered: ClioPrimary[] = [];
+  for (const id of HUB_PRIMARY_ORDER) {
+    const primary = byId.get(id);
+    if (primary) ordered.push(primary);
+  }
+  return ordered.map((primary) => {
+    const section = defaultClioSectionForUser(primary, visibility);
+    return {
+      id: primary.id,
+      label: primary.label,
+      description: primary.description,
+      href: buildClioHref(primary.id, section.id),
+      workspace: primary.app === "billing" ? "billing" : "tasks"
+    };
+  });
 }
 
 export function OfficeHubLauncher({ initialSummary, hubUser }: Props) {
@@ -93,7 +164,11 @@ export function OfficeHubLauncher({ initialSummary, hubUser }: Props) {
   useStaffPresenceHeartbeat({ workspace: "hub" });
 
   const [now, setNow] = useState(() => new Date());
-  const [lastWorkspace, setLastWorkspaceState] = useState<WorkspaceId | null>(null);
+  const [deskEntry, setDeskEntry] = useState<{ href: string; workspace: WorkspaceId; label: string }>(() => ({
+    href: buildClioHref("checklist", "today"),
+    workspace: "tasks",
+    label: "My work"
+  }));
   const [summary, setSummary] = useState<OfficeHubSummary>(initialSummary);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [secretaryNav, setSecretaryNav] = useState(false);
@@ -111,7 +186,7 @@ export function OfficeHubLauncher({ initialSummary, hubUser }: Props) {
     if (!billingAccess && getLastWorkspace() === "billing") {
       setLastWorkspace("tasks");
     }
-    setLastWorkspaceState(getAllowedLastWorkspace(billingAccess));
+    setDeskEntry(resolveDeskEntry(billingAccess));
   }, [billingAccess]);
 
   useEffect(() => {
@@ -169,7 +244,6 @@ export function OfficeHubLauncher({ initialSummary, hubUser }: Props) {
 
   const rememberWorkspace = useCallback((workspace: WorkspaceId) => {
     setLastWorkspace(workspace);
-    setLastWorkspaceState(workspace);
   }, []);
 
   const handleAnnouncementChange = useCallback(
@@ -189,6 +263,31 @@ export function OfficeHubLauncher({ initialSummary, hubUser }: Props) {
 
   const greeting = useMemo(() => greetingFor(now), [now]);
   const clock = useMemo(() => formatClockParts(now), [now]);
+
+  const navProfile = useMemo(
+    () =>
+      resolveNavUserProfile({
+        email: hubUser.email,
+        billingAccess,
+        secretaryNav
+      }),
+    [billingAccess, hubUser.email, secretaryNav]
+  );
+
+  const visibility = useMemo(
+    () => ({
+      billingAccess,
+      navProfile,
+      isAdmin: hubUser.isAdmin,
+      email: hubUser.email
+    }),
+    [billingAccess, hubUser.email, hubUser.isAdmin, navProfile]
+  );
+
+  const deskPrimaries = useMemo(() => {
+    const allowed = clioPrimariesForUser(visibility);
+    return hubPrimariesForUser(allowed, visibility);
+  }, [visibility]);
 
   return (
     <ClientMatterProvider lazyLoadItems>
@@ -246,34 +345,40 @@ export function OfficeHubLauncher({ initialSummary, hubUser }: Props) {
               />
             </section>
 
-            <section
-              className={`office-hub__launchers${billingAccess ? "" : " office-hub__launchers--single"}`}
-              aria-label="Open a workspace"
-            >
+            <section className="office-hub__desk" aria-label="Firm desk">
               <SameWindowLink
-                href={tasksHref}
-                className={launcherClass("office-hub__launcher office-hub__launcher--tasks", "tasks", lastWorkspace)}
-                onClick={() => rememberWorkspace("tasks")}
+                href={deskEntry.href}
+                className="office-hub__desk-enter"
+                onClick={() => rememberWorkspace(deskEntry.workspace)}
               >
-              <div className="office-hub__launcher-inner">
-                <span className="office-hub__launcher-title">Schedule</span>
-                <span className="office-hub__launcher-desc">Deadlines, hearings, assignments</span>
-              </div>
-              <span className="office-hub__launcher-cta">Open</span>
+                <div className="office-hub__desk-enter-inner">
+                  <span className="office-hub__desk-enter-eyebrow">Firm desk</span>
+                  <span className="office-hub__desk-enter-title">Open workspace</span>
+                  <span className="office-hub__desk-enter-desc">
+                    One desk with My work, calendar, matters, and billing — continue in {deskEntry.label}
+                  </span>
+                </div>
+                <span className="office-hub__desk-enter-cta">Open</span>
               </SameWindowLink>
 
-              {billingAccess ? (
-                <SameWindowLink
-                  href={billingHref}
-                  className={launcherClass("office-hub__launcher office-hub__launcher--billing", "billing", lastWorkspace)}
-                  onClick={() => rememberWorkspace("billing")}
-                >
-                  <div className="office-hub__launcher-inner">
-                    <span className="office-hub__launcher-title">Accounts</span>
-                    <span className="office-hub__launcher-desc">Clients, entries, statements</span>
-                  </div>
-                  <span className="office-hub__launcher-cta">Open</span>
-                </SameWindowLink>
+              {deskPrimaries.length ? (
+                <nav className="office-hub__desk-primaries" aria-label="Jump into desk">
+                  <p className="office-hub__desk-primaries-label">Jump to</p>
+                  <ul className="office-hub__desk-primaries-list">
+                    {deskPrimaries.map((item) => (
+                      <li key={item.id}>
+                        <SameWindowLink
+                          href={item.href}
+                          className="office-hub__desk-primary"
+                          title={item.description}
+                          onClick={() => rememberWorkspace(item.workspace)}
+                        >
+                          <span className="office-hub__desk-primary-label">{item.label}</span>
+                        </SameWindowLink>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
               ) : null}
             </section>
 

@@ -1,55 +1,28 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { SameWindowLink } from "@/components/SameWindowLink";
 import { firmAppHref } from "@/lib/firm-apps";
+import { buildClioHref } from "@/lib/clio/workspace-nav";
 
-const OFFICE_LINKS = [
-  {
-    href: firmAppHref("/app"),
-    label: "Schedule",
-    description: "Tasks, hearings, deadlines, and calendar.",
-    match: "/app",
-    billingOnly: false
-  },
-  {
-    href: "/billing",
-    label: "Accounts",
-    description: "Client billing, fees, payments, and statements.",
-    match: "/billing",
-    billingOnly: true
-  }
-] as const;
-
+/** Legacy dual Schedule/Accounts nav — unused in Clio shell; kept as single desk entry if remounted. */
 export function OfficeNav() {
   const pathname = usePathname() || "";
-  const { data: session } = useSession();
-  const billingAccess = session?.user?.billingAccess !== false;
-
-  const links = OFFICE_LINKS.filter((link) => billingAccess || !link.billingOnly);
+  const href = buildClioHref("checklist", "today") || firmAppHref("/app");
+  const active =
+    pathname.startsWith("/app") || pathname.startsWith("/billing") || pathname.startsWith("/matter");
 
   return (
     <div className="office-nav-wrap">
-      <nav className="office-nav office-nav--lines no-print" aria-label="Workspaces">
+      <nav className="office-nav office-nav--lines no-print" aria-label="Firm desk">
         <div className="office-nav__track">
-        {links.map(({ href, label, match }) => {
-          const isMatter = pathname.startsWith("/matter");
-          const active =
-            pathname === match ||
-            pathname.startsWith(`${match}/`) ||
-            (isMatter && match === "/app");
-          return (
-            <SameWindowLink
-              key={match}
-              href={href}
-              className={`office-nav__link ${active ? "office-nav__link--active" : ""}`}
-              aria-current={active ? "page" : undefined}
-            >
-              {label}
-            </SameWindowLink>
-          );
-        })}
+          <SameWindowLink
+            href={href}
+            className={`office-nav__link ${active ? "office-nav__link--active" : ""}`}
+            aria-current={active ? "page" : undefined}
+          >
+            Desk
+          </SameWindowLink>
         </div>
       </nav>
     </div>

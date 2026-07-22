@@ -1,0 +1,824 @@
+/**
+ * Clio shell layout for HA Office — structure + formal letterhead polish.
+ * Colors stay Hernandez & Associates (--ink / --paper / --cream / --soft / --line).
+ * Do not import Practice pastel tokens.
+ *
+ * Direction: fewer boxes; hairline rules only; ink-on-cream; architectural spacing;
+ * full-width sub-tabs; iPhone-friendly touch + safe-area.
+ */
+
+.firm-workspace.firm-clio-shell .office-nav,
+.firm-workspace.firm-clio-shell .firm-workspace-nav:not(.ha-clio-layout__nav) {
+  display: none !important;
+}
+
+.firm-workspace.firm-clio-shell .ha-clio-layout {
+  display: grid;
+  grid-template-columns: minmax(11.5rem, 14.5rem) minmax(0, 1fr);
+  gap: clamp(1rem, 1.75vw, 2rem);
+  align-items: stretch;
+  margin-top: 0.1rem;
+  width: 100%;
+  max-width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (min-width: 1280px) {
+  .firm-workspace.firm-clio-shell .ha-clio-layout {
+    grid-template-columns: minmax(13rem, 16rem) minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1600px) {
+  .firm-workspace.firm-clio-shell .ha-clio-layout {
+    grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
+  }
+}
+
+/* Sticky left rail on desktop — clip (not hidden) on shell so sticky isn’t killed */
+.firm-workspace.firm-clio-shell .ha-clio-layout__nav {
+  position: sticky;
+  top: max(0.75rem, env(safe-area-inset-top, 0px));
+  align-self: start;
+  max-height: calc(
+    100dvh - max(1.5rem, env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px))
+  );
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.firm-workspace.firm-clio-shell .ha-clio-layout__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+
+.firm-workspace.firm-clio-shell .ha-clio-layout__main > .firm-workspace-body {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Chrome under Clio: quieter strip — spacing over rules */
+.firm-workspace.firm-clio-shell .firm-shell-chrome {
+  margin-bottom: 0.65rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.firm-workspace.firm-clio-shell .firm-shell-chrome__top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.firm-workspace.firm-clio-shell .brand-header--shell-flush {
+  margin-bottom: 0.75rem !important;
+}
+
+/* Soften header chrome — single ink rule under letterhead, no framed box */
+.firm-workspace.firm-clio-shell .brand-header__inner {
+  border: none !important;
+  border-bottom: 1px solid var(--ink) !important;
+  padding: 0.75rem var(--ha-shell-pad-x) 0.85rem !important;
+}
+
+.firm-workspace.firm-clio-shell .brand-header__toolbar {
+  border-top: 1px solid var(--line) !important;
+  border-top-width: 1px !important;
+  margin-top: 0.65rem !important;
+  padding-top: 0.65rem !important;
+}
+
+/* Workspace banner — full letterform, no ugly crop on phone */
+.firm-workspace.firm-clio-shell .firm-logo-banner--workspace.firm-logo-banner--cover {
+  aspect-ratio: 1200 / 452;
+  background: #fff;
+}
+
+.firm-workspace.firm-clio-shell .firm-logo-banner--workspace.firm-logo-banner--cover .firm-logo-banner__img {
+  object-fit: contain !important;
+  object-position: center center !important;
+  transform: none !important;
+}
+
+.firm-workspace.firm-clio-shell .firm-workspace-body .card,
+.firm-workspace.firm-clio-shell .firm-workspace-body .stat-tile,
+.firm-workspace.firm-clio-shell .firm-workspace-body .item-card {
+  max-width: 100%;
+}
+
+/* Search: 16px on iOS to avoid zoom; touch-friendly */
+.firm-workspace.firm-clio-shell .global-search__input,
+.firm-workspace.firm-clio-shell .global-search input,
+.firm-workspace.firm-clio-shell .search-hero-input,
+.firm-workspace.firm-clio-shell .search-hero input {
+  font-size: 1rem !important;
+  min-height: var(--touch-min, 44px) !important;
+  line-height: 1.35 !important;
+}
+
+@media (max-width: 900px) {
+  .firm-workspace.firm-clio-shell .ha-clio-layout {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .firm-workspace.firm-clio-shell .ha-clio-layout__nav {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+/* ── Left rail — ink on paper, one soft edge (no double frame) ── */
+.ha-clio-rail {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.ha-clio-rail__mobile-label {
+  display: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ha-clio-rail__mobile-select {
+  display: none;
+  width: 100%;
+  min-height: var(--touch-min, 44px);
+  padding: 0.65rem 0.8rem;
+  border-radius: 0;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem; /* iOS: avoid input zoom */
+  font-weight: 600;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+    linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+  background-position: calc(100% - 1.1rem) calc(50% - 0.15rem),
+    calc(100% - 0.7rem) calc(50% - 0.15rem);
+  background-size: 0.4rem 0.4rem, 0.4rem 0.4rem;
+  background-repeat: no-repeat;
+  padding-right: 2.25rem;
+}
+
+.ha-clio-rail__primary {
+  padding: 0.55rem 0.35rem 0.45rem 0;
+  border-radius: 0;
+  border: none;
+  border-right: 1px solid var(--line);
+  background: transparent;
+}
+
+.ha-clio-rail__primary::before {
+  display: none;
+}
+
+.ha-clio-rail__eyebrow {
+  margin: 0 0 0.45rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ha-clio-rail__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.ha-clio-rail__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 2.35rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0;
+  border: none;
+  border-left: 2px solid transparent;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.25;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.ha-clio-rail__item:hover {
+  background: var(--soft);
+  border-left-color: var(--line);
+  color: var(--ink);
+}
+
+.ha-clio-rail__item--active,
+.ha-clio-rail__item--active:hover {
+  color: var(--paper);
+  background: var(--ink);
+  border-left-color: var(--ink);
+}
+
+.ha-clio-rail__hint {
+  margin: 0;
+  padding: 0.15rem 0.55rem 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .ha-clio-rail__mobile-label,
+  .ha-clio-rail__mobile-select {
+    display: block;
+  }
+
+  .ha-clio-rail__primary,
+  .ha-clio-rail__hint {
+    display: none;
+  }
+}
+
+/* ── Sub-tabs — full-width equal stretch; underline strip, not a boxed nest ── */
+.ha-clio-subtabs {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 0.55rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.ha-clio-subtabs__eyebrow {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ha-clio-subtabs__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+}
+
+.ha-clio-subtabs__list::-webkit-scrollbar {
+  height: 3px;
+}
+
+.ha-clio-subtabs__list::-webkit-scrollbar-thumb {
+  background: var(--line);
+}
+
+.ha-clio-subtabs__item-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+}
+
+.ha-clio-subtabs__item {
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.55rem 0.5rem;
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: transparent;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.ha-clio-subtabs__item:hover {
+  background: var(--soft);
+  color: var(--ink);
+  border-bottom-color: var(--line);
+}
+
+.ha-clio-subtabs__item--active,
+.ha-clio-subtabs__item--active:hover {
+  color: var(--ink);
+  background: transparent;
+  border-bottom-color: var(--ink);
+  font-weight: 700;
+  font-size: 0.84rem;
+}
+
+/* Mobile / iPhone: touch targets, scroll snap, safe-area breathing room */
+@media (max-width: 640px) {
+  .firm-workspace.firm-clio-shell {
+    --ha-shell-pad-x: max(1rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  }
+
+  .firm-workspace.firm-clio-shell .brand-header--shell-flush {
+    margin-bottom: 0.55rem !important;
+  }
+
+  .firm-workspace.firm-clio-shell .firm-shell-chrome__top {
+    gap: 0.65rem;
+  }
+
+  .firm-workspace.firm-clio-shell .brand-header__actions {
+    gap: 0.45rem !important;
+  }
+
+  .firm-workspace.firm-clio-shell .header-app-link,
+  .firm-workspace.firm-clio-shell .brand-header .keyboard-shortcuts-trigger {
+    min-height: var(--touch-min, 44px) !important;
+    min-width: var(--touch-min, 44px) !important;
+  }
+
+  .ha-clio-rail__mobile-select {
+    min-height: var(--touch-min, 44px);
+  }
+
+  .ha-clio-subtabs {
+    margin-bottom: 0.45rem;
+  }
+
+  .ha-clio-subtabs__list {
+    scroll-snap-type: x proximity;
+    /* bleed to shell edges for easier swipe without losing stretch on desktop */
+    margin-left: calc(-1 * var(--ha-shell-pad-x));
+    margin-right: calc(-1 * var(--ha-shell-pad-x));
+    padding-left: var(--ha-shell-pad-x);
+    padding-right: var(--ha-shell-pad-x);
+    width: auto;
+    max-width: none;
+    box-sizing: border-box;
+  }
+
+  .ha-clio-subtabs__item-wrap {
+    flex: 1 0 auto;
+    min-width: min(7.5rem, 42%);
+    scroll-snap-align: start;
+  }
+
+  .ha-clio-subtabs__item {
+    min-height: var(--touch-min, 44px);
+    padding-inline: 0.75rem;
+    font-size: 0.84rem;
+  }
+
+  /* Banner: keep full logo readable on narrow phones */
+  .firm-workspace.firm-clio-shell .firm-logo-banner--workspace.firm-logo-banner--cover {
+    aspect-ratio: auto;
+    min-height: 0;
+  }
+
+  .firm-workspace.firm-clio-shell .firm-logo-banner--workspace.firm-logo-banner--cover .firm-logo-banner__img {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1200 / 452;
+    object-fit: contain !important;
+    transform: none !important;
+  }
+}
+
+/* Sheets / modals inside Clio — usable on iPhone */
+@media (max-width: 640px) {
+  .firm-workspace.firm-clio-shell .item-details-dialog,
+  .firm-workspace.firm-clio-shell .workspace-intro-modal,
+  .firm-workspace.firm-clio-shell dialog,
+  .firm-workspace.firm-clio-shell [role="dialog"] {
+    max-width: calc(100vw - 1.5rem) !important;
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1.5rem) !important;
+    margin: auto !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .firm-workspace.firm-clio-shell .item-details-dialog__done,
+  .firm-workspace.firm-clio-shell .item-details-dialog__close,
+  .firm-workspace.firm-clio-shell .workspace-intro-modal__continue {
+    min-height: var(--touch-min, 44px) !important;
+  }
+
+  .firm-workspace.firm-clio-shell .field,
+  .firm-workspace.firm-clio-shell .field-input,
+  .firm-workspace.firm-clio-shell select.field,
+  .firm-workspace.firm-clio-shell textarea.field {
+    font-size: 1rem !important;
+    min-height: var(--touch-min, 44px) !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Page surfaces under Clio — formal desk: open sections, hairline structure
+   (cards, tables, status, search, panels — no nested frames)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.firm-workspace.firm-clio-shell {
+  background: var(--cream);
+  /* overflow-x: hidden on .firm-workspace breaks sticky; clip does not */
+  overflow-x: clip !important;
+}
+
+.firm-workspace.firm-clio-shell .firm-workspace-body {
+  gap: 1.1rem !important;
+}
+
+/* Cards / panels — open letterhead blocks, not boxed tiles */
+.firm-workspace.firm-clio-shell .card,
+.firm-workspace.firm-clio-shell .card-elevated,
+.firm-workspace.firm-clio-shell .form-panel,
+.firm-workspace.firm-clio-shell .tab-form-panel,
+.firm-workspace.firm-clio-shell .tab-picker-card,
+.firm-workspace.firm-clio-shell .bucket-section,
+.firm-workspace.firm-clio-shell .my-work-feed,
+.firm-workspace.firm-clio-shell .my-work-toolbar,
+.firm-workspace.firm-clio-shell .my-work-sidecard {
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.firm-workspace.firm-clio-shell .view-hero,
+.firm-workspace.firm-clio-shell .tab-view-hero {
+  border: none !important;
+  border-bottom: 1px solid var(--ink) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0.25rem 0 0.9rem !important;
+}
+
+.firm-workspace.firm-clio-shell .view-hero__title,
+.firm-workspace.firm-clio-shell .section-title {
+  font-family: var(--font-display), "Arial Black", Arial, Helvetica, sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: var(--ink) !important;
+}
+
+.firm-workspace.firm-clio-shell .view-eyebrow,
+.firm-workspace.firm-clio-shell .section-label {
+  font-weight: 700 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+
+/* Stat tiles — ledger cells, not mini-cards */
+.firm-workspace.firm-clio-shell .stat-tile,
+.firm-workspace.firm-clio-shell .stat-tile--default,
+.firm-workspace.firm-clio-shell .stat-tile--gold,
+.firm-workspace.firm-clio-shell .stat-tile--green,
+.firm-workspace.firm-clio-shell .stat-tile--blue,
+.firm-workspace.firm-clio-shell .stat-tile--rose,
+.firm-workspace.firm-clio-shell .stat-tile--red,
+.firm-workspace.firm-clio-shell .stat-tile--muted,
+.firm-workspace.firm-clio-shell .stat-tile--sage {
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  padding-left: 0.15rem !important;
+  padding-right: 0.15rem !important;
+}
+
+.firm-workspace.firm-clio-shell .stat-tile:hover,
+.firm-workspace.firm-clio-shell .stat-tile:focus-visible,
+.firm-workspace.firm-clio-shell .stat-tile--clickable:hover {
+  border-color: var(--ink) !important;
+  background: var(--soft) !important;
+  box-shadow: none !important;
+}
+
+/* List / item rows — continuous ledger */
+.firm-workspace.firm-clio-shell .item-card,
+.firm-workspace.firm-clio-shell .item-tone,
+.firm-workspace.firm-clio-shell .my-work-list__row {
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-clio-shell .my-work-list {
+  gap: 0 !important;
+  border-top: 1px solid var(--line);
+}
+
+/* Search hero — open strip, not a framed card */
+.firm-workspace.firm-clio-shell .search-hero,
+.firm-workspace.firm-clio-shell .tasks-search-bar,
+.firm-workspace.firm-clio-shell .global-search {
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-clio-shell .search-hero-input,
+.firm-workspace.firm-clio-shell .global-search__input,
+.firm-workspace.firm-clio-shell .global-search input {
+  border: none !important;
+  border-bottom: 1px solid var(--ink) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-clio-shell .search-hero-input:focus,
+.firm-workspace.firm-clio-shell .global-search__input:focus,
+.firm-workspace.firm-clio-shell .global-search input:focus {
+  border-bottom-color: var(--ink) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Status / hint bars — single hairline, no double frame */
+.firm-workspace.firm-clio-shell .status-bar,
+.firm-workspace.firm-clio-shell .status-bar-ok,
+.firm-workspace.firm-clio-shell .status-bar-error,
+.firm-workspace.firm-clio-shell .status-bar-warn,
+.firm-workspace.firm-clio-shell .hint-bar,
+.firm-workspace.firm-clio-shell .firm-status-line,
+.firm-workspace.firm-clio-shell .firm-status-toast {
+  border: none !important;
+  border-top: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.firm-workspace.firm-clio-shell .status-bar-error,
+.firm-workspace.firm-clio-shell .firm-status-line--error {
+  border-top-color: #7a1f1f !important;
+}
+
+/* Tables — ledger rules only (no outer box stacking) */
+.firm-workspace.firm-clio-shell table,
+.firm-workspace.firm-clio-shell .firm-ledger-table,
+.firm-workspace.firm-clio-shell .attendance-register__table,
+.firm-workspace.firm-clio-shell .pto-schedule__table {
+  border-collapse: collapse !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.firm-workspace.firm-clio-shell th,
+.firm-workspace.firm-clio-shell td {
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-clio-shell thead th,
+.firm-workspace.firm-clio-shell th {
+  font-size: var(--ha-text-meta) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+  border-bottom-color: var(--ink) !important;
+}
+
+.firm-workspace.firm-clio-shell .firm-ledger-table-wrap,
+.firm-workspace.firm-clio-shell .attendance-register__table-wrap,
+.firm-workspace.firm-clio-shell .pto-schedule__table-wrap,
+.firm-workspace.firm-clio-shell .staff-salary__annex-table-wrap {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-clio-shell .firm-ledger-table-wrap::after,
+.firm-workspace.firm-clio-shell .staff-salary__annex-table-wrap::after {
+  display: none !important;
+}
+
+/* Empty / utility — dashed hairline only */
+.firm-workspace.firm-clio-shell .empty-state {
+  border: 1px dashed var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-clio-shell .tab-utility-panel,
+.firm-workspace.firm-clio-shell .tab-info-guide[open] {
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
+  background: transparent !important;
+}
+
+/* Header action chips — ink outline, not soft pills */
+.firm-workspace.firm-clio-shell .header-app-link,
+.firm-workspace.firm-clio-shell .brand-header .keyboard-shortcuts-trigger,
+.firm-workspace.firm-clio-shell .brand-header__workspace-pill {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-clio-shell .brand-header__workspace-pill {
+  border: 1px solid var(--ink) !important;
+  background: transparent !important;
+  color: var(--ink) !important;
+}
+
+.firm-workspace.firm-clio-shell .brand-header__workspace-pill--tasks,
+.firm-workspace.firm-clio-shell .brand-header__workspace-pill--billing {
+  background: var(--ink) !important;
+  color: #fff !important;
+}
+
+/* Nested meta pills on cards — quiet hairline, not badge clusters */
+.firm-workspace.firm-clio-shell .item-card__meta-pill,
+.firm-workspace.firm-clio-shell .item-card__status,
+.firm-workspace.firm-clio-shell .item-card__next,
+.firm-workspace.firm-clio-shell .my-work-list__kind,
+.firm-workspace.firm-clio-shell .my-work-list__priority {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Rail: keep single right hairline; stronger ink active (manly desk mark) */
+.firm-workspace.firm-clio-shell .ha-clio-rail__primary {
+  border-right: 1px solid var(--line);
+  padding-right: 0.65rem;
+}
+
+.firm-workspace.firm-clio-shell .ha-clio-rail__item {
+  letter-spacing: 0.02em;
+}
+
+.firm-workspace.firm-clio-shell .ha-clio-rail__item--active {
+  font-weight: 700;
+}
+
+/* Sub-tabs remain full-width stretch; slightly stronger active rule */
+.firm-workspace.firm-clio-shell .ha-clio-subtabs__list {
+  border-bottom: 1px solid var(--line);
+}
+
+.firm-workspace.firm-clio-shell .ha-clio-subtabs__item--active {
+  border-bottom-width: 2px;
+  border-bottom-color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .firm-workspace.firm-clio-shell .card,
+  .firm-workspace.firm-clio-shell .card-elevated,
+  .firm-workspace.firm-clio-shell .form-panel,
+  .firm-workspace.firm-clio-shell .tab-form-panel {
+    padding-top: 0.95rem !important;
+    padding-bottom: 0.95rem !important;
+  }
+
+  .firm-workspace.firm-clio-shell .stat-tile {
+    min-height: var(--touch-min, 44px);
+  }
+}
+
+
+/* ── Day schedule (Clio daily calendar) ── */
+.day-schedule-view {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+.day-schedule-view__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.day-schedule-view__grid {
+  display: grid;
+  gap: 0;
+  border: 1px solid color-mix(in srgb, var(--ink, #1a1a1a) 14%, transparent);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #fff;
+  width: 100%;
+}
+
+.day-schedule-view__row {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink, #1a1a1a) 10%, transparent);
+  min-height: 3.25rem;
+}
+
+.day-schedule-view__row:last-child {
+  border-bottom: none;
+}
+
+.day-schedule-view__hour {
+  padding: 0.55rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--muted, #5c6773);
+  background: color-mix(in srgb, var(--surface, #f4f6f8) 80%, #fff);
+  border-right: 1px solid color-mix(in srgb, var(--ink, #1a1a1a) 10%, transparent);
+}
+
+.day-schedule-view__slot {
+  padding: 0.35rem 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: flex-start;
+}
+
+.day-schedule-view__empty {
+  color: color-mix(in srgb, var(--muted, #5c6773) 55%, transparent);
+  font-size: 0.85rem;
+}
+
+.day-schedule-view__card {
+  flex: 1 1 10rem;
+  max-width: 100%;
+  padding: 0.4rem 0.55rem;
+  border-radius: 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--ink, #1a1a1a) 16%, transparent);
+  background: color-mix(in srgb, var(--gold, #b8913d) 10%, #fff);
+}
+
+.day-schedule-view__card-title {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--ink, #15202b);
+}
+
+.day-schedule-view__card-meta {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted, #5c6773);
+}
+
+.day-schedule-view__untimed {
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px dashed color-mix(in srgb, var(--ink, #1a1a1a) 22%, transparent);
+  background: color-mix(in srgb, var(--surface, #f4f6f8) 70%, #fff);
+}
+
+@media (max-width: 640px) {
+  .day-schedule-view__row {
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+  }
+}

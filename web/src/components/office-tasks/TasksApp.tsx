@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { EmployeeTrackerView } from "@/components/office-tasks/EmployeeTrackerView";
 import { MyWorkTodayFeed } from "@/components/office-tasks/MyWorkTodayFeed";
 import { TodayWorkStatGrid } from "@/components/office-tasks/TodayWorkStatGrid";
@@ -13,8 +13,11 @@ import { MonthlyCalendarView } from "@/components/office-tasks/MonthlyCalendarVi
 import { SearchView } from "@/components/office-tasks/SearchView";
 import { MyWorkBillingStrip } from "@/components/MyWorkBillingStrip";
 import { FirmWorkspaceShell } from "@/components/FirmWorkspaceShell";
+import { ClioRail } from "@/components/clio/ClioRail";
+import { ClioSubTabs } from "@/components/clio/ClioSubTabs";
 import { ToolsPanel } from "@/components/office-tasks/ToolsPanel";
 import { WeeklyPlannerView } from "@/components/office-tasks/WeeklyPlannerView";
+import { DayScheduleView } from "@/components/office-tasks/DayScheduleView";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import type { PrepChecklistMutation } from "@/lib/office-tasks/prep-checklist-storage";
 import { computeTodayCounts, filterTodayLists } from "@/lib/office-tasks/today-lists";
@@ -26,7 +29,6 @@ import type { EditableItem } from "@/components/office-tasks/EditItemDialog";
 import { CorrespondenceDraftPanel } from "@/components/CorrespondenceDraftPanel";
 import { CalendarSyncStatus } from "@/components/CalendarSyncStatus";
 import { FirmPrintLetterhead } from "@/components/FirmPrintLetterhead";
-import { NavTabsScroll } from "@/components/NavTabsScroll";
 import { UndoBar } from "@/components/UndoBar";
 import { useUndoBar } from "@/hooks/useUndoBar";
 import { EmptyState, ViewHero } from "@/components/office-tasks/PremiumUI";
@@ -49,6 +51,15 @@ import { ClientMatterProvider } from "@/components/office-tasks/ClientMatterPane
 import { setLastWorkspace } from "@/lib/office-hub/storage";
 import { getSavedTasksTab, saveTasksTab, type SavedTasksTab } from "@/lib/staff-prefs";
 import { TASKS_TAB_LABELS, isAllowedTasksTab, resolveNavUserProfile, tasksNavTabsForUser } from "@/lib/workspace-labels";
+import {
+  findClioPrimary,
+  findClioSection,
+  HA_BILLING_PATH,
+  parseClioNavParam,
+  resolveClioFromTasksTab,
+  saveClioNav
+} from "@/lib/clio/workspace-nav";
+import { firmAppHref, getTasksAppUrl } from "@/lib/firm-apps";
 import { useFirmStatusReport } from "@/hooks/useFirmStatusReport";
 import { formatSuccessReport } from "@/lib/firm-status-report";
 import { BillingTabGuide, BillingTabGuideText, TabPageHeader } from "@/components/BillingTabGuide";
@@ -155,8 +166,13 @@ type IntroState = "pending" | "open" | "closed";
 export function TasksApp() {
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const billingPath = HA_BILLING_PATH;
+  const tasksPath = firmAppHref("/app", getTasksAppUrl()) || "/app";
   const [introState, setIntroState] = useState<IntroState>("pending");
   const [tab, setTab] = useState<Tab>("today");
+  /** Clio Calendar Day/Week/Month — day mounts hourly DayScheduleView on the week tab. */
+  const [calendarMode, setCalendarMode] = useState<"day" | "week" | "month">("week");
   const [data, setData] = useState<HomeData | null>(null);
   const [lastLoadStatus, setLastLoadStatus] = useState<number | undefined>(undefined);
   const [lastLoadError, setLastLoadError] = useState<string | null>(null);
@@ -248,6 +264,9 @@ export function TasksApp() {
         : "today";
       setTab(allowed);
       saveTasksTab(allowed);
+      // Non-Clio callers (empty states, post-save) land on week planner / month — not day schedule.
+      if (allowed === "week") setCalendarMode("week");
+      else if (allowed === "calendar") setCalendarMode("month");
     },
     [billingAccess, navProfile, canViewLiaisonConfidentialEarly, canViewPresenceTab]
   );
@@ -405,10 +424,13 @@ export function TasksApp() {
   }, [tab]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(searchParams.toString());
     const q = params.get("q")?.trim() || "";
     const clientParam = params.get("client")?.trim().toUpperCase();
     const eventKindParam = params.get("eventKind");
+    const clioNav = parseClioNavParam(params.get("nav"));
+    const clioSection = params.get("section")?.trim() || "";
+    const calParam = params.get("cal")?.trim().toLowerCase() || "";
 
     if (clientParam) setLetterClientCode(clientParam);
     if (eventKindParam === "filings" || eventKindParam === "appearances") {
@@ -420,15 +442,49 @@ export function TasksApp() {
 
     if (introGate) return;
 
+    const tabOpts = {
+      canViewLiaisonTab: canViewLiaisonConfidentialEarly,
+      canViewPresenceTab
+    };
     const tabParam = params.get("tab");
-    if (tabParam && isAllowedTasksTab(tabParam as Tab, billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidentialEarly, canViewPresenceTab })) {
+
+    if (calParam === "day" || calParam === "week" || calParam === "month") {
+      setCalendarMode(calParam);
+    } else if (clioSection === "day" || clioSection === "week" || clioSection === "month") {
+      setCalendarMode(clioSection);
+    }
+
+    if (clioNav) {
+      const primary = findClioPrimary(clioNav);
+      const section = findClioSection(primary, clioSection);
+      if (section.tasksTab && isAllowedTasksTab(section.tasksTab as Tab, billingAccess, navProfile, tabOpts)) {
+        selectTab(section.tasksTab as Tab);
+        if (section.calendarMode) setCalendarMode(section.calendarMode);
+        saveClioNav(clioNav, section.id);
+        return;
+      }
+    }
+
+    if (tabParam && isAllowedTasksTab(tabParam as Tab, billingAccess, navProfile, tabOpts)) {
       selectTab(tabParam as Tab);
+      if (calParam === "day" || calParam === "week" || calParam === "month") {
+        setCalendarMode(calParam);
+      }
     } else {
       const saved = getSavedTasksTab();
-      if (saved && isAllowedTasksTab(saved, billingAccess, navProfile, { canViewLiaisonTab: canViewLiaisonConfidentialEarly, canViewPresenceTab })) selectTab(saved);
+      if (saved && isAllowedTasksTab(saved, billingAccess, navProfile, tabOpts)) selectTab(saved);
       else selectTab("today");
     }
-  }, [billingAccess, introGate, load, navProfile, selectTab, canViewLiaisonConfidentialEarly, canViewPresenceTab]);
+  }, [
+    billingAccess,
+    introGate,
+    load,
+    navProfile,
+    selectTab,
+    canViewLiaisonConfidentialEarly,
+    canViewPresenceTab,
+    searchParams
+  ]);
 
   function itemActionKey(item: ItemSummary) {
     return officeItemKey(item);
@@ -1126,6 +1182,22 @@ export function TasksApp() {
   const introContent = useMemo(() => getTasksIntroContent(navTabs), [navTabs]);
   const tabShortcuts = useMemo(() => buildTabShortcutHelp(navTabs), [navTabs]);
 
+  const clioActive = useMemo(() => {
+    const fromUrl = parseClioNavParam(searchParams.get("nav"));
+    const sectionFromUrl = searchParams.get("section")?.trim();
+    if (fromUrl) {
+      return {
+        nav: fromUrl,
+        section: sectionFromUrl || findClioPrimary(fromUrl).defaultSectionId
+      };
+    }
+    return resolveClioFromTasksTab(tab as SavedTasksTab, calendarMode);
+  }, [searchParams, tab, calendarMode]);
+
+  useEffect(() => {
+    saveClioNav(clioActive.nav, clioActive.section);
+  }, [clioActive.nav, clioActive.section]);
+
   const handleIntroClose = useCallback(() => {
     markWorkspaceIntroSeen("tasks", email);
     setIntroState("closed");
@@ -1284,7 +1356,7 @@ export function TasksApp() {
         }}
         statusMessage={statusMsg || undefined}
         statusVariant={statusMsg ? statusVariant : "ok"}
-        breadcrumbPage={TASKS_TAB_LABELS[tab as SavedTasksTab] ?? "Tasks"}
+        breadcrumbPage={tab === "week" && calendarMode === "day" ? "Day" : TASKS_TAB_LABELS[tab as SavedTasksTab] ?? "Tasks"}
         chromeTopBanner={
           deleteUndo.pending ? (
             <UndoBar
@@ -1308,13 +1380,30 @@ export function TasksApp() {
           ) : null
         }
         navTabs={
-          <NavTabsScroll
-            tabs={navTabs}
-            activeId={tab}
-            onSelect={selectTab}
-            disabled={busy}
-            workspace="tasks"
-            ariaLabel="Tasks navigation"
+          <ClioRail
+            activeNav={clioActive.nav}
+            billingPath={billingPath}
+            tasksPath={tasksPath}
+            isAdmin={isAdmin}
+            billingAccess={billingAccess}
+            navProfile={navProfile}
+            email={email}
+            canViewLiaisonTab={canViewLiaisonConfidential}
+            canViewPresenceTab={canViewPresenceTab}
+          />
+        }
+        clioSectionTabs={
+          <ClioSubTabs
+            activeNav={clioActive.nav}
+            activeSection={clioActive.section}
+            isAdmin={isAdmin}
+            billingAccess={billingAccess}
+            navProfile={navProfile}
+            email={email}
+            canViewLiaisonTab={canViewLiaisonConfidential}
+            canViewPresenceTab={canViewPresenceTab}
+            billingPath={billingPath}
+            tasksPath={tasksPath}
           />
         }
         tabShortcuts={tabShortcuts}
@@ -1672,7 +1761,40 @@ export function TasksApp() {
         </>
       )}
 
-      {tab === "week" && data && (
+      {tab === "week" && data && calendarMode === "day" ? (
+        <>
+          <TabPageHeader resetKey="day">
+            <BillingTabGuide title="About day schedule">
+              <BillingTabGuideText>
+                Hourly lanes for one day — hearings and meetings with start times, plus untimed items.
+              </BillingTabGuideText>
+              <BillingTabGuideText>
+                Switch to <strong>Week</strong> or <strong>Month</strong> in the left rail for a wider view.
+              </BillingTabGuideText>
+            </BillingTabGuide>
+          </TabPageHeader>
+          <TabPageBody>
+            <DayScheduleView
+              items={scheduleItems}
+              today={today}
+              initialDate={today}
+              onToggleDone={toggleItemDone}
+              onSetStatus={updateItemStatus}
+              onResetWithDate={resetItemWithDate}
+              onDeleteItem={deleteItem}
+              onUpdateNextAction={updateItemNextAction}
+              onSaveEdit={saveItemEdit}
+              onCourtConfirmed={markCourtConfirmed}
+              onMarkSubmitted={markEventSubmitted}
+              onConfirmParentFiled={confirmParentFiled}
+              formOptions={opts}
+              togglingKey={togglingKey}
+            />
+          </TabPageBody>
+        </>
+      ) : null}
+
+      {tab === "week" && data && calendarMode !== "day" ? (
         <>
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="Week planner">
@@ -1704,7 +1826,7 @@ export function TasksApp() {
         />
           </TabPageBody>
         </>
-      )}
+      ) : null}
 
       {tab === "team" && data && (
         <>

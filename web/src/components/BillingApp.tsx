@@ -1,13 +1,14 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFocusOnMount } from "@/hooks/useFocusOnMount";
 import type { ClientSummary, NewClientPayload } from "@/lib/gl-config";
 import { GL, formatPeso } from "@/lib/gl-config";
 import { FirmWorkspaceShell } from "@/components/FirmWorkspaceShell";
-import { NavTabsScroll } from "@/components/NavTabsScroll";
+import { ClioRail } from "@/components/clio/ClioRail";
+import { ClioSubTabs } from "@/components/clio/ClioSubTabs";
 import { HomeDashboard, type HomeNavigate } from "@/components/HomeDashboard";
 import { MatterIntakeWizard } from "@/components/MatterIntakeWizard";
 import { ClientsDirectory } from "@/components/ClientsDirectory";
@@ -24,7 +25,7 @@ import { BillingHistoryPanel } from "@/components/BillingHistoryPanel";
 import { ClientMatterProvider } from "@/components/office-tasks/ClientMatterPanel";
 import { SameWindowLink } from "@/components/SameWindowLink";
 import { setLastWorkspace } from "@/lib/office-hub/storage";
-import { firmAppHref } from "@/lib/firm-apps";
+import { firmAppHref, getTasksAppUrl } from "@/lib/firm-apps";
 import { useMatterNavigation } from "@/hooks/useMatterNavigation";
 import { getSavedBillingPage, saveBillingPage, type SavedBillingPage } from "@/lib/staff-prefs";
 import { parseBillingDeepLink } from "@/lib/billing-routes";
@@ -36,6 +37,15 @@ import {
   isAllowedBillingPage,
   resolveNavUserProfile
 } from "@/lib/workspace-labels";
+import {
+  findClioPrimary,
+  findClioSection,
+  HA_BILLING_PATH,
+  parseClioNavParam,
+  readSavedClioNav,
+  resolveClioFromBillingPage,
+  saveClioNav
+} from "@/lib/clio/workspace-nav";
 import { matterHref } from "@/lib/matter-routes";
 import { BillingTabGuide, BillingTabGuideText, TabPageHeader } from "@/components/BillingTabGuide";
 import { TabPageBody, TabPickerCard } from "@/components/TabPageLayout";
@@ -95,6 +105,9 @@ type IntroState = "pending" | "open" | "closed";
 export function BillingApp() {
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const billingPath = HA_BILLING_PATH;
+  const tasksPath = firmAppHref("/app", getTasksAppUrl()) || "/app";
   const [introState, setIntroState] = useState<IntroState>("pending");
   const { goTo } = useMatterNavigation();
   const [clients, setClients] = useState<ClientSummary[]>([]);
@@ -168,6 +181,8 @@ export function BillingApp() {
       }
       setPage(next);
       saveBillingPage(next);
+      const clio = resolveClioFromBillingPage(next);
+      saveClioNav(clio.nav, clio.section);
     },
     [adminResolved, canManageTeamRoster, email, isAdmin, navProfile, onStatus]
   );
@@ -210,8 +225,10 @@ export function BillingApp() {
   useEffect(() => {
     if (introGate) return;
 
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(searchParams.toString());
     const deepLink = parseBillingDeepLink(params);
+    const clioNav = parseClioNavParam(params.get("nav"));
+    const clioSection = params.get("section")?.trim() || "";
 
     if (params.get("page")?.trim() === "correspondence") {
       router.replace(
@@ -221,7 +238,22 @@ export function BillingApp() {
       return;
     }
 
-    if (deepLink?.page) {
+    if (clioNav) {
+      const primary = findClioPrimary(clioNav);
+      const section = findClioSection(primary, clioSection);
+      if (section.billingPage) {
+        const nextPage = section.billingPage;
+        if (
+          isAllowedBillingPage(nextPage, isAdmin, navProfile, email, canManageTeamRoster) ||
+          nextPage === "home" ||
+          nextPage === "clients"
+        ) {
+          setPage(nextPage);
+          saveBillingPage(nextPage);
+        }
+        saveClioNav(clioNav, section.id);
+      }
+    } else if (deepLink?.page) {
       setPage(deepLink.page);
       saveBillingPage(deepLink.page);
     } else {
@@ -232,11 +264,35 @@ export function BillingApp() {
     if (deepLink?.clientCode) setClientCode(deepLink.clientCode);
     if (deepLink?.docTab) setDocTab(deepLink.docTab);
     if (deepLink?.billingTab) setTab(deepLink.billingTab);
+  }, [
+    introGate,
+    router,
+    searchParams,
+    isAdmin,
+    navProfile,
+    email,
+    canManageTeamRoster
+  ]);
 
-    if (params.toString()) {
-      router.replace("/billing", { scroll: false });
+  const clioActive = useMemo(() => {
+    const fromUrl = parseClioNavParam(searchParams.get("nav"));
+    const sectionFromUrl = searchParams.get("section")?.trim();
+    if (fromUrl) {
+      return {
+        nav: fromUrl,
+        section: sectionFromUrl || findClioPrimary(fromUrl).defaultSectionId
+      };
     }
-  }, [introGate, router]);
+    const saved = readSavedClioNav();
+    if (saved) {
+      const primary = findClioPrimary(saved.nav);
+      const section = findClioSection(primary, saved.section);
+      if (!section.billingPage || section.billingPage === page) {
+        return saved;
+      }
+    }
+    return resolveClioFromBillingPage(page as SavedBillingPage);
+  }, [page, searchParams]);
 
   useEffect(() => {
     if (session?.user?.isAdmin) {
@@ -562,14 +618,29 @@ export function BillingApp() {
         tabShortcuts={tabShortcuts}
         tabShortcutsTitle="Billing tabs"
         onReplayWorkspaceGuide={replayWorkspaceGuide}
+        clioSectionTabs={
+          <ClioSubTabs
+            activeNav={clioActive.nav}
+            activeSection={clioActive.section}
+            isAdmin={isAdmin}
+            billingAccess={billingAccess}
+            navProfile={navProfile}
+            email={email}
+            canManageTeamRoster={canManageTeamRoster}
+            billingPath={billingPath}
+            tasksPath={tasksPath}
+          />
+        }
         navTabs={
-          <NavTabsScroll
-            tabs={billingNavTabs}
-            activeId={page}
-            onSelect={goToPage}
-            disabled={busy}
-            workspace="billing"
-            ariaLabel="Billing navigation"
+          <ClioRail
+            activeNav={clioActive.nav}
+            billingPath={billingPath}
+            tasksPath={tasksPath}
+            isAdmin={isAdmin}
+            billingAccess={billingAccess}
+            navProfile={navProfile}
+            email={email}
+            canManageTeamRoster={canManageTeamRoster}
           />
         }
       >

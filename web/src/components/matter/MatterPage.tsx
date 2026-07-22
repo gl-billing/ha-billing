@@ -10,6 +10,8 @@ import { PaymentRequestPanel } from "@/components/PaymentRequestPanel";
 import { SameWindowLink } from "@/components/SameWindowLink";
 import { FirmPrintLetterhead } from "@/components/FirmPrintLetterhead";
 import { FirmWorkspaceShell } from "@/components/FirmWorkspaceShell";
+import { ClioRail } from "@/components/clio/ClioRail";
+import { ClioSubTabs } from "@/components/clio/ClioSubTabs";
 import { ClientMatterProvider, useClientMatter } from "@/components/office-tasks/ClientMatterPanel";
 import { getFirmMatterByCode } from "@/lib/office-tasks/firm-matters";
 import { ItemCard, type ItemSummary } from "@/components/office-tasks/ItemCard";
@@ -68,6 +70,11 @@ import {
 import { todayYmd } from "@/lib/office-tasks/schedule";
 import { BirthdayGreetingDialog } from "@/components/matter/BirthdayGreetingDialog";
 import { resolveSessionStaffName } from "@/lib/staff-session";
+import { resolveNavUserProfile } from "@/lib/workspace-labels";
+import { HA_BILLING_PATH } from "@/lib/clio/workspace-nav";
+import { firmAppHref, getTasksAppUrl } from "@/lib/firm-apps";
+import { canViewLiaisonTab } from "@/lib/app-access";
+import { isFirmOwnerEmail } from "@/lib/firm-team-config";
 import type { EmployeeRecord } from "@/lib/office-tasks/sheets/employees";
 
 type Props = {
@@ -199,6 +206,21 @@ export function MatterPage({ matterCode, user }: Props) {
   const searchParams = useSearchParams();
   const billingAccess = user?.billingAccess !== false;
   const email = user?.email?.trim() || "";
+  const billingPath = HA_BILLING_PATH;
+  const tasksPath = firmAppHref("/app", getTasksAppUrl()) || "/app";
+  const navProfile = resolveNavUserProfile({
+    email,
+    billingAccess,
+    secretaryNav: user?.secretaryNav
+  });
+  const canViewPresenceTab = isFirmOwnerEmail(email);
+  const canViewLiaisonConfidential = canViewLiaisonTab({
+    email,
+    staffName: user?.displayName || user?.name || "",
+    isAdmin: user?.isAdmin === true
+  });
+  const isAdmin = user?.isAdmin === true;
+  const canManageTeamRoster = user?.canManageTeamRoster === true;
 
   const billingSection = parseBillingSection(searchParams.get("section"));
   const wantEditClient = searchParams.get("edit") === "1";
@@ -1026,6 +1048,35 @@ export function MatterPage({ matterCode, user }: Props) {
       statusMessage={statusMsg || undefined}
       statusVariant={statusIsError ? "error" : "ok"}
       chromeTopBanner={undefined}
+      clioSectionTabs={
+        <ClioSubTabs
+          activeNav="matters"
+          activeSection="all"
+          isAdmin={isAdmin}
+          billingAccess={billingAccess}
+          navProfile={navProfile}
+          email={email}
+          canManageTeamRoster={canManageTeamRoster}
+          canViewLiaisonTab={canViewLiaisonConfidential}
+          canViewPresenceTab={canViewPresenceTab}
+          billingPath={billingPath}
+          tasksPath={tasksPath}
+        />
+      }
+      navTabs={
+        <ClioRail
+          activeNav="matters"
+          billingPath={billingPath}
+          tasksPath={tasksPath}
+          isAdmin={isAdmin}
+          billingAccess={billingAccess}
+          navProfile={navProfile}
+          email={email}
+          canManageTeamRoster={canManageTeamRoster}
+          canViewLiaisonTab={canViewLiaisonConfidential}
+          canViewPresenceTab={canViewPresenceTab}
+        />
+      }
     >
       <div className="matter-page">
         <MatterStickyBar

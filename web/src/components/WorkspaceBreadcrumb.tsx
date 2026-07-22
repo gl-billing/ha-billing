@@ -3,8 +3,8 @@
 import type { FirmWorkspace } from "@/components/FirmWorkspaceShell";
 
 const WORKSPACE_LABELS: Record<FirmWorkspace, string> = {
-  billing: "Accounts",
-  tasks: "Schedule"
+  billing: "Office",
+  tasks: "Office"
 };
 
 type Props = {

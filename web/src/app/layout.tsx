@@ -6,6 +6,7 @@ import { isNextAuthSecretConfigured } from "@/lib/auth-env";
 import "./globals.css";
 import "./ui-premium.css";
 import "./ha-theme.css";
+import "./ha-clio-shell.css";
 
 const uiSans = Inter({
   subsets: ["latin"],
