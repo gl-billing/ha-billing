@@ -337,7 +337,7 @@ export function FirmFinancesPanel({ busy, onStatus }: Props) {
           />
         ) : null}
 
-        {reportLoading ? <Skeleton className="h-36 w-full rounded-2xl" /> : null}
+        {reportLoading ? <Skeleton className="h-36 w-full" /> : null}
 
         {report && !reportLoading ? (
           <div className="firm-finances__report-inner">

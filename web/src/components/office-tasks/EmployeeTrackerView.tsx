@@ -161,8 +161,8 @@ export function EmployeeTrackerView({
               key={row.name}
               type="button"
               onClick={() => setSelectedName(row.name)}
-              className={`employee-card rounded-2xl border p-4 text-left ${
-                active ? "employee-card--active border-gold" : "border-line/80 bg-white/90 hover:border-gold/40 hover:shadow-md"
+              className={`employee-card border p-4 text-left ${
+                active ? "employee-card--active border-ink" : "border-line/80 bg-white hover:border-ink/40"
               }`}
             >
               <div className="flex items-center gap-3">

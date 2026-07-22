@@ -500,7 +500,7 @@ export function CorrespondenceDraftPanel({
         </button>
         <button
           type="button"
-          className="w-full min-h-[42px] rounded-md border border-line bg-gradient-to-b from-white to-[#f4f1eb] text-xs font-extrabold text-ink disabled:opacity-50"
+          className="letterhead-action-btn w-full disabled:opacity-50"
           disabled={actionsDisabled || !canSend}
           onClick={() => void deliver("draft")}
         >

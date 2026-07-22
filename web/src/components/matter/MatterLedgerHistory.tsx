@@ -161,7 +161,7 @@ export function MatterLedgerHistory({
               return (
                 <article
                   key={entry.sheetRow}
-                  className={`matter-ledger-history__row rounded-md border border-line/70 bg-[#faf9f7] p-2.5 ${isVoid ? "opacity-60" : ""}`}
+                  className={`matter-ledger-history__row border border-line/70 p-2.5 ${isVoid ? "opacity-60" : ""}`}
                 >
                   <div className="mb-1 flex items-start justify-between gap-2">
                     <div>

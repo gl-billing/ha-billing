@@ -1,0 +1,525 @@
+/**
+ * Letterhead polish — monochrome ink-on-stone overrides for firm surfaces.
+ * Loaded last; scopes legacy gold/gradient rules from globals.css without editing that file.
+ */
+
+/* ═══════════════════════════════════════════════════════════════
+   1. KILL GOLD-GRADIENT BLEED (firm workspace + hub + matter)
+   ═══════════════════════════════════════════════════════════════ */
+.firm-workspace.firm-clio-shell,
+.firm-workspace.firm-clio-shell .matter-page,
+.office-hub-page {
+  --letterhead-ink: #0a0a0a;
+  --letterhead-muted: #454545;
+  --letterhead-line: rgba(10, 10, 10, 0.14);
+  --letterhead-paper: #ffffff;
+  --letterhead-stone: #f4f3f0;
+  --letterhead-danger: #8b1e1e;
+  --letterhead-warn-bg: #faf6ee;
+  --letterhead-warn-border: rgba(10, 10, 10, 0.22);
+}
+
+.firm-workspace.firm-clio-shell .card,
+.firm-workspace.firm-clio-shell .stat-tile,
+.firm-workspace.firm-clio-shell .item-card,
+.firm-workspace.firm-clio-shell .my-work-panel,
+.firm-workspace.firm-clio-shell .tools-panel__section,
+.firm-workspace.firm-clio-shell .document-review-card,
+.firm-workspace.firm-clio-shell .matter-intake-wizard,
+.firm-workspace.firm-clio-shell .matter-staff-actions__card,
+.firm-workspace.firm-clio-shell .notarization-panel__add-form,
+.firm-workspace.firm-clio-shell .notarization-panel__register-card,
+.firm-workspace.firm-clio-shell .walk-in-panel__add-form,
+.firm-workspace.firm-clio-shell .field-dispatch-panel__section,
+.firm-workspace.firm-clio-shell .spot-billing-panel__section,
+.firm-workspace.firm-clio-shell .client-profile-hero,
+.firm-workspace.firm-clio-shell .reports-panel .card,
+.firm-workspace.firm-clio-shell .follow-up-panel,
+.firm-workspace.firm-clio-shell .reminder-panel,
+.firm-workspace.firm-clio-shell .health-checks-panel,
+.firm-workspace.firm-clio-shell .employee-card,
+.firm-workspace.firm-clio-shell .partner-weekly-report__stat-box,
+.office-hub-page .my-work-hub-summary,
+.office-hub-page .office-hub__desk-enter {
+  border-radius: 0 !important;
+  border-color: var(--letterhead-line) !important;
+  background: var(--letterhead-paper) !important;
+  box-shadow: 0 1px 0 rgba(10, 10, 10, 0.04) !important;
+}
+
+.firm-workspace.firm-clio-shell [class*="shadow-lift"],
+.firm-workspace.firm-clio-shell [class*="shadow-md"] {
+  box-shadow: 0 1px 0 rgba(10, 10, 10, 0.04) !important;
+}
+
+.firm-workspace.firm-clio-shell .bg-gradient-to-br,
+.firm-workspace.firm-clio-shell .bg-gradient-to-b,
+.firm-workspace.firm-clio-shell .bg-gradient-to-r,
+.firm-workspace.firm-clio-shell .bg-gradient-to-t,
+.firm-workspace.firm-clio-shell [class*="from-[#faf6ee]"],
+.firm-workspace.firm-clio-shell [class*="from-[#1a1612]"],
+.firm-workspace.firm-clio-shell [class*="to-[#3d3018]"],
+.firm-workspace.firm-clio-shell [class*="to-[#f4f1eb]"],
+.firm-workspace.firm-clio-shell [class*="bg-[#faf9f7]"],
+.firm-workspace.firm-clio-shell [class*="bg-[#fffef9]"],
+.firm-workspace.firm-clio-shell [class*="bg-[#faf8f4]"],
+.firm-workspace.firm-clio-shell [class*="bg-[#f5f3ef]"],
+.firm-workspace.firm-clio-shell [class*="bg-amber-50"],
+.firm-workspace.firm-clio-shell [class*="bg-red-50"] {
+  background: var(--letterhead-paper) !important;
+  background-image: none !important;
+}
+
+.firm-workspace.firm-clio-shell .btn-primary,
+.firm-workspace.firm-clio-shell .btn-gold,
+.firm-workspace.firm-clio-shell a.btn-primary,
+.firm-workspace.firm-clio-shell a.btn-gold {
+  border-radius: 0 !important;
+  background: var(--letterhead-ink) !important;
+  background-image: none !important;
+  color: #fff !important;
+  border: 1px solid var(--letterhead-ink) !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-clio-shell .btn-secondary {
+  border-radius: 0 !important;
+  background: var(--letterhead-paper) !important;
+  border: 1px solid var(--letterhead-line) !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-clio-shell button[class*="bg-gradient"],
+.firm-workspace.firm-clio-shell .client-profile-hero__action-btn--gold {
+  background: var(--letterhead-paper) !important;
+  background-image: none !important;
+  border: 1px solid var(--letterhead-line) !important;
+  border-radius: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   2. CLIENT PROFILE & BILLING DETAIL
+   ═══════════════════════════════════════════════════════════════ */
+.firm-workspace.firm-clio-shell .client-profile-hero__balance-value {
+  color: var(--letterhead-ink) !important;
+  font-family: var(--font-display), "Arial Black", Arial, sans-serif;
+  letter-spacing: 0.04em;
+}
+
+.firm-workspace.firm-clio-shell .client-profile-hero__balance-label,
+.firm-workspace.firm-clio-shell .client-profile-hero__balance-status {
+  font-size: var(--ha-text-meta, 0.8125rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--letterhead-muted);
+}
+
+.firm-workspace.firm-clio-shell .client-profile-hero__action-btn {
+  border-radius: 0 !important;
+  min-height: var(--touch-min, 44px);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.firm-workspace.firm-clio-shell .letterhead-warn,
+.firm-workspace.firm-clio-shell .card.border-amber-500,
+.firm-workspace.firm-clio-shell .card[class*="border-amber"],
+.firm-workspace.firm-clio-shell .card[class*="bg-amber"] {
+  border-left: 3px solid var(--letterhead-ink) !important;
+  border-color: var(--letterhead-warn-border) !important;
+  background: var(--letterhead-warn-bg) !important;
+  color: var(--letterhead-ink) !important;
+}
+
+.firm-workspace.firm-clio-shell .letterhead-danger,
+.firm-workspace.firm-clio-shell .card[class*="border-red"],
+.firm-workspace.firm-clio-shell .card[class*="bg-red"] {
+  border-left: 3px solid var(--letterhead-danger) !important;
+  background: #fff !important;
+}
+
+.firm-workspace.firm-clio-shell .client-profile-view-toggle button {
+  border-radius: 0 !important;
+  font-size: var(--ha-text-meta, 0.8125rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.firm-workspace.firm-clio-shell .client-profile-view-toggle button[class*="bg-[#171411]"] {
+  background: var(--letterhead-ink) !important;
+  color: #fff !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   3. MATTER PAGE COHESION
+   ═══════════════════════════════════════════════════════════════ */
+.firm-workspace.firm-clio-shell .matter-page__section-title,
+.firm-workspace.firm-clio-shell .matter-page__flow-title,
+.firm-workspace.firm-clio-shell .client-matter-panel__section-head .matter-page__section-title {
+  font-family: var(--font-display), "Arial Black", Arial, sans-serif !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid var(--letterhead-line);
+  padding-bottom: 0.35rem;
+}
+
+.firm-workspace.firm-clio-shell .matter-page__balance-hero,
+.firm-workspace.firm-clio-shell .matter-stat-tile,
+.firm-workspace.firm-clio-shell .client-matter-panel__stat-value--balance {
+  border-radius: 0 !important;
+  background: var(--letterhead-paper) !important;
+  border: 1px solid var(--letterhead-line) !important;
+}
+
+.firm-workspace.firm-clio-shell .matter-ledger-history__row {
+  border-radius: 0 !important;
+  background: var(--letterhead-paper) !important;
+  border-color: var(--letterhead-line) !important;
+}
+
+.firm-workspace.firm-clio-shell .matter-staff-actions__card {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.12s ease;
+}
+
+.firm-workspace.firm-clio-shell .matter-staff-actions__card:hover {
+  border-color: var(--letterhead-ink) !important;
+}
+
+/* Monochrome hearing lifecycle — suppress mint/green accents */
+.firm-workspace.firm-clio-shell .matter-page .text-emerald-800,
+.firm-workspace.firm-clio-shell .matter-page .text-emerald-900,
+.firm-workspace.firm-clio-shell .matter-page .text-\[\#1f6b3a\],
+.firm-workspace.firm-clio-shell .matter-page .activity-timeline__tone--mint {
+  color: var(--letterhead-muted) !important;
+}
+
+.firm-workspace.firm-clio-shell .matter-page .bg-emerald-50,
+.firm-workspace.firm-clio-shell .matter-page .bg-\[\#e8f5ec\],
+.firm-workspace.firm-clio-shell .matter-page .activity-timeline__dot--mint-soft,
+.firm-workspace.firm-clio-shell .matter-page .activity-timeline__dot--mint-solid {
+  background: var(--letterhead-stone) !important;
+  border-color: var(--letterhead-line) !important;
+}
+
+.firm-workspace.firm-clio-shell .matter-intake-wizard__step-btn,
+.firm-workspace.firm-clio-shell .matter-intake-wizard button[class*="gradient"] {
+  background: var(--letterhead-paper) !important;
+  background-image: none !important;
+  border-radius: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   4. REPORTS & FIRM FINANCES
+   ═══════════════════════════════════════════════════════════════ */
+.firm-workspace.firm-clio-shell .reports-panel .section-label,
+.firm-workspace.firm-clio-shell .reports-panel .partner-weekly-report__section-title {
+  font-family: var(--font-display), "Arial Black", Arial, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--letterhead-muted);
+}
+
+.firm-workspace.firm-clio-shell .reports-panel__metric,
+.firm-workspace.firm-clio-shell .partner-weekly-report__stat-box,
+.firm-workspace.firm-clio-shell .reports-panel [class*="bg-[#f5f3ef]"] {
+  border-radius: 0 !important;
+  border: 1px solid var(--letterhead-line) !important;
+  background: var(--letterhead-paper) !important;
+}
+
+.firm-workspace.firm-clio-shell .reports-panel__accent,
+.firm-workspace.firm-clio-shell .reports-panel [class*="text-[#8b1e1e]"] {
+  color: var(--letterhead-danger) !important;
+}
+
+.firm-workspace.firm-clio-shell .reports-maintenance-banner {
+  border-radius: 0 !important;
+  border: 1px solid var(--letterhead-line) !important;
+  background: var(--letterhead-stone) !important;
+}
+
+.firm-workspace.firm-clio-shell .firm-finances__trend-chip,
+.firm-workspace.firm-clio-shell .skeleton[class*="rounded-2xl"] {
+  border-radius: 0 !important;
+}
+
+.firm-workspace.firm-clio-shell .partner-weekly-report__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--ha-text-ui, 0.875rem);
+}
+
+.firm-workspace.firm-clio-shell .partner-weekly-report__table th {
+  font-size: var(--ha-text-meta, 0.8125rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--letterhead-muted);
+  border-bottom: 1px solid var(--letterhead-line);
+  padding: 0.4rem 0.5rem;
+  text-align: left;
+}
+
+.firm-workspace.firm-clio-shell .partner-weekly-report__table td {
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.06);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   5. DOCUMENTS, CORRESPONDENCE, NOTARIZATION, WALK-INS
+   ═══════════════════════════════════════════════════════════════ */
+.firm-workspace.firm-clio-shell .document-review-card,
+.firm-workspace.firm-clio-shell .document-review-letterhead,
+.firm-workspace.firm-clio-shell .correspondence-draft-panel .card,
+.firm-workspace.firm-clio-shell .notarization-panel__card-title,
+.firm-workspace.firm-clio-shell .walk-in-panel__card-title,
+.firm-workspace.firm-clio-shell .field-dispatch-panel__card-title {
+  border-radius: 0 !important;
+}
+
+.firm-workspace.firm-clio-shell .notarization-panel__card-head,
+.firm-workspace.firm-clio-shell .walk-in-panel__card-head,
+.firm-workspace.firm-clio-shell .field-dispatch-panel__card-head {
+  border-bottom: 1px solid var(--letterhead-line);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+
+.firm-workspace.firm-clio-shell .notarization-panel__card-title,
+.firm-workspace.firm-clio-shell .walk-in-panel__card-title {
+  font-family: var(--font-display), "Arial Black", Arial, sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.firm-workspace.firm-clio-shell .letterhead-action-btn,
+.firm-workspace.firm-clio-shell .correspondence-draft-panel button[class*="gradient"],
+.firm-workspace.firm-clio-shell .documents-panel button[class*="gradient"] {
+  width: 100%;
+  min-height: var(--touch-min, 44px);
+  border-radius: 0 !important;
+  border: 1px solid var(--letterhead-ink) !important;
+  background: var(--letterhead-ink) !important;
+  background-image: none !important;
+  color: #fff !important;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 641px) {
+  .firm-workspace.firm-clio-shell .letterhead-action-btn {
+    width: auto;
+    min-width: 10rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   6. DIALOGS & OVERLAYS
+   ═══════════════════════════════════════════════════════════════ */
+.firm-workspace.firm-clio-shell .modal-backdrop {
+  background: rgba(10, 10, 10, 0.45) !important;
+  backdrop-filter: blur(2px);
+}
+
+.firm-workspace.firm-clio-shell .modal-panel,
+.firm-workspace.firm-clio-shell .item-details-dialog,
+.firm-workspace.firm-clio-shell .workspace-intro-modal,
+.firm-workspace.firm-clio-shell dialog,
+.firm-workspace.firm-clio-shell [role="dialog"] .card,
+.firm-workspace.firm-clio-shell .client-matter-overlay__panel,
+.firm-workspace.firm-clio-shell .client-profile-modal {
+  border-radius: 0 !important;
+  border: 1px solid var(--letterhead-ink) !important;
+  box-shadow: 0 8px 32px rgba(10, 10, 10, 0.18) !important;
+  background: var(--letterhead-paper) !important;
+}
+
+.firm-workspace.firm-clio-shell .item-details-dialog__accent {
+  background: var(--letterhead-ink) !important;
+  border-radius: 0 !important;
+}
+
+.firm-workspace.firm-clio-shell .item-details-dialog__done,
+.firm-workspace.firm-clio-shell .item-details-dialog__close,
+.firm-workspace.firm-clio-shell .workspace-intro-modal__continue,
+.firm-workspace.firm-clio-shell .modal-panel .btn-primary {
+  border-radius: 0 !important;
+  min-height: var(--touch-min, 44px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   7. SECONDARY TOOLS
+   ═══════════════════════════════════════════════════════════════ */
+.firm-workspace.firm-clio-shell .reminder-panel.reminder-panel--compact,
+.firm-workspace.firm-clio-shell .reminder-panel[class*="border-gold"],
+.firm-workspace.firm-clio-shell .reminder-panel[class*="bg-amber"] {
+  border: 1px solid var(--letterhead-line) !important;
+  background: var(--letterhead-paper) !important;
+}
+
+.firm-workspace.firm-clio-shell .follow-up-panel.card-elevated,
+.firm-workspace.firm-clio-shell .follow-up-panel--premium {
+  border: 1px solid var(--letterhead-line) !important;
+  background: var(--letterhead-paper) !important;
+  box-shadow: 0 1px 0 rgba(10, 10, 10, 0.04) !important;
+}
+
+.firm-workspace.firm-clio-shell .follow-up-panel__badge {
+  background: var(--letterhead-stone) !important;
+  color: var(--letterhead-ink) !important;
+  border: 1px solid var(--letterhead-line);
+  border-radius: 0 !important;
+}
+
+.firm-workspace.firm-clio-shell .employee-card {
+  border-radius: 0 !important;
+  transition: border-color 0.12s ease;
+}
+
+.firm-workspace.firm-clio-shell .employee-card--active {
+  border-color: var(--letterhead-ink) !important;
+  box-shadow: inset 3px 0 0 var(--letterhead-ink) !important;
+}
+
+.firm-workspace.firm-clio-shell .health-checks-panel .section-label {
+  font-family: var(--font-display), "Arial Black", Arial, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   8. LOGIN — stone + ink letterhead
+   ═══════════════════════════════════════════════════════════════ */
+.firm-auth--login {
+  background:
+    radial-gradient(ellipse 100% 55% at 50% 0%, rgba(10, 10, 10, 0.04), transparent 55%),
+    linear-gradient(180deg, #f4f3f0 0%, #eeedea 100%) !important;
+  background-image: none !important;
+}
+
+.firm-auth--login .firm-auth-ambient,
+.firm-auth--login .firm-auth-ambient--gold {
+  display: none !important;
+}
+
+.firm-auth--login .login-premium__card,
+.firm-auth--login .firm-auth-main > .card {
+  border-radius: 0 !important;
+  border: 1px solid rgba(10, 10, 10, 0.18) !important;
+  background: #fff !important;
+  box-shadow: 0 4px 24px rgba(10, 10, 10, 0.08) !important;
+}
+
+.firm-auth--login .btn-primary {
+  border-radius: 0 !important;
+  background: #0a0a0a !important;
+  background-image: none !important;
+}
+
+.firm-auth--login .login-premium__path-title,
+.firm-auth--login .login-premium__greeting {
+  font-family: var(--font-display), "Arial Black", Arial, sans-serif !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #0a0a0a !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   9. TYPOGRAPHY & DENSITY
+   ═══════════════════════════════════════════════════════════════ */
+.firm-workspace.firm-clio-shell .section-label,
+.firm-workspace.firm-clio-shell .view-eyebrow,
+.firm-workspace.firm-clio-shell .tab-page-header .section-label {
+  font-family: var(--font-display), "Arial Black", Arial, sans-serif !important;
+  font-size: var(--ha-text-meta, 0.8125rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: var(--letterhead-muted) !important;
+}
+
+.firm-workspace.firm-clio-shell .text-\[10px\],
+.firm-workspace.firm-clio-shell .text-\[11px\] {
+  font-size: var(--ha-text-meta, 0.8125rem) !important;
+  line-height: var(--ha-leading-tight, 1.35) !important;
+}
+
+.firm-workspace.firm-clio-shell label.text-\[11px\],
+.firm-workspace.firm-clio-shell label.text-xs {
+  font-size: var(--ha-text-meta, 0.8125rem) !important;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--letterhead-muted);
+}
+
+.firm-workspace.firm-clio-shell .text-gold-dark,
+.firm-workspace.firm-clio-shell .text-gold-light {
+  color: var(--letterhead-ink) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   10. MOBILE TABLES — extend responsive stack
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .firm-workspace.firm-clio-shell .partner-weekly-report__table.firm-ledger-table--responsive-stack thead,
+  .firm-workspace.firm-clio-shell .walk-in-panel__table.firm-ledger-table--responsive-stack thead,
+  .firm-workspace.firm-clio-shell .reminder-panel__table.firm-ledger-table--responsive-stack thead {
+    display: none;
+  }
+
+  .firm-workspace.firm-clio-shell .partner-weekly-report__table.firm-ledger-table--responsive-stack tbody tr,
+  .firm-workspace.firm-clio-shell .walk-in-panel__table.firm-ledger-table--responsive-stack tbody tr,
+  .firm-workspace.firm-clio-shell .reminder-panel__table.firm-ledger-table--responsive-stack tbody tr {
+    display: block;
+    margin-bottom: 0.65rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--letterhead-line);
+    background: var(--letterhead-paper);
+  }
+
+  .firm-workspace.firm-clio-shell .partner-weekly-report__table.firm-ledger-table--responsive-stack tbody td,
+  .firm-workspace.firm-clio-shell .walk-in-panel__table.firm-ledger-table--responsive-stack tbody td,
+  .firm-workspace.firm-clio-shell .reminder-panel__table.firm-ledger-table--responsive-stack tbody td {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    border: none;
+    text-align: right;
+  }
+
+  .firm-workspace.firm-clio-shell .partner-weekly-report__table.firm-ledger-table--responsive-stack tbody td::before,
+  .firm-workspace.firm-clio-shell .walk-in-panel__table.firm-ledger-table--responsive-stack tbody td::before,
+  .firm-workspace.firm-clio-shell .reminder-panel__table.firm-ledger-table--responsive-stack tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 38%;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--letterhead-muted);
+    text-align: left;
+  }
+
+  .firm-workspace.firm-clio-shell .matter-ledger-history__row {
+    margin-bottom: 0.5rem;
+  }
+
+  .firm-workspace.firm-clio-shell .reports-panel .grid[class*="grid-cols"] > div {
+    min-height: 4.5rem;
+  }
+}

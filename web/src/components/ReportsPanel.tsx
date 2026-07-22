@@ -242,8 +242,8 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
                       ["90+", "90+ days"]
                     ] as const
                   ).map(([key, label]) => (
-                    <div key={key} className="reports-panel__metric rounded-md p-2 text-center">
-                      <p className="text-[10px] font-bold uppercase text-muted">{label}</p>
+                    <div key={key} className="reports-panel__metric p-2 text-center">
+                    <p className="section-label !mb-1 !text-[0.68rem]">{label}</p>
                       <p className="mt-1 text-sm font-extrabold text-ink">
                         {aging.buckets[key].length}
                       </p>
@@ -335,18 +335,18 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
               <>
                 <p className="text-sm font-bold text-ink">{collections.monthLabel}</p>
                 <div className="grid grid-cols-1 gap-2 text-center text-xs min-[420px]:grid-cols-3">
-                  <div className="rounded-md bg-[#f5f3ef] p-2">
-                    <p className="font-bold uppercase text-muted">Charges</p>
+                  <div className="reports-panel__metric p-2">
+                    <p className="section-label !mb-1 !text-[0.68rem]">Charges</p>
                     <p className="mt-1 font-extrabold">{formatPeso(collections.totalCharges)}</p>
                   </div>
-                  <div className="rounded-md bg-[#f5f3ef] p-2">
-                    <p className="font-bold uppercase text-muted">Payments</p>
-                    <p className="mt-1 font-extrabold text-[#1f6b3a]">
+                  <div className="reports-panel__metric p-2">
+                    <p className="section-label !mb-1 !text-[0.68rem]">Payments</p>
+                    <p className="mt-1 font-extrabold">
                       {formatPeso(collections.totalPayments)}
                     </p>
                   </div>
-                  <div className="rounded-md bg-[#f5f3ef] p-2">
-                    <p className="font-bold uppercase text-muted">Net</p>
+                  <div className="reports-panel__metric p-2">
+                    <p className="section-label !mb-1 !text-[0.68rem]">Net</p>
                     <p className="mt-1 font-extrabold">{formatPeso(collections.netCollected)}</p>
                   </div>
                 </div>
@@ -486,7 +486,7 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
               <div className="partner-weekly-report__section">
                 <p className="partner-weekly-report__section-title">Team workload</p>
                 <div className="partner-weekly-report__table-wrap">
-                  <table className="partner-weekly-report__table">
+                  <table className="partner-weekly-report__table firm-ledger-table firm-ledger-table--responsive-stack">
                     <thead>
                       <tr>
                         <th>Staff</th>
@@ -498,10 +498,10 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
                     <tbody>
                       {partnerReport.employees.map((employee) => (
                         <tr key={employee.name}>
-                          <td>{employee.name}</td>
-                          <td>{employee.openTasks}</td>
-                          <td>{employee.overdueTasks}</td>
-                          <td>{employee.completedThisWeek}</td>
+                          <td data-label="Staff">{employee.name}</td>
+                          <td data-label="Open">{employee.openTasks}</td>
+                          <td data-label="Overdue">{employee.overdueTasks}</td>
+                          <td data-label="Done this week">{employee.completedThisWeek}</td>
                         </tr>
                       ))}
                     </tbody>

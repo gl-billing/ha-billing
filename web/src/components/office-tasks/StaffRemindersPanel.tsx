@@ -250,7 +250,7 @@ export function StaffRemindersPanel({
   return (
     <section
       id="staff-email-reminders"
-      className={`reminder-panel ${layout === "compact" ? "mt-4 rounded-2xl border-2 border-gold/35 bg-amber-50/40 p-4 shadow-sm" : "card tools-panel__section border-gold/20"} no-print`}
+      className={`reminder-panel ${layout === "compact" ? "reminder-panel--compact mt-4 p-4" : "card tools-panel__section"} no-print`}
     >
       {header}
 
@@ -337,7 +337,7 @@ export function StaffRemindersPanel({
 
       {layout === "full" && (
         <div className="mt-4 overflow-x-auto rounded-xl border border-line/80">
-          <table className="w-full min-w-[480px] text-left text-xs">
+          <table className="reminder-panel__table firm-ledger-table firm-ledger-table--responsive-stack w-full text-left text-xs">
             <thead>
               <tr className="border-b border-line bg-cream/80 text-[10px] font-extrabold uppercase tracking-wide text-muted">
                 <th className="px-3 py-2">Staff</th>
@@ -350,13 +350,13 @@ export function StaffRemindersPanel({
             <tbody>
               {previews.map((row) => (
                 <tr key={row.assignee} className="border-b border-line/60 last:border-0">
-                  <td className="px-3 py-2 font-bold text-ink">{row.assignee}</td>
-                  <td className="px-3 py-2 text-muted">{row.email || "—"}</td>
-                  <td className="px-3 py-2 text-center font-semibold">{row.dueToday}</td>
-                  <td className={`px-3 py-2 text-center font-semibold ${row.overdue > 0 ? "text-red-700" : ""}`}>
+                  <td className="px-3 py-2 font-bold text-ink" data-label="Staff">{row.assignee}</td>
+                  <td className="px-3 py-2 text-muted" data-label="Email">{row.email || "—"}</td>
+                  <td className="px-3 py-2 text-center font-semibold" data-label="Today">{row.dueToday}</td>
+                  <td className={`px-3 py-2 text-center font-semibold ${row.overdue > 0 ? "text-red-700" : ""}`} data-label="Overdue">
                     {row.overdue}
                   </td>
-                  <td className="px-3 py-2">
+                  <td className="px-3 py-2" data-label="Actions">
                     <div className="flex flex-wrap justify-end gap-1">
                       <button
                         type="button"

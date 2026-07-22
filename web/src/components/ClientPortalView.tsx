@@ -321,7 +321,7 @@ export function ClientPortalView({ token, snapshot, expiresLabel, payUrl, paymen
         <h2 className="section-label">Payment history</h2>
         {payments.length ? (
           <div className="firm-ledger-table-wrap mt-3">
-            <table className="firm-ledger-table w-full text-left">
+            <table className="firm-ledger-table firm-ledger-table--responsive-stack w-full text-left">
               <thead>
                 <tr>
                   <th>Payment</th>
@@ -332,12 +332,12 @@ export function ClientPortalView({ token, snapshot, expiresLabel, payUrl, paymen
               <tbody>
                 {payments.map((payment) => (
                   <tr key={`${payment.date}-${payment.amount}-${payment.description}`}>
-                    <td className="amount-serif font-semibold text-ink">{formatPeso(payment.amount)}</td>
-                    <td className="text-muted">
+                    <td className="amount-serif font-semibold text-ink" data-label="Payment">{formatPeso(payment.amount)}</td>
+                    <td className="text-muted" data-label="Details">
                       {payment.description}
                       {payment.method ? ` · ${payment.method}` : ""}
                     </td>
-                    <td className="whitespace-nowrap text-right text-muted">{formatDocDate(payment.date)}</td>
+                    <td className="whitespace-nowrap text-right text-muted" data-label="Date">{formatDocDate(payment.date)}</td>
                   </tr>
                 ))}
               </tbody>

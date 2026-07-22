@@ -82,4 +82,11 @@
   .client-list-table.firm-ledger-table--responsive-stack tbody td.client-list-table__col-balance::before {
     text-align: left;
   }
+
+  .partner-weekly-report__table.firm-ledger-table--responsive-stack,
+  .walk-in-panel__table.firm-ledger-table--responsive-stack,
+  .reminder-panel__table.firm-ledger-table--responsive-stack {
+    min-width: 0 !important;
+    width: 100%;
+  }
 }

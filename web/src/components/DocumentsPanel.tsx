@@ -379,7 +379,7 @@ export function DocumentsPanel({
   if (reviewOpen) {
     return (
       <div className="relative z-10 space-y-3">
-        <section className="document-review-card rounded-2xl border-2 border-gold/35 bg-[#fffef9] p-4 shadow-sm">
+        <section className="card document-review-card p-4">
           <p className="mb-3 text-sm font-extrabold text-ink">
             Review before {docTab === "soa" ? "sending SOA" : "sending receipt"}
           </p>
@@ -469,7 +469,7 @@ export function DocumentsPanel({
             onClick={() =>
               void (docTab === "soa" ? submitSOA("Create Gmail Draft") : submitAR("Create Gmail Draft"))
             }
-            className="mt-2 w-full min-h-[42px] rounded-md border border-line bg-gradient-to-b from-white to-[#f4f1eb] text-xs font-extrabold text-ink disabled:opacity-50"
+            className="letterhead-action-btn mt-2 w-full disabled:opacity-50"
           >
             Save as Gmail draft instead
           </button>

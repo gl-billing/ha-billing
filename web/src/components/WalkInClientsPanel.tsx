@@ -579,7 +579,7 @@ export function WalkInClientsPanel({ busy, onBusy, onStatus, onPromoted, onOpenB
           />
         ) : (
           <div className="walk-in-panel__table-wrap firm-ledger-table-wrap">
-            <table className="walk-in-panel__table firm-ledger-table">
+            <table className="walk-in-panel__table firm-ledger-table firm-ledger-table--responsive-stack">
               <thead>
                 <tr>
                   <th>ID</th>

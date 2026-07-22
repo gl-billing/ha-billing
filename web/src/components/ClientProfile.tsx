@@ -726,17 +726,17 @@ export function ClientProfile({
     <section className="card no-print">
         <div className="mb-2 flex items-center justify-between gap-2">
           <p className="section-label !mb-0">Client directory</p>
-          <div className="flex gap-1">
+          <div className="flex gap-1 client-profile-view-toggle">
             <button
               type="button"
-              className={`rounded px-2 py-1 text-[10px] font-bold ${viewMode === "list" ? "bg-[#171411] text-white" : "border border-line"}`}
+              className={`px-2 py-1 text-[10px] font-bold ${viewMode === "list" ? "bg-ink text-white" : "border border-line"}`}
               onClick={() => setViewMode("list")}
             >
               List
             </button>
             <button
               type="button"
-              className={`rounded px-2 py-1 text-[10px] font-bold ${viewMode === "profile" ? "bg-[#171411] text-white" : "border border-line"}`}
+              className={`px-2 py-1 text-[10px] font-bold ${viewMode === "profile" ? "bg-ink text-white" : "border border-line"}`}
               disabled={!selectedCode}
               onClick={() => {
                 setViewMode("profile");
@@ -802,9 +802,9 @@ export function ClientProfile({
       {profileReady && detail && (
         <>
         {missingLedgerTab && (
-          <section className="card border-l-4 border-amber-500 bg-amber-50/80 no-print">
-            <p className="text-sm font-bold text-amber-950">Ledger tab missing</p>
-            <p className="mt-1 text-xs leading-relaxed text-amber-900/90">
+          <section className="card letterhead-warn no-print">
+            <p className="text-sm font-bold text-ink">Ledger tab missing</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted">
               <strong>{detail.code}</strong> is on Master List but has no billing tab yet, so charges,
               payments, and transaction history cannot load. Create the tab from your <strong>Template</strong>{" "}
               sheet.
@@ -1439,7 +1439,7 @@ export function ClientProfile({
           )}
 
           {isAdmin && (
-            <section className="card border-2 border-red-200/80 bg-red-50/40">
+            <section className="card letterhead-danger">
               <p className="section-label text-red-900">Danger zone (owner / admin)</p>
               <p className="mb-3 text-xs leading-relaxed text-red-900/90">
                 Permanently removes this client from the Master List and deletes the ledger tab.
@@ -1477,7 +1477,7 @@ export function ClientProfile({
 
       {showDeleteModal && detail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="card max-h-[90vh] max-w-lg w-full overflow-y-auto border-2 border-red-300">
+          <div className="card letterhead-danger client-profile-modal max-h-[90vh] max-w-lg w-full overflow-y-auto">
             <p className="section-label text-red-900">Permanently delete client</p>
             <p className="mb-3 text-xs text-muted">
               This removes <strong>{detail.code}</strong> — {detail.name}. This cannot be undone.

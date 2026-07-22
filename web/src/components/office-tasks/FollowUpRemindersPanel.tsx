@@ -49,7 +49,7 @@ export function FollowUpRemindersPanel({
 
   return (
     <section
-      className={`follow-up-panel follow-up-panel--premium card-elevated print-section ${open ? "follow-up-panel--open" : ""} ${className}`.trim()}
+      className={`follow-up-panel follow-up-panel--premium card print-section ${open ? "follow-up-panel--open" : ""} ${className}`.trim()}
     >
       <button
         type="button"
