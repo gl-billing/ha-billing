@@ -85,7 +85,7 @@ import { resolveNavUserProfile } from "@/lib/workspace-labels";
 import { HA_BILLING_PATH } from "@/lib/clio/workspace-nav";
 import { firmAppHref, getTasksAppUrl } from "@/lib/firm-apps";
 import { canViewLiaisonTab } from "@/lib/app-access";
-import { isFirmOwnerEmail } from "@/lib/firm-team-config";
+import { canViewPresenceTab as canViewPresenceTabForEmail } from "@/lib/admin";
 import type { EmployeeRecord } from "@/lib/office-tasks/sheets/employees";
 
 type Props = {
@@ -224,7 +224,7 @@ export function MatterPage({ matterCode, user }: Props) {
     billingAccess,
     secretaryNav: user?.secretaryNav
   });
-  const canViewPresenceTab = isFirmOwnerEmail(email);
+  const canViewPresenceTab = canViewPresenceTabForEmail(email);
   const canViewLiaisonConfidential = canViewLiaisonTab({
     email,
     staffName: user?.displayName || user?.name || "",

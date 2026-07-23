@@ -19,6 +19,12 @@ export const MANAGING_PARTNER = {
   emails: ["atty.hernandez@hernandezlaw.info", "atty.rahernandez@gmail.com", "rahernandez@gmail.com"] as const
 };
 
+export function isManagingPartnerEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const normalized = email.trim().toLowerCase();
+  return MANAGING_PARTNER.emails.some((value) => value.toLowerCase() === normalized);
+}
+
 /** Acceptance fee sharing — 20% firm, 40% Atty. Hernandez, 40% other lawyer on the matter. */
 export const ACCEPTANCE_FEE_SHARE_PERCENTS = {
   firm: 20,

@@ -143,7 +143,7 @@ describe("staff presence", () => {
 });
 
 describe("presence tab gating", () => {
-  it("shows Staff attendance only for the firm owner", () => {
+  it("shows Staff attendance for firm admins (owner + managing partner)", () => {
     expect(isFirmOwnerEmail("janinerose1191@gmail.com")).toBe(true);
     expect(isFirmOwnerEmail("atty.hernandez@hernandezlaw.info")).toBe(false);
 
@@ -151,8 +151,11 @@ describe("presence tab gating", () => {
     expect(ownerTabs.map((t) => t.id)).toContain("presence");
     expect(ownerTabs.find((t) => t.id === "presence")?.label).toBe("Staff attendance");
 
-    const attyTabs = tasksNavTabsForUser(true, "full", { canViewPresenceTab: false }).map((t) => t.id);
-    expect(attyTabs).not.toContain("presence");
+    const partnerTabs = tasksNavTabsForUser(true, "full", { canViewPresenceTab: true }).map((t) => t.id);
+    expect(partnerTabs).toContain("presence");
+
+    const secretaryTabs = tasksNavTabsForUser(true, "full", { canViewPresenceTab: false }).map((t) => t.id);
+    expect(secretaryTabs).not.toContain("presence");
 
     expect(isAllowedTasksTab("presence", true, "full", { canViewPresenceTab: true })).toBe(true);
     expect(isAllowedTasksTab("presence", true, "full", { canViewPresenceTab: false })).toBe(false);

@@ -1,5 +1,5 @@
 import { canEditDeskBilling } from "@/lib/app-access";
-import { FIRM_OWNER_EMAILS, isFirmOwnerEmail } from "@/lib/firm-team-config";
+import { defaultAdminEmails, isFirmOwnerEmail } from "@/lib/firm-team-config";
 
 function parseEmailList(raw: string | undefined): string[] {
   return raw?.split(",").map((e) => e.trim().toLowerCase()).filter(Boolean) ?? [];
@@ -9,9 +9,12 @@ function uniqueEmails(emails: string[]): string[] {
   return [...new Set(emails.map((email) => email.trim().toLowerCase()).filter(Boolean))];
 }
 
-/** Comma-separated in ADMIN_EMAILS — firm admins (client admin, announcements, etc.). */
+/**
+ * Firm admins — client admin, announcements, payroll, firm finances, etc.
+ * Always includes firm owner + managing partner (`defaultAdminEmails`), plus `ADMIN_EMAILS` env.
+ */
 export function getAdminEmails(): string[] {
-  return uniqueEmails([...FIRM_OWNER_EMAILS, ...parseEmailList(process.env.ADMIN_EMAILS)]);
+  return uniqueEmails([...defaultAdminEmails(), ...parseEmailList(process.env.ADMIN_EMAILS)]);
 }
 
 export function isAdminEmail(email: string | null | undefined): boolean {
@@ -23,6 +26,11 @@ export function isAdminEmail(email: string | null | undefined): boolean {
   // Small-team default: anyone allowed to sign in when ADMIN_EMAILS is unset.
   const allowed = parseEmailList(process.env.ALLOWED_EMAILS);
   return allowed.includes(normalized);
+}
+
+/** Staff attendance register — firm admins (owner + managing partner by default). */
+export function canViewPresenceTab(email: string | null | undefined): boolean {
+  return isAdminEmail(email);
 }
 
 export function requireAdminEmail(email: string | null | undefined): void {
@@ -41,7 +49,6 @@ export function requireMatterEditAccess(email: string | null | undefined): void 
 /** Admins who can add or edit associate lawyers and payroll staff on Accounts → Payroll. */
 export function getTeamRosterAdminEmails(): string[] {
   return uniqueEmails([
-    ...FIRM_OWNER_EMAILS,
     ...getAdminEmails(),
     ...parseEmailList(process.env.TEAM_ROSTER_ADMIN_EMAILS)
   ]);

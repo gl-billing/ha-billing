@@ -1,4 +1,4 @@
-/** Staff presence — attendance register (firm-owner view only). */
+/** Staff presence — attendance register (firm-admin view). */
 
 export type PresenceWorkspace = "hub" | "billing" | "tasks";
 

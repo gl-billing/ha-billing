@@ -74,7 +74,7 @@ import { clearWorkspaceIntroSeen, hasSeenWorkspaceIntro, markWorkspaceIntroSeen 
 import { SheetsAccessErrorPanel } from "@/components/SheetsAccessErrorPanel";
 import { bindWorkspaceTabShortcuts, buildTabShortcutHelp } from "@/lib/workspace-tab-shortcuts";
 import { canViewLiaisonTab } from "@/lib/app-access";
-import { isFirmOwnerEmail } from "@/lib/firm-team-config";
+import { canViewPresenceTab as canViewPresenceTabForEmail } from "@/lib/admin";
 import { useBillingClients } from "@/hooks/useBillingClients";
 
 type Props = Record<string, never>;
@@ -154,7 +154,7 @@ export function BillingApp() {
     loadData
   } = useBillingClients(email, reportProcessing, reportSuccess, reportError);
   const [busy, setBusy] = useState(false);
-  const canViewPresenceTab = isFirmOwnerEmail(email || session?.user?.email);
+  const canViewPresenceTab = canViewPresenceTabForEmail(email || session?.user?.email);
   const canViewLiaisonConfidential = canViewLiaisonTab({
     email,
     staffName: session?.user?.displayName || session?.user?.name,

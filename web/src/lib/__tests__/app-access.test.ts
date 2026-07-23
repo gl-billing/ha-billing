@@ -24,6 +24,7 @@ const ORIGINAL_DESK_BILLING_EDITORS = process.env.DESK_BILLING_EDITOR_EMAILS;
 const ORIGINAL_ALLOWED_EMAILS = process.env.ALLOWED_EMAILS;
 const ORIGINAL_ALLOWED_DOMAIN = process.env.ALLOWED_EMAIL_DOMAIN;
 const ORIGINAL_TEAM_ROSTER_ADMIN = process.env.TEAM_ROSTER_ADMIN_EMAILS;
+const ORIGINAL_ADMIN_EMAILS = process.env.ADMIN_EMAILS;
 
 afterEach(() => {
   if (ORIGINAL_TASKS_ONLY === undefined) delete process.env.TASKS_ONLY_EMAILS;
@@ -38,6 +39,8 @@ afterEach(() => {
   else process.env.ALLOWED_EMAIL_DOMAIN = ORIGINAL_ALLOWED_DOMAIN;
   if (ORIGINAL_TEAM_ROSTER_ADMIN === undefined) delete process.env.TEAM_ROSTER_ADMIN_EMAILS;
   else process.env.TEAM_ROSTER_ADMIN_EMAILS = ORIGINAL_TEAM_ROSTER_ADMIN;
+  if (ORIGINAL_ADMIN_EMAILS === undefined) delete process.env.ADMIN_EMAILS;
+  else process.env.ADMIN_EMAILS = ORIGINAL_ADMIN_EMAILS;
 });
 
 describe("app-access", () => {
@@ -102,6 +105,15 @@ describe("app-access", () => {
     expect(canAccessOfficeHub("janinerose1191@gmail.com")).toBe(true);
     expect(canAccessBilling("janinerose1191@gmail.com")).toBe(true);
     expect(resolvePostLoginPath("janinerose1191@gmail.com")).toBe("/office-hub");
+  });
+
+  it("treats the managing partner as firm admin even when ADMIN_EMAILS is unset", () => {
+    delete process.env.ADMIN_EMAILS;
+
+    expect(isAdminEmail("atty.rahernandez@gmail.com")).toBe(true);
+    expect(isAdminEmail("atty.hernandez@hernandezlaw.info")).toBe(true);
+    expect(canManageTeamRoster("atty.rahernandez@gmail.com")).toBe(true);
+    expect(canAccessBilling("atty.rahernandez@gmail.com")).toBe(true);
   });
 
   it("treats the firm owner as full admin with all billing tabs", () => {

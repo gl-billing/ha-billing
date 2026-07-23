@@ -47,7 +47,7 @@ export type ClioSection = {
   /** Calendar primary only — day hourly / week planner / month calendar. */
   calendarMode?: "day" | "week" | "month";
   adminOnly?: boolean;
-  /** HA firm-owner attendance register. */
+  /** HA firm-admin attendance register. */
   presenceOnly?: boolean;
   /** HA liaison confidential queue. */
   liaisonOnly?: boolean;

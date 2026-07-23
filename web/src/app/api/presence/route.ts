@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { isStaffEmail } from "@/lib/app-access";
 import { requireSessionAccessToken } from "@/lib/api-auth";
-import { isFirmOwnerEmail } from "@/lib/firm-team-config";
+import { canViewPresenceTab } from "@/lib/admin";
 import { getSafeServerSession } from "@/lib/safe-server-session";
 import { listStaffPresence, upsertStaffPresenceHeartbeat } from "@/lib/sheets/staff-presence";
 import type { PresenceWorkspace } from "@/lib/staff-presence";
@@ -12,7 +12,7 @@ function parseWorkspace(value: unknown): PresenceWorkspace {
   return "hub";
 }
 
-/** Janine-only: list who is online / recently opened the app. */
+/** Firm admins: list who is online / recently opened the app. */
 export async function GET() {
   try {
     const session = await getSafeServerSession();
@@ -20,7 +20,7 @@ export async function GET() {
     if (!email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if (!isFirmOwnerEmail(email)) {
+    if (!canViewPresenceTab(email)) {
       return NextResponse.json({ error: "Only firm management may view the attendance register." }, { status: 403 });
     }
 

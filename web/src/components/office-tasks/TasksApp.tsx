@@ -111,7 +111,7 @@ import { LiaisonConfidentialPanel } from "@/components/office-tasks/LiaisonConfi
 import { StaffPresencePanel } from "@/components/office-tasks/StaffPresencePanel";
 import { excludeLiaisonConfidentialItems } from "@/lib/office-tasks/liaison-confidential";
 import { canViewLiaisonTab } from "@/lib/app-access";
-import { isFirmOwnerEmail } from "@/lib/firm-team-config";
+import { canViewPresenceTab as canViewPresenceTabForEmail } from "@/lib/admin";
 import { filterItemsForMyWork } from "@/lib/office-tasks/my-work-filter";
 import { applyEventJoinLinkPatch, type EventScheduleEmailSentPatch } from "@/lib/office-tasks/event-join-link";
 import { getSavedMyWorkScope, saveMyWorkScope, type MyWorkScope } from "@/lib/my-work-scope";
@@ -242,7 +242,7 @@ export function TasksApp() {
   } = useTasksHomeData(email, clearUnlessProcessing, reportError, reportWarn);
   const sessionDisplayName = session?.user?.displayName || session?.user?.name || "";
   const isAdminUser = session?.user?.isAdmin === true;
-  const canViewPresenceTab = isFirmOwnerEmail(email || session?.user?.email);
+  const canViewPresenceTab = canViewPresenceTabForEmail(email || session?.user?.email);
   const canViewLiaisonConfidentialEarly = canViewLiaisonTab({
     email,
     staffName: sessionDisplayName,
