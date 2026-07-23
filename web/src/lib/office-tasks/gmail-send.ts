@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import { getCronGoogleAccessToken } from "@/lib/cron-google-auth";
 import { EMAIL_SIGNATURE_BANNER_CID, ensureClientEmailHtml, ensureClientEmailPlain } from "@/lib/firm-email-signature";
 import { inlineFirmLogoInEmailHtml } from "@/lib/firm-print-brand";
 import { formatFirmOutboundFrom, resolveFirmSenderEmail } from "@/lib/firm-sender";
@@ -123,7 +124,7 @@ export async function getGmailAccountEmail(
   );
 }
 
-/** Firm outbound address shown to recipients (defaults to info@hernandezassociates.com). */
+/** Firm outbound address shown to recipients (always legal@ / firm inbox). */
 export async function getGmailSenderAddress(
   _accessToken: string,
   _fallbackEmail?: string
@@ -132,10 +133,61 @@ export async function getGmailSenderAddress(
 }
 
 function firmSendAsHelp(): string {
+  const firm = resolveFirmSenderEmail();
   return (
-    "Gmail rejected the firm sender address. In Google Workspace, open Gmail → Settings → Accounts → " +
-    `"Send mail as" and add ${resolveFirmSenderEmail()} on the Google account you use to sign in to this app.`
+    `Outbound mail must show as ${firm}. ` +
+    `Set CRON_GOOGLE_REFRESH_TOKEN on the server for the legal@ Gmail mailbox (recommended), ` +
+    `or sign in as ${firm}, or add ${firm} under Gmail → Settings → Accounts → Send mail as on the account you use in this app.`
   );
+}
+
+/**
+ * Prefer the legal@ mailbox token so Sent + From are the office address (GL-style firm sender).
+ * Falls back to the caller's token only when that mailbox is legal@ or has Send-as for legal@.
+ */
+export async function resolveFirmOutboundAccessToken(preferredToken: string): Promise<{
+  accessToken: string;
+  mailbox: string;
+  via: "cron" | "session";
+}> {
+  const firm = normalizeEmailAddress(resolveFirmSenderEmail());
+
+  const cronToken = await getCronGoogleAccessToken().catch(() => null);
+  if (cronToken) {
+    const cronMailbox = await getGmailAccountEmail(cronToken).catch(() => "");
+    if (normalizeEmailAddress(cronMailbox) === firm) {
+      return { accessToken: cronToken, mailbox: firm, via: "cron" };
+    }
+  }
+
+  const sessionMailbox = await getGmailAccountEmail(preferredToken).catch(() => "");
+  if (normalizeEmailAddress(sessionMailbox) === firm) {
+    return { accessToken: preferredToken, mailbox: firm, via: "session" };
+  }
+
+  // Personal staff token: only OK if Gmail Send-as includes the firm inbox.
+  const aliases = await listSendAsEmails(preferredToken);
+  if (aliases.includes(firm)) {
+    return {
+      accessToken: preferredToken,
+      mailbox: normalizeEmailAddress(sessionMailbox) || firm,
+      via: "session"
+    };
+  }
+
+  throw new Error(firmSendAsHelp());
+}
+
+async function listSendAsEmails(accessToken: string): Promise<string[]> {
+  try {
+    const gmail = gmailClient(accessToken);
+    const res = await gmail.users.settings.sendAs.list({ userId: "me" });
+    return (res.data.sendAs || [])
+      .map((row) => normalizeEmailAddress(row.sendAsEmail || ""))
+      .filter(isValidEmailAddress);
+  } catch {
+    return [];
+  }
 }
 
 function buildHtmlMimePart(html: string, inlineImages?: GmailInlineImage[]): string {
@@ -321,7 +373,9 @@ export async function sendHtmlEmailViaGmail(input: {
     throw new Error(`Invalid recipient email: ${input.to}`);
   }
 
-  const hasScope = await accessTokenHasGmailSend(input.accessToken);
+  const { accessToken, mailbox } = await resolveFirmOutboundAccessToken(input.accessToken);
+
+  const hasScope = await accessTokenHasGmailSend(accessToken);
   if (!hasScope) {
     throw new Error(gmailPermissionHelp());
   }
@@ -348,10 +402,11 @@ export async function sendHtmlEmailViaGmail(input: {
   });
 
   try {
-    const delivery = await deliverMimeMessage(input.accessToken, mime, "send");
+    const delivery = await deliverMimeMessage(accessToken, mime, "send");
     return {
       ...delivery,
-      senderEmail
+      // Always report the firm From — not the OAuth actor mailbox.
+      senderEmail: senderEmail || mailbox
     };
   } catch (error) {
     const msg = extractGmailError(error);
@@ -380,12 +435,14 @@ export async function sendClientEmailViaGmail(input: {
   plain: string;
   bcc?: string;
 }): Promise<GmailSendResult> {
-  const banner = await loadEmailSignatureBanner(input.accessToken);
+  const { accessToken } = await resolveFirmOutboundAccessToken(input.accessToken);
+  const banner = await loadEmailSignatureBanner(accessToken);
   const bannerSrc = banner ? `cid:${EMAIL_SIGNATURE_BANNER_CID}` : null;
   const { html: htmlWithLogo, logoInline } = inlineFirmLogoInEmailHtml(input.html);
 
   return sendHtmlEmailViaGmail({
     ...input,
+    accessToken,
     html: ensureClientEmailHtml(htmlWithLogo, { bannerSrc }),
     plain: ensureClientEmailPlain(input.plain, { reswapSignature: Boolean(banner) }),
     inlineImages: mergeInlineEmailImages(logoInline ? [logoInline] : undefined, banner ? [banner] : undefined)
@@ -409,8 +466,13 @@ export async function sendHtmlEmailWithAttachmentsViaGmail(input: {
   }
 
   const mode = input.mode || "send";
+  const accessToken =
+    mode === "send"
+      ? (await resolveFirmOutboundAccessToken(input.accessToken)).accessToken
+      : input.accessToken;
+
   if (mode === "send") {
-    const hasScope = await accessTokenHasGmailSend(input.accessToken);
+    const hasScope = await accessTokenHasGmailSend(accessToken);
     if (!hasScope) throw new Error(gmailPermissionHelp());
   }
 
@@ -421,7 +483,7 @@ export async function sendHtmlEmailWithAttachmentsViaGmail(input: {
     throw new Error(`Invalid BCC email: ${input.bcc}`);
   }
 
-  const banner = mode === "send" ? await loadEmailSignatureBanner(input.accessToken) : null;
+  const banner = mode === "send" ? await loadEmailSignatureBanner(accessToken) : null;
   const bannerSrc = banner ? `cid:${EMAIL_SIGNATURE_BANNER_CID}` : null;
   const { html: htmlWithLogo, logoInline } =
     mode === "send" ? inlineFirmLogoInEmailHtml(input.html) : { html: input.html, logoInline: null };
@@ -442,7 +504,7 @@ export async function sendHtmlEmailWithAttachmentsViaGmail(input: {
   });
 
   try {
-    const delivery = await deliverMimeMessage(input.accessToken, mime, mode);
+    const delivery = await deliverMimeMessage(accessToken, mime, mode);
     return {
       ...delivery,
       senderEmail
@@ -458,10 +520,11 @@ export async function sendHtmlEmailWithAttachmentsViaGmail(input: {
 }
 
 export function sentMailHint(senderEmail: string, recipient: string, messageId: string, bcc?: boolean): string {
+  const firm = resolveFirmSenderEmail();
   const parts = [
-    `Sent from ${senderEmail} to ${recipient}.`,
+    `Sent from ${senderEmail || firm} to ${recipient}.`,
     `Gmail message id: ${messageId}.`,
-    "Check Sent in the Gmail account you signed in with",
+    `Check Sent in ${firm}`,
     bcc ? "and your inbox (BCC copy)" : "",
     "and the recipient spam folder if needed."
   ];

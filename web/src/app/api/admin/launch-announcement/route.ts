@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
 import { requireAdminSessionAccessToken } from "@/lib/api-auth";
-import { getCronGoogleAccessToken } from "@/lib/cron-google-auth";
 import {
-  getGmailAccountEmail,
-  normalizeEmailAddress,
+  resolveFirmOutboundAccessToken,
   sendHtmlEmailViaGmail
 } from "@/lib/office-tasks/gmail-send";
 import {
   DEFAULT_FIRM_LAWYERS_ROSTER,
-  FIRM_INBOX_EMAIL,
   FIRM_SECRETARIES,
   MANAGING_PARTNER
 } from "@/lib/firm-team-config";
@@ -18,7 +15,6 @@ export const runtime = "nodejs";
 const APP = "https://ha-billing.vercel.app";
 const LOGIN = `${APP}/login`;
 const INSTALL = `${APP}/install`;
-const FIRM_MAILBOX = normalizeEmailAddress(FIRM_INBOX_EMAIL);
 
 function helpUrl(email: string): string {
   const q = new URLSearchParams({ e: email, from: "launch-email" });
@@ -87,40 +83,11 @@ function buildPlain(email: string): string {
   ].join("\n");
 }
 
-/**
- * Resolve a Gmail token that is the firm inbox only.
- * Prefer CRON_GOOGLE_REFRESH_TOKEN (legal@); else the signed-in session if that mailbox is legal@.
- */
-async function resolveFirmInboxSendToken(sessionToken: string, sessionEmail: string): Promise<{
-  token: string;
-  mailbox: string;
-  via: "cron" | "session";
-}> {
-  const cronToken = await getCronGoogleAccessToken().catch(() => null);
-  if (cronToken) {
-    const mailbox = await getGmailAccountEmail(cronToken).catch(() => "");
-    if (normalizeEmailAddress(mailbox) === FIRM_MAILBOX) {
-      return { token: cronToken, mailbox: FIRM_MAILBOX, via: "cron" };
-    }
-  }
-
-  const sessionMailbox = await getGmailAccountEmail(sessionToken, sessionEmail).catch(() => "");
-  if (normalizeEmailAddress(sessionMailbox) === FIRM_MAILBOX) {
-    return { token: sessionToken, mailbox: FIRM_MAILBOX, via: "session" };
-  }
-
-  throw new Error(
-    `Launch email must send from ${FIRM_MAILBOX} only. ` +
-      `Sign in as that account, or set CRON_GOOGLE_REFRESH_TOKEN for the legal@ Gmail mailbox on Vercel. ` +
-      `Do not send while signed in as a personal admin address.`
-  );
-}
-
 /** Admin-only: launch announcement from legal@hernandezlaw.info only. */
 export async function POST() {
   try {
-    const { token: sessionToken, email: adminEmail } = await requireAdminSessionAccessToken();
-    const { token, mailbox, via } = await resolveFirmInboxSendToken(sessionToken, adminEmail);
+    const { token: sessionToken } = await requireAdminSessionAccessToken();
+    const { accessToken, mailbox, via } = await resolveFirmOutboundAccessToken(sessionToken);
 
     const list = recipients();
     const subject = "HA Office is ready — install on desktop & mobile";
@@ -130,7 +97,7 @@ export async function POST() {
     for (const to of list) {
       try {
         await sendHtmlEmailViaGmail({
-          accessToken: token,
+          accessToken,
           to,
           subject,
           html: buildHtml(to),
@@ -158,7 +125,7 @@ export async function POST() {
       ? 403
       : message.includes("Unauthorized")
         ? 401
-        : message.includes("must send from")
+        : message.includes("must show as") || message.includes("must send from")
           ? 403
           : 500;
     return NextResponse.json({ error: message }, { status });

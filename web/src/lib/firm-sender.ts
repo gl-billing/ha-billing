@@ -1,4 +1,5 @@
 import { FIRM_NAME } from "@/lib/billing-document-design";
+import { FIRM_INBOX_EMAIL } from "@/lib/firm-team-config";
 
 function normalizeEmailAddress(raw: string): string {
   const trimmed = String(raw || "").trim();
@@ -10,11 +11,8 @@ function isValidEmailAddress(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-import { FIRM_INBOX_EMAIL } from "@/lib/firm-team-config";
-
+/** Always the firm inbox — never a personal staff Gmail. */
 export const DEFAULT_FIRM_SENDER_EMAIL = FIRM_INBOX_EMAIL;
-
-const FIRM_SENDER_SETTINGS_KEYS = ["Firm Email", "Sender Email", "Billing From Email"] as const;
 
 function settingsMap(settings?: Map<string, string> | Record<string, string>): Map<string, string> | null {
   if (!settings) return null;
@@ -22,22 +20,20 @@ function settingsMap(settings?: Map<string, string> | Record<string, string>): M
   return new Map(Object.entries(settings));
 }
 
-/** Plain firm outbound address (recipient-visible From). */
-export function resolveFirmSenderEmail(settings?: Map<string, string> | Record<string, string>): string {
-  const map = settingsMap(settings);
-  for (const key of FIRM_SENDER_SETTINGS_KEYS) {
-    const value = map?.get(key)?.trim();
-    if (!value) continue;
-    const email = normalizeEmailAddress(value);
-    if (isValidEmailAddress(email)) return email;
-  }
-
+/**
+ * Recipient-visible From address.
+ * HA always sends as legal@hernandezlaw.info (same idea as GL’s firm inbox),
+ * even if Settings / env accidentally point at a personal Gmail.
+ */
+export function resolveFirmSenderEmail(_settings?: Map<string, string> | Record<string, string>): string {
   const env = process.env.FIRM_SENDER_EMAIL?.trim();
   if (env) {
     const email = normalizeEmailAddress(env);
-    if (isValidEmailAddress(email)) return email;
+    // Only allow the firm inbox or another @hernandezlaw.info address — never @gmail.com staff mail.
+    if (isValidEmailAddress(email) && (email === DEFAULT_FIRM_SENDER_EMAIL || email.endsWith("@hernandezlaw.info"))) {
+      return email;
+    }
   }
-
   return DEFAULT_FIRM_SENDER_EMAIL;
 }
 
