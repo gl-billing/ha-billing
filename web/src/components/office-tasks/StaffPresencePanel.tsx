@@ -4,12 +4,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { OFFICE_TIMEZONE } from "@/lib/office-tasks/date-only";
 import { readJsonResponse } from "@/lib/fetch-json";
 import {
+  flattenPresenceLoginLog,
   isPresenceOnline,
   workspaceLabel,
   type StaffPresenceEntry
 } from "@/lib/staff-presence";
 
-function formatActivityAt(iso: string): string {
+function formatDateTimeAt(iso: string): string {
   const ms = Date.parse(iso);
   if (Number.isNaN(ms)) return "—";
   return new Intl.DateTimeFormat("en-PH", {
@@ -17,6 +18,29 @@ function formatActivityAt(iso: string): string {
     day: "numeric",
     month: "short",
     year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  }).format(new Date(ms));
+}
+
+function formatDateAt(iso: string): string {
+  const ms = Date.parse(iso);
+  if (Number.isNaN(ms)) return "—";
+  return new Intl.DateTimeFormat("en-PH", {
+    timeZone: OFFICE_TIMEZONE,
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  }).format(new Date(ms));
+}
+
+function formatTimeAt(iso: string): string {
+  const ms = Date.parse(iso);
+  if (Number.isNaN(ms)) return "—";
+  return new Intl.DateTimeFormat("en-PH", {
+    timeZone: OFFICE_TIMEZONE,
     hour: "numeric",
     minute: "2-digit",
     hour12: true
@@ -75,6 +99,8 @@ export function StaffPresencePanel({ onStatus }: Props) {
     [entries]
   );
 
+  const loginLog = useMemo(() => flattenPresenceLoginLog(entries), [entries]);
+
   const presentCount = rows.filter((row) => row.status === "Present").length;
 
   return (
@@ -93,28 +119,30 @@ export function StaffPresencePanel({ onStatus }: Props) {
           </button>
         </div>
         <p className="attendance-register__lede">
-          Session activity within Hernandez &amp; Associates Office. Shows when a staff account is
-          signed in to this system — not a phone or location tracker. Restricted to firm management.
+          Who signed in to HA Office, and when. <strong>Last signed in</strong> is the start of their
+          current or latest session; the log below lists recent sign-ins by date and time. Present =
+          app open now. Restricted to firm management.
         </p>
       </header>
 
       {error ? <p className="attendance-register__error">{error}</p> : null}
 
       {!error && !loading && rows.length === 0 ? (
-        <p className="attendance-register__empty">No active or recent sessions recorded.</p>
+        <p className="attendance-register__empty">No sign-ins recorded yet.</p>
       ) : null}
 
       {rows.length > 0 ? (
         <div className="attendance-register__table-wrap">
           <table className="attendance-register__table">
             <caption className="attendance-register__caption">
-              Present {presentCount} · Recorded {rows.length}
+              Present {presentCount} · Staff {rows.length}
             </caption>
             <thead>
               <tr>
                 <th scope="col">Counsel / Staff</th>
                 <th scope="col">Status</th>
                 <th scope="col">Workspace</th>
+                <th scope="col">Last signed in</th>
                 <th scope="col">Last activity</th>
               </tr>
             </thead>
@@ -134,7 +162,8 @@ export function StaffPresencePanel({ onStatus }: Props) {
                     </span>
                   </td>
                   <td>{workspaceLabel(row.workspace)}</td>
-                  <td className="attendance-register__time">{formatActivityAt(row.lastSeen)}</td>
+                  <td className="attendance-register__time">{formatDateTimeAt(row.lastSignedIn)}</td>
+                  <td className="attendance-register__time">{formatDateTimeAt(row.lastSeen)}</td>
                 </tr>
               ))}
             </tbody>
@@ -142,9 +171,42 @@ export function StaffPresencePanel({ onStatus }: Props) {
         </div>
       ) : null}
 
+      {loginLog.length > 0 ? (
+        <section className="attendance-register__log" aria-labelledby="attendance-login-log-title">
+          <h3 id="attendance-login-log-title" className="attendance-register__log-title">
+            Sign-in log
+          </h3>
+          <p className="attendance-register__log-lede">
+            Each row is when someone opened HA Office (or returned after being away ~30 minutes).
+          </p>
+          <div className="attendance-register__table-wrap">
+            <table className="attendance-register__table attendance-register__table--log">
+              <thead>
+                <tr>
+                  <th scope="col">Counsel / Staff</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Time</th>
+                  <th scope="col">Workspace</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loginLog.map((row) => (
+                  <tr key={`${row.email}-${row.at}`}>
+                    <td className="attendance-register__name">{row.displayName}</td>
+                    <td className="attendance-register__time">{formatDateAt(row.at)}</td>
+                    <td className="attendance-register__time">{formatTimeAt(row.at)}</td>
+                    <td>{workspaceLabel(row.workspace)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
       {generatedAt ? (
         <p className="attendance-register__footer">
-          Last refreshed · {formatActivityAt(generatedAt)}
+          Last refreshed · {formatDateTimeAt(generatedAt)}
         </p>
       ) : null}
     </div>

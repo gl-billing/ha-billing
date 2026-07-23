@@ -3512,7 +3512,7 @@ a.btn-secondary,
 
 .attendance-register {
   width: 100% !important;
-  max-width: 48rem !important;
+  max-width: 56rem !important;
   min-width: 0 !important;
 }
 
@@ -3524,6 +3524,10 @@ a.btn-secondary,
 }
 
 .attendance-register__table {
+  min-width: 32rem !important;
+}
+
+.attendance-register__table--log {
   min-width: 28rem !important;
 }
 

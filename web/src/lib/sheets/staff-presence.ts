@@ -6,7 +6,9 @@ import {
   readSettingsRowIndex
 } from "@/lib/sheets/settings";
 import {
+  applyPresenceHeartbeat,
   collectPresenceFromSettings,
+  parsePresenceEntry,
   presenceSettingKey,
   serializePresenceEntry,
   type PresenceWorkspace,
@@ -30,15 +32,17 @@ export async function upsertStaffPresenceHeartbeat(
   const email = input.email.trim().toLowerCase();
   if (!email) throw new Error("Email is required for presence.");
 
-  const entry: StaffPresenceEntry = {
+  const settings = await readSettingsMap(accessToken);
+  const key = presenceSettingKey(email);
+  const previous = parsePresenceEntry(settings.get(key) ?? "");
+
+  const entry = applyPresenceHeartbeat(previous, {
     email,
     displayName: input.displayName.trim() || email,
     workspace: input.workspace,
-    path: input.path.trim() || "/",
-    lastSeen: new Date().toISOString()
-  };
+    path: input.path.trim() || "/"
+  });
 
-  const key = presenceSettingKey(email);
   const value = serializePresenceEntry(entry);
   const rowIndex = await readSettingsRowIndex(accessToken);
   const sheet = GL.sheets.settings;

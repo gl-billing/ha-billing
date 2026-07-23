@@ -9127,7 +9127,7 @@ html {
   }
 
   .attendance-register {
-    @apply mx-auto w-full max-w-3xl;
+    @apply mx-auto w-full max-w-4xl;
   }
 
   .attendance-register__letterhead {
@@ -9205,6 +9205,18 @@ html {
 
   .attendance-register__time {
     @apply whitespace-nowrap text-muted;
+  }
+
+  .attendance-register__log {
+    @apply mt-8 border-t border-line pt-5;
+  }
+
+  .attendance-register__log-title {
+    @apply m-0 font-display text-base font-bold uppercase tracking-[0.08em] text-ink;
+  }
+
+  .attendance-register__log-lede {
+    @apply mt-2 mb-3 max-w-2xl text-sm leading-relaxed text-muted;
   }
 
   .attendance-register__footer {
