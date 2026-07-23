@@ -9163,6 +9163,10 @@ html {
     @apply mt-4 mb-0 text-sm text-red-800;
   }
 
+  .attendance-register__hint {
+    @apply mt-4 mb-0 border border-line bg-cream px-3 py-2 text-sm leading-relaxed text-ink;
+  }
+
   .attendance-register__empty {
     @apply mt-6 mb-0 text-sm text-muted;
   }

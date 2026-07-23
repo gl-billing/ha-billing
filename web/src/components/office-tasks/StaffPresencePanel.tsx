@@ -57,6 +57,7 @@ export function StaffPresencePanel({ onStatus }: Props) {
   const [entries, setEntries] = useState<StaffPresenceEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hint, setHint] = useState<string | null>(null);
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -67,6 +68,7 @@ export function StaffPresencePanel({ onStatus }: Props) {
       const json = await readJsonResponse<{
         entries?: StaffPresenceEntry[];
         generatedAt?: string;
+        hint?: string;
         error?: string;
       }>(res);
       if (!res.ok) {
@@ -74,10 +76,12 @@ export function StaffPresencePanel({ onStatus }: Props) {
       }
       setEntries(Array.isArray(json?.entries) ? json.entries : []);
       setGeneratedAt(json?.generatedAt ?? null);
+      setHint(typeof json?.hint === "string" && json.hint.trim() ? json.hint.trim() : null);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Unable to load the attendance register.";
       setError(message);
+      setHint(null);
       onStatus?.(message, true);
     } finally {
       setLoading(false);
@@ -126,6 +130,7 @@ export function StaffPresencePanel({ onStatus }: Props) {
       </header>
 
       {error ? <p className="attendance-register__error">{error}</p> : null}
+      {hint && !error ? <p className="attendance-register__hint">{hint}</p> : null}
 
       {!error && !loading && rows.length === 0 ? (
         <p className="attendance-register__empty">No sign-ins recorded yet.</p>
