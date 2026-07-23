@@ -42,7 +42,7 @@ export function FilingFollowUpAlertBar({ alerts, busyKey, onMarkSubmitted, colla
         aria-controls={listId}
       >
         <span className="filing-followup-alert__icon" aria-hidden>
-          ⚠
+          !
         </span>
         <div className="filing-followup-alert__headline">
           <strong className="filing-followup-alert__title">Filings due</strong>

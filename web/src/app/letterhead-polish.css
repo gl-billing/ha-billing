@@ -42,14 +42,26 @@
 .office-hub-page .my-work-hub-summary,
 .office-hub-page .office-hub__desk-enter {
   border-radius: 0 !important;
-  border-color: var(--letterhead-line) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--letterhead-line) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Forms that need a paper plane keep a single hairline frame */
+.firm-workspace.firm-clio-shell .matter-intake-wizard,
+.firm-workspace.firm-clio-shell .notarization-panel__add-form,
+.firm-workspace.firm-clio-shell .walk-in-panel__add-form,
+.firm-workspace.firm-clio-shell .spot-billing-panel__section,
+.firm-workspace.firm-clio-shell .field-dispatch-panel__section {
+  border: 1px solid var(--letterhead-line) !important;
+  border-bottom: 1px solid var(--letterhead-line) !important;
   background: var(--letterhead-paper) !important;
-  box-shadow: 0 1px 0 rgba(10, 10, 10, 0.04) !important;
 }
 
 .firm-workspace.firm-clio-shell [class*="shadow-lift"],
 .firm-workspace.firm-clio-shell [class*="shadow-md"] {
-  box-shadow: 0 1px 0 rgba(10, 10, 10, 0.04) !important;
+  box-shadow: none !important;
 }
 
 .firm-workspace.firm-clio-shell .bg-gradient-to-br,
@@ -606,4 +618,79 @@
   .firm-workspace.firm-clio-shell .btn-secondary:active:not(:disabled) {
     transform: none;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   11. GOLD TOKEN REMAP — firm shell + hub (pragmatic, not globals rewrite)
+   ═══════════════════════════════════════════════════════════════ */
+.firm-workspace,
+.office-hub-page {
+  --gold: var(--ink, #0a0a0a);
+  --gold-light: #333333;
+  --gold-dark: var(--ink, #0a0a0a);
+  --gold-glow: transparent;
+  --site-gold: var(--ink, #0a0a0a);
+  --site-gold-strong: var(--ink, #0a0a0a);
+  --site-glance-gold-text: var(--ink, #0a0a0a);
+}
+
+.firm-workspace .btn-gold,
+.firm-workspace a.btn-gold,
+.office-hub-page .btn-gold,
+.office-hub-page a.btn-gold {
+  border-radius: 0 !important;
+  background: var(--ink, #0a0a0a) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 1px solid var(--ink, #0a0a0a) !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace .btn-gold:hover:not(:disabled),
+.firm-workspace a.btn-gold:hover,
+.office-hub-page .btn-gold:hover:not(:disabled),
+.office-hub-page a.btn-gold:hover {
+  background: #1a1a1a !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border-color: #1a1a1a !important;
+}
+
+.firm-workspace .text-gold-dark,
+.firm-workspace .text-gold-light,
+.firm-workspace .text-gold,
+.office-hub-page .text-gold-dark,
+.office-hub-page .text-gold-light,
+.office-hub-page .text-gold {
+  color: var(--ink, #0a0a0a) !important;
+}
+
+/* Calm hub notice + consistent panel loading */
+.office-hub__access-note {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--letterhead-line, rgba(10, 10, 10, 0.14));
+  border-radius: 0;
+  background: var(--letterhead-paper, #fff);
+  box-shadow: none;
+}
+
+.office-hub__access-note-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--letterhead-ink, #0a0a0a);
+}
+
+.panel-loading {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--letterhead-muted, #454545);
+}
+
+.tone-legend__label {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
 }

@@ -25,11 +25,7 @@ export function FormStatusReport({ status, className = "" }: Props) {
     >
       {status.phase === "processing" ? (
         <span className="form-status-report__spinner" aria-hidden />
-      ) : (
-        <span className="form-status-report__icon" aria-hidden>
-          {status.phase === "error" ? "!" : "✓"}
-        </span>
-      )}
+      ) : null}
       <span className="form-status-report__text">{status.message}</span>
     </div>
   );

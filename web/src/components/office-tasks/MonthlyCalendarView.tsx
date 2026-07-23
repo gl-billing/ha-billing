@@ -30,6 +30,7 @@ import {
   officeItemKey,
   shortCalendarLabel,
   toneDotClass,
+  toneLegendLabel,
   truncate
 } from "@/lib/office-tasks/schedule";
 
@@ -206,7 +207,7 @@ export function MonthlyCalendarView({
                     {tones.length > 0 && (
                       <div className="mt-1.5 flex flex-wrap gap-0.5">
                         {tones.map((t) => (
-                          <span key={t} className={toneDotClass(t)} />
+                          <span key={t} className={toneDotClass(t)} title={toneLegendLabel(t)} />
                         ))}
                       </div>
                     )}

@@ -30,10 +30,10 @@ type Props = {
 
 const BUCKETS = [
   { key: "overdue" as const, title: "Fix first — overdue", icon: "!", border: "border-red-400" },
-  { key: "events" as const, title: "Hearings & meetings", icon: "◆", border: "border-blue-400" },
-  { key: "deadlines" as const, title: "Filings & deadlines", icon: "▪", border: "border-rose-400" },
-  { key: "tasks" as const, title: "Tasks", icon: "●", border: "border-green/50" },
-  { key: "done" as const, title: "Completed", icon: "✓", border: "border-gray-300" }
+  { key: "events" as const, title: "Hearings & meetings", icon: "", border: "border-blue-400" },
+  { key: "deadlines" as const, title: "Filings & deadlines", icon: "", border: "border-rose-400" },
+  { key: "tasks" as const, title: "Tasks", icon: "", border: "border-green/50" },
+  { key: "done" as const, title: "Completed", icon: "", border: "border-gray-300" }
 ];
 
 export function DayDetailPanel({

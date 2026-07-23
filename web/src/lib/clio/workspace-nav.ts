@@ -75,12 +75,12 @@ export const HA_CLIO_RAIL_GROUPS: ClioRailGroup[] = [
   {
     id: "work",
     label: "Work",
-    navIds: ["checklist", "calendar", "activities", "filing"]
+    navIds: ["checklist", "calendar", "activities", "filing", "communications"]
   },
   {
     id: "clients",
     label: "Clients",
-    navIds: ["matters", "contacts", "communications", "documents"]
+    navIds: ["matters", "contacts", "documents"]
   },
   {
     id: "accounts",
@@ -373,7 +373,7 @@ export const HA_CLIO_NAV: ClioPrimary[] = [
   },
   {
     id: "dashboard",
-    label: "Dashboard",
+    label: "Firm overview",
     description: BILLING_PAGE_DESCRIPTIONS.home,
     app: "billing",
     defaultSectionId: "home",

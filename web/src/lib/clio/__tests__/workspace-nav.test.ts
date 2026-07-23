@@ -100,12 +100,12 @@ describe("HA_CLIO_NAV inventory", () => {
       "checklist",
       "calendar",
       "activities",
-      "filing"
+      "filing",
+      "communications"
     ]);
     expect(grouped.find((g) => g.id === "clients")?.primaries.map((p) => p.id)).toEqual([
       "matters",
       "contacts",
-      "communications",
       "documents"
     ]);
     expect(grouped.find((g) => g.id === "accounts")?.primaries.map((p) => p.id)).toEqual([
@@ -121,6 +121,27 @@ describe("HA_CLIO_NAV inventory", () => {
     for (const primary of HA_CLIO_NAV) {
       expect(covered.has(primary.id), `primary ${primary.id} missing from rail groups`).toBe(true);
     }
+  });
+
+  it("shows counsel desk Work rail for associates", () => {
+    const grouped = clioRailGroupsForUser({
+      billingAccess: false,
+      navProfile: "associate",
+      isAdmin: false
+    });
+    expect(grouped.map((g) => g.id)).toEqual(["work"]);
+    expect(grouped.find((g) => g.id === "work")?.primaries.map((p) => p.id)).toEqual([
+      "checklist",
+      "calendar",
+      "activities",
+      "filing",
+      "communications"
+    ]);
+    const activities = clioSectionsForUser(HA_CLIO_NAV.find((item) => item.id === "activities")!, {
+      billingAccess: false,
+      navProfile: "associate"
+    });
+    expect(activities.map((s) => s.id)).toEqual(["add-task", "add-event", "all"]);
   });
 
   it("hides admin / liaison / presence sections for secretaries", () => {

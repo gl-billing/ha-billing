@@ -160,5 +160,5 @@ export function formatConsolidateSummary(result: ConsolidateOfficeSheetsResult):
   if (!parts.length) {
     return "No distant rows needed moving — main lists are already contiguous in column A.";
   }
-  return `Pulled up real items under your lists: ${parts.join("; ")}. Reload to refresh.`;
+  return `Pulled up real items under your lists: ${parts.join("; ")}. Update to refresh.`;
 }

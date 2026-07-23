@@ -591,11 +591,11 @@ export function BillingApp() {
         body: JSON.stringify({ action: "refreshDashboard" })
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Refresh failed.");
-      setAppStatus(formatSuccessReport(result.message || "Dashboard refreshed."));
+      if (!response.ok) throw new Error(result.error || "Update failed.");
+      setAppStatus(formatSuccessReport(result.message || "Firm overview updated."));
       await loadData();
     } catch (error) {
-      setAppStatus(error instanceof Error ? error.message : "Refresh failed.", true);
+      setAppStatus(error instanceof Error ? error.message : "Update failed.", true);
     } finally {
       setBusy(false);
     }

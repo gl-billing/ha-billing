@@ -647,9 +647,6 @@ export function WalkInClientsPanel({ busy, onBusy, onStatus, onPromoted, onOpenB
 
       {promoteSuccess ? (
         <section className="card walk-in-promote-success" role="status">
-          <div className="walk-in-promote-success__icon" aria-hidden>
-            ✓
-          </div>
           <div className="walk-in-promote-success__body">
             <p className="walk-in-promote-success__eyebrow">Walk-in promoted</p>
             <h2 className="walk-in-promote-success__title">

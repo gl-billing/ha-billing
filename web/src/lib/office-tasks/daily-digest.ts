@@ -8,28 +8,14 @@ import { filterTodayLists } from "@/lib/office-tasks/today-lists";
 import { myWorkItemKindLabel, shortCalendarLabel } from "@/lib/office-tasks/schedule";
 import { getAdminEmails } from "@/lib/admin";
 
+/** Monochrome firm letterhead — ink / paper / hairline (matches firm-email-shell). */
 const EMAIL = {
-  ink: "#1a1612",
-  muted: "#6f675c",
-  line: "#e3ddd2",
-  paper: "#fffefd",
-  cream: "#faf8f4",
-  gold: "#b8913d",
-  goldDark: "#8a6b2a",
-  red: "#b91c1c",
-  redBg: "#fef2f2",
-  redBorder: "#fecaca",
-  green: "#166534",
-  greenBg: "#f0fdf4",
-  greenBorder: "#bbf7d0",
-  blue: "#1d4ed8",
-  blueBg: "#eff6ff",
-  blueBorder: "#bfdbfe",
-  violet: "#5b21b6",
-  violetBg: "#f5f3ff",
-  violetBorder: "#ddd6fe",
-  charcoal: "#2b251d",
-  soft: "#f3f0ea"
+  ink: "#0a0a0a",
+  muted: "#454545",
+  line: "#e0e0e0",
+  paper: "#ffffff",
+  soft: "#f6f6f4",
+  white: "#ffffff"
 } as const;
 
 const APP_URL = (
@@ -228,7 +214,7 @@ export function buildDailyDigestSubject(content: DailyDigestContent): string {
   }
 
   const tail = parts.length ? ` — ${parts.join(", ")}` : " — all clear";
-  return `GL Office daily digest${tail} · ${content.dateLabel}`;
+  return `HA Office daily digest${tail} · ${content.dateLabel}`;
 }
 
 function renderChecklistRow(item: OfficeItem): string {
@@ -242,9 +228,9 @@ function renderChecklistRow(item: OfficeItem): string {
   return (
     `<tr>` +
     `<td style="padding:10px 0;border-bottom:1px solid ${EMAIL.line};vertical-align:top;">` +
-    `<span style="display:inline-block;min-width:72px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;` +
-    `letter-spacing:0.06em;text-transform:uppercase;background:${EMAIL.cream};border:1px solid ${EMAIL.line};` +
-    `color:${EMAIL.goldDark};">${escapeHtml(kind || shortCalendarLabel(item))}</span>` +
+    `<span style="display:inline-block;min-width:72px;padding:2px 8px;font-size:10px;font-weight:700;` +
+    `letter-spacing:0.06em;text-transform:uppercase;background:${EMAIL.paper};border:1px solid ${EMAIL.line};` +
+    `color:${EMAIL.muted};">${escapeHtml(kind || shortCalendarLabel(item))}</span>` +
     `</td>` +
     `<td style="padding:10px 8px;border-bottom:1px solid ${EMAIL.line};vertical-align:top;">` +
     `<p style="margin:0;font-size:14px;line-height:1.45;font-weight:600;color:${EMAIL.ink};">${escapeHtml(title)}</p>` +
@@ -258,19 +244,15 @@ function renderChecklistRow(item: OfficeItem): string {
   );
 }
 
-function renderChecklistSection(
-  title: string,
-  items: OfficeItem[],
-  accent: { bg: string; border: string; text: string }
-): string {
+function renderChecklistSection(title: string, items: OfficeItem[]): string {
   if (!items.length) return "";
 
   const rows = items.map(renderChecklistRow).join("");
   return (
     `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" ` +
-    `style="margin:0 0 16px;border:1px solid ${accent.border};border-radius:12px;background:${accent.bg};">` +
+    `style="margin:0 0 16px;border:1px solid ${EMAIL.line};background:${EMAIL.paper};">` +
     `<tr><td style="padding:14px 16px 8px;">` +
-    `<p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${accent.text};">` +
+    `<p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${EMAIL.muted};">` +
     `${escapeHtml(title)} (${items.length})</p>` +
     `</td></tr>` +
     `<tr><td style="padding:0 16px 12px;">` +
@@ -279,12 +261,12 @@ function renderChecklistSection(
   );
 }
 
-function renderSummaryParagraph(label: string, text: string, accent: { bg: string; border: string; text: string }): string {
+function renderSummaryParagraph(label: string, text: string): string {
   return (
     `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" ` +
-    `style="margin:0 0 18px;border:1px solid ${accent.border};border-radius:12px;background:${accent.bg};">` +
+    `style="margin:0 0 18px;border:1px solid ${EMAIL.line};background:${EMAIL.paper};">` +
     `<tr><td style="padding:14px 16px;">` +
-    `<p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${accent.text};">` +
+    `<p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${EMAIL.muted};">` +
     `${escapeHtml(label)}</p>` +
     `<p style="margin:0;font-size:15px;line-height:1.6;color:${EMAIL.ink};">${escapeHtml(text)}</p>` +
     `</td></tr></table>`
@@ -294,61 +276,42 @@ function renderSummaryParagraph(label: string, text: string, accent: { bg: strin
 export function buildDailyDigestHtml(content: DailyDigestContent): string {
   const { todayChecklist, counts } = content;
   const checklistSections = [
-    renderChecklistSection("Hearings & events today", todayChecklist.eventsToday, {
-      bg: EMAIL.blueBg,
-      border: EMAIL.blueBorder,
-      text: EMAIL.blue
-    }),
-    renderChecklistSection("Deadlines & filings today", todayChecklist.deadlinesToday, {
-      bg: "#fff1f2",
-      border: "#fecdd3",
-      text: "#be123c"
-    }),
-    renderChecklistSection("Tasks due today", todayChecklist.tasksDueToday, {
-      bg: EMAIL.greenBg,
-      border: EMAIL.greenBorder,
-      text: EMAIL.green
-    })
+    renderChecklistSection("Hearings & events today", todayChecklist.eventsToday),
+    renderChecklistSection("Deadlines & filings today", todayChecklist.deadlinesToday),
+    renderChecklistSection("Tasks due today", todayChecklist.tasksDueToday)
   ].join("");
 
   const todayBlock =
     counts.todayTotal > 0
       ? checklistSections
       : `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" ` +
-        `style="margin:0 0 16px;border:1px solid ${EMAIL.line};border-radius:12px;background:${EMAIL.paper};">` +
+        `style="margin:0 0 16px;border:1px solid ${EMAIL.line};background:${EMAIL.paper};">` +
         `<tr><td style="padding:20px 16px;text-align:center;">` +
         `<p style="margin:0;font-size:15px;color:${EMAIL.muted};">No tasks, hearings, or deadlines scheduled for today.</p>` +
         `</td></tr></table>`;
 
   return (
     `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>` +
-    `<body style="margin:0;padding:0;background:${EMAIL.cream};">` +
-    `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${EMAIL.cream};padding:24px 12px;">` +
+    `<body style="margin:0;padding:0;background:${EMAIL.soft};">` +
+    `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${EMAIL.soft};padding:24px 12px;">` +
     `<tr><td align="center">` +
     `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%;">` +
-    `<tr><td style="height:4px;background:${EMAIL.gold};border-radius:16px 16px 0 0;font-size:0;line-height:0;">&nbsp;</td></tr>` +
+    `<tr><td style="height:2px;background:${EMAIL.ink};font-size:0;line-height:0;">&nbsp;</td></tr>` +
     `<tr><td style="padding:22px 24px 18px;background:${EMAIL.paper};border-left:1px solid ${EMAIL.line};border-right:1px solid ${EMAIL.line};">` +
-    `<p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:${EMAIL.goldDark};">Hernandez &amp; Associates</p>` +
+    `<p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:${EMAIL.muted};">Hernandez &amp; Associates</p>` +
     `<h1 style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;line-height:1.25;color:${EMAIL.ink};">Firm daily digest</h1>` +
     `<p style="margin:0;font-size:15px;line-height:1.5;color:${EMAIL.muted};">${escapeHtml(content.dateLabel)} · firm-wide open work</p>` +
     `</td></tr>` +
     `<tr><td style="padding:20px 18px 8px;background:${EMAIL.paper};border-left:1px solid ${EMAIL.line};border-right:1px solid ${EMAIL.line};">` +
-    `<p style="margin:0 0 14px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${EMAIL.goldDark};">Today</p>` +
+    `<p style="margin:0 0 14px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${EMAIL.muted};">Today</p>` +
     todayBlock +
-    renderSummaryParagraph("Overdue", content.overdueSummary, {
-      bg: EMAIL.redBg,
-      border: EMAIL.redBorder,
-      text: EMAIL.red
-    }) +
-    renderSummaryParagraph("Waiting", content.waitingSummary, {
-      bg: EMAIL.violetBg,
-      border: EMAIL.violetBorder,
-      text: EMAIL.violet
-    }) +
+    renderSummaryParagraph("Overdue", content.overdueSummary) +
+    renderSummaryParagraph("Waiting", content.waitingSummary) +
     `</td></tr>` +
-    `<tr><td style="padding:18px 20px 22px;background:${EMAIL.soft};border:1px solid ${EMAIL.line};border-top:0;border-radius:0 0 16px 16px;text-align:center;">` +
-    `<a href="${escapeHtml(APP_URL)}" style="display:inline-block;padding:12px 22px;border-radius:999px;background:${EMAIL.gold};` +
-    `color:#fffefd;font-size:13px;font-weight:700;text-decoration:none;letter-spacing:0.04em;">Open GL Office</a>` +
+    `<tr><td style="padding:18px 20px 22px;background:${EMAIL.paper};border:1px solid ${EMAIL.line};border-top:0;text-align:center;">` +
+    `<a href="${escapeHtml(APP_URL)}" style="display:inline-block;padding:12px 28px;background:${EMAIL.ink};` +
+    `color:${EMAIL.white};font-family:Georgia,'Times New Roman',serif;font-size:13px;font-weight:700;` +
+    `text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;">Open HA Office</a>` +
     `<p style="margin:14px 0 0;font-size:11px;line-height:1.5;color:${EMAIL.muted};">Firm-wide summary · Per-staff reminders still go out via the morning staff digest.</p>` +
     `</td></tr></table></td></tr></table></body></html>`
   );
@@ -356,7 +319,7 @@ export function buildDailyDigestHtml(content: DailyDigestContent): string {
 
 export function buildDailyDigestPlainText(content: DailyDigestContent): string {
   const lines: string[] = [
-    `GL Office firm daily digest — ${content.dateLabel}`,
+    `HA Office firm daily digest — ${content.dateLabel}`,
     "",
     "TODAY",
     formatChecklistPlain(content.todayChecklist),

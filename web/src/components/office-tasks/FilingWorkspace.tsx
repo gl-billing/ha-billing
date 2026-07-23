@@ -370,7 +370,7 @@ export function FilingWorkspace({
         ) : null}
 
         {error ? <p className="filing-workspace__error">{error}</p> : null}
-        {loading ? <p className="filing-workspace__loading">Loading queue…</p> : null}
+        {loading ? <p className="panel-loading">Loading…</p> : null}
 
         {!loading && !rows.length ? (
           <div className="filing-workspace__empty">

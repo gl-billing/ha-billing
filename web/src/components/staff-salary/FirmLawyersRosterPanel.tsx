@@ -203,7 +203,7 @@ export function FirmLawyersRosterPanel({ roster, busy, onSaved, onStatus }: Prop
               value={draft.email}
               disabled={busy || saving}
               onChange={(e) => setDraft((prev) => ({ ...prev, email: e.target.value }))}
-              placeholder="maria@hernandezassociates.com"
+              placeholder="counsel@hernandezlaw.info"
             />
           </StaffSalaryField>
           <StaffSalaryField label="Appearance fee share %">

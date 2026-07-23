@@ -219,7 +219,7 @@ export function buildPreHearingBriefEmail(input: {
   preferredGreeting?: string;
   meetLink?: string | null;
 }) {
-  const { gold, goldLight, goldPale, cream, ink, muted } = BILLING_DOC_COLORS;
+  const { ink, muted, line, white } = BILLING_DOC_COLORS;
   const dateYmd = hearingEventDate(input.item as OfficeItem);
   const dateLabel = dateYmd ? formatBillingDate(dateYmd) : "the scheduled date";
   const timeLabel = formatTimeRange(input.item.startTime, input.item.endTime);
@@ -250,15 +250,15 @@ export function buildPreHearingBriefEmail(input: {
   const html =
     `<p style="margin:0 0 16px;font-family:Georgia,serif;font-size:15px;line-height:1.65;color:${ink};">${greetingHtml},</p>` +
     `<p style="margin:0 0 16px;font-family:Georgia,serif;font-size:15px;line-height:1.65;color:${ink};">This is a reminder of your upcoming hearing with our office.</p>` +
-    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%" style="margin:0 0 16px;background:${cream};border:1px solid ${goldPale};">` +
+    `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%" style="margin:0 0 16px;background:${white};border:1px solid ${line};">` +
     `<tr><td style="padding:16px 18px;">` +
-    `<p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${gold};font-weight:700;">Schedule</p>` +
+    `<p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${muted};font-weight:700;">Schedule</p>` +
     `<p style="margin:0;font-family:Georgia,serif;font-size:14px;line-height:1.65;color:${ink};"><strong>Date:</strong> ${dateLabel}<br/>` +
     (timeLabel ? `<strong>Time:</strong> ${timeLabel}<br/>` : "") +
     (venue ? `<strong>Venue:</strong> ${venue.replace(/</g, "&lt;")}<br/>` : "") +
-    (meetLink ? `<strong>Link:</strong> <a href="${meetLink}" style="color:${goldLight};">${meetLink}</a>` : "") +
+    (meetLink ? `<strong>Link:</strong> <a href="${meetLink}" style="color:${ink};">${meetLink}</a>` : "") +
     `</p></td></tr></table>` +
-    `<p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${gold};font-weight:700;">What to bring / expect</p>` +
+    `<p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${muted};font-weight:700;">What to bring / expect</p>` +
     `<ul style="margin:0 0 16px;padding-left:20px;">${checklistHtml}</ul>` +
     `<p style="margin:0;font-family:Georgia,serif;font-size:14px;line-height:1.65;color:${muted};">If anything has changed or you have questions, reply to this email.</p>`;
 

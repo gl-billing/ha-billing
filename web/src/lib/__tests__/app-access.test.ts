@@ -162,6 +162,26 @@ describe("tasks nav for tasks-only staff", () => {
   });
 });
 
+describe("associate counsel desk nav", () => {
+  it("includes counsel desk essentials", () => {
+    const tabs = tasksNavTabsForUser(false, "associate").map((tab) => tab.id);
+    expect(tabs).toEqual([
+      "desk-checklist",
+      "today",
+      "add-task",
+      "add-event",
+      "calendar",
+      "week",
+      "filing",
+      "correspondence",
+      "all-items"
+    ]);
+    expect(isAllowedTasksTab("add-task", false, "associate")).toBe(true);
+    expect(isAllowedTasksTab("all-items", false, "associate")).toBe(true);
+    expect(isAllowedTasksTab("tools", false, "associate")).toBe(false);
+  });
+});
+
 describe("secretary desk nav", () => {
   it("defaults to the firm inbox for secretary nav", () => {
     delete process.env.SECRETARY_NAV_EMAILS;

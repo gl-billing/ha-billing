@@ -333,14 +333,17 @@ const TASKS_ONLY_NAV_TAB_IDS: SavedTasksTab[] = [
   "calendar"
 ];
 
-/** Associate lawyers — schedule tabs only (no billing). */
+/** Associate lawyers — counsel desk essentials (no billing / team oversight). */
 const ASSOCIATE_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
   "desk-checklist",
   "today",
+  "add-task",
+  "add-event",
   "calendar",
   "week",
   "filing",
-  "correspondence"
+  "correspondence",
+  "all-items"
 ];
 
 /** Secretaries — schedule + correspondence + search (no team oversight or admin tools). */

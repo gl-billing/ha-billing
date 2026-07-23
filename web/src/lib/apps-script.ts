@@ -95,7 +95,7 @@ export async function callAppsScriptWebApp(
     }
     if (/Invalid argument:\s*[^\s]+@[^\s]+/i.test(err) || /cannot send as/i.test(err)) {
       throw new Error(
-        `${err} The Apps Script Web App runs as the Google account that deployed it (Deploy → Execute as: Me). Open Gmail for that account → Settings → Accounts → Send mail as → add info@hernandezassociates.com, or redeploy the Web App while signed in as janinerose@hernandezassociates.com (if that account already has Send mail as for info@). Then run authorizeGmailForWebApp() in Apps Script and deploy a new version.`
+        `${err} The Apps Script Web App runs as the Google account that deployed it (Deploy → Execute as: Me). Open Gmail for that account → Settings → Accounts → Send mail as → add legal@hernandezlaw.info, or redeploy the Web App while signed in as that firm inbox. Then run authorizeGmailForWebApp() in Apps Script and deploy a new version.`
       );
     }
     if (/mail\.google\.com|gmail\.|GmailApp/i.test(err)) {

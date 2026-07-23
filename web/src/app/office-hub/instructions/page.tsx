@@ -142,7 +142,7 @@ export default function OfficeHubInstructionsPage() {
               <div className="office-hub-instructions__register-block">
                 <h3>Andrea — desk &amp; billing</h3>
                 <p className="office-hub-instructions__note">
-                  Sign in as <strong>info@hernandezassociates.com</strong> for the simplified desk view — core tabs only
+                  Sign in as <strong>legal@hernandezlaw.info</strong> for the simplified desk view — core tabs only
                   (no Week, Team, Tools, Reports, or History).
                 </p>
                 <ul>

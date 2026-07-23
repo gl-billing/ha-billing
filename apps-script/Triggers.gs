@@ -118,7 +118,7 @@ function installHourlyDashboardRefresh() {
 function authorizeGmailForWebApp() {
   var activeEmail = Session.getActiveUser().getEmail();
   var aliases = GmailApp.getAliases();
-  var firmEmail = typeof getFirmSenderEmail_ === "function" ? getFirmSenderEmail_() : "info@hernandezassociates.com";
+  var firmEmail = typeof getFirmSenderEmail_ === "function" ? getFirmSenderEmail_() : "legal@hernandezlaw.info";
   var allowed = typeof getGmailSendAsAddresses_ === "function" ? getGmailSendAsAddresses_() : [activeEmail].concat(aliases || []);
   var normalizedFirm = String(firmEmail || "").trim().toLowerCase();
   var canSendAs = false;

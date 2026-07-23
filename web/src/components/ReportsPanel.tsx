@@ -547,7 +547,7 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
           <p className="reports-maintenance-banner reports-maintenance-banner--ok">
             Apps Script connected
             {scriptStatus.scriptUser ? ` as ${scriptStatus.scriptUser}` : ""}. SOA, overview refresh, and
-            hourly update can run from here. On Vercel, dashboard also refreshes hourly via cron when{" "}
+            hourly update can run from here. On Vercel, firm overview also refreshes hourly via cron when{" "}
             <code>CRON_SECRET</code> is set.
           </p>
         ) : (

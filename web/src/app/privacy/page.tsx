@@ -67,8 +67,8 @@ export default function PrivacyPage() {
           <h2 className="font-bold text-ink">Questions</h2>
           <p className="mt-1 text-muted">
             Contact the firm at{" "}
-            <a href="mailto:info@hernandezassociates.com" className="font-bold text-gold-dark underline">
-              info@hernandezassociates.com
+            <a href="mailto:legal@hernandezlaw.info" className="font-bold text-ink underline">
+              legal@hernandezlaw.info
             </a>
             .
           </p>

@@ -100,7 +100,7 @@ export function BillingHistoryPanel({ busy, onOpenClient }: Props) {
         ))}
       </div>
 
-      {loading ? <p className="text-sm text-muted">Loading history…</p> : null}
+      {loading ? <p className="panel-loading">Loading…</p> : null}
       {error ? <p className="text-sm text-[#8b1e1e]">{error}</p> : null}
 
       {!loading && !error && !items.length ? (

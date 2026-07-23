@@ -28,7 +28,8 @@ import {
   officeItemKey,
   shortCalendarLabel,
   toneClass,
-  toneDotClass
+  toneDotClass,
+  toneLegendLabel
 } from "@/lib/office-tasks/schedule";
 
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -212,7 +213,7 @@ export function WeeklyPlannerView({
                 {tones.length > 0 && (
                   <div className="mt-2 flex justify-center gap-0.5">
                     {tones.map((t) => (
-                      <span key={t} className={toneDotClass(t)} />
+                      <span key={t} className={toneDotClass(t)} title={toneLegendLabel(t)} />
                     ))}
                   </div>
                 )}

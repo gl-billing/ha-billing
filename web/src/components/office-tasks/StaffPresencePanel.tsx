@@ -9,6 +9,7 @@ import {
   workspaceLabel,
   type StaffPresenceEntry
 } from "@/lib/staff-presence";
+import { EmptyState } from "@/components/office-tasks/PremiumUI";
 
 function formatDateTimeAt(iso: string): string {
   const ms = Date.parse(iso);
@@ -133,7 +134,11 @@ export function StaffPresencePanel({ onStatus }: Props) {
       {hint && !error ? <p className="attendance-register__hint">{hint}</p> : null}
 
       {!error && !loading && rows.length === 0 ? (
-        <p className="attendance-register__empty">No sign-ins recorded yet.</p>
+        <EmptyState
+          compact
+          title="No sign-ins yet"
+          message="When staff open HA Office, their sign-ins will appear here."
+        />
       ) : null}
 
       {rows.length > 0 ? (

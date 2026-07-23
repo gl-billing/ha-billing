@@ -10,6 +10,7 @@ import { CronAutomationHealthPanel } from "@/components/CronAutomationHealthPane
 import { IntegrationsSetupChecklist } from "@/components/IntegrationsSetupChecklist";
 import { EventsDiagnosticsResults } from "@/components/office-tasks/EventsDiagnosticsPanel";
 import { OrphanTasksPanel } from "@/components/office-tasks/OrphanTasksPanel";
+import { LaunchAnnouncementPanel } from "@/components/office-tasks/LaunchAnnouncementPanel";
 import { ViewHero } from "@/components/office-tasks/PremiumUI";
 import { CronDigestStatus } from "@/components/CronDigestStatus";
 import { CalendarSyncStatus } from "@/components/CalendarSyncStatus";
@@ -143,6 +144,10 @@ export function ToolsPanel({
         ) : null}
         <EventsDiagnosticsResults data={diagData}  />
       </section>
+
+      {isAdmin ? (
+        <LaunchAnnouncementPanel busy={busy} onStatus={onStatus} />
+      ) : null}
 
       {isAdmin ? <CronDigestStatus /> : null}
 

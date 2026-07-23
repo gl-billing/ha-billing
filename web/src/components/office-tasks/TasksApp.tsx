@@ -501,7 +501,9 @@ export function TasksApp() {
       if (saved && isAllowedTasksTab(saved, billingAccess, navProfile, tabOpts)) {
         selectTab(saved, { syncUrl: true });
       } else {
-        selectTab("today", { syncUrl: true });
+        const defaultTab: Tab =
+          navProfile === "secretary" || navProfile === "associate" ? "desk-checklist" : "today";
+        selectTab(defaultTab, { syncUrl: true });
       }
     }
   }, [

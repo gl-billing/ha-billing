@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { SameWindowLink } from "@/components/SameWindowLink";
 import { FirmLogoBanner } from "@/components/FirmLogoBanner";
 import { FirmCopyright } from "@/components/FirmCopyright";
@@ -58,6 +59,7 @@ type HubUser = {
 type Props = {
   initialSummary: OfficeHubSummary;
   hubUser: HubUser;
+  notice?: string;
 };
 
 function officeHour(date: Date): number {
@@ -158,9 +160,12 @@ function hubPrimariesForUser(
   });
 }
 
-export function OfficeHubLauncher({ initialSummary, hubUser }: Props) {
+export function OfficeHubLauncher({ initialSummary, hubUser, notice }: Props) {
   const billingAccess = hubUser.billingAccess;
   const displayLabel = formatStaffDisplayName(hubUser.name, hubUser.email) || "team";
+  const searchParams = useSearchParams();
+  const showBillingRestricted =
+    notice === "billing-restricted" || searchParams.get("notice") === "billing-restricted";
   useStaffPresenceHeartbeat({ workspace: "hub" });
 
   const [now, setNow] = useState(() => new Date());
@@ -304,6 +309,15 @@ export function OfficeHubLauncher({ initialSummary, hubUser }: Props) {
               isAdmin={hubUser.isAdmin}
               onChange={handleAnnouncementChange}
             />
+
+            {showBillingRestricted ? (
+              <aside className="office-hub__access-note" role="status">
+                <p className="office-hub__access-note-text">
+                  Your account is Tasks &amp; calendar only. Accounts / billing is limited to office
+                  administrators and desk staff.
+                </p>
+              </aside>
+            ) : null}
 
             <section className="office-hub__welcome">
               <p className="office-hub__greeting">

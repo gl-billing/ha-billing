@@ -73,6 +73,16 @@ body:has(.office-hub-page) {
   box-shadow: none;
 }
 
+.office-hub__access-note {
+  margin: 0 0 0.85rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(10, 10, 10, 0.16);
+  background: #ffffff;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #0a0a0a;
+}
+
 .office-hub-page .office-hub__desk-enter,
 .office-hub-page .office-hub__desk-primary,
 .office-hub-page .office-hub-instructions__card,

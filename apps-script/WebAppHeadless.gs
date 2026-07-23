@@ -55,7 +55,7 @@ function getFirmSenderEmail_() {
     var value = String(getSettingValue(keys[i], "") || "").trim();
     if (value && value.indexOf("@") > 0) return value;
   }
-  return "info@hernandezassociates.com";
+  return "legal@hernandezlaw.info";
 }
 
 function normalizeEmailForSendAs_(raw) {

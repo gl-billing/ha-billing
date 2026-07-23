@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
           { status: 403 }
         );
       }
-      return NextResponse.redirect(new URL("/office-hub", request.url));
+      return NextResponse.redirect(new URL("/office-hub?notice=billing-restricted", request.url));
     }
   }
 

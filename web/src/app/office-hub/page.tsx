@@ -7,7 +7,11 @@ import { getSafeServerSession } from "@/lib/safe-server-session";
 import { emptyOfficeHubSummary } from "@/lib/office-hub/summary";
 import { formatStaffDisplayName } from "@/lib/user-display";
 
-export default async function OfficeHubPage() {
+export default async function OfficeHubPage({
+  searchParams
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const session = await getSafeServerSession();
 
   if (!session?.user?.email) {
@@ -21,6 +25,9 @@ export default async function OfficeHubPage() {
   }
 
   const isAdmin = isAdminEmail(email);
+  const params = searchParams ? await searchParams : undefined;
+  const noticeRaw = params?.notice;
+  const notice = Array.isArray(noticeRaw) ? noticeRaw[0] : noticeRaw;
 
   const initialSummary = {
     ...emptyOfficeHubSummary(email),
@@ -37,7 +44,11 @@ export default async function OfficeHubPage() {
 
   return (
     <Suspense fallback={<OfficeHubLoadingFallback />}>
-      <OfficeHubLauncher initialSummary={initialSummary} hubUser={hubUser} />
+      <OfficeHubLauncher
+        initialSummary={initialSummary}
+        hubUser={hubUser}
+        notice={typeof notice === "string" ? notice : undefined}
+      />
     </Suspense>
   );
 }

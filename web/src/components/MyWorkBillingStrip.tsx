@@ -80,7 +80,7 @@ export function MyWorkBillingStrip({ className = "", embedded = false }: Props) 
             {data.scope === "firm" ? "Firm-wide" : "Your assigned clients"} · SOA, AR, collections
           </p>
           <SameWindowLink href={billingHref({ page: "home" })} className="my-work-billing__dashboard-link">
-            Dashboard →
+            Firm overview →
           </SameWindowLink>
         </div>
       ) : (
@@ -92,7 +92,7 @@ export function MyWorkBillingStrip({ className = "", embedded = false }: Props) 
             </p>
           </div>
           <SameWindowLink href={billingHref({ page: "home" })} className="my-work-billing__dashboard-link">
-            Dashboard →
+            Firm overview →
           </SameWindowLink>
         </div>
       )}

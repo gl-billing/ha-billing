@@ -234,7 +234,7 @@ export function StaffRemindersPanel({
       <div className="mb-3">
         <span className="owner-reminder-badge">Owner / Admin</span>
         <h3 className="font-display mt-2 text-lg font-semibold text-ink">Send staff email reminders</h3>
-        <p className="mt-1 text-xs text-muted">Sends from the firm address (info@hernandezassociates.com). Sign out and back in once if send fails (Gmail permission).</p>
+        <p className="mt-1 text-xs text-muted">Sends from the firm address (legal@hernandezlaw.info). Sign out and back in once if send fails (Gmail permission).</p>
       </div>
     ) : (
       <div className="tools-panel__section-head">

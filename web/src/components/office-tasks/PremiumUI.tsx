@@ -121,7 +121,7 @@ export function EmptyState({
   );
 }
 
-export function ToneLegend({ className = "", showLabel = false }: { className?: string; showLabel?: boolean }) {
+export function ToneLegend({ className = "", showLabel = true }: { className?: string; showLabel?: boolean }) {
   const items = [
     { tone: "overdue", label: "Overdue" },
     { tone: "event", label: "Hearing" },
@@ -136,13 +136,13 @@ export function ToneLegend({ className = "", showLabel = false }: { className?: 
   return (
     <div className={className}>
       {showLabel ? (
-        <p className="tone-legend__heading no-print">Color key — what each dot means on the calendar</p>
+        <p className="tone-legend__heading no-print">Status key — label for each calendar mark</p>
       ) : null}
-      <div className="tone-legend no-print">
+      <div className="tone-legend no-print" role="list" aria-label="Calendar status key">
         {items.map(({ tone, label }) => (
-          <span key={tone} className="tone-legend__item">
-            <span className={`tone-dot tone-dot--${tone}`} />
-            {label}
+          <span key={tone} className="tone-legend__item" role="listitem">
+            <span className={`tone-dot tone-dot--${tone}`} aria-hidden />
+            <span className="tone-legend__label">{label}</span>
           </span>
         ))}
       </div>

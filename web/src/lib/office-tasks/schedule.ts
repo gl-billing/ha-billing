@@ -294,6 +294,29 @@ export function toneDotClass(tone: ReturnType<typeof itemTone>): string {
   return `tone-dot tone-dot--${tone}`;
 }
 
+export function toneLegendLabel(tone: ReturnType<typeof itemTone>): string {
+  switch (tone) {
+    case "overdue":
+      return "Overdue";
+    case "event":
+      return "Hearing";
+    case "deadline":
+      return "Filing";
+    case "task":
+      return "Task";
+    case "started":
+      return "Started";
+    case "waiting":
+      return "Waiting";
+    case "done":
+      return "Done";
+    case "cancelled":
+      return "Cancelled";
+    default:
+      return "Task";
+  }
+}
+
 export function shortCalendarLabel(item: OfficeItem): string {
   if (isDeadlineLike(item)) return "Deadline";
   if (item.source === "Event") return item.category || "Event";

@@ -39,8 +39,22 @@
   }
 
   .firm-workspace.firm-clio-shell .firm-shell-chrome {
-    margin-bottom: 0.3rem !important;
-    padding-bottom: 0.2rem !important;
+    margin-bottom: 0.2rem !important;
+    padding-bottom: 0.1rem !important;
+    gap: 0.15rem;
+  }
+
+  .firm-workspace.firm-clio-shell .firm-shell-chrome__top {
+    gap: 0.2rem !important;
+  }
+
+  .firm-workspace.firm-clio-shell .firm-shell-chrome__crumb,
+  .firm-workspace.firm-clio-shell .firm-shell-chrome__guide {
+    display: none !important;
+  }
+
+  .firm-workspace.firm-clio-shell .ha-clio-subtabs {
+    margin: 0 0 0.3rem;
   }
 
   /* Workspace picker — large tap target */

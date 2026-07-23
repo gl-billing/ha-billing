@@ -15,14 +15,26 @@ export function HubRoleShortcuts({ billingAccess, isAdmin, secretaryNav = false 
   if (secretaryNav) {
     return (
       <p className="hub-assigned-line firm-auth-animate firm-auth-animate--2">
-        <SameWindowLink href={tasksHref({ tab: "today" })} className="hub-assigned-line__link">
-          Assigned today
+        <SameWindowLink href={tasksHref({ tab: "desk-checklist" })} className="hub-assigned-line__link">
+          Desk checklist
         </SameWindowLink>
         <span className="hub-assigned-line__sep" aria-hidden>
           ·
         </span>
         <SameWindowLink href={billingHref({ page: "walkIns" })} className="hub-assigned-line__link">
-          Walk-in log
+          Walk-ins
+        </SameWindowLink>
+        <span className="hub-assigned-line__sep" aria-hidden>
+          ·
+        </span>
+        <SameWindowLink href={tasksHref({ tab: "filing" })} className="hub-assigned-line__link">
+          Filing
+        </SameWindowLink>
+        <span className="hub-assigned-line__sep" aria-hidden>
+          ·
+        </span>
+        <SameWindowLink href={tasksHref({ tab: "correspondence" })} className="hub-assigned-line__link">
+          Letters
         </SameWindowLink>
       </p>
     );

@@ -20,11 +20,11 @@ export function escapeFirmEmailHtml(value: string): string {
 
 /** Double rule masthead — same visual language as formal letterhead PDFs. */
 export function buildFirmEmailMastheadRulesHtml(): string {
-  const gradient = `linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.08) 7%, ${goldLight} 50%, rgba(0,0,0,0.08) 93%, transparent 100%)`;
   return (
     `<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%">` +
-    `<tr><td style="border-top:2.5px solid ${ink};font-size:0;line-height:0;">&nbsp;</td></tr>` +
-    `<tr><td style="height:1px;margin-top:5px;background:${gradient};font-size:0;line-height:0;">&nbsp;</td></tr>` +
+    `<tr><td style="border-top:2px solid ${ink};font-size:0;line-height:0;">&nbsp;</td></tr>` +
+    `<tr><td style="height:4px;font-size:0;line-height:0;">&nbsp;</td></tr>` +
+    `<tr><td style="border-top:1px solid ${line};font-size:0;line-height:0;">&nbsp;</td></tr>` +
     `</table>`
   );
 }
@@ -74,8 +74,8 @@ export function buildFirmEmailDetailsTable(rows: Array<{ label: string; value: s
 export function buildFirmEmailCtaButton(href: string, label: string): string {
   return (
     `<table cellpadding="0" cellspacing="0" border="0" role="presentation" style="margin:20px 0 0;">` +
-    `<tr><td align="center" style="padding:18px 20px;background:${cream};border:1px solid ${line};">` +
-    `<a href="${escapeFirmEmailHtml(href)}" style="display:inline-block;padding:12px 28px;background:${headerBg};color:${white};` +
+    `<tr><td align="center" style="padding:0;">` +
+    `<a href="${escapeFirmEmailHtml(href)}" style="display:inline-block;padding:12px 28px;background:${ink};color:${white};` +
     `font-family:${FIRM_EMAIL_SERIF};font-size:13px;font-weight:700;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;">` +
     `${escapeFirmEmailHtml(label)}</a>` +
     `</td></tr></table>`
@@ -133,7 +133,7 @@ export function buildFirmWarmEmailShell(options: {
     `<tr><td align="center" style="padding:0 0 6px;font-family:${FIRM_EMAIL_SERIF};font-size:22px;line-height:1.2;color:${ink};font-weight:700;font-style:italic;">` +
     `${escapeFirmEmailHtml(options.headline)}` +
     `</td></tr>` +
-    `<tr><td style="height:1px;background:linear-gradient(90deg,transparent,${goldPale},transparent);font-size:0;line-height:0;">&nbsp;</td></tr>` +
+    `<tr><td style="height:1px;background:${line};font-size:0;line-height:0;">&nbsp;</td></tr>` +
     `<tr><td style="padding-top:24px;">${options.innerHtml}</td></tr>` +
     `</table></td></tr></table>`
   );

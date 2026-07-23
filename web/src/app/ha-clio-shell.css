@@ -156,6 +156,19 @@
     max-height: none;
     overflow: visible;
   }
+
+  .firm-workspace.firm-clio-shell .firm-shell-chrome {
+    margin-bottom: 0.2rem;
+  }
+
+  .firm-workspace.firm-clio-shell .firm-shell-chrome__crumb,
+  .firm-workspace.firm-clio-shell .firm-shell-chrome__guide {
+    display: none !important;
+  }
+
+  .firm-workspace.firm-clio-shell .ha-clio-subtabs {
+    margin-bottom: 0.3rem;
+  }
 }
 
 /* ── Left rail — ink on paper, one soft edge (no double frame) ── */
