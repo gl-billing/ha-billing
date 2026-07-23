@@ -22,29 +22,25 @@
     --touch-min: 44px;
   }
 
-  /* Compact letterhead on phone — more room for tab content */
+  /* Compact padding around letterhead — logo size unchanged */
   .firm-workspace.firm-clio-shell .brand-header--shell-flush {
-    margin-bottom: 0.45rem !important;
+    margin-bottom: 0.15rem !important;
   }
 
   .firm-workspace.firm-clio-shell .brand-header__inner {
-    padding: 0.55rem max(0.75rem, env(safe-area-inset-left, 0px)) 0.6rem
+    padding: 0.15rem max(0.75rem, env(safe-area-inset-left, 0px)) 0.2rem
       max(0.75rem, env(safe-area-inset-right, 0px)) !important;
   }
 
-  .firm-workspace.firm-clio-shell .firm-logo-banner--workspace.firm-logo-banner--cover {
-    max-height: 3.25rem;
-  }
-
   .firm-workspace.firm-clio-shell .brand-header__toolbar {
-    margin-top: 0.4rem !important;
-    padding-top: 0.45rem !important;
-    gap: 0.35rem !important;
+    margin-top: 0.15rem !important;
+    padding-top: 0.15rem !important;
+    gap: 0.25rem !important;
   }
 
   .firm-workspace.firm-clio-shell .firm-shell-chrome {
-    margin-bottom: 0.45rem !important;
-    padding-bottom: 0.35rem !important;
+    margin-bottom: 0.3rem !important;
+    padding-bottom: 0.2rem !important;
   }
 
   /* Workspace picker — large tap target */
@@ -100,10 +96,6 @@
 
 /* Very small phones */
 @media (max-width: 390px) {
-  .firm-workspace.firm-clio-shell .firm-logo-banner--workspace.firm-logo-banner--cover {
-    max-height: 2.75rem;
-  }
-
   .ha-clio-subtabs__item {
     padding-inline: 0.7rem;
     font-size: 0.84rem;

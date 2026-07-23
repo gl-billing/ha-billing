@@ -5,7 +5,7 @@ import { FirmPublicContactDetails } from "@/components/FirmPublicContactDetails"
 
 export function AppFooter() {
   return (
-    <footer className="brand-footer mt-5">
+    <footer className="brand-footer mt-3">
       <FirmFooterName className="brand-footer__name" />
       <div className="brand-footer__rule" aria-hidden />
 

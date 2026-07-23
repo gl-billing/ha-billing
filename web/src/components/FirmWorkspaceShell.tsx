@@ -97,7 +97,7 @@ export function FirmWorkspaceShell({
           displayName={displayName}
           billingAccess={billingAccess}
           signOutCallbackUrl={signOutCallbackUrl ?? "/login"}
-          className="brand-header--shell-flush mb-4"
+          className="brand-header--shell-flush mb-1"
         >
           <NotificationsCenter compact />
           <KeyboardShortcutsHelp
