@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminSessionAccessToken } from "@/lib/api-auth";
 import { getCronGoogleAccessToken } from "@/lib/cron-google-auth";
-import { FIRM_INBOX_EMAIL } from "@/lib/firm-team-config";
 import {
   getGmailAccountEmail,
   normalizeEmailAddress,
@@ -9,6 +8,7 @@ import {
 } from "@/lib/office-tasks/gmail-send";
 import {
   DEFAULT_FIRM_LAWYERS_ROSTER,
+  FIRM_INBOX_EMAIL,
   FIRM_SECRETARIES,
   MANAGING_PARTNER
 } from "@/lib/firm-team-config";
