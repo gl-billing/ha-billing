@@ -33,9 +33,9 @@ export function LaunchAnnouncementPanel({ busy, onStatus }: Props) {
     setLastResult(null);
     try {
       const res = await fetch("/api/admin/launch-announcement", { method: "POST" });
-      const json = await readJsonResponse<LaunchResult>(res);
+      const json = (await readJsonResponse<LaunchResult>(res)) ?? {};
       if (!res.ok) {
-        throw new Error(json?.error || "Unable to send launch announcement.");
+        throw new Error(json.error || "Unable to send launch announcement.");
       }
       setLastResult(json);
       const sentCount = json.sent?.length ?? 0;
