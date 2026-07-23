@@ -7,7 +7,7 @@ import { navigateClioHref } from "@/lib/clio/navigate-clio";
 import { sectionForPrimarySwitch } from "@/lib/clio/section-for-primary";
 import {
   buildClioHref,
-  clioPrimariesForUser,
+  clioRailGroupsForUser,
   defaultClioSectionForUser,
   findClioPrimary,
   HA_BILLING_PATH,
@@ -31,7 +31,7 @@ type Props = {
   canViewPresenceTab?: boolean;
 };
 
-/** Clio-style primary left rail — HA layout (monochrome theme unchanged). */
+/** Clio-style primary left rail — grouped by function (Work / Clients / Accounts / Firm). */
 export function ClioRail({
   activeNav,
   activeSection = "",
@@ -57,7 +57,8 @@ export function ClioRail({
     canViewLiaisonTab,
     canViewPresenceTab
   };
-  const primaries = clioPrimariesForUser(visibility);
+  const groups = clioRailGroupsForUser(visibility);
+  const primaries = groups.flatMap((group) => group.primaries);
   const activeMeta = primaries.find((item) => item.id === activeNav) || findClioPrimary(activeNav);
   const pathOpts = { billingPath, tasksPath };
   const selectValue = primaries.some((item) => item.id === activeNav)
@@ -96,37 +97,45 @@ export function ClioRail({
           navigateClio(buildClioHref(next, section.id, pathOpts));
         }}
       >
-        {primaries.map((item) => (
-          <option key={item.id} value={item.id}>
-            {item.label}
-          </option>
+        {groups.map((group) => (
+          <optgroup key={group.id} label={group.label}>
+            {group.primaries.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </optgroup>
         ))}
       </select>
 
       <div className="ha-clio-rail__primary">
-        <p className="ha-clio-rail__eyebrow">Office</p>
-        <ul className="ha-clio-rail__list">
-          {primaries.map((item) => {
-            const active = item.id === activeNav;
-            const section = defaultClioSectionForUser(item, visibility);
-            const href = buildClioHref(item.id, section.id, pathOpts);
-            return (
-              <li key={item.id}>
-                <SameWindowLink
-                  href={href}
-                  className={`ha-clio-rail__item${active ? " ha-clio-rail__item--active" : ""}`}
-                  aria-current={active ? "page" : undefined}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    navigateClio(href);
-                  }}
-                >
-                  {item.label}
-                </SameWindowLink>
-              </li>
-            );
-          })}
-        </ul>
+        {groups.map((group) => (
+          <div key={group.id} className="ha-clio-rail__group">
+            <p className="ha-clio-rail__eyebrow">{group.label}</p>
+            <ul className="ha-clio-rail__list">
+              {group.primaries.map((item) => {
+                const active = item.id === activeNav;
+                const section = defaultClioSectionForUser(item, visibility);
+                const href = buildClioHref(item.id, section.id, pathOpts);
+                return (
+                  <li key={item.id}>
+                    <SameWindowLink
+                      href={href}
+                      className={`ha-clio-rail__item${active ? " ha-clio-rail__item--active" : ""}`}
+                      aria-current={active ? "page" : undefined}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        navigateClio(href);
+                      }}
+                    >
+                      {item.label}
+                    </SameWindowLink>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
       </div>
 
       {activeMeta?.description ? (

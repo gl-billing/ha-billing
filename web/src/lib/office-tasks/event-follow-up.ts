@@ -1,14 +1,21 @@
 import {
   ensurePleadingEventAssignedToAttorney,
   ensurePleadingEventAssignedToAttorneyById,
-  resolveAssignedAttorneyForClientCase
+  resolveAssignedAttorneyForClientCase,
+  resolvePleadingEventResponsible
 } from "@/lib/office-tasks/event-client-attorney";
+import { readFirmAutomationSettings } from "@/lib/firm-automation-settings";
 import { addDaysYmd } from "@/lib/office-tasks/date-only";
 import {
   duplicateEventLinkedTasksToClose,
   hasOpenEventLinkedTask
 } from "@/lib/office-tasks/event-follow-up-dedupe";
-import { isPleadingCategory, normalizeEventFormInput } from "@/lib/office-tasks/event-form-utils";
+import { inferPrepLeadDaysBefore } from "@/lib/office-tasks/filing-prep-reset";
+import { defaultFilingPrepAssignees } from "@/lib/office-tasks/task-assignees";
+import { getActiveEmployeeNames } from "@/lib/office-tasks/sheets/employees";
+import { parsePrepChecklistState } from "@/lib/office-tasks/prep-checklist-storage";
+import { isHearingEventCategory, isPleadingCategory, normalizeEventFormInput } from "@/lib/office-tasks/event-form-utils";
+import { createCourtConfirmationTaskForHearing } from "@/lib/office-tasks/hearing-follow-up-automations";
 import { buildPrepReminderTaskCopy } from "@/lib/office-tasks/event-prep-checklist";
 import {
   appendRemarkMarkers,
@@ -34,10 +41,6 @@ import {
   prepTaskLinkMarkers,
   resolveFilingEventForPrepTask
 } from "@/lib/office-tasks/prep-task-event-link";
-import { inferPrepLeadDaysBefore } from "@/lib/office-tasks/filing-prep-reset";
-import { defaultFilingPrepAssignees } from "@/lib/office-tasks/task-assignees";
-import { getActiveEmployeeNames } from "@/lib/office-tasks/sheets/employees";
-import { parsePrepChecklistState } from "@/lib/office-tasks/prep-checklist-storage";
 
 function followUpTaskType(category: string): string {
   if (category === "Court Filing") return "Court Follow-up";
@@ -72,6 +75,60 @@ export async function reconcileDuplicateEventLinkedTasks(accessToken: string): P
     await setItemDone(accessToken, "Task", item.rowNumber, true);
   }
   return toClose.length;
+}
+
+export function shouldCreatePleadingFollowUpTask(
+  category: string,
+  form: Pick<EventFormInput, "filingDeadline" | "createFollowUpTask">
+): boolean {
+  return (
+    isPleadingCategory(category) &&
+    Boolean(form.filingDeadline?.trim()) &&
+    form.createFollowUpTask !== false
+  );
+}
+
+export type EventCreateAutomationResult = {
+  followUpTaskId: string | null;
+  reminderTaskId: string | null;
+  courtConfirmTaskId: string | null;
+};
+
+/** Linked tasks + court confirmation after an event row is saved (API, intake seed, reseed). */
+export async function runEventCreateAutomations(
+  accessToken: string,
+  eventId: string,
+  form: EventFormInput
+): Promise<EventCreateAutomationResult> {
+  const normalized = normalizeEventFormInput(form);
+  const roster = await getActiveEmployeeNames(accessToken);
+  const responsible = await resolvePleadingEventResponsible(
+    accessToken,
+    normalized.clientCase,
+    normalized.responsible,
+    roster
+  );
+  const bodyWithLawyer = { ...normalized, responsible };
+  const { followUpTaskId, reminderTaskId } = await createEventLinkedTasks(
+    accessToken,
+    eventId,
+    bodyWithLawyer
+  );
+
+  let courtConfirmTaskId: string | null = null;
+  const automation = await readFirmAutomationSettings(accessToken).catch(() => null);
+  const shouldCreateCourtConfirm =
+    automation?.createCourtConfirmationTask === true || bodyWithLawyer.createCourtConfirmationTask === true;
+  if (isHearingEventCategory(bodyWithLawyer.category) && shouldCreateCourtConfirm) {
+    courtConfirmTaskId = await createCourtConfirmationTaskForHearing(accessToken, eventId, {
+      clientCase: bodyWithLawyer.clientCase,
+      eventDate: bodyWithLawyer.eventDate,
+      details: bodyWithLawyer.details,
+      venue: bodyWithLawyer.venue
+    });
+  }
+
+  return { followUpTaskId, reminderTaskId, courtConfirmTaskId };
 }
 
 export async function createEventFollowUpTaskIfNeeded(
@@ -134,8 +191,11 @@ export async function createEventReminderTaskIfNeeded(
   const items = await collectAllItems(accessToken);
   if (hasOpenEventLinkedTask(items, eventId, "reminder")) return null;
   const marker = eventReminderMarker(eventId);
-  const prepCopy = buildPrepReminderTaskCopy(normalized, filingDeadline, leadDays);
-  const remarks = appendRemarkMarkers("", [marker, prepCopy.checklistMarker]);
+  const prepCopy = buildPrepReminderTaskCopy(normalized, filingDeadline, leadDays, {
+    includeChecklist: normalized.createPrepChecklist === true
+  });
+  const remarkMarkers = prepCopy.checklistMarker ? [marker, prepCopy.checklistMarker] : [marker];
+  const remarks = appendRemarkMarkers("", remarkMarkers);
   const roster = await getActiveEmployeeNames(accessToken);
   const prepAssignee =
     normalized.prepAssignedTo?.trim() || defaultFilingPrepAssignees(roster);
@@ -169,18 +229,21 @@ export async function createEventLinkedTasks(
   const roster = await getActiveEmployeeNames(accessToken);
   await ensurePleadingEventAssignedToAttorneyById(accessToken, eventId, roster);
   const formForTasks = form;
+  const settings = await readFirmAutomationSettings(accessToken).catch(() => null);
+  const createPrepReminderTask =
+    form.createReminderTask === true || settings?.createFilingPrepReminderTask === true;
 
   const followUpTaskId = await createEventFollowUpTaskIfNeeded(
     accessToken,
     eventId,
     formForTasks,
-    form.createFollowUpTask === true
+    shouldCreatePleadingFollowUpTask(formForTasks.category, formForTasks)
   );
   const reminderTaskId = await createEventReminderTaskIfNeeded(
     accessToken,
     eventId,
     formForTasks,
-    form.createReminderTask === true,
+    createPrepReminderTask,
     form.reminderTaskDaysBefore ?? 3
   );
   return { followUpTaskId, reminderTaskId };

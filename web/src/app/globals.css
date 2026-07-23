@@ -205,11 +205,13 @@ html {
   }
 
   .matter-print-summary__heading {
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: var(--font-display), Arial, Helvetica, sans-serif;
     font-size: 13pt;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     margin: 1.1rem 0 0.35rem;
-    color: #8a6b2a;
+    color: #0a0a0a;
   }
 
   .matter-print-summary__list {
@@ -218,15 +220,15 @@ html {
   }
 
   .firm-print-letterhead {
-    background: #fdfbf7 !important;
-    border: 1px solid #e8dcc4 !important;
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
   .firm-print-letterhead__firm {
-    font-family: Georgia, "Times New Roman", serif;
-    color: #8a6b2a !important;
+    font-family: var(--font-display), Arial, Helvetica, sans-serif;
+    color: #0a0a0a !important;
   }
 
   .firm-print-letterhead__logo {
@@ -424,7 +426,9 @@ html {
   }
 
   .pwa-install-banner {
-    @apply fixed bottom-0 left-0 right-0 z-50 border-t border-gold-dark/30 bg-gradient-to-r from-[#1a1612] via-[#2b251d] to-[#1a1612] px-4 py-3 text-white shadow-[0_-8px_32px_rgba(0,0,0,0.25)];
+    @apply fixed bottom-0 left-0 right-0 z-50 border-t border-ink bg-ink px-4 py-3 text-white;
+    border-radius: 0;
+    box-shadow: 0 -4px 24px rgba(10, 10, 10, 0.18);
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
   }
 
@@ -441,41 +445,48 @@ html {
   }
 
   .card {
-    @apply rounded-xl border border-line/90 p-5 shadow-[0_2px_16px_rgba(26,22,18,0.05)] backdrop-blur-sm sm:p-6;
-    background-color: rgba(255, 255, 253, 0.88);
-    background-image:
-      radial-gradient(ellipse 90% 60% at 50% -8%, rgba(212, 175, 90, 0.05), transparent 55%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(250, 248, 244, 0.92));
+    @apply border border-line p-5 sm:p-6;
+    border-radius: 0;
+    background-color: var(--paper);
+    background-image: none;
+    box-shadow: 0 1px 0 rgba(10, 10, 10, 0.04);
   }
 
   .card-elevated {
-    @apply rounded-2xl border border-gold/15 bg-white/90 shadow-lift backdrop-blur-sm;
+    @apply border border-line bg-white;
+    border-radius: 0;
+    box-shadow: 0 1px 0 rgba(10, 10, 10, 0.04);
   }
 
   .section-label {
-    @apply mb-3 text-xs font-semibold tracking-normal text-muted;
+    @apply mb-3 font-semibold uppercase tracking-[0.1em] text-muted;
+    font-family: var(--font-display), Arial, Helvetica, sans-serif;
+    font-size: var(--ha-text-meta, 0.8125rem);
   }
 
   .section-title {
-    @apply mb-3 font-display text-lg font-bold leading-snug tracking-[0.05em] text-ink sm:text-xl;
+    @apply mb-3 font-display text-lg font-bold leading-snug tracking-[0.05em] uppercase text-ink sm:text-xl;
   }
 
   .nav-tabs {
-    @apply mb-5 grid grid-cols-2 gap-2 rounded-xl border border-line/80 bg-[#efede8]/80 p-1.5 shadow-inner;
+    @apply mb-5 grid grid-cols-2 gap-2 border border-line bg-soft p-1.5;
+    border-radius: 0;
   }
 
   /* Firm dashboard section switcher (Billing → home) */
   .home-dashboard-tabs {
-    @apply relative mb-5 grid grid-cols-1 gap-2 overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-[#faf6ee]/90 via-white to-cream/50 p-2 shadow-[0_2px_16px_rgba(26,22,18,0.05)] sm:grid-cols-2;
+    @apply relative mb-5 grid grid-cols-1 gap-2 overflow-hidden border border-line bg-white p-2 sm:grid-cols-2;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .home-dashboard-tabs::before {
-    content: "";
-    @apply pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/45 to-transparent;
+    content: none;
   }
 
   .home-dashboard-tabs__btn {
-    @apply flex min-h-[3.5rem] flex-col items-center justify-center gap-0.5 rounded-xl border border-transparent px-2 py-2.5 text-center transition-all duration-200 ease-out;
+    @apply flex min-h-[3.5rem] flex-col items-center justify-center gap-0.5 border border-transparent px-2 py-2.5 text-center transition-colors duration-150;
+    border-radius: 0;
   }
 
   .home-dashboard-tabs__btn--wide {
@@ -484,34 +495,34 @@ html {
   }
 
   .home-dashboard-tabs__btn--active {
-    @apply border-gold/35 bg-white text-ink shadow-[0_2px_12px_rgba(184,145,61,0.12)];
-    box-shadow:
-      inset 0 -2px 0 var(--gold),
-      0 2px 12px rgba(184, 145, 61, 0.1);
+    @apply border-ink bg-soft text-ink;
+    box-shadow: inset 0 -2px 0 var(--ink);
   }
 
   .home-dashboard-tabs__btn:not(.home-dashboard-tabs__btn--active):hover {
-    @apply border-line/60 bg-white/75;
+    @apply border-line bg-cream;
   }
 
   .home-dashboard-tabs__btn:focus-visible {
-    @apply outline-none ring-2 ring-gold/35 ring-offset-2 ring-offset-cream;
+    @apply outline-none ring-2 ring-ink/30 ring-offset-2 ring-offset-cream;
   }
 
   .home-dashboard-tabs__label {
-    @apply font-display text-[13px] font-bold leading-tight text-ink sm:text-sm;
+    @apply font-display text-[13px] font-bold leading-tight uppercase tracking-[0.04em] text-ink sm:text-sm;
   }
 
   .home-dashboard-tabs__hint {
-    @apply text-[9px] font-semibold uppercase tracking-[0.06em] text-muted/90;
+    @apply font-semibold uppercase tracking-[0.06em] text-muted/90;
+    font-size: var(--ha-text-meta, 0.8125rem);
   }
 
   .home-dashboard-tabs__btn--active .home-dashboard-tabs__hint {
-    @apply text-gold-dark/80;
+    @apply text-ink;
   }
 
   .home-dashboard-tabs__btn--wide .home-dashboard-tabs__hint {
-    @apply normal-case tracking-[0.06em] text-[10px] font-semibold;
+    @apply normal-case tracking-[0.04em] font-semibold;
+    font-size: var(--ha-text-meta, 0.8125rem);
   }
 
   .nav-tab {
@@ -2456,12 +2467,22 @@ html {
   }
 
   .btn-primary {
-    @apply min-h-[46px] w-full rounded-xl bg-gradient-to-br from-[#1a1612] to-[#3d3018] text-sm font-semibold tracking-[0.02em] text-white shadow-[0_6px_18px_rgba(26,22,18,0.14)] transition hover:brightness-110 disabled:cursor-wait disabled:opacity-65;
-    border: 1px solid rgba(212, 175, 90, 0.45);
+    @apply min-h-[46px] w-full text-sm font-semibold tracking-[0.04em] uppercase text-white transition disabled:cursor-wait disabled:opacity-65;
+    border-radius: 0;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    background-image: none;
+    box-shadow: none;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #1a1a1a;
   }
 
   .btn-secondary {
-    @apply min-h-[44px] rounded-xl border border-line/90 bg-white text-sm font-semibold text-ink shadow-sm transition hover:border-line hover:bg-soft;
+    @apply min-h-[44px] border border-line bg-white text-sm font-semibold text-ink transition hover:border-ink hover:bg-soft;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .btn-sm {
@@ -2486,14 +2507,16 @@ html {
   }
 
   .btn-gold {
-    @apply inline-flex min-h-[40px] items-center justify-center rounded-lg px-3.5 py-2 text-sm font-semibold leading-snug transition;
-    border: 1px solid rgba(212, 175, 90, 0.4);
-    background-color: rgba(184, 145, 61, 0.1);
-    color: #8a6b2a;
+    @apply inline-flex min-h-[40px] items-center justify-center px-3.5 py-2 text-sm font-semibold leading-snug transition;
+    border-radius: 0;
+    border: 1px solid var(--line);
+    background-color: var(--paper);
+    color: var(--ink);
   }
 
   .btn-gold:hover {
-    background-color: rgba(184, 145, 61, 0.2);
+    background-color: var(--soft);
+    border-color: var(--ink);
   }
 
   .header-app-link {
@@ -2531,10 +2554,8 @@ html {
     min-height: 100vh;
     min-height: 100dvh;
     background:
-      radial-gradient(ellipse 90% 55% at 50% -8%, rgba(212, 175, 90, 0.14), transparent 58%),
-      radial-gradient(ellipse 50% 40% at 0% 100%, rgba(184, 145, 61, 0.07), transparent 55%),
-      radial-gradient(ellipse 45% 35% at 100% 90%, rgba(43, 37, 29, 0.05), transparent 50%),
-      linear-gradient(180deg, #fcfaf6 0%, #f7f4ee 42%, #efe9df 100%);
+      radial-gradient(ellipse 100% 55% at 50% 0%, rgba(10, 10, 10, 0.04), transparent 55%),
+      linear-gradient(180deg, #f4f3f0 0%, #eeedea 100%);
   }
 
   .firm-auth-ambient {
@@ -5409,7 +5430,7 @@ html {
   }
 
   .firm-shell-chrome {
-    @apply sticky top-0 z-30 -mx-4 mb-5 space-y-2.5 border-b border-line/60 bg-[#f7f5f1]/95 px-4 pb-4 pt-1.5 backdrop-blur-sm sm:-mx-5 sm:px-5;
+    @apply static -mx-4 mb-5 space-y-2.5 border-b border-line/60 bg-[#f7f5f1] px-4 pb-4 pt-1.5 sm:-mx-5 sm:px-5;
   }
 
   .workspace-breadcrumb {
@@ -5917,17 +5938,17 @@ html {
   }
 
   .empty-state {
-    @apply rounded-xl border border-dashed border-gold/20 bg-gradient-to-b from-cream/60 to-white/80 px-4 py-8 text-center;
+    @apply border border-dashed border-line bg-cream px-4 py-8 text-center;
+    border-radius: 0;
   }
 
   .empty-state__mark {
-    @apply mx-auto mb-3 flex items-center justify-center border border-gold/30 bg-white p-1 shadow-sm;
+    @apply mx-auto mb-3 flex items-center justify-center border border-line bg-white p-1;
     width: auto;
     height: 2.75rem;
     aspect-ratio: 1200 / 452;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.92),
-      0 4px 14px rgba(184, 145, 61, 0.12);
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .empty-state__logo {
@@ -5948,15 +5969,16 @@ html {
   }
 
   .empty-state--compact .empty-state__message {
-    @apply text-[11px];
+    font-size: var(--ha-text-meta, 0.8125rem);
   }
 
   .empty-state__title {
-    @apply font-display text-base font-semibold text-ink sm:text-lg;
+    @apply font-display text-base font-semibold uppercase tracking-[0.06em] text-ink sm:text-lg;
   }
 
   .empty-state__message {
-    @apply mt-1.5 text-xs leading-relaxed text-muted sm:text-sm;
+    @apply mt-1.5 leading-relaxed text-muted;
+    font-size: var(--ha-text-ui, 0.875rem);
   }
 
   .empty-state__action {
@@ -9277,28 +9299,38 @@ html {
   }
 
   .reports-maintenance-banner {
-    @apply mb-3 rounded-lg border px-3 py-2 text-[11px] leading-relaxed;
+    @apply mb-3 border px-3 py-2.5 text-sm leading-relaxed;
+    border-radius: 0;
+    border-color: var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: var(--ha-text-ui, 0.875rem);
   }
 
   .reports-maintenance-banner--ok {
-    border-color: rgba(31, 95, 59, 0.32);
-    background-color: rgba(31, 95, 59, 0.09);
-    color: #1f5f3b;
+    border-left: 3px solid var(--ink);
+    border-color: var(--line);
+    background: var(--soft);
+    color: var(--ink);
   }
 
   .reports-maintenance-banner--warn {
-    border-color: rgba(180, 130, 40, 0.38);
-    background-color: rgba(180, 130, 40, 0.11);
-    color: #5c4212;
+    border-left: 3px solid var(--ink);
+    border-color: var(--line);
+    background: var(--cream);
+    color: var(--ink);
   }
 
   .reports-maintenance-banner code {
-    @apply rounded border border-line/70 bg-white/70 px-1 py-0.5 font-mono text-[10px];
+    @apply border border-line bg-white px-1 py-0.5 font-mono;
+    border-radius: 0;
+    font-size: var(--ha-text-meta, 0.8125rem);
     color: inherit;
   }
 
   .reports-maintenance-hint {
-    @apply mt-2 text-[10px] leading-relaxed text-muted;
+    @apply mt-2 leading-relaxed text-muted;
+    font-size: var(--ha-text-meta, 0.8125rem);
   }
 
   .matter-intake-wizard__panel {
@@ -13524,13 +13556,14 @@ body:has(.office-hub-page) {
   }
 
   .firm-workspace .btn-gold {
-    border-color: var(--d-gold-border);
-    background-color: var(--d-gold-soft);
-    color: #e6c878;
+    border-color: var(--line);
+    background-color: var(--paper);
+    color: var(--ink);
   }
 
   .firm-workspace .btn-gold:hover {
-    background-color: rgba(212, 175, 90, 0.26);
+    background-color: var(--soft);
+    border-color: var(--ink);
   }
 
   /* ---- Form fields ---- */
@@ -13671,15 +13704,17 @@ body:has(.office-hub-page) {
   }
 
   .firm-workspace .reports-maintenance-banner--ok {
-    background-color: color-mix(in srgb, var(--firm-mint-solid) 14%, transparent) !important;
-    border-color: var(--firm-mint-dark-border) !important;
-    color: var(--firm-mint-dark-text) !important;
+    background-color: var(--soft) !important;
+    border-color: var(--line) !important;
+    border-left: 3px solid var(--ink) !important;
+    color: var(--ink) !important;
   }
 
   .firm-workspace .reports-maintenance-banner--warn {
-    background-color: rgba(212, 175, 90, 0.14) !important;
-    border-color: rgba(212, 175, 90, 0.35) !important;
-    color: #f0dca0 !important;
+    background-color: var(--cream) !important;
+    border-color: var(--line) !important;
+    border-left: 3px solid var(--ink) !important;
+    color: var(--ink) !important;
   }
 
   .firm-workspace .reports-maintenance-banner code {
@@ -19649,3 +19684,640 @@ body:has(.office-hub-page) {
     border-bottom: 0;
   }
 }
+
+
+/* --- Ported from GL: filing workspace + desk checklist --- */
+
+  .filing-workspace {
+    @apply relative space-y-3;
+  }
+
+  .filing-workspace__screen {
+    @apply space-y-3;
+  }
+
+  .filing-workspace__band {
+    @apply rounded-xl border border-line/70 bg-gradient-to-b from-white to-cream/40 px-4 py-3 shadow-sm;
+  }
+
+  .filing-workspace__band-top {
+    @apply flex flex-wrap items-start justify-between gap-3;
+  }
+
+  .filing-workspace__band-copy {
+    @apply min-w-0;
+  }
+
+  .filing-workspace__title {
+    @apply font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl;
+  }
+
+  .filing-workspace__tabs {
+    @apply inline-flex flex-wrap gap-1 rounded-lg border border-line/70 bg-cream/50 p-1;
+  }
+
+  .filing-workspace__tab {
+    @apply inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-ink;
+  }
+
+  .filing-workspace__tab--active {
+    @apply bg-white text-ink shadow-sm;
+  }
+
+  .filing-workspace__tab-count {
+    @apply rounded bg-soft px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-muted;
+  }
+
+  .filing-workspace__tab--active .filing-workspace__tab-count {
+    @apply bg-cream text-ink;
+  }
+
+  .filing-workspace__microstats {
+    @apply mt-3 flex flex-wrap gap-1.5 border-t border-line/50 pt-3;
+  }
+
+  .filing-workspace__microstat {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-transparent bg-white/70 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted transition hover:border-line;
+  }
+
+  .filing-workspace__microstat strong {
+    @apply text-sm font-bold tabular-nums text-ink normal-case tracking-normal;
+  }
+
+  .filing-workspace__microstat--on {
+    @apply border-gold/40 bg-cream text-ink;
+  }
+
+  .filing-workspace__microstat--overdue.filing-workspace__microstat--on {
+    @apply border-red-200 bg-red-50 text-red-900;
+  }
+
+  .filing-workspace__filters {
+    @apply flex flex-wrap items-center gap-2 rounded-lg border border-line/60 bg-white/80 px-2.5 py-1.5;
+  }
+
+  .filing-workspace__filter {
+    @apply inline-flex items-center gap-1.5;
+  }
+
+  .filing-workspace__filter-icon {
+    @apply text-[10px] text-gold;
+  }
+
+  .filing-workspace__filter-control {
+    @apply !min-h-0 !w-auto !rounded-md !border-line/60 !bg-transparent !px-2 !py-1 !text-xs !shadow-none;
+    min-width: 8.5rem;
+  }
+
+  .filing-workspace__check {
+    @apply inline-flex items-center gap-1.5 px-1 text-xs font-medium text-ink;
+  }
+
+  .filing-workspace__error {
+    @apply text-sm text-red-800;
+  }
+
+  .filing-workspace__loading {
+    @apply text-sm text-muted;
+  }
+
+  .filing-workspace__empty {
+    @apply flex flex-col items-center justify-center gap-3 px-4 py-16 text-center;
+  }
+
+  .filing-workspace__empty--compact {
+    @apply py-10;
+  }
+
+  .filing-workspace__empty-logo {
+    @apply h-[72px] w-[72px] rounded-full object-cover object-center opacity-90;
+  }
+
+  .filing-workspace__empty-message {
+    @apply font-display text-base text-ink sm:text-lg;
+  }
+
+  .filing-workspace__empty-cta {
+    @apply text-xs text-muted transition hover:text-ink;
+  }
+
+  .filing-workspace__selection-bar {
+    @apply fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 flex-wrap items-center gap-2 rounded-full border border-line bg-white px-4 py-2 text-xs font-semibold text-ink shadow-lift;
+  }
+
+  .filing-workspace__selection-clear {
+    @apply text-muted underline-offset-2 hover:underline;
+  }
+
+  .filing-workspace__status-pills {
+    @apply flex min-w-[11rem] flex-wrap gap-1;
+  }
+
+  .filing-workspace__status-pill {
+    @apply rounded-full border border-transparent px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted transition hover:border-line hover:text-ink;
+  }
+
+  .filing-workspace__status-pill--on.filing-workspace__status-pill--queued {
+    @apply border-amber-200/80 bg-amber-50 text-amber-950;
+  }
+
+  .filing-workspace__status-pill--on.filing-workspace__status-pill--out {
+    @apply border-sky-200/80 bg-sky-50 text-sky-950;
+  }
+
+  .filing-workspace__status-pill--on.filing-workspace__status-pill--filed {
+    @apply border-emerald-200/80 bg-emerald-50 text-emerald-950;
+  }
+
+  .filing-workspace__status-pill--on.filing-workspace__status-pill--proof {
+    @apply border-teal-200/80 bg-teal-50 text-teal-950;
+  }
+
+  .filing-workspace__table-wrap {
+    @apply overflow-x-auto rounded-xl border border-line/60 bg-white shadow-sm;
+  }
+
+  .filing-workspace__table {
+    @apply min-w-full border-separate border-spacing-0 text-left text-[13px];
+  }
+
+  .filing-workspace__table thead th {
+    @apply sticky top-0 z-[2] whitespace-nowrap border-b border-line/80 bg-[#f7f3ea] px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted;
+    box-shadow: inset -1px 0 0 rgba(26, 22, 18, 0.06);
+  }
+
+  .filing-workspace__table thead th.filing-workspace__sticky {
+    z-index: 3;
+  }
+
+  .filing-workspace__table thead th.filing-workspace__sticky--status,
+  .filing-workspace__table tbody td.filing-workspace__sticky--status {
+    box-shadow:
+      4px 0 10px -6px rgba(26, 22, 18, 0.18),
+      inset -1px 0 0 rgba(26, 22, 18, 0.06);
+  }
+
+  .filing-workspace__table tbody tr {
+    @apply align-middle transition-colors;
+  }
+
+  .filing-workspace__table tbody tr:hover {
+    background-color: rgba(184, 145, 61, 0.04);
+  }
+
+  .filing-workspace__table tbody tr:hover .filing-workspace__sticky {
+    background-color: #faf7f1;
+  }
+
+  .filing-workspace__row--overdue {
+    box-shadow: inset 4px 0 0 #b91c1c;
+  }
+
+  .filing-workspace__row--due-today {
+    box-shadow: inset 4px 0 0 #b8913d;
+  }
+
+  .filing-workspace__row--later {
+    box-shadow: inset 4px 0 0 rgba(26, 22, 18, 0.12);
+  }
+
+  .filing-workspace__row--saved {
+    animation: filing-saved-pulse 1.4s ease;
+  }
+
+  .filing-workspace__table td {
+    @apply border-b border-line/40 px-2 py-1;
+    box-shadow: inset -1px 0 0 rgba(26, 22, 18, 0.05);
+  }
+
+  .filing-workspace__table td:last-child,
+  .filing-workspace__table thead th:last-child {
+    box-shadow: none;
+  }
+
+  .filing-workspace__sticky {
+    background-color: #fff;
+    position: sticky;
+    z-index: 1;
+  }
+
+  .filing-workspace__sticky--pleading,
+  .filing-workspace__sticky--client {
+    min-width: 10.5rem;
+  }
+
+  .filing-workspace__table .field.filing-workspace__field,
+  .filing-workspace__table select.field.filing-workspace__field,
+  .filing-workspace__table input.field.filing-workspace__field {
+    @apply min-w-[7rem] rounded-none border-0 bg-transparent px-1 py-1 text-[13px] leading-snug text-ink shadow-none;
+    min-height: 1.75rem;
+    box-shadow: none;
+  }
+
+  .filing-workspace__table .field.filing-workspace__field--wide,
+  .filing-workspace__table input.field.filing-workspace__field--wide {
+    @apply min-w-[10rem];
+  }
+
+  .filing-workspace__table .field.filing-workspace__field:hover,
+  .filing-workspace__table select.field.filing-workspace__field:hover,
+  .filing-workspace__table input.field.filing-workspace__field:hover {
+    box-shadow: inset 0 -1px 0 rgba(26, 22, 18, 0.18);
+  }
+
+  .filing-workspace__table .field.filing-workspace__field:focus,
+  .filing-workspace__table select.field.filing-workspace__field:focus,
+  .filing-workspace__table input.field.filing-workspace__field:focus {
+    @apply bg-white outline-none;
+    box-shadow: inset 0 -1.5px 0 #b8913d;
+  }
+
+  .filing-workspace__table .field.filing-workspace__field:disabled,
+  .filing-workspace__table select.field.filing-workspace__field:disabled,
+  .filing-workspace__table input.field.filing-workspace__field:disabled {
+    @apply cursor-wait opacity-60;
+  }
+
+  .filing-workspace__readonly {
+    @apply block max-w-[12rem] truncate px-1 py-1 text-[13px] leading-snug text-muted;
+  }
+
+  .filing-workspace__mono {
+    @apply font-mono text-[11px];
+  }
+
+  .filing-workspace__matter-link {
+    @apply text-xs font-semibold text-gold-dark underline underline-offset-2;
+  }
+
+  .filing-workspace__cf {
+    @apply min-w-[10rem] space-y-0.5 px-0.5;
+  }
+
+  .filing-workspace__cf--expanded {
+    @apply min-w-[14rem];
+  }
+
+  .filing-workspace__cf-stack {
+    @apply space-y-0.5;
+  }
+
+  .filing-workspace__cf-preview {
+    @apply max-w-[14rem] truncate px-1 text-[10px] leading-snug text-muted;
+  }
+
+  .filing-workspace__cf-add {
+    @apply px-1 text-[10px] font-semibold text-gold-dark underline underline-offset-2;
+  }
+
+  .filing-workspace__manner {
+    @apply min-w-[9rem] space-y-1;
+  }
+
+  .filing-workspace__manner-chips {
+    @apply flex flex-wrap gap-1;
+  }
+
+  .filing-workspace__chip {
+    @apply rounded border border-transparent bg-transparent px-1.5 py-0.5 text-[10px] font-semibold text-muted transition hover:border-line hover:bg-cream/60 hover:text-ink;
+  }
+
+  .filing-workspace__chip--on {
+    @apply border-gold/40 bg-cream text-ink;
+  }
+
+  .filing-workspace__actions {
+    @apply flex min-w-[8rem] flex-col items-start gap-1 px-1;
+  }
+
+  .filing-workspace__actions .btn-secondary {
+    @apply rounded-md border-line/60 bg-transparent px-2 py-1 shadow-none;
+  }
+
+  .filing-workspace__saved {
+    @apply text-[10px] font-semibold uppercase tracking-wide text-gold-dark;
+  }
+
+  @media (max-width: 900px) {
+    .filing-workspace__sticky {
+      position: static;
+      box-shadow: none !important;
+    }
+  }
+
+  .desk-checklist__list {
+    @apply space-y-2;
+  }
+
+  .desk-checklist-row {
+    @apply flex items-start gap-3 rounded-xl border border-line/70 bg-white/95 px-3 py-2.5 shadow-sm transition;
+  }
+
+  .desk-checklist-row--prep-ready {
+    border-color: rgba(184, 150, 90, 0.45);
+    background: linear-gradient(180deg, rgba(255, 252, 245, 0.98) 0%, rgba(255, 255, 255, 0.94) 100%);
+    box-shadow:
+      0 0 0 1px rgba(212, 175, 90, 0.14),
+      0 0 14px rgba(212, 175, 90, 0.1);
+  }
+
+  .desk-checklist-row__panel--prep-ready {
+    border: 1px solid rgba(184, 150, 90, 0.45);
+    border-radius: 0.75rem;
+    background: linear-gradient(180deg, rgba(255, 252, 245, 0.98) 0%, rgba(255, 255, 255, 0.94) 100%);
+    box-shadow:
+      0 0 0 1px rgba(212, 175, 90, 0.14),
+      0 0 14px rgba(212, 175, 90, 0.1);
+    padding: 0.65rem 0.75rem;
+  }
+
+  .desk-checklist-row__prep-ready-note {
+    @apply mt-1 text-xs font-semibold text-gold-dark;
+  }
+
+  .desk-checklist-row--done,
+  .desk-checklist-row--muted {
+    @apply border-line/50 bg-white/75 opacity-80;
+  }
+
+  .desk-checklist-row__check {
+    @apply mt-1 h-4 w-4 shrink-0 accent-gold;
+  }
+
+  .desk-checklist-row__check--muted {
+    @apply accent-[#9a948a];
+  }
+
+  .desk-checklist-row__check--inactive {
+    appearance: none;
+    -webkit-appearance: none;
+    @apply mt-1 h-4 w-4 shrink-0 cursor-default rounded border border-[#c5c0b8] bg-[#ddd9d2];
+    background-image: linear-gradient(
+      to right,
+      transparent 22%,
+      #9a948a 22%,
+      #9a948a 78%,
+      transparent 78%
+    );
+    background-size: 100% 2px;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .desk-checklist-row__check--inactive:checked {
+    @apply border-[#b8b3aa] bg-[#cfcbc4];
+    background-image: linear-gradient(
+      to right,
+      transparent 22%,
+      #8a847c 22%,
+      #8a847c 78%,
+      transparent 78%
+    );
+  }
+
+  .desk-checklist-row__check--inactive:focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-gold/40;
+  }
+
+  .desk-checklist-row__panel {
+    @apply min-w-0 flex-1;
+  }
+
+  .desk-checklist-row__head {
+    @apply flex items-start gap-2;
+  }
+
+  .desk-checklist-row__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(9rem, 42%);
+    gap: 0.75rem 1rem;
+    align-items: start;
+  }
+
+  .desk-checklist-row__primary {
+    @apply min-w-0;
+  }
+
+  .desk-checklist-row__secondary {
+    @apply flex min-w-0 flex-col items-end gap-1;
+  }
+
+  .desk-checklist-row__secondary .desk-checklist-row__actions {
+    @apply m-0 max-w-none justify-end;
+  }
+
+  .desk-checklist-row__menu {
+    @apply -mr-0.5 -mt-0.5 shrink-0;
+  }
+
+  .desk-checklist-row__actions {
+    @apply -mr-0.5 -mt-0.5 flex max-w-[52%] shrink-0 flex-wrap items-center justify-end gap-1;
+  }
+
+  .desk-checklist-row__action-btn {
+    @apply inline-flex h-7 shrink-0 items-center justify-center rounded-md border border-line/75 bg-white/95 px-2 text-[10px] font-bold tracking-wide text-ink/85 shadow-none transition hover:border-gold/35 hover:bg-[#faf8f4] hover:text-ink disabled:cursor-wait disabled:opacity-50;
+  }
+
+  .desk-checklist-row__actions .item-more-menu .item-action-btn {
+    min-height: 1.75rem;
+    height: 1.75rem;
+    width: auto;
+    min-width: 2rem;
+    padding-left: 0.45rem;
+    padding-right: 0.45rem;
+    border-radius: 0.375rem;
+    box-shadow: none;
+  }
+
+  .desk-checklist-row--muted:not(.desk-checklist-row--inactive) .desk-checklist-row__case,
+  .desk-checklist-row--muted:not(.desk-checklist-row--inactive) .desk-checklist-row__detail {
+    text-decoration: line-through;
+    text-decoration-color: rgba(120, 100, 95, 0.42);
+  }
+
+  .desk-checklist-row__case {
+    @apply block w-full text-left text-sm font-semibold leading-snug text-ink transition hover:text-gold-dark;
+  }
+
+  .desk-checklist-row__case--done,
+  .desk-checklist-row__case--muted {
+    @apply text-muted;
+  }
+
+  .desk-checklist-row__client {
+    @apply mt-0.5 block max-w-full truncate text-left text-xs font-medium text-ink/75 transition hover:text-gold-dark hover:underline;
+  }
+
+  .desk-checklist-row__client--muted {
+    @apply text-muted no-underline;
+  }
+
+  .desk-checklist-row__panel--done .desk-checklist-row__client,
+  .desk-checklist-row__panel--muted .desk-checklist-row__client {
+    @apply text-muted;
+  }
+
+  .desk-checklist-row__detail {
+    @apply mt-1 text-xs leading-relaxed text-ink/80;
+  }
+
+  .desk-checklist-row__detail--done,
+  .desk-checklist-row__detail--muted {
+    @apply text-muted;
+  }
+
+  .desk-checklist-meta {
+    @apply mt-1.5 flex flex-col gap-1.5;
+  }
+
+  .desk-checklist-meta--dialog {
+    @apply mt-2 gap-2;
+  }
+
+  .desk-checklist-meta--muted .desk-checklist-meta__value,
+  .desk-checklist-meta--muted .desk-checklist-meta__chip {
+    @apply opacity-70;
+  }
+
+  .desk-checklist-meta__chips {
+    @apply flex flex-wrap gap-1;
+  }
+
+  .desk-checklist-meta__chip {
+    @apply inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide;
+  }
+
+  .desk-checklist-meta__chip--kind {
+    @apply bg-stone-100 text-stone-600;
+  }
+
+  .desk-checklist-meta__chip--overdue {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .desk-checklist-meta__chip--status {
+    @apply bg-sky-100 text-sky-900;
+  }
+
+  .desk-checklist-meta__chip--priority {
+    @apply bg-amber-100 text-amber-900;
+  }
+
+  .desk-checklist-meta__chip--extra {
+    @apply bg-violet-100 text-violet-900;
+  }
+
+  .desk-checklist-meta--dialog .desk-checklist-meta__chip {
+    @apply px-2 py-0.5 text-[11px];
+  }
+
+  .desk-checklist-meta__lines {
+    @apply m-0 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] leading-snug;
+  }
+
+  .desk-checklist-meta--dialog .desk-checklist-meta__lines {
+    @apply gap-y-1 text-xs;
+  }
+
+  .desk-checklist-meta__line {
+    @apply contents;
+  }
+
+  .desk-checklist-meta__label {
+    @apply m-0 font-semibold text-muted;
+  }
+
+  .desk-checklist-meta__value {
+    @apply m-0 text-ink/80;
+  }
+
+  .desk-checklist-meta__value--overdue {
+    @apply font-semibold text-red-800;
+  }
+
+  .desk-checklist-meta--dialog-head {
+    @apply mt-0 w-full gap-2.5;
+  }
+
+  .desk-checklist-meta--dialog-head .desk-checklist-meta__chips {
+    @apply justify-start;
+  }
+
+  .desk-checklist-meta--dialog-head .desk-checklist-meta__lines {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem 1.5rem;
+    @apply m-0 w-full text-xs leading-snug;
+  }
+
+  @media (min-width: 30rem) {
+    .desk-checklist-meta--dialog-head .desk-checklist-meta__lines {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .desk-checklist-meta--dialog-head .desk-checklist-meta__line {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.12rem;
+    min-width: 0;
+  }
+
+  .desk-checklist-meta--dialog-head .desk-checklist-meta__label {
+    @apply m-0 text-[10px] font-bold uppercase tracking-[0.08em] text-muted;
+  }
+
+  .desk-checklist-meta--dialog-head .desk-checklist-meta__label::after {
+    content: none;
+  }
+
+  .desk-checklist-meta--dialog-head .desk-checklist-meta__value {
+    @apply m-0 w-full text-left text-[13px] font-medium text-ink/85;
+  }
+
+  .desk-checklist-meta--aside {
+    @apply mt-0 items-end gap-1 text-right text-[10px] leading-snug;
+  }
+
+  .desk-checklist-meta--aside .desk-checklist-meta__chips {
+    @apply justify-end;
+  }
+
+  .desk-checklist-meta--aside .desk-checklist-meta__lines {
+    @apply m-0 flex w-full flex-col items-end gap-0.5;
+  }
+
+  .desk-checklist-meta--aside .desk-checklist-meta__line {
+    display: flex;
+    @apply max-w-full items-baseline justify-end gap-1;
+  }
+
+  .desk-checklist-meta--aside .desk-checklist-meta__label {
+    @apply shrink-0;
+  }
+
+  .desk-checklist-meta--aside .desk-checklist-meta__label::after {
+    content: "·";
+    @apply ml-1 text-muted/70;
+  }
+
+  .desk-checklist-meta--aside .desk-checklist-meta__value {
+    @apply min-w-0 truncate text-right;
+  }
+
+  .desk-checklist-status-pills {
+    @apply mt-1.5 flex flex-wrap gap-1;
+  }
+
+  .desk-checklist-status-pills--muted .desk-checklist-status-pill {
+    @apply opacity-70;
+  }
+
+  .desk-checklist-status-pill {
+    @apply inline-block rounded-md bg-red-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-800;
+  }
+
+  .desk-checklist-status-pill--urgent {
+    @apply bg-red-100 text-red-800;
+  }

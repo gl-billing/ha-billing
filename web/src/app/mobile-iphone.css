@@ -1,0 +1,111 @@
+/**
+ * Extra iPhone / small-phone polish for the Clio shell.
+ * Loaded after viewport-shell + ha-clio-shell.
+ */
+
+/* Safe-area padding for notched iPhones */
+@supports (padding: max(0px)) {
+  .firm-workspace.firm-clio-shell {
+    padding-left: max(var(--ha-shell-pad-x, 1rem), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--ha-shell-pad-x, 1rem), env(safe-area-inset-right, 0px));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .login-page,
+  .firm-auth {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 900px) {
+  :root {
+    --touch-min: 44px;
+  }
+
+  /* Compact letterhead on phone — more room for tab content */
+  .firm-workspace.firm-clio-shell .brand-header--shell-flush {
+    margin-bottom: 0.45rem !important;
+  }
+
+  .firm-workspace.firm-clio-shell .brand-header__inner {
+    padding: 0.55rem max(0.75rem, env(safe-area-inset-left, 0px)) 0.6rem
+      max(0.75rem, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  .firm-workspace.firm-clio-shell .firm-logo-banner--workspace.firm-logo-banner--cover {
+    max-height: 3.25rem;
+  }
+
+  .firm-workspace.firm-clio-shell .brand-header__toolbar {
+    margin-top: 0.4rem !important;
+    padding-top: 0.45rem !important;
+    gap: 0.35rem !important;
+  }
+
+  .firm-workspace.firm-clio-shell .firm-shell-chrome {
+    margin-bottom: 0.45rem !important;
+    padding-bottom: 0.35rem !important;
+  }
+
+  /* Workspace picker — large tap target */
+  .ha-clio-rail__mobile-select {
+    min-height: var(--touch-min);
+    font-size: 16px !important;
+    border-radius: 0;
+  }
+
+  /* Sub-tabs: swipeable, no wrap crush */
+  .ha-clio-subtabs__list {
+    gap: 0.15rem;
+    padding-bottom: 0.15rem;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ha-clio-subtabs__item-wrap {
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+  }
+
+  .ha-clio-subtabs__item {
+    min-height: var(--touch-min);
+    padding: 0.55rem 0.85rem;
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+
+  /* Forms / buttons — 16px inputs prevent iOS zoom */
+  .firm-workspace.firm-clio-shell input:not([type="checkbox"]):not([type="radio"]),
+  .firm-workspace.firm-clio-shell select,
+  .firm-workspace.firm-clio-shell textarea {
+    font-size: 16px !important;
+  }
+
+  .firm-workspace.firm-clio-shell .btn-primary,
+  .firm-workspace.firm-clio-shell .btn-secondary,
+  .firm-workspace.firm-clio-shell .login-page__cta,
+  .login-page__cta {
+    min-height: var(--touch-min);
+  }
+
+  /* Tables: horizontal scroll without page blowout */
+  .firm-workspace.firm-clio-shell .table-wrap,
+  .firm-workspace.firm-clio-shell .data-table-wrap,
+  .firm-workspace.firm-clio-shell .filing-workspace__scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 390px) {
+  .firm-workspace.firm-clio-shell .firm-logo-banner--workspace.firm-logo-banner--cover {
+    max-height: 2.75rem;
+  }
+
+  .ha-clio-subtabs__item {
+    padding-inline: 0.7rem;
+    font-size: 0.84rem;
+  }
+}

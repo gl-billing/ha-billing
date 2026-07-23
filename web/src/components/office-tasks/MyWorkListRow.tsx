@@ -13,6 +13,7 @@ import {
 } from "@/components/office-tasks/ItemDetailsDialog";
 import { ItemResetDialog } from "@/components/office-tasks/ItemResetDialog";
 import { ItemDeleteDialog } from "@/components/office-tasks/ItemDeleteDialog";
+import { ItemAppearanceOutcomeDialog } from "@/components/office-tasks/ItemAppearanceOutcomeDialog";
 import { ClientCaseLink } from "@/components/office-tasks/ClientCodeBadge";
 import type { ItemSummary } from "@/components/office-tasks/ItemCard";
 import {
@@ -21,6 +22,7 @@ import {
 } from "@/components/office-tasks/EventScheduleEmailDialog";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import { isHearingPendingCourtConfirmation } from "@/lib/hearing-escalation";
+import { isAppearanceOutcomeEvent } from "@/lib/office-tasks/appearance-outcome-shared";
 import { normalizeOfficeStatus, formatDisplayDate } from "@/lib/office-tasks/date-only";
 import {
   canAutoSendScheduleConfirmation,
@@ -68,6 +70,18 @@ type Props = {
   onResetWithDate?: (item: ItemSummary, newDate: string) => void;
   onDeleteItem?: (item: ItemSummary) => void;
   onUpdateNextAction?: (item: ItemSummary, nextAction: string) => void;
+  onLogAppearanceOutcome?: (
+    item: ItemSummary,
+    payload: {
+      action: "completed" | "rescheduled" | "postponed" | "cancelled";
+      whatHappened: string;
+      nextDate?: string;
+      createNextDateFollowUp: boolean;
+      courtFollowUpKind?: "none" | "next_hearing" | "submission" | "other";
+      followUpDate?: string;
+      followUpNote?: string;
+    }
+  ) => void | Promise<void>;
   onTogglePrepChecklistItem?: (item: ItemSummary, itemIndex: number, checked: boolean) => void;
   onMutatePrepChecklistItem?: (item: ItemSummary, mutation: PrepChecklistMutation) => void | Promise<void>;
   onCreatePrepChecklist?: (item: ItemSummary) => void;
@@ -97,6 +111,7 @@ export function MyWorkListRow({
   onResetWithDate,
   onDeleteItem,
   onUpdateNextAction,
+  onLogAppearanceOutcome,
   onTogglePrepChecklistItem,
   onMutatePrepChecklistItem,
   onCreatePrepChecklist,
@@ -117,6 +132,7 @@ export function MyWorkListRow({
   const [resetOpen, setResetOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [nextActionOpen, setNextActionOpen] = useState(false);
+  const [appearanceOutcomeOpen, setAppearanceOutcomeOpen] = useState(false);
   const [followUpNoteOpen, setFollowUpNoteOpen] = useState(false);
   const [followUpStatus, setFollowUpStatus] = useState<"Started" | "Waiting">("Waiting");
   const [editOpen, setEditOpen] = useState(false);
@@ -147,8 +163,11 @@ export function MyWorkListRow({
   const isStarted = status === "Started";
   const isWaiting = status === "Waiting";
   const showEdit = item.rowNumber >= 2 && Boolean(onSaveEdit && formOptions);
+  const useAppearanceOutcome =
+    isAppearanceOutcomeEvent(item as OfficeItem) && Boolean(onLogAppearanceOutcome) && !isDone && !isCancelled;
   const canAct =
-    item.rowNumber >= 2 && (onToggleDone || onSetStatus || onResetWithDate || onUpdateNextAction || onDeleteItem);
+    item.rowNumber >= 2 &&
+    (onToggleDone || onSetStatus || onResetWithDate || onUpdateNextAction || onLogAppearanceOutcome || onDeleteItem);
   const showStatusActions =
     item.source === "Task" && onSetStatus && !isDone && !isCancelled;
   const showStartedBtn = showStatusActions && !isStarted;
@@ -439,14 +458,16 @@ export function MyWorkListRow({
                     Email
                   </button>
                 ) : null}
-                {onUpdateNextAction ? (
+                {useAppearanceOutcome || onUpdateNextAction ? (
                   <button
                     type="button"
                     className="my-work-list__btn my-work-list__btn--ghost"
                     disabled={toggling}
-                    onClick={() => setNextActionOpen(true)}
+                    onClick={() =>
+                      useAppearanceOutcome ? setAppearanceOutcomeOpen(true) : setNextActionOpen(true)
+                    }
                   >
-                    Next
+                    {useAppearanceOutcome ? "What happened" : "Next"}
                   </button>
                 ) : null}
                 <ItemMoreMenu
@@ -492,7 +513,7 @@ export function MyWorkListRow({
           }}
         />
       ) : null}
-      {onUpdateNextAction ? (
+      {onUpdateNextAction && !useAppearanceOutcome ? (
         <ItemNextActionDialog
           item={item}
           open={nextActionOpen}
@@ -501,6 +522,26 @@ export function MyWorkListRow({
           onConfirm={(target, nextAction) => {
             onUpdateNextAction(target, nextAction);
             setNextActionOpen(false);
+          }}
+        />
+      ) : null}
+      {onLogAppearanceOutcome && isAppearanceOutcomeEvent(item as OfficeItem) ? (
+        <ItemAppearanceOutcomeDialog
+          item={item}
+          open={appearanceOutcomeOpen}
+          busy={toggling}
+          onClose={() => setAppearanceOutcomeOpen(false)}
+          onConfirm={(payload) => {
+            void onLogAppearanceOutcome(payload.item, {
+              action: payload.action,
+              whatHappened: payload.whatHappened,
+              nextDate: payload.nextDate,
+              createNextDateFollowUp: payload.createNextDateFollowUp,
+              courtFollowUpKind: payload.courtFollowUpKind,
+              followUpDate: payload.followUpDate,
+              followUpNote: payload.followUpNote
+            });
+            setAppearanceOutcomeOpen(false);
           }}
         />
       ) : null}

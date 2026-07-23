@@ -17,6 +17,8 @@ import {
   walkInHasTransferableBilling
 } from "@/lib/sheets/walk-ins";
 import { invalidateTasksDataCache } from "@/lib/office-tasks/tasks-cache";
+import { runWalkInPromoteAutomations } from "@/lib/walk-in-promote-automation";
+import { sessionAuditUser } from "@/lib/audit-user";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -79,10 +81,26 @@ export async function POST(request: Request, context: RouteContext) {
     let billingNote: string | null = null;
     const transferBilling =
       body.transferBilling !== false && walkInHasTransferableBilling(walkInEntry);
+    const session = await getServerSession(authOptions);
+    const actor = sessionAuditUser(session);
     if (transferBilling) {
       billingNote = await transferWalkInBillingToLedger(accessToken, walkInEntry, result.clientCode);
       invalidateBillingReadCaches(accessToken);
       invalidateCache(accessToken, `profile:${result.clientCode}`);
+    }
+
+    let promoteAutomations: { timelineNote: boolean } | null = null;
+    try {
+      promoteAutomations = await runWalkInPromoteAutomations(
+        accessToken,
+        walkInEntry,
+        result.clientCase,
+        assignee,
+        actor
+      );
+      invalidateTasksDataCache(accessToken);
+    } catch {
+      /* best-effort */
     }
 
     invalidateCache(accessToken, "walk-ins");
@@ -92,9 +110,8 @@ export async function POST(request: Request, context: RouteContext) {
     invalidateCache(accessToken, "sheet-titles");
     invalidateCache(accessToken, `profile:${result.clientCode}`);
 
-    const session = await getServerSession(authOptions);
     await appendAuditLog(accessToken, {
-      user: session?.user?.email || "system",
+      user: actor,
       action: "Promote walk-in",
       clientCode: result.clientCode,
       summary: `Promoted walk-in ${id} to client file ${result.clientCode}`,
@@ -112,6 +129,9 @@ export async function POST(request: Request, context: RouteContext) {
       messageParts.push(`${createdTasks.length} starter task(s) created in Office Tasks.`);
     }
     if (billingNote) messageParts.push(billingNote);
+    if (promoteAutomations?.timelineNote) {
+      messageParts.push("Walk-in visit notes added to matter timeline.");
+    }
 
     return NextResponse.json({
       ok: true,

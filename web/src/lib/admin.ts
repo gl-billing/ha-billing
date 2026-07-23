@@ -33,6 +33,11 @@ export function requireAdminEmail(email: string | null | undefined): void {
   }
 }
 
+/** Matter edit gate — HA uses firm admin for trust / retainer ops writes. */
+export function requireMatterEditAccess(email: string | null | undefined): void {
+  requireAdminEmail(email);
+}
+
 /** Admins who can add or edit associate lawyers and payroll staff on Accounts → Payroll. */
 export function getTeamRosterAdminEmails(): string[] {
   return uniqueEmails([

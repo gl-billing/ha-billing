@@ -30,6 +30,7 @@ export type ClioNavId =
   | "matters"
   | "contacts"
   | "activities"
+  | "filing"
   | "billing"
   | "documents"
   | "communications"
@@ -61,6 +62,38 @@ export type ClioPrimary = {
   defaultSectionId: string;
 };
 
+/** Left-rail groups — primaries clustered by job function. */
+export type ClioRailGroupId = "work" | "clients" | "accounts" | "firm";
+
+export type ClioRailGroup = {
+  id: ClioRailGroupId;
+  label: string;
+  navIds: ClioNavId[];
+};
+
+export const HA_CLIO_RAIL_GROUPS: ClioRailGroup[] = [
+  {
+    id: "work",
+    label: "Work",
+    navIds: ["checklist", "calendar", "activities", "filing"]
+  },
+  {
+    id: "clients",
+    label: "Clients",
+    navIds: ["matters", "contacts", "communications", "documents"]
+  },
+  {
+    id: "accounts",
+    label: "Accounts",
+    navIds: ["billing", "dashboard"]
+  },
+  {
+    id: "firm",
+    label: "Firm",
+    navIds: ["reports", "settings"]
+  }
+];
+
 export type ClioVisibilityOptions = {
   billingAccess: boolean;
   navProfile: NavUserProfile;
@@ -75,11 +108,17 @@ export type ClioVisibilityOptions = {
 export const HA_CLIO_NAV: ClioPrimary[] = [
   {
     id: "checklist",
-    label: "My work",
-    description: "Assigned work for today — overdue first, then due today.",
+    label: "Checklist",
+    description: "Desk checklist and today’s work board.",
     app: "tasks",
-    defaultSectionId: "today",
+    defaultSectionId: "open",
     sections: [
+      {
+        id: "open",
+        label: "Checklist",
+        description: TASKS_TAB_DESCRIPTIONS["desk-checklist"],
+        tasksTab: "desk-checklist"
+      },
       {
         id: "today",
         label: TASKS_TAB_LABELS.today,
@@ -197,6 +236,27 @@ export const HA_CLIO_NAV: ClioPrimary[] = [
         label: TASKS_TAB_LABELS["all-items"],
         description: TASKS_TAB_DESCRIPTIONS["all-items"],
         tasksTab: "all-items"
+      }
+    ]
+  },
+  {
+    id: "filing",
+    label: "Filing",
+    description: "E-filing and physical service queues.",
+    app: "tasks",
+    defaultSectionId: "e-filing",
+    sections: [
+      {
+        id: "e-filing",
+        label: "E-filing",
+        description: "Electronic court transmittals and copy furnish by email.",
+        tasksTab: "filing"
+      },
+      {
+        id: "physical",
+        label: "Reg mail / courier / personal",
+        description: "Registered mail, private courier, and personal service.",
+        tasksTab: "filing"
       }
     ]
   },
@@ -403,6 +463,17 @@ export function clioPrimariesForUser(options: ClioVisibilityOptions): ClioPrimar
   return HA_CLIO_NAV.filter((primary) => clioSectionsForUser(primary, options).length > 0);
 }
 
+/** Visible left-rail groups (empty groups omitted). */
+export function clioRailGroupsForUser(
+  options: ClioVisibilityOptions
+): Array<ClioRailGroup & { primaries: ClioPrimary[] }> {
+  const byId = new Map(clioPrimariesForUser(options).map((primary) => [primary.id, primary]));
+  return HA_CLIO_RAIL_GROUPS.map((group) => ({
+    ...group,
+    primaries: group.navIds.map((id) => byId.get(id)).filter((item): item is ClioPrimary => Boolean(item))
+  })).filter((group) => group.primaries.length > 0);
+}
+
 export function defaultClioSectionForUser(primary: ClioPrimary, options: ClioVisibilityOptions): ClioSection {
   const allowed = clioSectionsForUser(primary, options);
   if (!allowed.length) return findClioSection(primary, primary.defaultSectionId);
@@ -441,9 +512,10 @@ export function resolveClioFromTasksTab(
 ): { nav: ClioNavId; section: string } {
   if (tab === "calendar") return { nav: "calendar", section: "month" };
   if (tab === "week") return { nav: "calendar", section: calendarMode === "day" ? "day" : "week" };
-  // calendarMode only applies to the week tab — never remap My work → Calendar Day.
+  if (tab === "desk-checklist") return { nav: "checklist", section: "open" };
   if (tab === "today") return { nav: "checklist", section: "today" };
   if (tab === "correspondence") return { nav: "communications", section: "letters" };
+  if (tab === "filing") return { nav: "filing", section: "e-filing" };
   if (tab === "tools") return { nav: "settings", section: "firm" };
   if (tab === "presence") return { nav: "settings", section: "presence" };
   if (tab === "team") return { nav: "reports", section: "team" };
@@ -469,6 +541,9 @@ export function buildClioHref(nav: ClioNavId, sectionId?: string, options?: Clio
     params.set("section", section.id);
     params.set("tab", section.tasksTab);
     if (section.calendarMode) params.set("cal", section.calendarMode);
+    if (nav === "filing") {
+      params.set("filingQueue", section.id === "physical" ? "physical" : "e-filing");
+    }
     return `${tasksPath}?${params.toString()}`;
   }
 

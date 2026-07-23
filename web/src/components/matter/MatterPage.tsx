@@ -28,7 +28,7 @@ import {
 } from "@/lib/office-tasks/client-matter";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import type { TaskActivityEntry } from "@/lib/office-tasks/sheets/activity-log";
-import { isItemOpen, officeItemKey } from "@/lib/office-tasks/schedule";
+import { isItemOpen, officeItemKey, todayYmd } from "@/lib/office-tasks/schedule";
 import type { ItemStatusOptions, ItemStatusUpdate } from "@/lib/office-tasks/status";
 import {
   isOfflineQueued,
@@ -51,6 +51,13 @@ import {
   MatterHearingLifecyclePanel,
   type MatterChargeDraft
 } from "@/components/matter/MatterHearingLifecyclePanel";
+import { MatterRetainerHomeCard } from "@/components/matter/MatterRetainerHomeCard";
+import { buildRetainerHomeReadiness } from "@/lib/retainer-package";
+import {
+  retainerBillingPeriodKey,
+  retainerMonthlyChargeMarker
+} from "@/lib/retainer-billing-autopilot-utils";
+import { buildRetainerMonthRibbon } from "@/lib/retainer-month-ops";
 import { MatterStickyBar } from "@/components/matter/MatterStickyBar";
 import { MatterIntakeChecklist } from "@/components/matter/MatterIntakeChecklist";
 import { MatterInlineLedger } from "@/components/matter/MatterInlineLedger";
@@ -72,7 +79,6 @@ import {
   formatMatterCaseCaption,
   resolveClientMatterType
 } from "@/lib/client-matter-type";
-import { todayYmd } from "@/lib/office-tasks/schedule";
 import { BirthdayGreetingDialog } from "@/components/matter/BirthdayGreetingDialog";
 import { resolveSessionStaffName } from "@/lib/staff-session";
 import { resolveNavUserProfile } from "@/lib/workspace-labels";
@@ -886,6 +892,64 @@ export function MatterPage({ matterCode, user }: Props) {
     [profileDetail, billingClient]
   );
 
+  const isRetainerMatter =
+    Boolean(clientDetail) &&
+    resolveClientMatterType({
+      matterType: clientDetail!.matterType,
+      caseTitle: clientDetail!.caseTitle,
+      retainerBalance: clientDetail!.retainerBalance
+    }) === "retainer";
+
+  const retainerActivity = useMemo(() => {
+    if (!isRetainerMatter || !clientDetail) {
+      return {
+        lastCharge: null as string | null,
+        lastSoa: null as string | null,
+        monthRibbon: [] as ReturnType<typeof buildRetainerMonthRibbon>
+      };
+    }
+    const period = retainerBillingPeriodKey(todayYmd());
+    const marker = retainerMonthlyChargeMarker(clientDetail.code, period).toLowerCase();
+    const charge = [...ledgerEntries]
+      .reverse()
+      .find((row) => {
+        if (!(row.charge > 0)) return false;
+        const desc = String(row.description || "").toLowerCase();
+        const cat = String(row.category || "").toLowerCase();
+        return (
+          desc.includes("retainer") ||
+          desc.includes("retainership") ||
+          cat.includes("professional") ||
+          desc.includes("professional fee")
+        );
+      });
+    const chargeLabel = charge
+      ? `${charge.date || "—"} · ${charge.description?.slice(0, 72) || "Retainer charge"}`
+      : null;
+    const soa = timeline.find((item) => item.kind === "soa");
+    const thisMonthPosted = ledgerEntries.some(
+      (row) => row.charge > 0 && String(row.description || "").toLowerCase().includes(marker)
+    );
+    const readiness = buildRetainerHomeReadiness(clientDetail);
+    const soaDates = [
+      clientDetail.soaSent || "",
+      ...timeline.filter((item) => item.kind === "soa").map((item) => item.date || "")
+    ].filter(Boolean);
+    const monthRibbon = buildRetainerMonthRibbon({
+      clientCode: clientDetail.code,
+      fee: readiness?.fee || 0,
+      dueDay: readiness?.dueDay ?? null,
+      balance: clientDetail.balance || 0,
+      ledgerEntries,
+      soaDates
+    });
+    return {
+      lastCharge: chargeLabel || (thisMonthPosted ? `Posted for ${period}` : null),
+      lastSoa: soa ? `${soa.date || "—"} · ${soa.title}` : clientDetail.soaSent || null,
+      monthRibbon
+    };
+  }, [isRetainerMatter, clientDetail, ledgerEntries, timeline]);
+
   const birthdayToday =
     Boolean(clientDetail?.birthday) && isBirthdayToday(clientDetail?.birthday);
   const birthdayGreetingSentThisYear =
@@ -1353,7 +1417,11 @@ export function MatterPage({ matterCode, user }: Props) {
               {billingAccess ? (
                 <MatterHearingLifecyclePanel
                   events={events}
+                  billingEvents={events}
+                  ledgerEntries={ledgerEntries}
                   clientCode={billingCode || matterCode}
+                  matterCode={matterCode}
+                  profile={clientDetail}
                   busy={busy || actionBusy}
                   onStatus={(msg, err) => { setStatusMsg(msg); setStatusIsError(!!err); }}
                   onRefresh={load}
@@ -1386,6 +1454,26 @@ export function MatterPage({ matterCode, user }: Props) {
                 />
               </div>
             </section>
+
+            {billingClient && clientDetail && billingAccess && isRetainerMatter ? (
+              <MatterRetainerHomeCard
+                clientDetail={clientDetail}
+                lastChargeLabel={retainerActivity.lastCharge}
+                lastSoaLabel={retainerActivity.lastSoa}
+                monthRibbon={retainerActivity.monthRibbon}
+                canRename={isAdmin}
+                canEdit={isAdmin}
+                onStatus={(message, isError) => {
+                  setStatusMsg(message);
+                  setStatusIsError(!!isError);
+                }}
+                onSaved={() => void refreshBillingData()}
+                onRenamed={(newCode) => {
+                  setStatusMsg(`Client code renamed to ${newCode}.`);
+                  router.replace(matterHref(newCode));
+                }}
+              />
+            ) : null}
 
             {billingClient && clientDetail && billingAccess ? (
               <section id="matter-billing" className="matter-page__flow scroll-mt-3">

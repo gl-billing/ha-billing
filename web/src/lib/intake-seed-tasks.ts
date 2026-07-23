@@ -1,6 +1,7 @@
 import { appendEvent, appendTask, type EventFormInput, type TaskFormInput } from "@/lib/office-tasks/sheets/tasks";
 import { getEmployeeDirectory } from "@/lib/office-tasks/sheets/employees";
 import { defaultAndreaOperationsAssignee } from "@/lib/office-tasks/task-assignees";
+import { runEventCreateAutomations } from "@/lib/office-tasks/event-follow-up";
 import {
   engagementDocumentTaskDescription,
   INTAKE_CONFERENCE_TASK,
@@ -106,6 +107,7 @@ export async function createIntakeSeedTasks(
     };
     const saved = await appendEvent(accessToken, eventBody);
     created.push(saved.id);
+    await runEventCreateAutomations(accessToken, saved.id, eventBody);
   }
 
   return created;

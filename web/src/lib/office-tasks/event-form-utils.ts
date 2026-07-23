@@ -321,6 +321,25 @@ export function isHearingEventCategory(category: string): boolean {
   return String(category || "").trim() === "Hearing";
 }
 
+export function isConsultationEventCategory(category: string): boolean {
+  return String(category || "").trim() === "Consultation";
+}
+
+export function isMeetingEventCategory(category: string): boolean {
+  const value = String(category || "").trim();
+  return value === "Meeting" || value === "Internal Meeting";
+}
+
+export function isEventLedgerBillableCategory(category: string, categoryOther?: string): boolean {
+  const resolved = resolveEventCategory(category, categoryOther);
+  return (
+    isPleadingCategory(resolved) ||
+    isHearingEventCategory(resolved) ||
+    isConsultationEventCategory(resolved) ||
+    isMeetingEventCategory(resolved)
+  );
+}
+
 export function isOpenHearingEvent(
   item: Pick<{ source: string; category: string; status: string; done: boolean }, "source" | "category" | "status" | "done">
 ): boolean {

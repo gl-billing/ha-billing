@@ -486,7 +486,7 @@ function FirmTaskGroupSection({
   const openItems = [...groups.overdue, ...groups.open.filter((item) => !overdueKeys.has(itemKey(item)))];
 
   return (
-    <div className={`firm-task-group rounded-xl border border-line/80 bg-white/60 p-3 ${accentClass}`}>
+    <div className={`firm-task-group border border-line bg-white p-3 ${accentClass}`}>
       <EmployeeSection
         title={title}
         description={description}

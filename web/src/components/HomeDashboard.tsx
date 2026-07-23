@@ -4,6 +4,7 @@ import { AmountDisplay } from "@/components/AmountDisplay";
 import { BillingOpsQueuePanel } from "@/components/BillingOpsQueuePanel";
 import { ClientCodeButton } from "@/components/ClientCodeButton";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
+import { RetainerBillingStrip } from "@/components/RetainerBillingStrip";
 import { SmartLoadEmptyState } from "@/components/SmartLoadEmptyState";
 import { DashboardSkeleton } from "@/components/Skeleton";
 import { useCallback, useEffect, useState } from "react";
@@ -140,6 +141,12 @@ export function HomeDashboard({ busy, onNavigate, onRefresh, onNotify }: Props) 
           <Metric label="Pending AR" value={String(data.pendingArCount)} alert={data.pendingArCount > 0} />
         </div>
       </section>
+
+      <RetainerBillingStrip
+        upcoming={data.upcomingRetainers || []}
+        monthSummary={data.retainerMonthSummary}
+        onOpenClient={(code) => onNavigate({ page: "clients", clientCode: code })}
+      />
 
       <nav className="nav-tabs-scroll home-dashboard-tabs" role="tablist" aria-label="Firm overview sections">
         {(
@@ -330,7 +337,7 @@ export function HomeDashboard({ busy, onNavigate, onRefresh, onNotify }: Props) 
                         {formatPeso(doc.amount)}
                       </td>
                       <td data-label="Status">
-                        <span className="inline-flex rounded-full border border-gold/25 bg-gold/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold-dark">
+                        <span className="inline-flex border border-line bg-soft px-2 py-0.5 text-[0.68rem] font-bold uppercase tracking-wide text-ink">
                           {doc.status}
                         </span>
                       </td>
@@ -380,12 +387,12 @@ function Metric({
 }) {
   return (
     <div
-      className={`home-dashboard-stat-cell rounded-lg border px-2 py-2 text-center ${
+      className={`home-dashboard-stat-cell border px-2 py-2 text-center ${
         alert
-          ? "border-red-200 bg-red-50 ring-1 ring-red-200"
+          ? "border-ink bg-cream"
           : highlight
-            ? "border-gold/25 bg-gold/10 ring-1 ring-gold/25"
-            : "border-line/80 bg-white ring-1 ring-line/60"
+            ? "border-ink bg-soft"
+            : "border-line bg-white"
       }`}
     >
       <p className="text-[11px] font-semibold text-muted">{label}</p>

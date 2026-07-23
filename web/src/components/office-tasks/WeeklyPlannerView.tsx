@@ -161,9 +161,9 @@ export function WeeklyPlannerView({
                   }
                 }}
                 aria-pressed={isSelected}
-                className={`weekly-day-column flex min-w-0 cursor-pointer flex-col rounded-xl border p-2.5 text-left transition-all duration-200 ${
-                  isSelected ? "weekly-day-column--selected border-gold" : "border-line/80 bg-white/60 hover:bg-white"
-                } ${isToday && !isSelected ? "ring-1 ring-amber-400/80" : ""} ${
+                className={`weekly-day-column flex min-w-0 cursor-pointer flex-col border p-2.5 text-left transition-colors duration-150 ${
+                  isSelected ? "weekly-day-column--selected border-ink bg-white" : "border-line bg-white/80 hover:border-ink/40 hover:bg-white"
+                } ${isToday && !isSelected ? "border-ink/50" : ""} ${
                   holidayName ? "weekly-day-column--ph-holiday" : ""
                 }`}
               >
@@ -180,7 +180,7 @@ export function WeeklyPlannerView({
                     </p>
                   )}
                   {isToday && (
-                    <span className="mt-1.5 inline-block rounded-full bg-amber-500 px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-wider text-white">
+                    <span className="mt-1.5 inline-block border border-ink bg-ink px-2 py-0.5 text-[0.62rem] font-extrabold uppercase tracking-wider text-white">
                       Today
                     </span>
                   )}

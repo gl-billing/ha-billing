@@ -523,3 +523,87 @@
     min-height: 4.5rem;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Density rhythm + motion restraint
+   ═══════════════════════════════════════════════════════════════ */
+.firm-workspace.firm-clio-shell .firm-workspace-body > *,
+.firm-workspace.firm-clio-shell .reports-panel > *,
+.firm-workspace.firm-clio-shell .matter-page > * {
+  margin-bottom: 0;
+}
+
+.firm-workspace.firm-clio-shell .firm-workspace-body,
+.firm-workspace.firm-clio-shell .reports-panel,
+.firm-workspace.firm-clio-shell .matter-page,
+.firm-workspace.firm-clio-shell .tab-page-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .firm-workspace.firm-clio-shell .firm-workspace-body,
+  .firm-workspace.firm-clio-shell .reports-panel,
+  .firm-workspace.firm-clio-shell .matter-page,
+  .firm-workspace.firm-clio-shell .tab-page-body {
+    gap: 1.25rem;
+  }
+}
+
+.firm-workspace.firm-clio-shell .card,
+.firm-workspace.firm-clio-shell .item-card,
+.firm-workspace.firm-clio-shell .employee-card,
+.firm-workspace.firm-clio-shell .stat-tile {
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.firm-workspace.firm-clio-shell .card:hover,
+.firm-workspace.firm-clio-shell .item-card:hover {
+  transform: none;
+  box-shadow: 0 1px 0 rgba(10, 10, 10, 0.04) !important;
+}
+
+.firm-workspace.firm-clio-shell .btn-primary:active:not(:disabled),
+.firm-workspace.firm-clio-shell .btn-secondary:active:not(:disabled),
+.firm-workspace.firm-clio-shell .letterhead-action-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.firm-workspace.firm-clio-shell .brand-header__inner {
+  position: relative;
+}
+
+.firm-workspace.firm-clio-shell .brand-header__inner::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--ink);
+  transform-origin: left center;
+  animation: letterhead-rule-in 0.35s ease-out both;
+}
+
+@keyframes letterhead-rule-in {
+  from {
+    transform: scaleX(0);
+    opacity: 0.4;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .firm-workspace.firm-clio-shell .brand-header__inner::after {
+    animation: none;
+  }
+
+  .firm-workspace.firm-clio-shell .btn-primary:active:not(:disabled),
+  .firm-workspace.firm-clio-shell .btn-secondary:active:not(:disabled) {
+    transform: none;
+  }
+}

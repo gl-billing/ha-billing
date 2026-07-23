@@ -18,7 +18,7 @@ body:has(.firm-auth) {
   min-height: -webkit-fill-available;
 }
 
-/* ── Firm shell: fill the window, flex column ── */
+/* ── Firm shell: fill the window; page scrolls as one surface (chrome not locked) ── */
 .app-shell,
 .app-shell-wide,
 .firm-workspace.app-shell,
@@ -33,24 +33,33 @@ body:has(.firm-auth) {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box;
+  /* Prefer document scroll so letterhead + section chrome leave the viewport */
+  height: auto !important;
+  max-height: none !important;
+  overflow-x: clip !important;
+  overflow-y: visible !important;
 }
 
 .firm-workspace.firm-clio-shell .ha-clio-layout {
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
+  /* Don’t trap scroll inside the layout — let the window scroll */
+  overflow: visible;
 }
 
 .firm-workspace.firm-clio-shell .firm-workspace-body {
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
+  overflow: visible !important;
 }
 
 .firm-workspace.firm-clio-shell > .firm-shell-chrome + .firm-workspace-body,
 .firm-workspace.firm-clio-shell .ha-clio-layout__main {
   flex: 1 1 auto;
   min-height: 0;
+  overflow: visible;
 }
 
 .firm-workspace .app-footer {

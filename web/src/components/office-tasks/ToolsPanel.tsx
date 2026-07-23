@@ -5,6 +5,9 @@ import { TaxDeadlinesPanel } from "@/components/office-tasks/TaxDeadlinesPanel";
 import { StaffRemindersPanel } from "@/components/office-tasks/StaffRemindersPanel";
 import { HearingRemindersPanel } from "@/components/office-tasks/HearingRemindersPanel";
 import { HealthChecksPanel } from "@/components/HealthChecksPanel";
+import { FirmAutomationSettingsPanel } from "@/components/FirmAutomationSettingsPanel";
+import { CronAutomationHealthPanel } from "@/components/CronAutomationHealthPanel";
+import { IntegrationsSetupChecklist } from "@/components/IntegrationsSetupChecklist";
 import { EventsDiagnosticsResults } from "@/components/office-tasks/EventsDiagnosticsPanel";
 import { OrphanTasksPanel } from "@/components/office-tasks/OrphanTasksPanel";
 import { ViewHero } from "@/components/office-tasks/PremiumUI";
@@ -168,6 +171,17 @@ export function ToolsPanel({
       )}
 
       {isAdmin ? <HealthChecksPanel busy={busy} onStatus={(msg, isError) => onStatus(isError ? `⚠ ${msg}` : msg)} /> : null}
+
+      {isAdmin ? <CronAutomationHealthPanel variant="desk" /> : null}
+
+      {isAdmin ? (
+        <section className="card tools-panel__section">
+          <h2 className="section-label">Integrations</h2>
+          <IntegrationsSetupChecklist />
+        </section>
+      ) : null}
+
+      {isAdmin ? <FirmAutomationSettingsPanel /> : null}
 
       {isAdmin ? (
         <OrphanTasksPanel busy={busy} onStatus={(msg, isError) => onStatus(isError ? `⚠ ${msg}` : msg)} />

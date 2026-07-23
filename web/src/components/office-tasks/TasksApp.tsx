@@ -78,8 +78,18 @@ import {
   fetchEventsDiagnostics,
   formatEventsDiagnosticsSummary
 } from "@/lib/office-tasks/events-diagnostics";
-import { mergeTaskWorkDetails, resolveTaskType, validateTaskFormInput } from "@/lib/office-tasks/task-form-utils";
+import { mergeTaskWorkDetails, resolveTaskType, validateTaskFormInput, LETTER_CORRESPONDENCE_FORM_TYPE } from "@/lib/office-tasks/task-form-utils";
+import {
+  validateLetterCorrespondenceInput,
+  type LetterCorrespondenceInput
+} from "@/lib/office-tasks/letter-task-utils";
 import { FilingFollowUpAlertBar } from "@/components/office-tasks/FilingFollowUpAlertBar";
+import { FilingWorkspace } from "@/components/office-tasks/FilingWorkspace";
+import dynamic from "next/dynamic";
+import {
+  filterDeskChecklistItems,
+  resolveDeskChecklistScope
+} from "@/lib/office-tasks/desk-checklist";
 import { listFilingDeadlineAlerts } from "@/lib/office-tasks/filing-confirmation";
 import { DEFAULT_FIRM_ALERT_RULES } from "@/lib/firm-alert-rules";
 import { NextQueueStrip } from "@/components/NextQueueStrip";
@@ -120,11 +130,17 @@ import { clearWorkspaceIntroSeen, hasSeenWorkspaceIntro, markWorkspaceIntroSeen 
 
 const LETTER_WALKIN_PREFIX = "walkin:";
 
+const TasksDeskChecklistTab = dynamic(
+  () => import("@/components/office-tasks/TasksDeskChecklistTab").then((m) => m.TasksDeskChecklistTab),
+  { ssr: false }
+);
+
 type Props = Record<string, never>;
 
 type HomeData = TasksHomeData;
 
 type Tab =
+  | "desk-checklist"
   | "today"
   | "calendar"
   | "week"
@@ -134,6 +150,7 @@ type Tab =
   | "add-event"
   | "all-items"
   | "correspondence"
+  | "filing"
   | "tools"
   | "liaison"
   | "presence";
@@ -156,6 +173,7 @@ export function TasksApp() {
   const [tab, setTab] = useState<Tab>("today");
   /** Clio Calendar Day/Week/Month — day mounts hourly DayScheduleView on the week tab. */
   const [calendarMode, setCalendarMode] = useState<"day" | "week" | "month">("week");
+  const [filingQueue, setFilingQueue] = useState<"e-filing" | "physical">("e-filing");
   const {
     message: statusMsg,
     variant: statusVariant,
@@ -417,6 +435,15 @@ export function TasksApp() {
     const clioNav = parseClioNavParam(params.get("nav"));
     const clioSection = params.get("section")?.trim() || "";
     const calParam = params.get("cal")?.trim().toLowerCase() || "";
+    const filingQueueParam = params.get("filingQueue")?.trim().toLowerCase() || "";
+
+    if (filingQueueParam === "physical" || filingQueueParam === "e-filing") {
+      setFilingQueue(filingQueueParam);
+    } else if (clioNav === "filing" && clioSection === "physical") {
+      setFilingQueue("physical");
+    } else if (clioNav === "filing") {
+      setFilingQueue("e-filing");
+    }
 
     if (clientParam) setLetterClientCode(clientParam);
     if (eventKindParam === "filings" || eventKindParam === "appearances") {
@@ -724,6 +751,89 @@ export function TasksApp() {
     }
   }
 
+  async function markPrepDone(item: ItemSummary) {
+    setTogglingKey(itemActionKey(item));
+    reportProcessing("Marking prep done…");
+    try {
+      const res = await fetch("/api/tasks/items/prep-done", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(itemActionPayload(item))
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Update failed");
+      reportSuccess(formatSuccessReport(json.message || "Prep marked done."));
+      await load(searchQ || undefined);
+    } catch (e) {
+      reportError(e instanceof Error ? e.message : "Update failed.");
+    } finally {
+      setTogglingKey(null);
+    }
+  }
+
+  async function markLetterDocDone(item: ItemSummary) {
+    setTogglingKey(itemActionKey(item));
+    reportProcessing("Marking document ready…");
+    try {
+      const res = await fetch("/api/tasks/items/letter-doc-done", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(itemActionPayload(item))
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Update failed");
+      reportSuccess(formatSuccessReport(json.message || "Document marked ready."));
+      if (json.whatsAppUrl && typeof window !== "undefined") {
+        window.open(String(json.whatsAppUrl), "_blank", "noopener,noreferrer");
+      }
+      await load(searchQ || undefined);
+    } catch (e) {
+      reportError(e instanceof Error ? e.message : "Update failed.");
+    } finally {
+      setTogglingKey(null);
+    }
+  }
+
+  async function logAppearanceOutcome(
+    item: ItemSummary,
+    payload: {
+      action: "completed" | "rescheduled" | "postponed" | "cancelled";
+      whatHappened: string;
+      nextDate?: string;
+      createNextDateFollowUp: boolean;
+      courtFollowUpKind?: "none" | "next_hearing" | "submission" | "other";
+      followUpDate?: string;
+      followUpNote?: string;
+    }
+  ) {
+    setTogglingKey(itemActionKey(item));
+    reportProcessing("Saving what happened…");
+    try {
+      const res = await fetch("/api/tasks/items/log-hearing-outcome", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...itemActionPayload(item),
+          action: payload.action,
+          whatHappened: payload.whatHappened,
+          nextDate: payload.nextDate,
+          createNextDateFollowUp: payload.createNextDateFollowUp,
+          courtFollowUpKind: payload.courtFollowUpKind,
+          followUpDate: payload.followUpDate,
+          followUpNote: payload.followUpNote
+        })
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Save failed");
+      reportSuccess(formatSuccessReport(json.message || "Outcome saved."));
+      await load(searchQ || undefined);
+    } catch (e) {
+      reportError(e instanceof Error ? e.message : "Save failed.");
+    } finally {
+      setTogglingKey(null);
+    }
+  }
+
   async function resetItemWithDate(item: ItemSummary, newDate: string) {
     setTogglingKey(itemActionKey(item));
     reportProcessing("Resetting with new date…");
@@ -853,8 +963,32 @@ export function TasksApp() {
       .getAll("checklistItem")
       .map((value) => String(value).trim())
       .filter(Boolean);
+    const rawTaskType = String(fd.get("taskType") || "Task");
     const interactiveChecklistItems =
       createInteractiveChecklist && checklistItems.length ? checklistItems : undefined;
+    const letterCorrespondence: LetterCorrespondenceInput | undefined =
+      rawTaskType === LETTER_CORRESPONDENCE_FORM_TYPE
+        ? {
+            letterType: String(fd.get("letterType") || "Demand letter"),
+            letterTypeOther: String(fd.get("letterTypeOther") || ""),
+            recipient: String(fd.get("letterRecipient") || "").trim(),
+            serveViaLiaison: fd.get("serveViaLiaison") === "on",
+            serveByDate: String(fd.get("serveByDate") || ""),
+            serveAddress: String(fd.get("serveAddress") || ""),
+            serveLocation: String(fd.get("serveLocation") || "Davao City"),
+            advanceGiven: Number(fd.get("letterAdvanceGiven") || 0),
+            serviceFee: Number(fd.get("letterServiceFee") || 0),
+            servicePaid: fd.get("letterServicePaid") === "on",
+            billThis: fd.get("letterBillThis") === "on",
+            billAmount: Number(fd.get("letterBillAmount") || 0),
+            billTiming:
+              String(fd.get("letterBillTiming") || "client_billing") === "pay_now"
+                ? "pay_now"
+                : "client_billing",
+            billPaymentMethod: String(fd.get("letterBillPaymentMethod") || ""),
+            billingConfirmed: fd.get("letterBillingConfirmed") === "on"
+          }
+        : undefined;
     const payload = {
       clientCase,
       assignedTo: String(fd.get("assignedTo") || "").trim(),
@@ -862,7 +996,7 @@ export function TasksApp() {
       dueTime: String(fd.get("dueTime") || ""),
       venue: String(fd.get("venue") || ""),
       priority: String(fd.get("priority") || "Medium"),
-      taskType: resolveTaskType(String(fd.get("taskType") || "Task"), String(fd.get("taskTypeOther") || "")),
+      taskType: resolveTaskType(rawTaskType, String(fd.get("taskTypeOther") || "")),
       description: mergeTaskWorkDetails(
         String(fd.get("description") || "").trim(),
         String(fd.get("workNotes") || "").trim(),
@@ -875,17 +1009,25 @@ export function TasksApp() {
       reminderDays: Number(fd.get("reminderDays") || 1),
       calendarSync: fd.get("calendarSync") === "on",
       interactiveChecklist: Boolean(interactiveChecklistItems?.length),
-      interactiveChecklistItems
+      interactiveChecklistItems,
+      letterCorrespondence
     };
 
     const validationError = validateTaskFormInput({
       ...payload,
-      taskType: String(fd.get("taskType") || "Task"),
+      taskType: rawTaskType,
       taskTypeOther: String(fd.get("taskTypeOther") || "")
     });
+    const letterValidationError = letterCorrespondence
+      ? validateLetterCorrespondenceInput(letterCorrespondence)
+      : null;
     if (validationError) {
       showStatus(validationError, true);
       throw new Error(validationError);
+    }
+    if (letterValidationError) {
+      showStatus(letterValidationError, true);
+      throw new Error(letterValidationError);
     }
 
     if (!options?.skipDuplicateCheck) {
@@ -1301,6 +1443,16 @@ export function TasksApp() {
     if (effectiveMyWorkScope === "firm" || !sessionStaffName) return scheduleItems;
     return filterItemsForMyWork(scheduleItems, sessionStaffName, data?.employees ?? []);
   }, [scheduleItems, effectiveMyWorkScope, sessionStaffName, data?.employees]);
+  const deskChecklistScope = useMemo(() => resolveDeskChecklistScope(), []);
+  const deskChecklistItems = useMemo(
+    () =>
+      filterDeskChecklistItems(scheduleItems, {
+        scope: deskChecklistScope,
+        staffName: sessionStaffName || "",
+        roster: data?.employees ?? []
+      }),
+    [scheduleItems, deskChecklistScope, sessionStaffName, data?.employees]
+  );
   const myWorkCounts = useMemo(() => computeTodayCounts(myWorkItems), [myWorkItems]);
   const myWorkLists = useMemo(() => filterTodayLists(myWorkItems), [myWorkItems]);
   const todayCounts = effectiveMyWorkScope === "mine" ? myWorkCounts : counts;
@@ -1526,6 +1678,58 @@ export function TasksApp() {
       ) : null}
 
       <PageTransition pageKey={tab === "week" ? `week-${calendarMode}` : tab}>
+      {tab === "filing" ? (
+        <FilingWorkspace
+          queue={filingQueue}
+          sessionStaffName={sessionStaffName || ""}
+          todayHref={buildClioHref("checklist", "today", { billingPath, tasksPath })}
+          onQueueChange={(next) => {
+            setFilingQueue(next);
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("tab", "filing");
+            params.set("filingQueue", next);
+            params.set("nav", "filing");
+            params.set("section", next === "physical" ? "physical" : "e-filing");
+            router.replace(`${tasksPath}?${params.toString()}`, { scroll: false });
+          }}
+          onStatus={(message, isError) => {
+            if (isError) reportError(message);
+            else reportSuccess(message);
+          }}
+        />
+      ) : null}
+      {tab === "desk-checklist" && data ? (
+        <TasksDeskChecklistTab
+          data={data}
+          deskChecklistItems={deskChecklistItems}
+          items={items}
+          sessionStaffName={sessionStaffName || ""}
+          togglingKey={togglingKey}
+          toggleItemDone={toggleItemDone}
+          markPrepDone={markPrepDone}
+          markLetterDocDone={markLetterDocDone}
+          updateItemStatus={updateItemStatus}
+          resetItemWithDate={resetItemWithDate}
+          deleteItem={deleteItem}
+          updateItemNextAction={updateItemNextAction}
+          logAppearanceOutcome={logAppearanceOutcome}
+          togglePrepChecklistItem={togglePrepChecklistItem}
+          mutatePrepChecklistItem={mutatePrepChecklistItem}
+          createEventPrepChecklist={createEventPrepChecklist}
+          initializePrepChecklist={initializePrepChecklist}
+          prepChecklistCreatingKey={prepChecklistCreatingKey}
+          saveItemEdit={saveItemEdit}
+          billingAccess={billingAccess}
+          markCourtConfirmed={markCourtConfirmed}
+          markEventSubmitted={markEventSubmitted}
+          confirmParentFiled={confirmParentFiled}
+          opts={opts}
+          viewerPrepRole={viewerPrepRole}
+          navProfile={navProfile}
+          deskChecklistScope={deskChecklistScope}
+          isAdmin={isAdmin}
+        />
+      ) : null}
       {tab === "today" && counts && data && (
         <div className="page-stagger">
         <div id="print-today" className="print-root">

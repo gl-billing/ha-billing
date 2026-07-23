@@ -20,24 +20,24 @@ const kindLabels: Record<ActivityItem["kind"], string> = {
 
 const kindColors: Record<ActivityItem["kind"], string> = {
   charge: "text-[#8b1e1e]",
-  payment: "activity-timeline__tone--mint",
-  soa: "text-gold-dark",
-  ar: "text-gold-dark",
+  payment: "text-ink",
+  soa: "text-ink",
+  ar: "text-ink",
   billing: "text-muted",
-  task: "activity-timeline__tone--mint",
-  hearing: "text-[#1d4ed8]",
+  task: "text-ink",
+  hearing: "text-ink",
   "task-action": "text-muted"
 };
 
 const kindDotClasses: Record<ActivityItem["kind"], string> = {
   charge: "border-[#8b1e1e] bg-[#fde8e8]",
-  payment: "activity-timeline__dot--mint-soft",
-  soa: "border-gold-dark bg-[#faf6ee]",
-  ar: "border-gold-dark bg-[#faf6ee]",
-  billing: "border-line bg-[#f0eeea]",
-  task: "activity-timeline__dot--mint-solid",
-  hearing: "border-[#1d4ed8] bg-[#1d4ed8]",
-  "task-action": "border-[#8a6b2a] bg-white"
+  payment: "border-ink bg-soft",
+  soa: "border-ink bg-cream",
+  ar: "border-ink bg-cream",
+  billing: "border-line bg-soft",
+  task: "border-ink bg-soft",
+  hearing: "border-ink bg-ink",
+  "task-action": "border-ink bg-white"
 };
 
 const DOT_LEGEND: Array<{ kind: ActivityItem["kind"]; label: string }> = [
@@ -196,7 +196,7 @@ export function ClientActivityTimeline({
               >
                 <div
                   className={`absolute -left-4 top-1.5 h-3 w-3 rounded-full border-2 ${
-                    coloredDots ? kindDotClasses[item.kind] : "border-gold bg-white"
+                    coloredDots ? kindDotClasses[item.kind] : "border-ink bg-white"
                   }`}
                   aria-hidden
                 />

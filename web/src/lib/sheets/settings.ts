@@ -119,6 +119,30 @@ async function upsertSettingValue(
     return;
   }
   await appendSheetValues(accessToken, `'${sheet}'!A:B`, [[key, value]]);
+  rowIndex.set(key, Math.max(0, ...rowIndex.values()) + 1);
+}
+
+/** Write one Settings-tab key/value in the current spreadsheet. */
+export async function upsertSetting(
+  accessToken: string,
+  key: string,
+  value: string
+): Promise<void> {
+  const rowIndex = await readSettingsRowIndex(accessToken);
+  await upsertSettingValue(accessToken, key, value, rowIndex);
+  invalidateSettingsCache(accessToken);
+}
+
+/** Write several Settings-tab keys in the current spreadsheet. */
+export async function upsertSettings(
+  accessToken: string,
+  entries: Array<[string, string]>
+): Promise<void> {
+  const rowIndex = await readSettingsRowIndex(accessToken);
+  for (const [key, value] of entries) {
+    await upsertSettingValue(accessToken, key, value, rowIndex);
+  }
+  invalidateSettingsCache(accessToken);
 }
 
 export function normalizeAnnouncementDraft(input: {

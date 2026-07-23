@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-const DISMISS_KEY = "gl-office-pwa-dismissed";
+const DISMISS_KEY = "ha-office-pwa-dismissed";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -114,7 +114,7 @@ export function PwaInstallBanner() {
             alt=""
             width={40}
             height={40}
-            className="h-10 w-10 shrink-0 rounded-xl ring-1 ring-gold-light/40"
+            className="h-10 w-10 shrink-0 border border-white/30"
           />
           <div className="min-w-0">
             <p className="text-sm font-extrabold">Add HA Office to your home screen</p>

@@ -387,6 +387,28 @@ export async function markFieldDispatchBilled(
   return updated;
 }
 
+/** Settle prepaid liaison trips created from letter / work-matter automations. */
+export async function markFieldDispatchPrepaidOnCreate(
+  accessToken: string,
+  dispatchId: string,
+  options: { advanceGiven?: number | string; serviceFee?: number | string }
+): Promise<FieldDispatchEntry> {
+  const advance = parseMoney(options.advanceGiven);
+  if (advance > 0) {
+    await reconcileFieldDispatch(accessToken, {
+      dispatchId,
+      actualExpenses: 0,
+      returnedToOffice: advance,
+      notes: "Advance settled — marked paid on create"
+    });
+  }
+  const fee = parseMoney(options.serviceFee);
+  if (fee > 0) {
+    await setFieldDispatchStaffSalaryPaid(accessToken, dispatchId, true);
+  }
+  return updateFieldDispatchStatus(accessToken, dispatchId, "Paid");
+}
+
 export async function updateFieldDispatchStatus(
   accessToken: string,
   dispatchId: string,

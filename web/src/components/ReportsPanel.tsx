@@ -7,6 +7,11 @@ import { MetricSkeleton, Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { SmartLoadEmptyState } from "@/components/SmartLoadEmptyState";
 import { HealthChecksPanel } from "@/components/HealthChecksPanel";
+import { CronAutomationHealthPanel } from "@/components/CronAutomationHealthPanel";
+import { FirmAutomationSettingsPanel } from "@/components/FirmAutomationSettingsPanel";
+import { RetainerOpsToolsPanel } from "@/components/RetainerOpsToolsPanel";
+import { TrustLedgerPanel } from "@/components/TrustLedgerPanel";
+import { IntegrationsSetupChecklist } from "@/components/IntegrationsSetupChecklist";
 import { useFirmAdmin } from "@/hooks/useFirmAdmin";
 import type { PartnerWeeklyReport } from "@/lib/sheets/partner-weekly";
 
@@ -31,7 +36,7 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
   const [collectionsLoading, setCollectionsLoading] = useState(false);
   const [agingError, setAgingError] = useState("");
   const [collectionsError, setCollectionsError] = useState("");
-  const [section, setSection] = useState<"aging" | "collections">("aging");
+  const [section, setSection] = useState<"aging" | "collections" | "trust">("aging");
   const [maintenanceBusy, setMaintenanceBusy] = useState(false);
   const [backupPdfBusy, setBackupPdfBusy] = useState(false);
   const [lastPdfBackupAt, setLastPdfBackupAt] = useState<string | null>(null);
@@ -192,20 +197,21 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <p className="section-label !mb-0">Reports &amp; exports</p>
           <div className="flex flex-wrap gap-1.5">
-            <a href="/api/export/clients" className="btn-gold text-[10px]">
+            <a href="/api/export/clients" className="btn-secondary text-xs">
               Export clients CSV
             </a>
-            <a href="/api/export/aging" className="btn-gold text-[10px]">
+            <a href="/api/export/aging" className="btn-secondary text-xs">
               Export aging CSV
             </a>
           </div>
         </div>
 
-        <div className="nav-tabs !mb-2 grid-cols-2">
+        <div className="nav-tabs !mb-2 grid-cols-3">
           {(
             [
               ["aging", "AR aging"],
-              ["collections", "Collections"]
+              ["collections", "Collections"],
+              ["trust", "Trust"]
             ] as const
           ).map(([id, label]) => (
             <button
@@ -373,6 +379,8 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
             ) : null}
           </div>
         )}
+
+        {section === "trust" && <TrustLedgerPanel busy={busy} onNotify={onStatus} />}
       </section>
 
       <section className="card partner-weekly-report">
@@ -515,11 +523,26 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
 
       <HealthChecksPanel busy={busy} onStatus={onStatus} />
 
+      <CronAutomationHealthPanel />
+
+      <FirmAutomationSettingsPanel />
+
+      <RetainerOpsToolsPanel />
+
+      <section className="card">
+        <p className="section-label !mb-0">Integrations</p>
+        <h3 className="font-display text-lg text-ink">Setup checklist</h3>
+        <p className="mt-1 mb-3 text-sm text-muted">
+          Google sign-in, Sheets workbooks, and document storage for this firm.
+        </p>
+        <IntegrationsSetupChecklist />
+      </section>
+
       <section className="card">
         <p className="section-label">Maintenance</p>
 
         {scriptStatusLoading ? (
-          <p className="mb-3 text-[11px] text-muted">Checking Apps Script connection…</p>
+          <p className="mb-3 text-sm text-muted">Checking Apps Script connection…</p>
         ) : scriptStatus?.ok ? (
           <p className="reports-maintenance-banner reports-maintenance-banner--ok">
             Apps Script connected
@@ -529,17 +552,17 @@ export function ReportsPanel({ busy, onStatus, onBusy }: Props) {
           </p>
         ) : (
           <div className="reports-maintenance-banner reports-maintenance-banner--warn">
-            <p className="font-bold">Apps Script not ready</p>
-            <p className="mt-1">{scriptStatus?.error || "Connection check failed."}</p>
+            <p className="font-bold text-ink">Apps Script not ready</p>
+            <p className="mt-1 text-muted">{scriptStatus?.error || "Connection check failed."}</p>
             {isAdmin ? (
-              <p className="mt-2 text-[11px] leading-snug opacity-90">
-                <strong>Download backup PDF</strong> still works — it reads directly from the billing spreadsheet and
+              <p className="mt-2 text-sm leading-snug text-muted">
+                <strong className="text-ink">Download backup PDF</strong> still works — it reads directly from the billing spreadsheet and
                 does not need Apps Script. The other maintenance buttons below require a working Web App connection.
               </p>
             ) : null}
             <button
               type="button"
-              className="btn-gold mt-2 text-[10px]"
+              className="btn-secondary mt-3"
               onClick={() => void loadScriptStatus()}
             >
               Retry connection check

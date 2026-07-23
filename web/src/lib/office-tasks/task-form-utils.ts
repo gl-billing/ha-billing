@@ -1,11 +1,17 @@
 /** Task create form helpers — client-safe. */
 
+export const FILING_PREP_TASK_TYPE = "Filing prep";
+export const FILING_PREP_FORM_TYPE = "Filing preparation";
+export const LETTER_CORRESPONDENCE_FORM_TYPE = "Draft letter / correspondence";
+
 export const TASK_FORM_TYPES = [
   "Task",
   "Client Follow-up",
   "Court Follow-up",
   "Research",
   "Administrative",
+  FILING_PREP_FORM_TYPE,
+  LETTER_CORRESPONDENCE_FORM_TYPE,
   "Other"
 ] as const;
 
@@ -61,8 +67,15 @@ export function defaultTaskChecklistItems(taskType: string, limit = 3): string[]
   return [...prepChecklistForTaskType(taskType)].slice(0, limit);
 }
 
+export const LETTER_CORRESPONDENCE_PREP = [
+  "Letter type and recipient confirmed",
+  "Draft reviewed on firm letterhead",
+  "Ready for liaison to serve (if applicable)"
+] as const;
+
 export function resolveTaskType(taskType: string, taskTypeOther?: string): string {
   const type = String(taskType || "Task").trim();
+  if (type === FILING_PREP_FORM_TYPE) return FILING_PREP_TASK_TYPE;
   if (type !== "Other") return type;
   const other = String(taskTypeOther || "").trim();
   return other ? `Other — ${other}` : "Other";
@@ -70,6 +83,9 @@ export function resolveTaskType(taskType: string, taskTypeOther?: string): strin
 
 export function splitTaskType(taskType: string): { taskType: string; taskTypeOther: string } {
   const type = String(taskType || "").trim();
+  if (type === FILING_PREP_TASK_TYPE) {
+    return { taskType: FILING_PREP_FORM_TYPE, taskTypeOther: "" };
+  }
   if (type.startsWith("Other — ")) {
     return { taskType: "Other", taskTypeOther: type.slice("Other — ".length).trim() };
   }
@@ -80,9 +96,10 @@ export function splitTaskType(taskType: string): { taskType: string; taskTypeOth
 }
 
 export function prepChecklistForTaskType(taskType: string): readonly string[] {
-  if (taskType === "Court Follow-up") return COURT_FILING_PREP;
+  if (taskType === "Court Follow-up" || taskType === FILING_PREP_FORM_TYPE) return COURT_FILING_PREP;
   if (taskType === "Client Follow-up") return CLIENT_FOLLOWUP_PREP;
   if (taskType === "Administrative") return ADMINISTRATIVE_PREP;
+  if (taskType === LETTER_CORRESPONDENCE_FORM_TYPE) return LETTER_CORRESPONDENCE_PREP;
   if (taskType === "Research") return GENERAL_TASK_PREP;
   return GENERAL_TASK_PREP;
 }

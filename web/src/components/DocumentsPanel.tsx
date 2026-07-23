@@ -384,7 +384,7 @@ export function DocumentsPanel({
             Review before {docTab === "soa" ? "sending SOA" : "sending receipt"}
           </p>
 
-          <div className="document-review-letterhead mb-4 overflow-hidden rounded-xl border border-line/70 bg-white">
+          <div className="document-review-letterhead mb-4 overflow-hidden border border-line bg-white">
             <FirmPrintLetterhead
               documentType={docTab === "soa" ? "Statement of account" : "Acknowledgment receipt"}
               documentTitle={clientName}
@@ -438,7 +438,7 @@ export function DocumentsPanel({
           </dl>
 
           {emailPreview && (
-            <div className="mt-4 rounded-lg border border-gold/30 bg-[#fffef9] p-3">
+            <div className="mt-4 border border-line bg-cream p-3">
               <p className="mb-2 text-[10px] font-extrabold uppercase tracking-wide text-gold-dark">
                 Email preview
               </p>

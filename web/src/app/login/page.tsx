@@ -32,7 +32,10 @@ export default async function LoginPage({ searchParams }: Props) {
 
   if (session?.user?.email) {
     const destination = resolvePostLoginPath(session.user.email);
-    redirect(destination);
+    // Denied accounts must not redirect back to /login (infinite 307 loop).
+    if (!destination.startsWith("/login")) {
+      redirect(destination);
+    }
   }
 
   return (
@@ -44,7 +47,7 @@ export default async function LoginPage({ searchParams }: Props) {
       }
     >
       <LoginPageContent
-        defaultChooseAccount={chooseAccount}
+        defaultChooseAccount={chooseAccount || Boolean(session?.user?.email)}
         oauthConfigured={isGoogleOAuthConfigured() && isNextAuthSecretConfigured()}
       />
     </Suspense>

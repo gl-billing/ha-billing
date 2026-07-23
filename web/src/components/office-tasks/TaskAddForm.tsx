@@ -5,8 +5,17 @@ import { ClientCasePicker, type ClientCasePickerHandle } from "@/components/offi
 import type { EntryFormOptions } from "@/components/office-tasks/AddEntryForm";
 import {
   defaultTaskChecklistItems,
+  LETTER_CORRESPONDENCE_FORM_TYPE,
   TASK_OFFICE_VENUE_PRESETS
 } from "@/lib/office-tasks/task-form-utils";
+import type { SegmentedOption } from "@/components/office-tasks/EventSegmentedControl";
+import { formatLetterDraftDescription } from "@/lib/office-tasks/letter-task-utils";
+import { LetterCorrespondenceFields } from "@/components/office-tasks/LetterCorrespondenceFields";
+import { billingClientCodeFromCaseOption } from "@/lib/event-ledger-charge";
+import {
+  assessLedgerBillingClientMatch,
+  formatLedgerBillingMismatchPrompt
+} from "@/lib/ledger-billing-client-match";
 import type { CaseOption } from "@/lib/gl-config";
 import { todayYmd } from "@/lib/office-tasks/schedule";
 import { EntryFormFooter } from "@/components/office-tasks/EntryFormFooter";
@@ -25,8 +34,17 @@ export function TaskAddForm({ options, busy, billingAccess = true, onSubmit, onS
   const casePickerRef = useRef<ClientCasePickerHandle>(null);
   const venueTouched = useRef(false);
   const assigneeTouched = useRef(false);
+  const [selectedCase, setSelectedCase] = useState<CaseOption | null>(null);
   const selectedCaseRef = useRef<CaseOption | null>(null);
   const taskTypes = options.taskFormTypes?.length ? options.taskFormTypes : options.taskTypes;
+  const taskTypeOptions = useMemo((): SegmentedOption[] => {
+    return taskTypes.map((type) => {
+      if (type === LETTER_CORRESPONDENCE_FORM_TYPE) {
+        return { value: type, label: "Draft letter" };
+      }
+      return type;
+    });
+  }, [taskTypes]);
 
   const [taskType, setTaskType] = useState(taskTypes[0] || "Task");
   const [taskTypeOther, setTaskTypeOther] = useState("");
@@ -39,14 +57,31 @@ export function TaskAddForm({ options, busy, billingAccess = true, onSubmit, onS
   const [formError, setFormError] = useState("");
   const [formStatus, setFormStatus] = useState<FormSaveStatus | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [dueDate, setDueDate] = useState(todayYmd());
+  const [letterType, setLetterType] = useState("Demand letter");
+  const [letterTypeOther, setLetterTypeOther] = useState("");
+  const [letterRecipient, setLetterRecipient] = useState("");
   const formBusy = submitting;
+
+  const isLetterTask = taskType === LETTER_CORRESPONDENCE_FORM_TYPE;
+  const letterDescription = useMemo(
+    () => formatLetterDraftDescription(letterType, letterRecipient, letterTypeOther),
+    [letterType, letterRecipient, letterTypeOther]
+  );
 
   const standardOptions = useMemo(() => defaultTaskChecklistItems(taskType), [taskType]);
   const checklistItems = useMemo(
     () => [...includedStandard, ...customChecklistItems],
     [includedStandard, customChecklistItems]
   );
-  const showCourtVenueHint = taskType === "Court Follow-up" || taskType === "Administrative" || taskType === "Task";
+  const showCourtVenueHint =
+    !isLetterTask &&
+    (taskType === "Court Follow-up" || taskType === "Administrative" || taskType === "Task");
+
+  const billingClientCode = useMemo(
+    () => billingClientCodeFromCaseOption(selectedCase),
+    [selectedCase]
+  );
 
   function applyCaseDefaults(option: CaseOption | null) {
     if (!option) return;
@@ -56,6 +91,7 @@ export function TaskAddForm({ options, busy, billingAccess = true, onSubmit, onS
 
   function handleCaseSelect(option: CaseOption | null) {
     selectedCaseRef.current = option;
+    setSelectedCase(option);
     applyCaseDefaults(option);
   }
 
@@ -66,7 +102,11 @@ export function TaskAddForm({ options, busy, billingAccess = true, onSubmit, onS
     if (useChecklist) {
       setIncludedStandard([...defaultTaskChecklistItems(next)]);
     }
-    if (next === "Court Follow-up" || next === "Administrative") {
+    if (
+      next === "Court Follow-up" ||
+      next === "Administrative" ||
+      next === LETTER_CORRESPONDENCE_FORM_TYPE
+    ) {
       applyCaseDefaults(selectedCaseRef.current);
     }
   }
@@ -112,7 +152,6 @@ export function TaskAddForm({ options, busy, billingAccess = true, onSubmit, onS
   async function handleSubmit(form: HTMLFormElement) {
     setFormError("");
     setFormStatus({ phase: "processing", message: "Saving task to spreadsheet…" });
-    setSubmitting(true);
     try {
       const clientCase = await casePickerRef.current?.resolveClientCase();
       if (!clientCase) {
@@ -125,6 +164,36 @@ export function TaskAddForm({ options, busy, billingAccess = true, onSubmit, onS
         reportError("Select at least one checklist item, or turn off Add checklist.");
         return;
       }
+
+      const fd = new FormData(form);
+      if (
+        isLetterTask &&
+        billingAccess &&
+        fd.get("letterBillThis") === "on" &&
+        billingClientCode
+      ) {
+        const billingMatch = assessLedgerBillingClientMatch({
+          clientCase,
+          ledgerClientCode: billingClientCode,
+          pickerClientCode: selectedCase?.clientCode
+        });
+        if (
+          (billingMatch.needsConfirmation || !billingMatch.aligned) &&
+          fd.get("letterBillingConfirmed") !== "on"
+        ) {
+          const ok = window.confirm(formatLedgerBillingMismatchPrompt(billingMatch));
+          if (!ok) {
+            reportError("Billing cancelled — pick the correct client file or turn off Bill this.");
+            return;
+          }
+          const confirmedHidden = form.querySelector(
+            'input[name="letterBillingConfirmed"]'
+          ) as HTMLInputElement | null;
+          if (confirmedHidden) confirmedHidden.value = "on";
+        }
+      }
+
+      setSubmitting(true);
       await onSubmit(form, clientCase);
       setFormStatus(null);
     } catch (error) {
@@ -171,7 +240,7 @@ export function TaskAddForm({ options, busy, billingAccess = true, onSubmit, onS
             <EventSegmentedControl
               label="Type"
               required
-              options={taskTypes}
+              options={taskTypeOptions}
               value={taskType}
               onChange={selectTaskType}
               otherValue={taskTypeOther}
@@ -186,10 +255,11 @@ export function TaskAddForm({ options, busy, billingAccess = true, onSubmit, onS
               <EntrySelect label="Priority" name="priority" options={options.priorities} />
             </div>
 
-            <div className="entry-form__grid entry-form__grid--2">
+            <div className={`entry-form__grid${isLetterTask ? "" : " entry-form__grid--2"}`}>
               <label className="form-field">
                 <span className="form-field__label">
-                  Assigned to<span className="form-field__required"> *</span>
+                  {isLetterTask ? "Draft assignee" : "Assigned to"}
+                  <span className="form-field__required"> *</span>
                 </span>
                 <input
                   name="assignedTo"
@@ -205,26 +275,46 @@ export function TaskAddForm({ options, busy, billingAccess = true, onSubmit, onS
                 />
               </label>
 
-              <label className="form-field">
-                <span className="form-field__label">Venue / office</span>
-                <input
-                  name="venue"
-                  className="field-input"
-                  list="task-venues"
-                  value={venue}
-                  placeholder="Court, agency, client office…"
-                  onChange={(e) => {
-                    venueTouched.current = true;
-                    setVenue(e.target.value);
-                  }}
-                />
-              </label>
+              {!isLetterTask ? (
+                <label className="form-field">
+                  <span className="form-field__label">Venue / office</span>
+                  <input
+                    name="venue"
+                    className="field-input"
+                    list="task-venues"
+                    value={venue}
+                    placeholder="Court, agency, client office…"
+                    onChange={(e) => {
+                      venueTouched.current = true;
+                      setVenue(e.target.value);
+                    }}
+                  />
+                </label>
+              ) : null}
             </div>
-            <datalist id="task-venues">
-              {TASK_OFFICE_VENUE_PRESETS.map((preset) => (
-                <option key={preset} value={preset} />
-              ))}
-            </datalist>
+            {!isLetterTask ? (
+              <datalist id="task-venues">
+                {TASK_OFFICE_VENUE_PRESETS.map((preset) => (
+                  <option key={preset} value={preset} />
+                ))}
+              </datalist>
+            ) : null}
+
+            {isLetterTask ? (
+              <LetterCorrespondenceFields
+                disabled={busy}
+                billingAccess={billingAccess}
+                dueDate={dueDate}
+                clientCase={selectedCase?.label || ""}
+                billingClientCode={billingClientCode}
+                pickerClientCode={selectedCase?.clientCode}
+                onRecipientChange={setLetterRecipient}
+                onLetterTypeChange={(type, other) => {
+                  setLetterType(type);
+                  setLetterTypeOther(other);
+                }}
+              />
+            ) : null}
 
             {showCourtVenueHint ? (
               <p className="entry-form__inline-hint">
@@ -235,18 +325,34 @@ export function TaskAddForm({ options, busy, billingAccess = true, onSubmit, onS
 
           <EntryFormSection title="Work">
             <div className="entry-form__grid entry-form__grid--2">
-              <EntryField label="Due date *" name="dueDate" type="date" required defaultValue={todayYmd()} />
+              <EntryField
+                label="Due date *"
+                name="dueDate"
+                type="date"
+                required
+                defaultValue={todayYmd()}
+                onValueChange={setDueDate}
+              />
               <EntryField label="Time" name="dueTime" type="time" optional placeholder="All day if blank" />
             </div>
 
-            <EntryField
-              label="Description *"
-              name="description"
-              textarea
-              required
-              large
-              placeholder="What needs to be done"
-            />
+            {isLetterTask ? (
+              <>
+                <input type="hidden" name="description" value={letterDescription} />
+                <p className="entry-form__inline-hint">
+                  <strong>{letterDescription || "—"}</strong> — from letter details
+                </p>
+              </>
+            ) : (
+              <EntryField
+                label="Description *"
+                name="description"
+                textarea
+                required
+                large
+                placeholder="What needs to be done"
+              />
+            )}
 
             <EntryField
               label="Work notes"
@@ -445,7 +551,8 @@ function EntryField({
   textarea,
   large,
   defaultValue,
-  placeholder
+  placeholder,
+  onValueChange
 }: {
   label: string;
   name: string;
@@ -456,6 +563,7 @@ function EntryField({
   large?: boolean;
   defaultValue?: string;
   placeholder?: string;
+  onValueChange?: (value: string) => void;
 }) {
   const inputClass = ["field-input", textarea ? "field-input--textarea" : "", large ? "field-input--large" : ""]
     .filter(Boolean)
@@ -478,6 +586,7 @@ function EntryField({
           required={required}
           defaultValue={defaultValue}
           placeholder={placeholder}
+          onChange={onValueChange ? (e) => onValueChange(e.target.value) : undefined}
         />
       )}
     </label>

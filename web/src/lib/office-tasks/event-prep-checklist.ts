@@ -111,18 +111,20 @@ export function formatPrepChecklist(items: readonly string[]): string {
   return items.map((item) => `☐ ${item}`).join("\n");
 }
 
+const FILING_PREP_TASK_NEXT_ACTION_NO_CHECKLIST =
+  "Prepare the pleading, annexes, and all required copies or sets; confirm everything is ready for filing before the deadline.";
+
 export function buildPrepReminderTaskCopy(
   form: EventFormInput,
   filingDeadline: string,
-  daysBefore: number
+  daysBefore: number,
+  options?: { includeChecklist?: boolean }
 ): { description: string; nextAction: string; checklistItems: string[]; checklistMarker: string } {
   const category = resolveEventCategory(form.category, form.categoryOther);
   const pleadingType = String(form.pleadingType || "").trim();
   const caseNature = normalizeCaseNature(form.pleadingCaseNature) || "Civil/Administrative";
-  const checklistItems = prepChecklistItemsForEvent(form);
   const agendaSnippet = String(form.details || "").trim().slice(0, 200);
   const leadLabel = daysBefore === 1 ? "1 day" : `${daysBefore} days`;
-  const checklistState = createPrepChecklistState(checklistItems);
 
   const pleadingLabel =
     pleadingType && caseNature
@@ -130,6 +132,18 @@ export function buildPrepReminderTaskCopy(
       : category.toLowerCase();
   const header = `Filing prep for ${pleadingLabel} due ${filingDeadline} (this task is due ${leadLabel} before).`;
   const agendaBlock = agendaSnippet ? `\n\nEvent notes:\n${agendaSnippet}` : "";
+
+  if (options?.includeChecklist === false) {
+    return {
+      description: `${header}${agendaBlock}`,
+      nextAction: FILING_PREP_TASK_NEXT_ACTION_NO_CHECKLIST,
+      checklistItems: [],
+      checklistMarker: ""
+    };
+  }
+
+  const checklistItems = prepChecklistItemsForEvent(form);
+  const checklistState = createPrepChecklistState(checklistItems);
 
   return {
     description: `${header}${agendaBlock}`,

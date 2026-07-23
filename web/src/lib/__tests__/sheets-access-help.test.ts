@@ -6,6 +6,7 @@ describe("sheets-access-help", () => {
     const hint = formatSheetsAccessHint("Caller does not have permission", "staff@example.com");
     expect(hint?.title).toBe("Spreadsheet access needed");
     expect(hint?.body).toContain("staff@example.com");
+    expect(hint?.body).toContain("office administrator");
     expect(hint?.showSignIn).toBe(true);
   });
 
@@ -28,5 +29,15 @@ describe("sheets-access-help", () => {
 
   it("returns null for generic errors", () => {
     expect(formatSheetsAccessHint("Something else broke")).toBeNull();
+  });
+
+  it("does not treat billing role denial as a spreadsheet share problem", () => {
+    const hint = formatSheetsAccessHint(
+      "You do not have access to the billing system.",
+      "lizparreno595@gmail.com"
+    );
+    expect(hint?.title).toBe("Billing access not enabled for this account");
+    expect(hint?.body).toContain("lizparreno595@gmail.com");
+    expect(hint?.showSignIn).toBe(false);
   });
 });

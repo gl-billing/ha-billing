@@ -9,7 +9,8 @@ export const GL = {
     fieldDispatch: "Field Dispatch",
     dashboard: "Dashboard",
     documentLog: "Document Log",
-    auditLog: "Audit Log"
+    auditLog: "Audit Log",
+    trustLog: "Trust Log"
   },
   notarizationHeaders: [
     "Receipt No.",
@@ -769,6 +770,10 @@ export type ClientSummary = {
   matterType?: string;
   caseType?: string;
   caseTypeOther?: string;
+  nextFollowUp?: string;
+  matterStage?: string;
+  intakePathDetails?: string;
+  parentClientCode?: string;
 };
 
 export type ClientDetail = ClientSummary & {
@@ -996,6 +1001,26 @@ export type FollowUpClient = {
   accountStatus: string;
 };
 
+export type TrustLedgerEntryType = "Deposit" | "Disbursement" | "Transfer";
+
+export type TrustLedgerEntry = {
+  sheetRow: number;
+  date: string;
+  clientCode: string;
+  clientName: string;
+  type: TrustLedgerEntryType;
+  amount: number;
+  balance: number;
+  description: string;
+  recordedBy: string;
+};
+
+export type TrustLedgerSummary = {
+  totalHeld: number;
+  entryCount: number;
+  clientCount: number;
+};
+
 export type HomeDashboard = DashboardSummary & {
   pendingArCount: number;
   pendingAr: PendingArEntry[];
@@ -1008,6 +1033,30 @@ export type HomeDashboard = DashboardSummary & {
     accountStatus: string;
   }>;
   followUpThisWeek: FollowUpClient[];
+  /** Retainers due in the next 14 days. */
+  upcomingRetainers?: Array<{
+    clientCode: string;
+    clientName: string;
+    fee: number;
+    dueDate: string;
+    email: string;
+    emailOk: boolean;
+    ready: boolean;
+    directoryLabel: string;
+  }>;
+  /** Month-to-date retainer rollup for partner view. */
+  retainerMonthSummary?: {
+    periodKey: string;
+    retainerCount: number;
+    chargedEstimate: number;
+    paidEstimate: number;
+    overdueCount?: number;
+    overdueAmount?: number;
+    notarialsUsed?: number;
+    missingEmailCount: number;
+    dueCount?: number;
+    readyCount?: number;
+  };
 };
 
 export type ActivityItem = {

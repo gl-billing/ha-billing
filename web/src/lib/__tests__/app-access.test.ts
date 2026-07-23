@@ -138,7 +138,14 @@ describe("app-access", () => {
 describe("tasks nav for tasks-only staff", () => {
   it("shows field-staff nav when billing is disabled", () => {
     const tabs = tasksNavTabsForUser(false, "tasks-only");
-    expect(tabs.map((tab) => tab.id)).toEqual(["today", "add-task", "add-event", "calendar"]);
+    expect(tabs.map((tab) => tab.id)).toEqual([
+      "desk-checklist",
+      "today",
+      "add-task",
+      "add-event",
+      "filing",
+      "calendar"
+    ]);
     expect(isAllowedTasksTab("week", false, "tasks-only")).toBe(false);
   });
 });

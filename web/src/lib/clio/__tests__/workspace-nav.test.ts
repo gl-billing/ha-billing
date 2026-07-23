@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   HA_CLIO_NAV,
+  HA_CLIO_RAIL_GROUPS,
   clioPrimariesForUser,
+  clioRailGroupsForUser,
   clioSectionsForUser,
   parseCalendarModeParam,
   resolveClioFromBillingPage,
@@ -26,6 +28,7 @@ const ALL_BILLING: SavedBillingPage[] = [
 ];
 
 const ALL_TASKS: SavedTasksTab[] = [
+  "desk-checklist",
   "today",
   "calendar",
   "week",
@@ -35,6 +38,7 @@ const ALL_TASKS: SavedTasksTab[] = [
   "add-event",
   "all-items",
   "correspondence",
+  "filing",
   "tools",
   "liaison",
   "presence"
@@ -72,6 +76,7 @@ describe("HA_CLIO_NAV inventory", () => {
       "matters",
       "contacts",
       "activities",
+      "filing",
       "billing",
       "documents",
       "communications",
@@ -79,6 +84,43 @@ describe("HA_CLIO_NAV inventory", () => {
       "dashboard",
       "settings"
     ]);
+  });
+
+  it("subdivides the left rail into Work / Clients / Accounts / Firm", () => {
+    const grouped = clioRailGroupsForUser({
+      billingAccess: true,
+      navProfile: "full",
+      isAdmin: true,
+      canViewLiaisonTab: true,
+      canViewPresenceTab: true
+    });
+    expect(grouped.map((g) => g.id)).toEqual(["work", "clients", "accounts", "firm"]);
+    expect(grouped.map((g) => g.label)).toEqual(["Work", "Clients", "Accounts", "Firm"]);
+    expect(grouped.find((g) => g.id === "work")?.primaries.map((p) => p.id)).toEqual([
+      "checklist",
+      "calendar",
+      "activities",
+      "filing"
+    ]);
+    expect(grouped.find((g) => g.id === "clients")?.primaries.map((p) => p.id)).toEqual([
+      "matters",
+      "contacts",
+      "communications",
+      "documents"
+    ]);
+    expect(grouped.find((g) => g.id === "accounts")?.primaries.map((p) => p.id)).toEqual([
+      "billing",
+      "dashboard"
+    ]);
+    expect(grouped.find((g) => g.id === "firm")?.primaries.map((p) => p.id)).toEqual([
+      "reports",
+      "settings"
+    ]);
+
+    const covered = new Set(HA_CLIO_RAIL_GROUPS.flatMap((g) => g.navIds));
+    for (const primary of HA_CLIO_NAV) {
+      expect(covered.has(primary.id), `primary ${primary.id} missing from rail groups`).toBe(true);
+    }
   });
 
   it("hides admin / liaison / presence sections for secretaries", () => {
@@ -103,6 +145,8 @@ describe("HA_CLIO_NAV inventory", () => {
     expect(resolveClioFromTasksTab("liaison")).toEqual({ nav: "reports", section: "liaison" });
     expect(resolveClioFromTasksTab("presence")).toEqual({ nav: "settings", section: "presence" });
     expect(resolveClioFromTasksTab("today")).toEqual({ nav: "checklist", section: "today" });
+    expect(resolveClioFromTasksTab("desk-checklist")).toEqual({ nav: "checklist", section: "open" });
+    expect(resolveClioFromTasksTab("filing")).toEqual({ nav: "filing", section: "e-filing" });
     expect(resolveClioFromTasksTab("week")).toEqual({ nav: "calendar", section: "week" });
     expect(resolveClioFromTasksTab("week", "day")).toEqual({ nav: "calendar", section: "day" });
     // Leftover day mode must not steal My work highlighting.

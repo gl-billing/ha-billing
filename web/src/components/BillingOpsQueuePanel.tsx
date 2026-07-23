@@ -55,7 +55,7 @@ export function BillingOpsQueuePanel({ busy, onNavigate }: Props) {
   if (loading && !queue) {
     return (
       <section className="billing-ops-queue card page-stagger__item">
-        <Skeleton className="h-48 w-full rounded-xl" />
+        <Skeleton className="h-48 w-full" />
       </section>
     );
   }

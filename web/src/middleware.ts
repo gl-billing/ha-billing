@@ -15,11 +15,22 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET
+    secret: process.env.NEXTAUTH_SECRET,
+    // Must match authOptions.cookies.sessionToken.name (HA vs GL share localhost).
+    cookieName: "ha-billing.session-token"
   });
   const email = typeof token?.email === "string" ? token.email : null;
 
-  if (email && !isStaffEmail(email) && !pathname.startsWith("/api/auth") && pathname !== "/login") {
+  const publicPath =
+    pathname === "/login" ||
+    pathname.startsWith("/help/") ||
+    pathname === "/install" ||
+    pathname.startsWith("/api/help/") ||
+    pathname.startsWith("/api/auth") ||
+    pathname === "/privacy" ||
+    pathname === "/terms";
+
+  if (email && !isStaffEmail(email) && !publicPath) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }

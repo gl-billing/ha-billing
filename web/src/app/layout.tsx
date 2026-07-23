@@ -12,6 +12,7 @@ import "./tables-mobile.css";
 import "./print.css";
 import "./viewport-shell.css";
 import "./letterhead-polish.css";
+import "./mobile-iphone.css";
 
 const uiSans = Inter({
   subsets: ["latin"],

@@ -4,5 +4,63 @@
   "installCommand": "npm install",
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "rootDirectory": "web"
+  "rootDirectory": "web",
+  "crons": [
+    {
+      "path": "/api/cron/sheets-backup",
+      "schedule": "0 18 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-dashboard",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/hearing-reminders",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/staff-digest",
+      "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/cron/daily-digest",
+      "schedule": "0 22 * * *"
+    },
+    {
+      "path": "/api/cron/bir-deadlines",
+      "schedule": "0 0 1 * *"
+    },
+    {
+      "path": "/api/cron/partner-weekly",
+      "schedule": "0 6 * * 1"
+    },
+    {
+      "path": "/api/cron/pre-hearing-briefs",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/birthday-greetings",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/prep-nudges",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/post-hearing-warnings",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/task-repairs",
+      "schedule": "30 8 * * *"
+    },
+    {
+      "path": "/api/cron/retainer-billing",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/retainer-digest",
+      "schedule": "0 22 * * *"
+    }
+  ]
 }

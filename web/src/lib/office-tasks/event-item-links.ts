@@ -9,6 +9,10 @@ const PLEADING_CASE_RE = /PLEADING_CASE:(Civil\/Administrative|Criminal|Civil|Ad
 const PREP_ASSIGNEE_RE = /PREP_ASSIGNEE:([^\n]+)/i;
 const EVENT_BILLING_APPEARANCE_RE = /EVENT_BILLING:APPEARANCE:([A-Z0-9-]+)/i;
 const EVENT_BILLING_PLEADING_RE = /EVENT_BILLING:PLEADING:([A-Z0-9-]+)/i;
+const POST_HEARING_RE = /POST_HEARING_FOLLOWUP:([A-Z0-9-]+)/i;
+const FILE_PROOF_RE = /FILE_PROOF_TASK:([A-Z0-9-]+)/i;
+const COURT_CONFIRM_RE = /COURT_CONFIRM:([A-Z0-9-]+)/i;
+const LINKED_COURT_CONFIRM_RE = /LINKED_COURT_CONFIRM_TASK:([A-Z0-9-]+)/i;
 
 export function ptoBatchMarker(batchId: string): string {
   return `PTO_BATCH:${batchId}`;
@@ -55,6 +59,92 @@ export function hasEventBillingPleadingMarker(remarks: string): boolean {
   return EVENT_BILLING_PLEADING_RE.test(remarks);
 }
 
+export function courtConfirmTaskMarker(eventId: string): string {
+  return `COURT_CONFIRM:${eventId}`;
+}
+
+export function linkedCourtConfirmTaskMarker(taskId: string): string {
+  return `LINKED_COURT_CONFIRM_TASK:${taskId}`;
+}
+
+export function postHearingFollowUpMarker(eventId: string): string {
+  return `POST_HEARING_FOLLOWUP:${eventId}`;
+}
+
+export function postHearingFollowUpDoneMarker(eventId: string): string {
+  return `POST_HEARING_FOLLOWUP_DONE:${eventId}`;
+}
+
+export function fileProofTaskMarker(eventId: string): string {
+  return `FILE_PROOF_TASK:${eventId}`;
+}
+
+export function fileProofPendingMarker(eventId: string): string {
+  return `FILE_PROOF_PENDING:${eventId}`;
+}
+
+export function fileProofDoneMarker(eventId: string): string {
+  return `FILE_PROOF_DONE:${eventId}`;
+}
+
+export function hasFileProofPending(remarks: string, eventId: string): boolean {
+  const marker = fileProofPendingMarker(eventId).toUpperCase();
+  return String(remarks || "").toUpperCase().includes(marker);
+}
+
+export function hasFileProofDone(remarks: string, eventId: string): boolean {
+  const marker = fileProofDoneMarker(eventId).toUpperCase();
+  return String(remarks || "").toUpperCase().includes(marker);
+}
+
+export function preHearingBriefSentMarker(eventId: string): string {
+  return `PRE_HEARING_BRIEF_SENT:${eventId}`;
+}
+
+export function parseCourtConfirmEventId(remarks: string): string | null {
+  return remarks.match(COURT_CONFIRM_RE)?.[1] || null;
+}
+
+export function parsePostHearingEventId(remarks: string): string | null {
+  return remarks.match(POST_HEARING_RE)?.[1] || null;
+}
+
+export function hasPostHearingFollowUpDone(remarks: string, eventId: string): boolean {
+  const marker = postHearingFollowUpDoneMarker(eventId).toUpperCase();
+  return String(remarks || "").toUpperCase().includes(marker);
+}
+
+export function parseFileProofEventId(remarks: string): string | null {
+  return remarks.match(FILE_PROOF_RE)?.[1] || null;
+}
+
+export function hasPreHearingBriefSent(remarks: string, eventId: string): boolean {
+  const marker = preHearingBriefSentMarker(eventId).toUpperCase();
+  return String(remarks || "").toUpperCase().includes(marker);
+}
+
+export function prepNudgeSentMarker(eventId: string, sentOnYmd: string): string {
+  return `PREP_NUDGE_SENT:${eventId}:${sentOnYmd}`;
+}
+
+export function hasPrepNudgeSentForDate(remarks: string, eventId: string, sentOnYmd: string): boolean {
+  const marker = prepNudgeSentMarker(eventId, sentOnYmd).toUpperCase();
+  return String(remarks || "").toUpperCase().includes(marker);
+}
+
+export function postHearingOutcomeWarningSentMarker(eventId: string, sentOnYmd: string): string {
+  return `POST_HEARING_WARN_SENT:${eventId}:${sentOnYmd}`;
+}
+
+export function hasPostHearingOutcomeWarningSentForDate(
+  remarks: string,
+  eventId: string,
+  sentOnYmd: string
+): boolean {
+  const marker = postHearingOutcomeWarningSentMarker(eventId, sentOnYmd).toUpperCase();
+  return String(remarks || "").toUpperCase().includes(marker);
+}
+
 export function parsePrepAssignee(remarks: string): string {
   return remarks.match(PREP_ASSIGNEE_RE)?.[1]?.trim() || "";
 }
@@ -62,6 +152,7 @@ export function parsePrepAssignee(remarks: string): string {
 export type EventTaskLinks = {
   followUpTaskId?: string;
   reminderTaskId?: string;
+  courtConfirmTaskId?: string;
 };
 
 export type TaskEventLink = {
@@ -72,7 +163,8 @@ export type TaskEventLink = {
 export function parseEventTaskLinks(remarks: string): EventTaskLinks {
   return {
     followUpTaskId: remarks.match(LINKED_FOLLOWUP_RE)?.[1],
-    reminderTaskId: remarks.match(LINKED_REMINDER_RE)?.[1]
+    reminderTaskId: remarks.match(LINKED_REMINDER_RE)?.[1],
+    courtConfirmTaskId: remarks.match(LINKED_COURT_CONFIRM_RE)?.[1]
   };
 }
 
@@ -142,5 +234,21 @@ export function displayEventRemarks(remarks: string): string {
     .replace(/\n?EVENT_BILLING:APPEARANCE:[A-Z0-9-]+/gi, "")
     .replace(/\n?EVENT_BILLING:PLEADING:[A-Z0-9-]+/gi, "")
     .replace(/\n?PREP_DONE_NOTICE:[^\n]+/gi, "")
+    .replace(/\n?PREP_READY:[^\n]+/gi, "")
+    .replace(/\n?COURT_CONFIRM:[A-Z0-9-]+/gi, "")
+    .replace(/\n?LINKED_COURT_CONFIRM_TASK:[A-Z0-9-]+/gi, "")
+    .replace(/\n?POST_HEARING_FOLLOWUP:[A-Z0-9-]+/gi, "")
+    .replace(/\n?POST_HEARING_FOLLOWUP_DONE:[A-Z0-9-]+/gi, "")
+    .replace(/\n?NEXT_SETTING_FOLLOWUP:[A-Z0-9-]+/gi, "")
+    .replace(/\n?OUTCOME_FOLLOWUP:(none|next_hearing|submission|other):[A-Z0-9-]+/gi, "")
+    .replace(/\n?EVENT_OUTCOME:(completed|rescheduled|postponed|cancelled)/gi, "")
+    .replace(/\n?EVENT_OUTCOME_NOTE:[^\n]+/gi, "")
+    .replace(/\n?HEARING_OUTCOME_NOTE:[^\n]+/gi, "")
+    .replace(/\n?FILE_PROOF_TASK:[A-Z0-9-]+/gi, "")
+    .replace(/\n?FILE_PROOF_PENDING:[A-Z0-9-]+/gi, "")
+    .replace(/\n?FILE_PROOF_DONE:[A-Z0-9-]+/gi, "")
+    .replace(/\n?PRE_HEARING_BRIEF_SENT:[A-Z0-9-]+/gi, "")
+    .replace(/\n?PREP_NUDGE_SENT:[A-Z0-9-]+:\d{4}-\d{2}-\d{2}/gi, "")
+    .replace(/\n?POST_HEARING_WARN_SENT:[A-Z0-9-]+:\d{4}-\d{2}-\d{2}/gi, "")
     .trim();
 }

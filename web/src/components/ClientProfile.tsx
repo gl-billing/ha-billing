@@ -1137,7 +1137,7 @@ export function ClientProfile({
                   type="button"
                   disabled={busy}
                   onClick={cancelEditing}
-                  className="min-h-[44px] rounded-md border border-line text-sm font-bold text-ink hover:bg-[#f5f3ef]"
+                  className="btn-secondary min-h-[44px]"
                 >
                   Cancel
                 </button>
@@ -1145,7 +1145,7 @@ export function ClientProfile({
                   type="button"
                   disabled={busy}
                   onClick={() => void saveChanges()}
-                  className="min-h-[44px] rounded-md border border-gold-2/55 bg-gradient-to-br from-[#171411] to-[#3a3022] text-sm font-extrabold text-white shadow-lg"
+                  className="btn-primary min-h-[44px]"
                 >
                   Save changes
                 </button>

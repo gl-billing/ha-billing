@@ -5,6 +5,7 @@ import type { SavedBillingPage, SavedTasksTab } from "@/lib/staff-prefs";
 export type NavUserProfile = "full" | "tasks-only" | "secretary" | "associate";
 
 export const TASKS_TAB_LABELS: Record<SavedTasksTab, string> = {
+  "desk-checklist": "Checklist",
   today: "My work",
   calendar: "Calendar",
   week: "Week planner",
@@ -14,12 +15,15 @@ export const TASKS_TAB_LABELS: Record<SavedTasksTab, string> = {
   "add-event": "New hearing & filing",
   "all-items": "Find item",
   correspondence: "Correspondence",
+  filing: "Filing",
   tools: "Administration",
   liaison: "Liaison",
   presence: "Staff attendance"
 };
 
 export const TASKS_TAB_DESCRIPTIONS: Record<SavedTasksTab, string> = {
+  "desk-checklist":
+    "Simple checkbox list — overdue, due today, and due this week.",
   today:
     "Assigned work for today — overdue first, then due today, in progress, and finished today.",
   calendar:
@@ -34,6 +38,7 @@ export const TASKS_TAB_DESCRIPTIONS: Record<SavedTasksTab, string> = {
   "all-items": "Search open tasks, hearings, and events by keyword, client, or staff member.",
   correspondence:
     "Draft demand letters, proposals, replies, and other letters on firm letterhead.",
+  filing: "E-filing and registered mail / courier / personal service queues for submitted pleadings.",
   tools: "Update data, sync Google Calendar, print lists, and other administration.",
   liaison:
     "Confidential assignments from admin to the liaison officer — not visible on other schedule tabs.",
@@ -65,6 +70,14 @@ export type NavTabDef<T extends string = string> = {
   description: string;
   adminOnly?: boolean;
   group?: NavTabGroup;
+};
+
+/** Desk checklist — available to all profiles (also under Clio Checklist). */
+const DESK_CHECKLIST_NAV_TAB: NavTabDef<"desk-checklist"> = {
+  id: "desk-checklist",
+  label: TASKS_TAB_LABELS["desk-checklist"],
+  description: TASKS_TAB_DESCRIPTIONS["desk-checklist"],
+  group: "daily"
 };
 
 /** Tasks nav — full staff tab bar */
@@ -100,6 +113,12 @@ export const TASKS_NAV_TABS: NavTabDef<SavedTasksTab>[] = [
     description: TASKS_TAB_DESCRIPTIONS.correspondence,
     group: "actions"
   },
+  {
+    id: "filing",
+    label: TASKS_TAB_LABELS.filing,
+    description: TASKS_TAB_DESCRIPTIONS.filing,
+    group: "actions"
+  },
   { id: "week", label: TASKS_TAB_LABELS.week, description: TASKS_TAB_DESCRIPTIONS.week, group: "schedule" },
   { id: "team", label: TASKS_TAB_LABELS.team, description: TASKS_TAB_DESCRIPTIONS.team, group: "oversight" },
   { id: "history", label: TASKS_TAB_LABELS.history, description: TASKS_TAB_DESCRIPTIONS.history, group: "oversight" },
@@ -125,9 +144,11 @@ export const TASKS_NAV_TABS: NavTabDef<SavedTasksTab>[] = [
 
 /** Full staff — daily use first, then schedule, search, oversight, admin */
 const FULL_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
+  "desk-checklist",
   "today",
   "add-task",
   "add-event",
+  "filing",
   "calendar",
   "week",
   "all-items",
@@ -303,16 +324,32 @@ const SECRETARY_BILLING_NAV_TAB_IDS: SavedBillingPage[] = [
 /** Desk editors — walk-ins, spot billing, and notarizations. */
 export const DESK_BILLING_EDIT_PAGES: SavedBillingPage[] = ["walkIns", "spotBilling", "notarizations"];
 
-const TASKS_ONLY_NAV_TAB_IDS: SavedTasksTab[] = ["today", "add-task", "add-event", "calendar"];
-
-/** Associate lawyers — schedule tabs only (no billing). */
-const ASSOCIATE_TASKS_NAV_TAB_IDS: SavedTasksTab[] = ["today", "calendar", "week", "correspondence"];
-
-/** Secretaries — schedule + correspondence + search (no team oversight or admin tools). */
-const SECRETARY_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
+const TASKS_ONLY_NAV_TAB_IDS: SavedTasksTab[] = [
+  "desk-checklist",
   "today",
   "add-task",
   "add-event",
+  "filing",
+  "calendar"
+];
+
+/** Associate lawyers — schedule tabs only (no billing). */
+const ASSOCIATE_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
+  "desk-checklist",
+  "today",
+  "calendar",
+  "week",
+  "filing",
+  "correspondence"
+];
+
+/** Secretaries — schedule + correspondence + search (no team oversight or admin tools). */
+const SECRETARY_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
+  "desk-checklist",
+  "today",
+  "add-task",
+  "add-event",
+  "filing",
   "calendar",
   "week",
   "all-items",
@@ -335,6 +372,7 @@ export function resolveNavUserProfile(options: {
 
 function pickTasksNavTabs(ids: SavedTasksTab[]): typeof TASKS_NAV_TABS {
   return ids.map((id) => {
+    if (id === "desk-checklist") return DESK_CHECKLIST_NAV_TAB;
     const tab = TASKS_NAV_TABS.find((entry) => entry.id === id);
     return tab ?? { id, label: TASKS_TAB_LABELS[id], description: TASKS_TAB_DESCRIPTIONS[id] };
   });

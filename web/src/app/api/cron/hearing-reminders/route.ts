@@ -16,34 +16,22 @@ import { getEmployeeDirectory } from "@/lib/office-tasks/sheets/employees";
 import { collectAllItems } from "@/lib/office-tasks/sheets/items";
 import { getEmployeeItemGroups } from "@/lib/office-tasks/schedule";
 import { callTasksAppsScript, isTasksAppsScriptConfigured } from "@/lib/office-tasks/apps-script";
+import { runCronRoute } from "@/lib/cron-route-handler";
 
 /** Vercel Cron — hearing escalation + secretary court confirmation (via Apps Script when configured). */
 export async function GET(request: Request) {
-  const expected = process.env.CRON_SECRET?.trim();
-  const auth = request.headers.get("authorization")?.trim() || "";
-  if (!expected || auth !== `Bearer ${expected}`) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-  }
+  return runCronRoute(request, "hearing-reminders", async () => {
+    if (!isTasksAppsScriptConfigured()) {
+      throw new Error("Use Tools → Hearing reminders, or configure TASKS_APPS_SCRIPT for cron.");
+    }
 
-  if (!isTasksAppsScriptConfigured()) {
-    return NextResponse.json(
-      { error: "Use Tools → Hearing reminders, or configure TASKS_APPS_SCRIPT for cron." },
-      { status: 503 }
-    );
-  }
-
-  try {
     const result = await callTasksAppsScript("sendHearingReminders", {
       withinDays: 2
     });
-    return NextResponse.json({
-      ok: true,
+    return {
       message: result.message || "Hearing reminder job dispatched."
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Hearing reminder cron failed.";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+    };
+  });
 }
 
 export async function POST(request: Request) {

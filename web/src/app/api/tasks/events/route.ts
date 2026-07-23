@@ -4,13 +4,11 @@ import { requireSessionAccessToken } from "@/lib/api-auth";
 import { authOptions } from "@/lib/auth";
 import { canAccessBilling } from "@/lib/app-access";
 import { syncSavedItemToCalendar } from "@/lib/calendar/sync-item-after-save";
-import { createEventLinkedTasks } from "@/lib/office-tasks/event-follow-up";
-import { resolvePleadingEventResponsible } from "@/lib/office-tasks/event-client-attorney";
+import { runEventCreateAutomations } from "@/lib/office-tasks/event-follow-up";
 import { applyEventMatterBillingCharges } from "@/lib/office-tasks/event-matter-billing";
 import { appendSucceedingHearingEvents } from "@/lib/office-tasks/event-pto-schedule";
 import { sessionEntryRegistrarLabel } from "@/lib/office-tasks/entry-registrar";
 import { normalizeEventFormInput, validateEventFormInput } from "@/lib/office-tasks/event-form-utils";
-import { getActiveEmployeeNames } from "@/lib/office-tasks/sheets/employees";
 import { appendEvent, listRecentItems, type EventFormInput } from "@/lib/office-tasks/sheets/tasks";
 import { invalidateTasksDataCache } from "@/lib/office-tasks/tasks-cache";
 
@@ -70,15 +68,11 @@ export async function POST(request: Request) {
 
     const saved = await appendEvent(token, body, { createdBy });
     invalidateTasksDataCache(token);
-    const roster = await getActiveEmployeeNames(token);
-    const responsible = await resolvePleadingEventResponsible(
+    const { followUpTaskId, reminderTaskId, courtConfirmTaskId } = await runEventCreateAutomations(
       token,
-      body.clientCase,
-      body.responsible,
-      roster
+      saved.id,
+      body
     );
-    const bodyWithLawyer = { ...body, responsible };
-    const { followUpTaskId, reminderTaskId } = await createEventLinkedTasks(token, saved.id, bodyWithLawyer);
 
     let billingMessages: string[] = [];
     if (body.billAppearanceFee || body.billPleadingFee) {
@@ -90,7 +84,7 @@ export async function POST(request: Request) {
       }
       billingMessages = await applyEventMatterBillingCharges(token, {
         eventId: saved.id,
-        form: bodyWithLawyer
+        form: body
       });
     }
 
@@ -99,6 +93,7 @@ export async function POST(request: Request) {
     const parts = [`Hearing/event added (${saved.id}) on Hearings & Events row ${saved.sheetRow}`];
     if (followUpTaskId) parts.push(`follow-up task ${followUpTaskId}`);
     if (reminderTaskId) parts.push(`reminder task ${reminderTaskId}`);
+    if (courtConfirmTaskId) parts.push(`court confirmation task ${courtConfirmTaskId}`);
     if (billingMessages.length) parts.push(billingMessages.join("; "));
     if (calendar.calendarEventId) parts.push("synced to Google Calendar");
     if (calendar.calendarError) parts.push(`calendar: ${calendar.calendarError}`);
@@ -109,6 +104,7 @@ export async function POST(request: Request) {
       sheetRow: saved.sheetRow,
       followUpTaskId,
       reminderTaskId,
+      courtConfirmTaskId,
       calendarEventId: calendar.calendarEventId,
       message: `${parts[0]}.${parts.length > 1 ? ` ${parts.slice(1).join("; ")}.` : ""}`
     });

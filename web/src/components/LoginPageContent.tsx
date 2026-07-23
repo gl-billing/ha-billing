@@ -17,10 +17,9 @@ import {
 const AUTH_ERRORS: Record<string, string> = {
   AccessDenied:
     "This Google account is not authorized. Ask your office administrator to add your email.",
-  Configuration:
-    "Sign-in is not set up. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and NEXTAUTH_SECRET in web/.env.local, then restart the dev server.",
-  OAuthSignin: "Could not start Google sign-in. Try again.",
-  OAuthCallback: "Google sign-in did not complete. Try again.",
+  Configuration: "Sign-in is temporarily unavailable. Please contact your office administrator.",
+  OAuthSignin: "Could not start Google sign-in. Check your connection and try again.",
+  OAuthCallback: "Google sign-in did not complete. Try again, or use a private window.",
   Default: "Sign-in failed. Please try again."
 };
 

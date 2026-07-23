@@ -43,7 +43,7 @@ export function TaskHistoryView({ items, loading }: Props) {
         const modificationNote = taskActivityModificationNote(item);
         return (
         <article key={item.logRow} className="relative pb-4 last:pb-0">
-          <div className="absolute -left-4 top-1.5 h-3 w-3 rounded-full border-2 border-gold bg-white" />
+          <div className="absolute -left-4 top-1.5 h-3 w-3 rounded-full border-2 border-ink bg-white" />
           <div
             className={`history-entry rounded-lg border border-line/60 bg-[#faf9f7] p-2.5 ${
               modificationNote ? "history-entry--noted" : ""

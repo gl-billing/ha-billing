@@ -187,7 +187,7 @@ export function StaffRemindersPanel({
     return (
       <section
         id="staff-email-reminders"
-        className={`owner-reminder-strip ${embedded ? "owner-reminder-strip--embedded" : "card"} no-print border-gold/30`}
+        className={`owner-reminder-strip ${embedded ? "owner-reminder-strip--embedded" : "card"} no-print border-line`}
       >
         {embedded ? null : (
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -289,7 +289,7 @@ export function StaffRemindersPanel({
       <div className="tools-panel__actions">{ownerButtons}</div>
 
       {selectedPreview && layout === "compact" && (
-        <div className="mt-4 rounded-xl border border-gold/30 bg-white/90 p-3">
+        <div className="mt-4 border border-line bg-white p-3">
           <p className="text-sm font-bold text-ink">
             {selectedPreview.assignee}
             {selectedPreview.email ? (
@@ -336,7 +336,7 @@ export function StaffRemindersPanel({
       )}
 
       {layout === "full" && (
-        <div className="mt-4 overflow-x-auto rounded-xl border border-line/80">
+        <div className="mt-4 overflow-x-auto border border-line">
           <table className="reminder-panel__table firm-ledger-table firm-ledger-table--responsive-stack w-full text-left text-xs">
             <thead>
               <tr className="border-b border-line bg-cream/80 text-[10px] font-extrabold uppercase tracking-wide text-muted">

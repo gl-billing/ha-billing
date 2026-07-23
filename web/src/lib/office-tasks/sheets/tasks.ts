@@ -70,6 +70,7 @@ export type TaskFormInput = {
   interactiveChecklist?: boolean;
   interactiveChecklistItems?: string[];
   liaisonConfidential?: boolean;
+  letterCorrespondence?: import("@/lib/office-tasks/letter-task-utils").LetterCorrespondenceInput;
 };
 
 export type EventFormInput = {
@@ -99,6 +100,8 @@ export type EventFormInput = {
   filingDate?: string;
   createFollowUpTask?: boolean;
   createReminderTask?: boolean;
+  createPrepChecklist?: boolean;
+  createCourtConfirmationTask?: boolean;
   reminderTaskDaysBefore?: number;
   prepAssignedTo?: string;
   fromPretrialOrder?: boolean;
@@ -107,6 +110,12 @@ export type EventFormInput = {
   billAppearanceFee?: boolean;
   billPleadingFee?: boolean;
   billingFeeAmount?: string | number;
+  postLedgerCharge?: boolean;
+  ledgerChargeAmount?: string | number;
+  ledgerClientCode?: string;
+  ledgerBillTiming?: import("@/lib/event-ledger-charge").EventLedgerBillTiming;
+  ledgerPaymentMethod?: string;
+  ledgerBillingConfirmed?: boolean;
 };
 
 function eventSheetEndColumn(): string {

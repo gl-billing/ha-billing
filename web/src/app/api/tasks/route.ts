@@ -6,6 +6,8 @@ import { isAdminEmail } from "@/lib/admin";
 import { syncSavedItemToCalendar } from "@/lib/calendar/sync-item-after-save";
 import { sessionEntryRegistrarLabel } from "@/lib/office-tasks/entry-registrar";
 import { appendTask, listRecentItems, type TaskFormInput } from "@/lib/office-tasks/sheets/tasks";
+import { createLetterCorrespondenceTasks } from "@/lib/office-tasks/letter-task-automation";
+import { isLetterCorrespondenceTaskType } from "@/lib/office-tasks/letter-task-utils";
 import { invalidateTasksDataCache } from "@/lib/office-tasks/tasks-cache";
 import { resolveJasAssignee } from "@/lib/office-tasks/task-assignees";
 import { getActiveEmployeeNames } from "@/lib/office-tasks/sheets/employees";
@@ -45,25 +47,46 @@ export async function POST(request: Request) {
       assignedTo = resolveJasAssignee(roster);
     }
 
-    const saved = await appendTask(token, {
-      ...body,
-      assignedTo,
-      taskType: body.taskType?.trim() || "Task",
-      liaisonConfidential: body.liaisonConfidential === true
-    }, { createdBy });
+    const taskType = body.taskType?.trim() || "Task";
+    const letterInput = body.letterCorrespondence;
+    const saved =
+      isLetterCorrespondenceTaskType(taskType) && letterInput
+        ? await createLetterCorrespondenceTasks(
+            token,
+            { ...body, assignedTo, taskType },
+            letterInput,
+            createdBy
+          )
+        : await appendTask(
+            token,
+            {
+              ...body,
+              assignedTo,
+              taskType,
+              liaisonConfidential: body.liaisonConfidential === true
+            },
+            { createdBy }
+          ).then((row) => ({
+            draftTaskId: row.id,
+            sheetRow: row.sheetRow,
+            message: `Task added (${row.id}) on Master Tasks row ${row.sheetRow}.`
+          }));
+
     invalidateTasksDataCache(token);
     const calendar = body.liaisonConfidential
       ? { calendarEventId: null, calendarError: null }
-      : await syncSavedItemToCalendar(token, saved.id, body.calendarSync === true);
+      : await syncSavedItemToCalendar(token, saved.draftTaskId, body.calendarSync === true);
     return NextResponse.json({
       ok: true,
-      taskId: saved.id,
+      taskId: saved.draftTaskId,
+      serveTaskId: "serveTaskId" in saved ? saved.serveTaskId : undefined,
+      fieldDispatchId: "fieldDispatchId" in saved ? saved.fieldDispatchId : undefined,
       sheetRow: saved.sheetRow,
       message: calendar.calendarError
-        ? `Task added (${saved.id}) on Master Tasks row ${saved.sheetRow}. Calendar: ${calendar.calendarError}`
+        ? `${saved.message} Calendar: ${calendar.calendarError}`
         : calendar.calendarEventId
-          ? `Task added (${saved.id}) on Master Tasks row ${saved.sheetRow} and synced to Google Calendar.`
-          : `Task added (${saved.id}) on Master Tasks row ${saved.sheetRow}.`
+          ? `${saved.message} Synced to Google Calendar.`
+          : saved.message
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to add task.";

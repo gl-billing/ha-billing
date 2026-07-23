@@ -513,8 +513,8 @@ function StatCard({
 }) {
   return (
     <div
-      className={`client-portal__stat rounded-xl border p-3 text-center ${
-        highlight ? "client-portal__stat--due border-gold/30 bg-gradient-to-br from-white to-[#faf6ee]" : "border-line bg-white"
+      className={`client-portal__stat border p-3 text-center ${
+        highlight ? "client-portal__stat--due border-ink bg-soft" : "border-line bg-white"
       }`}
     >
       <p className="text-[10px] font-extrabold uppercase tracking-wide text-muted">{label}</p>

@@ -12,14 +12,24 @@ export function formatSheetsAccessHint(message: string, email?: string | null): 
   const lower = text.toLowerCase();
   const signInEmail = email?.trim() || "your sign-in email";
 
+  // Role gates (associate lawyers / tasks-only) — not a Google Sheets sharing problem.
+  if (/do not have access to the billing system|billing system access|tasks only/i.test(lower)) {
+    return {
+      title: "Billing access not enabled for this account",
+      body: `Associate lawyers and tasks-only staff use Office Tasks, not the billing ledger. Signed in as ${signInEmail}. Ask an admin if this account should have billing access.`,
+      showReload: false,
+      showSignIn: false
+    };
+  }
+
   if (
-    /caller does not have permission|permission denied|insufficient permission|403|does not have access|forbidden/i.test(
+    /caller does not have permission|permission denied|insufficient permission|the caller does not have permission|forbidden|spreadsheet.*(access|permission)|google sheets.*(access|permission|403)/i.test(
       lower
     )
   ) {
     return {
       title: "Spreadsheet access needed",
-      body: `Share the Office Tasks and Billing workbooks with ${signInEmail}, then sign out and sign in again. If you just shared, wait about one minute and select Update.`,
+      body: `Ask your office administrator to share the firm workbooks with ${signInEmail} (the Google account used to sign in). Then sign out, sign in again, and select Update.`,
       showReload: true,
       showSignIn: true
     };

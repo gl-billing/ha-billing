@@ -5,6 +5,7 @@ const TASKS_TAB_KEY = "gl-office-tasks-tab";
 const BILLING_PAGE_KEY = "gl-office-billing-page";
 
 export type SavedTasksTab =
+  | "desk-checklist"
   | "today"
   | "calendar"
   | "week"
@@ -14,6 +15,7 @@ export type SavedTasksTab =
   | "add-event"
   | "all-items"
   | "correspondence"
+  | "filing"
   | "tools"
   | "liaison"
   | "presence";
@@ -54,6 +56,7 @@ function writeStorage(key: string, value: string): void {
 export function getSavedTasksTab(): SavedTasksTab | null {
   const value = readStorage(TASKS_TAB_KEY);
   const allowed: SavedTasksTab[] = [
+    "desk-checklist",
     "today",
     "calendar",
     "week",
@@ -63,6 +66,7 @@ export function getSavedTasksTab(): SavedTasksTab | null {
     "add-event",
     "all-items",
     "correspondence",
+    "filing",
     "tools",
     "liaison",
     "presence"

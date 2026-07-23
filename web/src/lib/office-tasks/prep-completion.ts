@@ -4,13 +4,16 @@ import { appendRemarkMarkers } from "@/lib/office-tasks/event-item-links";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import {
   clearPrepDoneNotice,
+  clearPrepReadyMarker,
   isPreparationTask,
-  prepDoneNoticeMarker
+  prepDoneNoticeMarker,
+  prepReadyMarker
 } from "@/lib/office-tasks/prep-completion-core";
 import {
   resolveFilingEventForPrepTask,
   resolvePrepTaskForEvent
 } from "@/lib/office-tasks/prep-task-event-link";
+import { isOpenFilingEvent } from "@/lib/office-tasks/filing-confirmation";
 import { setItemDone } from "@/lib/office-tasks/sheets/complete";
 import { batchUpdateSheetValues, toA1Range } from "@/lib/office-tasks/sheets/client";
 import { collectAllItems } from "@/lib/office-tasks/sheets/items";
@@ -18,10 +21,21 @@ import { SHEETS } from "@/lib/tasks-config";
 
 export {
   clearPrepDoneNotice,
+  clearPrepReadyMarker,
   isPreparationTask,
+  isPrepReadyTask,
   parsePrepDoneNotice,
-  prepDoneNoticeMarker
+  parsePrepReadyMarker,
+  prepDoneNoticeMarker,
+  prepReadyMarker,
+  shouldDeferPrepTaskCompletion
 } from "@/lib/office-tasks/prep-completion-core";
+
+const TASK_COL = {
+  nextAction: 10,
+  remarks: 14,
+  lastUpdated: 18
+};
 
 const EVENT_COL = {
   nextAction: 13,
@@ -69,6 +83,20 @@ export async function closeLinkedPrepTasksForEvent(
 
   const toClose = openPrepTasksForEvent(event, items);
   for (const task of toClose) {
+    const remarks = clearPrepReadyMarker(task.remarks || "");
+    if (remarks !== (task.remarks || "")) {
+      const now = new Date().toLocaleString("en-PH", { timeZone: "Asia/Manila" });
+      await batchUpdateSheetValues(accessToken, [
+        {
+          range: toA1Range(SHEETS.tasks, `${colLetter(TASK_COL.remarks)}${task.rowNumber}`),
+          values: [[remarks]]
+        },
+        {
+          range: toA1Range(SHEETS.tasks, `${colLetter(TASK_COL.lastUpdated)}${task.rowNumber}`),
+          values: [[now]]
+        }
+      ]);
+    }
     await setItemDone(accessToken, "Task", task.rowNumber, true);
   }
 
@@ -88,6 +116,38 @@ export async function closeLinkedPrepTasksForEvent(
   }
 
   return toClose.length;
+}
+
+/** Mark prep ready on the task and notify admin on the linked filing event — task stays open until filing. */
+export async function recordPrepReadyState(
+  accessToken: string,
+  task: OfficeItem,
+  completedBy: string,
+  items?: OfficeItem[]
+): Promise<{ taskRemarks: string; taskNextAction: string } | null> {
+  if (task.source !== "Task" || task.rowNumber < 2 || !isPreparationTask(task)) return null;
+
+  const allItems = items ?? (await collectAllItems(accessToken));
+  const event = resolveFilingEventForPrepTask(task, allItems);
+  if (!event || event.rowNumber < 2 || !isOpenFilingEvent(event)) return null;
+
+  const staff = completedBy.trim() || "prep staff";
+  const taskRemarks = appendRemarkMarkers(clearPrepReadyMarker(task.remarks || ""), [prepReadyMarker(staff)]);
+  const taskNextAction = "Prep complete — awaiting filing confirmation.";
+  const eventRemarks = appendRemarkMarkers(clearPrepDoneNotice(event.remarks || ""), [prepDoneNoticeMarker(staff)]);
+  const eventNextAction = `Prep marked done by ${staff} — admin: confirm filing when ready.`;
+  const now = new Date().toLocaleString("en-PH", { timeZone: "Asia/Manila" });
+
+  await batchUpdateSheetValues(accessToken, [
+    { range: toA1Range(SHEETS.tasks, `${colLetter(TASK_COL.remarks)}${task.rowNumber}`), values: [[taskRemarks]] },
+    { range: toA1Range(SHEETS.tasks, `${colLetter(TASK_COL.nextAction)}${task.rowNumber}`), values: [[taskNextAction]] },
+    { range: toA1Range(SHEETS.tasks, `${colLetter(TASK_COL.lastUpdated)}${task.rowNumber}`), values: [[now]] },
+    { range: toA1Range(SHEETS.events, `${colLetter(EVENT_COL.remarks)}${event.rowNumber}`), values: [[eventRemarks]] },
+    { range: toA1Range(SHEETS.events, `${colLetter(EVENT_COL.nextAction)}${event.rowNumber}`), values: [[eventNextAction]] },
+    { range: toA1Range(SHEETS.events, `${colLetter(EVENT_COL.lastUpdated)}${event.rowNumber}`), values: [[now]] }
+  ]);
+
+  return { taskRemarks, taskNextAction };
 }
 
 /** Notify admin on the linked filing event when prep staff mark prep done. */

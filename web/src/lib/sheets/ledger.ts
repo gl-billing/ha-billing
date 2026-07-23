@@ -100,7 +100,8 @@ export async function updateSingleClientStatus(
 
 export async function addLedgerEntry(
   accessToken: string,
-  entry: LedgerEntryPayload
+  entry: LedgerEntryPayload,
+  _options?: { auditUser?: string }
 ): Promise<{ ok: true; message: string; row: number }> {
   const clientCode = sanitizeSheetName(entry.clientCode);
   if (!(await sheetExists(accessToken, clientCode))) {

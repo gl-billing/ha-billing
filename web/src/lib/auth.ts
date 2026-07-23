@@ -89,6 +89,64 @@ function isUnreachableAuthHost(hostname: string): boolean {
 
 export const authOptions: NextAuthOptions = {
   useSecureCookies: nextAuthUrl.startsWith("https://"),
+  // Keep HA cookies distinct from GL on the same localhost host (cookies ignore port).
+  cookies: {
+    sessionToken: {
+      name: "ha-billing.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: nextAuthUrl.startsWith("https://")
+      }
+    },
+    callbackUrl: {
+      name: "ha-billing.callback-url",
+      options: {
+        sameSite: "lax",
+        path: "/",
+        secure: nextAuthUrl.startsWith("https://")
+      }
+    },
+    csrfToken: {
+      name: "ha-billing.csrf-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: nextAuthUrl.startsWith("https://")
+      }
+    },
+    state: {
+      name: "ha-billing.state",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 900,
+        secure: nextAuthUrl.startsWith("https://")
+      }
+    },
+    pkceCodeVerifier: {
+      name: "ha-billing.pkce.code_verifier",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 900,
+        secure: nextAuthUrl.startsWith("https://")
+      }
+    },
+    nonce: {
+      name: "ha-billing.nonce",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: nextAuthUrl.startsWith("https://")
+      }
+    }
+  },
   providers: isGoogleOAuthConfigured()
     ? [
         GoogleProvider({
@@ -96,6 +154,8 @@ export const authOptions: NextAuthOptions = {
           name: "Google",
           clientId: staffGoogleClient().clientId,
           clientSecret: staffGoogleClient().clientSecret,
+          // Default openid-client timeout (3.5s) fails too often on slow local networks.
+          httpOptions: { timeout: 15_000 },
           authorization: {
             params: {
               scope: STAFF_SCOPES,
