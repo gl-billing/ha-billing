@@ -21,7 +21,7 @@ export function TaskPrepChecklist({
   remarks,
   title = "Filing prep checklist",
   disabled,
-  collapsedDefault = false,
+  collapsedDefault = true,
   onToggleItem,
   onMutateItem
 }: Props) {

@@ -10,8 +10,7 @@ import { PaymentRequestPanel } from "@/components/PaymentRequestPanel";
 import { SameWindowLink } from "@/components/SameWindowLink";
 import { FirmPrintLetterhead } from "@/components/FirmPrintLetterhead";
 import { FirmWorkspaceShell } from "@/components/FirmWorkspaceShell";
-import { ClioRail } from "@/components/clio/ClioRail";
-import { ClioSubTabs } from "@/components/clio/ClioSubTabs";
+import { BitrixSpaceRail } from "@/components/BitrixSpaceRail";
 import { ClientMatterProvider, useClientMatter } from "@/components/office-tasks/ClientMatterPanel";
 import { getFirmMatterByCode } from "@/lib/office-tasks/firm-matters";
 import { ItemCard, type ItemSummary } from "@/components/office-tasks/ItemCard";
@@ -1122,49 +1121,29 @@ export function MatterPage({ matterCode, user }: Props) {
         headerLabel={headerLabel}
       />
       <FirmWorkspaceShell
-            signOutCallbackUrl={undefined}
-      workspace={shellWorkspace}
-      wide
-      name={user?.name}
-      email={user?.email}
-      displayName={user?.displayName}
-      billingAccess={billingAccess}
-      breadcrumbPage={headerLabel}
-      breadcrumbDetail={profileTitle}
-      statusMessage={statusMsg || undefined}
-      statusVariant={statusIsError ? "error" : "ok"}
-      chromeTopBanner={undefined}
-      clioSectionTabs={
-        <ClioSubTabs
-          activeNav="matters"
-          activeSection="all"
-          isAdmin={isAdmin}
-          billingAccess={billingAccess}
-          navProfile={navProfile}
-          email={email}
-          canManageTeamRoster={canManageTeamRoster}
-          canViewLiaisonTab={canViewLiaisonConfidential}
-          canViewPresenceTab={canViewPresenceTab}
-          billingPath={billingPath}
-          tasksPath={tasksPath}
-        />
-      }
-      navTabs={
-        <ClioRail
-          activeNav="matters"
-          activeSection="all"
-          billingPath={billingPath}
-          tasksPath={tasksPath}
-          isAdmin={isAdmin}
-          billingAccess={billingAccess}
-          navProfile={navProfile}
-          email={email}
-          canManageTeamRoster={canManageTeamRoster}
-          canViewLiaisonTab={canViewLiaisonConfidential}
-          canViewPresenceTab={canViewPresenceTab}
-        />
-      }
-    >
+        signOutCallbackUrl={undefined}
+        workspace={shellWorkspace}
+        wide
+        name={user?.name}
+        email={user?.email}
+        displayName={user?.displayName}
+        billingAccess={billingAccess}
+        isAdmin={isAdmin}
+        navProfile={navProfile}
+        breadcrumbPage={headerLabel}
+        breadcrumbDetail={profileTitle}
+        statusMessage={statusMsg || undefined}
+        statusVariant={statusIsError ? "error" : "ok"}
+        chromeTopBanner={undefined}
+        clioSectionTabs={null}
+        navTabs={
+          <BitrixSpaceRail
+            billingAccess={billingAccess}
+            isAdmin={isAdmin}
+            navProfile={navProfile}
+          />
+        }
+      >
       <div className="matter-page">
         <MatterStickyBar
           code={billingCode || matterCode}

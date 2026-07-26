@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { TaxDeadlinesPanel } from "@/components/office-tasks/TaxDeadlinesPanel";
 import { StaffRemindersPanel } from "@/components/office-tasks/StaffRemindersPanel";
 import { HearingRemindersPanel } from "@/components/office-tasks/HearingRemindersPanel";
@@ -53,8 +54,19 @@ export function ToolsPanel({
   onReload,
   onStatus
 }: Props) {
+  const searchParams = useSearchParams();
   const [diagLoading, setDiagLoading] = useState(false);
   const [diagData, setDiagData] = useState<EventsDiagnostics | null>(null);
+
+  useEffect(() => {
+    if (searchParams.get("panel")?.toLowerCase() !== "integrations") return;
+    const el = document.getElementById("tools-integrations");
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    el.classList.add("tools-panel__section--focus");
+    const timer = window.setTimeout(() => el.classList.remove("tools-panel__section--focus"), 2400);
+    return () => window.clearTimeout(timer);
+  }, [searchParams]);
 
   const sheetUrl = spreadsheetId
     ? `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`
@@ -180,7 +192,7 @@ export function ToolsPanel({
       {isAdmin ? <CronAutomationHealthPanel variant="desk" /> : null}
 
       {isAdmin ? (
-        <section className="card tools-panel__section">
+        <section id="tools-integrations" className="card tools-panel__section">
           <h2 className="section-label">Integrations</h2>
           <IntegrationsSetupChecklist />
         </section>

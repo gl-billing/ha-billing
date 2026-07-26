@@ -11,13 +11,12 @@ type Props = {
 type LaunchResult = {
   ok?: boolean;
   fromMailbox?: string;
-  tokenVia?: string;
   sent?: string[];
   failed?: Array<{ email: string; error: string }>;
   error?: string;
 };
 
-/** Admin Tools — send the HA Office install announcement from legal@. */
+/** Admin Tools — send the HA Office install announcement from the signed-in admin. */
 export function LaunchAnnouncementPanel({ busy, onStatus }: Props) {
   const [sending, setSending] = useState(false);
   const [lastResult, setLastResult] = useState<LaunchResult | null>(null);
@@ -25,7 +24,7 @@ export function LaunchAnnouncementPanel({ busy, onStatus }: Props) {
   async function sendLaunch() {
     if (sending || busy) return;
     const confirmed = window.confirm(
-      "Send the HA Office install announcement to authorized staff from legal@hernandezlaw.info?"
+      "Send the HA Office install announcement to authorized staff from your signed-in Gmail?"
     );
     if (!confirmed) return;
 
@@ -43,7 +42,7 @@ export function LaunchAnnouncementPanel({ busy, onStatus }: Props) {
       onStatus(
         failedCount
           ? `Launch email sent to ${sentCount}; ${failedCount} failed.`
-          : `Launch email sent to ${sentCount} recipients from ${json.fromMailbox || "legal@hernandezlaw.info"}.`
+          : `Launch email sent to ${sentCount} recipients from ${json.fromMailbox || "your Gmail"}.`
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : "Launch email failed.";
@@ -58,9 +57,8 @@ export function LaunchAnnouncementPanel({ busy, onStatus }: Props) {
     <section className="card tools-panel__section">
       <h2 className="section-label">Staff launch email</h2>
       <p className="tools-panel__section-desc">
-        Sends the install notice to authorized staff. Outbound From is{" "}
-        <strong>legal@hernandezlaw.info</strong> (firm mailbox / Send-as). Prefer the firm cron token on
-        Vercel so personal Gmail is never used.
+        Sends the install notice to authorized staff. Outbound From is the Google account you are signed
+        in with.
       </p>
       <div className="tools-btn-grid">
         <button
@@ -72,7 +70,7 @@ export function LaunchAnnouncementPanel({ busy, onStatus }: Props) {
           <span className="tool-action-btn__label">
             {sending ? "Sending…" : "Send HA Office launch email"}
           </span>
-          <span className="tool-action-btn__sub">From legal@ · staff roster</span>
+          <span className="tool-action-btn__sub">From your Gmail · staff roster</span>
         </button>
       </div>
       {lastResult?.error ? (
@@ -84,7 +82,6 @@ export function LaunchAnnouncementPanel({ busy, onStatus }: Props) {
             Sent {lastResult.sent?.length ?? 0}
             {lastResult.failed?.length ? ` · failed ${lastResult.failed.length}` : ""}
             {lastResult.fromMailbox ? ` · mailbox ${lastResult.fromMailbox}` : ""}
-            {lastResult.tokenVia ? ` · via ${lastResult.tokenVia}` : ""}
           </p>
           <pre className="mt-2 overflow-x-auto border border-[color:var(--line,#e0e0e0)] bg-[color:var(--paper,#fff)] p-3 text-xs text-ink whitespace-pre-wrap">
             {JSON.stringify(

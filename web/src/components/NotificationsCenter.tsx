@@ -291,7 +291,10 @@ export function NotificationsCenter({ compact = false }: Props) {
         aria-label={`Notifications${count ? ` (${count})` : ""}`}
         onClick={() => setOpen((value) => !value)}
       >
-        🔔
+        <svg className="notifications-center__bell-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 16h12l-1.2-2.2a6 6 0 0 1-.8-3V9a4 4 0 1 0-8 0v1.8c0 1.1-.3 2.1-.8 3z" />
+          <path d="M10 18a2 2 0 0 0 4 0" />
+        </svg>
         {count ? <span className="notifications-center__badge">{count > 9 ? "9+" : count}</span> : null}
       </button>
 

@@ -5,6 +5,7 @@ import { requireSessionAccessToken } from "@/lib/api-auth";
 import { authOptions } from "@/lib/auth";
 import { closeLinkedPrepTasksForEvent } from "@/lib/office-tasks/prep-completion";
 import { sendClientEventClosedNotice } from "@/lib/office-tasks/client-event-notices";
+import { createServingTaskAfterFiled } from "@/lib/office-tasks/filing-serving-after-filed";
 import { handleFilingSubmittedFollowUp } from "@/lib/office-tasks/filing-submitted-follow-up";
 import { enqueueFilingAfterSubmitted } from "@/lib/office-tasks/filing-queue-enqueue";
 import type { FilingQueueKind } from "@/lib/office-tasks/filing-queue-route";
@@ -82,6 +83,12 @@ export async function POST(request: Request) {
         parts.push(`Closed ${filing.followUpsClosed} filing follow-up task${filing.followUpsClosed === 1 ? "" : "s"}`);
       }
       if (filing.proofPending) parts.push("Proof of filing pending on event");
+      try {
+        const serving = await createServingTaskAfterFiled(token, item);
+        if (serving.created) parts.push("Serving task created");
+      } catch {
+        parts.push("Serving task failed to create");
+      }
       if (parts.length) extraMessage = ` ${parts.join("; ")}.`;
       const notice = await sendClientEventClosedNotice(token, item, "filed");
       if (notice) extraMessage += ` ${notice}`;

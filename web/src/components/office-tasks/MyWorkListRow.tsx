@@ -308,7 +308,7 @@ export function MyWorkListRow({
               roster={roster}
               disabled={toggling || isDone || isCancelled}
               creating={prepChecklistCreating}
-              collapsedDefault={false}
+              collapsedDefault
               surface="body"
               onTogglePrepChecklistItem={onTogglePrepChecklistItem}
               onMutatePrepChecklistItem={onMutatePrepChecklistItem}

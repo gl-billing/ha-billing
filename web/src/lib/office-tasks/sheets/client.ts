@@ -1,6 +1,10 @@
 import { google } from "googleapis";
 import { SHEETS } from "@/lib/tasks-config";
 
+export async function getSpreadsheetIdAsync(): Promise<string> {
+  return getSpreadsheetId();
+}
+
 export function getSpreadsheetId(): string {
   const id =
     process.env.TASKS_GOOGLE_SPREADSHEET_ID?.trim() ||

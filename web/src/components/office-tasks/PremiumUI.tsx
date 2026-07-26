@@ -174,7 +174,7 @@ export function ProgressRing({ percent, size = 44 }: { percent: number; size?: n
       style={{
         width: size,
         height: size,
-        background: `conic-gradient(#b8913d ${clamped * 3.6}deg, #e8e4dc ${clamped * 3.6}deg)`
+        background: `conic-gradient(#0a0a0a ${clamped * 3.6}deg, #e8e8e8 ${clamped * 3.6}deg)`
       }}
       role="img"
       aria-label={`${clamped}% complete`}

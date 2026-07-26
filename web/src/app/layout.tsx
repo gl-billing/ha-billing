@@ -7,12 +7,15 @@ import "./globals.css";
 import "./ui-premium.css";
 import "./ha-theme.css";
 import "./ha-clio-shell.css";
+import "./ha-space-shell.css";
 import "./office-hub.css";
 import "./tables-mobile.css";
 import "./print.css";
 import "./viewport-shell.css";
 import "./letterhead-polish.css";
+import "./ha-visual-polish.css";
 import "./mobile-iphone.css";
+import "./ha-fullbleed.css";
 
 const uiSans = Inter({
   subsets: ["latin"],
@@ -56,11 +59,12 @@ export const metadata: Metadata = {
 
 export const viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: light)", color: "#f0f0f0" },
     { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" }
   ],
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
   viewportFit: "cover" as const
 };
 

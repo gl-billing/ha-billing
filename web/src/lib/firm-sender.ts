@@ -11,7 +11,7 @@ function isValidEmailAddress(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-/** Always the firm inbox — never a personal staff Gmail. */
+/** Default when no signed-in sender is available (e.g. cron). */
 export const DEFAULT_FIRM_SENDER_EMAIL = FIRM_INBOX_EMAIL;
 
 function settingsMap(settings?: Map<string, string> | Record<string, string>): Map<string, string> | null {
@@ -21,19 +21,23 @@ function settingsMap(settings?: Map<string, string> | Record<string, string>): M
 }
 
 /**
- * Recipient-visible From address.
- * HA always sends as legal@hernandezlaw.info (same idea as GL’s firm inbox),
- * even if Settings / env accidentally point at a personal Gmail.
+ * Fallback From address for unattended sends (cron / digest).
+ * Interactive Gmail sends use the signed-in mailbox instead.
  */
-export function resolveFirmSenderEmail(_settings?: Map<string, string> | Record<string, string>): string {
+export function resolveFirmSenderEmail(settings?: Map<string, string> | Record<string, string>): string {
+  const map = settingsMap(settings);
+  const fromSettings = map?.get("Firm Sender Email")?.trim();
+  if (fromSettings) {
+    const email = normalizeEmailAddress(fromSettings);
+    if (isValidEmailAddress(email)) return email;
+  }
+
   const env = process.env.FIRM_SENDER_EMAIL?.trim();
   if (env) {
     const email = normalizeEmailAddress(env);
-    // Only allow the firm inbox or another @hernandezlaw.info address — never @gmail.com staff mail.
-    if (isValidEmailAddress(email) && (email === DEFAULT_FIRM_SENDER_EMAIL || email.endsWith("@hernandezlaw.info"))) {
-      return email;
-    }
+    if (isValidEmailAddress(email)) return email;
   }
+
   return DEFAULT_FIRM_SENDER_EMAIL;
 }
 
@@ -48,9 +52,20 @@ export function resolveFirmSenderDisplayName(settings?: Map<string, string> | Re
   return FIRM_NAME;
 }
 
-/** RFC 5322 From header for outbound client mail. */
-export function formatFirmOutboundFrom(settings?: Map<string, string> | Record<string, string>): string {
-  const email = resolveFirmSenderEmail(settings);
+/** RFC 5322 From header for a specific mailbox (usually the signed-in sender). */
+export function formatOutboundFrom(
+  email: string,
+  settings?: Map<string, string> | Record<string, string>
+): string {
+  const address = normalizeEmailAddress(email);
+  if (!isValidEmailAddress(address)) {
+    throw new Error(`Invalid From email: ${email}`);
+  }
   const name = resolveFirmSenderDisplayName(settings).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-  return `"${name}" <${email}>`;
+  return `"${name}" <${address}>`;
+}
+
+/** Fallback From for cron when no actor mailbox is known. */
+export function formatFirmOutboundFrom(settings?: Map<string, string> | Record<string, string>): string {
+  return formatOutboundFrom(resolveFirmSenderEmail(settings), settings);
 }

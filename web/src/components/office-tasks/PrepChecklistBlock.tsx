@@ -58,7 +58,7 @@ export function PrepChecklistBlock({
   viewerPrepRole,
   roster = [],
   disabled,
-  collapsedDefault = false,
+  collapsedDefault = true,
   creating,
   surface = "body",
   compact = false,

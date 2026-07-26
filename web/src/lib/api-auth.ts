@@ -61,3 +61,9 @@ export async function requireAdminBillingAccessToken(): Promise<{ token: string;
   }
   return { token, email };
 }
+
+/** Run a sheets callback with the signed-in Google access token. */
+export async function withSessionSheetsAccess<T>(fn: (accessToken: string) => Promise<T>): Promise<T> {
+  const token = await requireSessionAccessToken();
+  return fn(token);
+}

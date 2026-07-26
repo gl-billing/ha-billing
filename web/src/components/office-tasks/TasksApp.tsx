@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EmployeeTrackerView } from "@/components/office-tasks/EmployeeTrackerView";
 import { MyWorkTodayFeed } from "@/components/office-tasks/MyWorkTodayFeed";
 import { TodayWorkStatGrid } from "@/components/office-tasks/TodayWorkStatGrid";
@@ -13,8 +13,11 @@ import { MonthlyCalendarView } from "@/components/office-tasks/MonthlyCalendarVi
 import { SearchView } from "@/components/office-tasks/SearchView";
 import { MyWorkBillingStrip } from "@/components/MyWorkBillingStrip";
 import { FirmWorkspaceShell } from "@/components/FirmWorkspaceShell";
-import { ClioRail } from "@/components/clio/ClioRail";
-import { ClioSubTabs } from "@/components/clio/ClioSubTabs";
+import { BitrixSpaceRail } from "@/components/BitrixSpaceRail";
+import { BitrixSpaceSectionTabs } from "@/components/BitrixSpaceSectionTabs";
+import { SpaceMessengerDesk } from "@/components/office-tasks/SpaceMessengerDesk";
+import { SpaceNotificationsDesk } from "@/components/office-tasks/SpaceNotificationsDesk";
+import { SpaceStaffLedgerView } from "@/components/office-tasks/SpaceStaffLedgerView";
 import { ToolsPanel } from "@/components/office-tasks/ToolsPanel";
 import { TasksWeekTabView } from "@/components/office-tasks/tabs/TasksWeekTabView";
 import type { TasksHomeData } from "@/lib/office-tasks/home-data";
@@ -66,6 +69,16 @@ import {
   saveClioNav,
   type ClioVisibilityOptions
 } from "@/lib/clio/workspace-nav";
+import {
+  filterSpaceTasksSectionTabs,
+  isSpaceTasksExtraTab,
+  resolveActiveSpaceNav,
+  spaceCalendarViewTabs,
+  spaceCalendarViewTarget,
+  spaceNavItemsForUser,
+  spaceTasksExtraHref,
+  type SpaceCalendarView
+} from "@/lib/space-nav";
 import { firmAppHref, getTasksAppUrl } from "@/lib/firm-apps";
 import { useFirmStatusReport } from "@/hooks/useFirmStatusReport";
 import { formatSuccessReport } from "@/lib/firm-status-report";
@@ -171,8 +184,8 @@ export function TasksApp() {
   const tasksPath = firmAppHref("/app", getTasksAppUrl()) || "/app";
   const [introState, setIntroState] = useState<IntroState>("pending");
   const [tab, setTab] = useState<Tab>("today");
-  /** Clio Calendar Day/Week/Month — day mounts hourly DayScheduleView on the week tab. */
-  const [calendarMode, setCalendarMode] = useState<"day" | "week" | "month">("week");
+  /** Clio/Space Calendar Day/Week/Month/Schedule — day mounts hourly DayScheduleView on the week tab. */
+  const [calendarMode, setCalendarMode] = useState<"day" | "week" | "month" | "schedule">("week");
   const [filingQueue, setFilingQueue] = useState<"e-filing" | "physical">("e-filing");
   const {
     message: statusMsg,
@@ -260,7 +273,7 @@ export function TasksApp() {
   }, [email]);
 
   const selectTab = useCallback(
-    (next: Tab, options?: { calendarMode?: "day" | "week" | "month"; syncUrl?: boolean }) => {
+    (next: Tab, options?: { calendarMode?: "day" | "week" | "month" | "schedule"; syncUrl?: boolean }) => {
       const allowed = isAllowedTasksTab(next, billingAccess, navProfile, {
         canViewLiaisonTab: canViewLiaisonConfidentialEarly,
         canViewPresenceTab
@@ -269,8 +282,8 @@ export function TasksApp() {
         : "today";
       setTab(allowed);
       saveTasksTab(allowed);
-      let nextMode: "day" | "week" | "month" = "week";
-      // Prefer explicit Clio calendar mode (Day hourly) over week-tab default.
+      let nextMode: "day" | "week" | "month" | "schedule" = "week";
+      // Prefer explicit Clio/Space calendar mode (Day hourly / Schedule agenda) over week-tab default.
       if (options?.calendarMode) {
         nextMode = options.calendarMode;
         setCalendarMode(options.calendarMode);
@@ -282,9 +295,13 @@ export function TasksApp() {
         setCalendarMode("month");
       }
       if (options?.syncUrl) {
+        const clioMode =
+          nextMode === "schedule" ? "week" : nextMode === "day" || nextMode === "week" || nextMode === "month"
+            ? nextMode
+            : null;
         const clio = resolveClioFromTasksTab(
           allowed as SavedTasksTab,
-          allowed === "week" || allowed === "calendar" ? nextMode : null
+          allowed === "week" || allowed === "calendar" ? clioMode : null
         );
         saveClioNav(clio.nav, clio.section);
         const href = buildClioHref(clio.nav, clio.section, { billingPath, tasksPath });
@@ -295,6 +312,9 @@ export function TasksApp() {
         if (q) nextParams.set("q", q);
         if (client) nextParams.set("client", client);
         if (eventKind) nextParams.set("eventKind", eventKind);
+        if (allowed === "week" || allowed === "calendar") {
+          nextParams.set("cal", nextMode);
+        }
         const nextSearch = nextParams.toString();
         if (searchParams.toString() !== nextSearch) {
           router.replace(nextSearch ? `${tasksPath}?${nextSearch}` : tasksPath, { scroll: false });
@@ -494,7 +514,9 @@ export function TasksApp() {
     if (tabParam && isAllowedTasksTab(tabParam as Tab, billingAccess, navProfile, tabOpts)) {
       const calMode =
         modeFromUrl ||
-        (calParam === "day" || calParam === "week" || calParam === "month" ? calParam : undefined);
+        (calParam === "day" || calParam === "week" || calParam === "month" || calParam === "schedule"
+          ? calParam
+          : undefined);
       selectTab(tabParam as Tab, calMode ? { calendarMode: calMode } : undefined);
     } else if (!params.get("nav") && !params.get("tab")) {
       const saved = getSavedTasksTab();
@@ -1336,8 +1358,56 @@ export function TasksApp() {
       }),
     [billingAccess, navProfile, canViewLiaisonConfidential, canViewPresenceTab]
   );
+  const pathname = usePathname() || "";
+  const spaceActiveId = resolveActiveSpaceNav(pathname, searchParams?.toString() || "");
+  const spaceSectionTabs = useMemo(() => {
+    if (spaceActiveId === "calendar" || spaceActiveId === "messenger" || spaceActiveId === "employees") {
+      return [];
+    }
+    return filterSpaceTasksSectionTabs(spaceActiveId, navTabs);
+  }, [spaceActiveId, navTabs]);
+  const spaceDeskOnly = spaceActiveId === "messenger" || spaceActiveId === "employees";
+  const spaceNotificationsDesk = spaceActiveId === "notifications";
+
+  const selectSpaceSectionTab = useCallback(
+    (id: string) => {
+      if (isSpaceTasksExtraTab(id)) {
+        const href = spaceTasksExtraHref(id);
+        if (href) {
+          router.push(href);
+          return;
+        }
+      }
+      selectTab(id as Tab, { syncUrl: true });
+    },
+    [router, selectTab]
+  );
+
+  const selectSpaceCalendarView = useCallback(
+    (view: SpaceCalendarView) => {
+      const target = spaceCalendarViewTarget(view);
+      setCalendarMode(target.cal);
+      selectTab(target.tab, { calendarMode: target.cal, syncUrl: true });
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        params.set("tab", target.tab);
+        params.set("cal", target.cal);
+        window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+      }
+    },
+    [selectTab]
+  );
+
   const introContent = useMemo(() => getTasksIntroContent(navTabs), [navTabs]);
-  const tabShortcuts = useMemo(() => buildTabShortcutHelp(navTabs), [navTabs]);
+  const tabShortcuts = useMemo(() => {
+    const { primary, footer } = spaceNavItemsForUser({
+      billingAccess,
+      isAdmin,
+      navProfile
+    });
+    return buildTabShortcutHelp([...primary, ...footer].map((item) => ({ id: item.id, label: item.label })));
+  }, [billingAccess, isAdmin, navProfile]);
+  const tabShortcutsTitle = "Space desks";
 
   const clioActive = useMemo(() => {
     function sectionMatchesView(section: ReturnType<typeof findClioSection>): boolean {
@@ -1363,7 +1433,10 @@ export function TasksApp() {
         return { nav: saved.nav, section: section.id };
       }
     }
-    return resolveClioFromTasksTab(tab as SavedTasksTab, calendarMode);
+    return resolveClioFromTasksTab(
+      tab as SavedTasksTab,
+      calendarMode === "schedule" ? "week" : calendarMode
+    );
   }, [searchParams, tab, calendarMode]);
 
   useEffect(() => {
@@ -1570,13 +1643,15 @@ export function TasksApp() {
       onNotice={(message, isError) => (isError ? reportError(message) : reportSuccess(message))}
     >
       <FirmWorkspaceShell
-                signOutCallbackUrl={undefined}
+        signOutCallbackUrl={undefined}
         workspace="tasks"
         wide={wide}
         name={session?.user?.name}
         email={session?.user?.email}
         displayName={session?.user?.displayName}
         billingAccess={session?.user?.billingAccess !== false}
+        isAdmin={isAdmin}
+        navProfile={navProfile}
         searchValue={searchQ}
         searchBusy={reloading}
         onSearchChange={setSearchQ}
@@ -1612,39 +1687,52 @@ export function TasksApp() {
           ) : null
         }
         navTabs={
-          <ClioRail
-            activeNav={clioActive.nav}
-            activeSection={clioActive.section}
-            billingPath={billingPath}
-            tasksPath={tasksPath}
-            isAdmin={isAdmin}
+          <BitrixSpaceRail
             billingAccess={billingAccess}
+            isAdmin={isAdmin}
             navProfile={navProfile}
-            email={email}
-            canViewLiaisonTab={canViewLiaisonConfidential}
-            canViewPresenceTab={canViewPresenceTab}
           />
         }
         clioSectionTabs={
-          <ClioSubTabs
-            activeNav={clioActive.nav}
-            activeSection={clioActive.section}
-            isAdmin={isAdmin}
-            billingAccess={billingAccess}
-            navProfile={navProfile}
-            email={email}
-            canViewLiaisonTab={canViewLiaisonConfidential}
-            canViewPresenceTab={canViewPresenceTab}
-            billingPath={billingPath}
-            tasksPath={tasksPath}
-          />
+          spaceActiveId === "calendar" ? (
+            <BitrixSpaceSectionTabs
+              tabs={spaceCalendarViewTabs()}
+              activeId={
+                (calendarMode === "day" ||
+                calendarMode === "week" ||
+                calendarMode === "month" ||
+                calendarMode === "schedule"
+                  ? calendarMode
+                  : "week") as SpaceCalendarView
+              }
+              onSelect={selectSpaceCalendarView}
+              ariaLabel="Calendar views"
+            />
+          ) : spaceSectionTabs.length ? (
+            <BitrixSpaceSectionTabs
+              tabs={spaceSectionTabs}
+              activeId={
+                spaceActiveId === "notifications"
+                  ? "notifications"
+                  : (searchParams.get("panel") || "").toLowerCase() === "integrations"
+                    ? "integrations"
+                    : filingQueue === "physical" && tab === "filing"
+                      ? "filing-physical"
+                      : filingQueue === "e-filing" && tab === "filing"
+                        ? "filing-e"
+                        : tab
+              }
+              onSelect={selectSpaceSectionTab}
+              ariaLabel="Space sections"
+            />
+          ) : null
         }
         tabShortcuts={tabShortcuts}
-        tabShortcutsTitle="Tasks tabs"
+        tabShortcutsTitle={tabShortcutsTitle}
         onReplayWorkspaceGuide={replayWorkspaceGuide}
       >
 
-      {reloading && !data ? (
+      {reloading && !data && !spaceDeskOnly && !spaceNotificationsDesk ? (
         tab === "calendar" ? (
           <CalendarViewSkeleton />
         ) : tab === "all-items" ? (
@@ -1655,7 +1743,7 @@ export function TasksApp() {
       ) : null}
 
       {data?.tasksSpreadsheetFallback  ? (
-        <div className="card-elevated mb-4 border border-amber-300/80 bg-amber-50/80 p-4 text-sm text-amber-950">
+        <div className="card-elevated mb-4 border border-[color:var(--line)] bg-[color:var(--soft)] p-4 text-sm text-ink">
           <p className="font-extrabold text-ink">Tasks are writing to the billing spreadsheet</p>
           <p className="mt-1">
             <code className="text-ink">TASKS_GOOGLE_SPREADSHEET_ID</code> is not set on this server, so new tasks and
@@ -1666,7 +1754,7 @@ export function TasksApp() {
         </div>
       ) : null}
 
-      {!reloading && !data ? (
+      {!reloading && !data && !spaceDeskOnly && !spaceNotificationsDesk ? (
         <SmartLoadEmptyState
           errorMessage={
             lastLoadError ||
@@ -1679,8 +1767,11 @@ export function TasksApp() {
         />
       ) : null}
 
-      <PageTransition pageKey={tab === "week" ? `week-${calendarMode}` : tab}>
-      {tab === "filing" ? (
+      <PageTransition pageKey={spaceDeskOnly || spaceNotificationsDesk ? spaceActiveId : tab === "week" ? `week-${calendarMode}` : tab}>
+      {spaceDeskOnly && spaceActiveId === "messenger" ? <SpaceMessengerDesk /> : null}
+      {spaceNotificationsDesk ? <SpaceNotificationsDesk /> : null}
+      {spaceDeskOnly && spaceActiveId === "employees" ? <SpaceStaffLedgerView /> : null}
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "filing" ? (
         <FilingWorkspace
           queue={filingQueue}
           sessionStaffName={sessionStaffName || ""}
@@ -1700,7 +1791,7 @@ export function TasksApp() {
           }}
         />
       ) : null}
-      {tab === "desk-checklist" && data ? (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "desk-checklist" && data ? (
         <TasksDeskChecklistTab
           data={data}
           deskChecklistItems={deskChecklistItems}
@@ -1732,7 +1823,7 @@ export function TasksApp() {
           isAdmin={isAdmin}
         />
       ) : null}
-      {tab === "today" && counts && data && (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "today" && counts && data && (
         <div className="page-stagger">
         <div id="print-today" className="print-root">
           <FirmPrintLetterhead
@@ -2022,7 +2113,7 @@ export function TasksApp() {
         </div>
       )}
 
-      {tab === "calendar" && data && (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "calendar" && data && (
         <>
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="Calendar">
@@ -2052,7 +2143,7 @@ export function TasksApp() {
         </>
       )}
 
-      {tab === "week" && data ? (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "week" && data ? (
         <TasksWeekTabView
           calendarMode={calendarMode}
           items={scheduleItems}
@@ -2072,7 +2163,7 @@ export function TasksApp() {
         />
       ) : null}
 
-      {tab === "team" && data && (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "team" && data && (
         <>
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="Staff load">
@@ -2116,7 +2207,7 @@ export function TasksApp() {
         </>
       )}
 
-      {tab === "history" && (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "history" && (
         <>
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="past tasks">
@@ -2157,7 +2248,7 @@ export function TasksApp() {
         </>
       )}
 
-      {tab === "tools" && (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "tools" && (
         <>
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="tools">
@@ -2190,7 +2281,7 @@ export function TasksApp() {
         </>
       )}
 
-      {tab === "liaison" && data && opts && canViewLiaisonConfidential ? (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "liaison" && data && opts && canViewLiaisonConfidential ? (
         <LiaisonConfidentialPanel
           items={items}
           today={today}
@@ -2215,7 +2306,7 @@ export function TasksApp() {
         />
       ) : null}
 
-      {tab === "presence" && canViewPresenceTab ? (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "presence" && canViewPresenceTab ? (
         <>
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="Staff attendance">
@@ -2231,13 +2322,13 @@ export function TasksApp() {
         </>
       ) : null}
 
-      {(tab === "add-task" || tab === "add-event") && opts && !quickAddKind ? (
+      {!spaceDeskOnly && !spaceNotificationsDesk && (tab === "add-task" || tab === "add-event") && opts && !quickAddKind ? (
         <TabPageBody>
           <TaskEventChooser onSelect={setQuickAddKind} />
         </TabPageBody>
       ) : null}
 
-      {tab === "add-task" && opts && quickAddKind === "task" ? (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "add-task" && opts && quickAddKind === "task" ? (
         <TabPageBody>
           <button
             type="button"
@@ -2257,7 +2348,7 @@ export function TasksApp() {
         </TabPageBody>
       ) : null}
 
-      {tab === "add-event" && opts && quickAddKind === "event" ? (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "add-event" && opts && quickAddKind === "event" ? (
         <>
           <TabPageHeader resetKey={`${tab}-${eventAddKind}`}>
             <BillingTabGuide title="add an event">
@@ -2305,13 +2396,13 @@ export function TasksApp() {
         </>
       ) : null}
 
-      {tab === "all-items" && data && (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "all-items" && data && (
         <>
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="search all items">
               <BillingTabGuideText>
-                Find any open task, hearing, or event. Type in the search box or filter by type, status, and assignee.
-                Select an entry to open details or update its status.
+                Browse every task, hearing, and event in a ledger — one row per item. Type in the search box or filter by
+                type, status, and assignee. Open a row for details and status actions.
               </BillingTabGuideText>
             </BillingTabGuide>
           </TabPageHeader>
@@ -2347,7 +2438,7 @@ export function TasksApp() {
         </>
       )}
 
-      {tab === "correspondence" && billingAccess && (
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "correspondence" && billingAccess && (
         <>
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="write a letter">

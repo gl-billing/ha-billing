@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdminSessionAccessToken } from "@/lib/api-auth";
 import {
-  resolveFirmOutboundAccessToken,
+  getGmailAccountEmail,
   sendHtmlEmailViaGmail
 } from "@/lib/office-tasks/gmail-send";
 import {
@@ -79,15 +79,15 @@ function buildPlain(email: string): string {
     "Use only your authorized Google account.",
     `If you still cannot sign in: ${helpUrl(email)}`,
     "",
-    "— legal@hernandezlaw.info"
+    "— Hernandez & Associates · legal@hernandezlaw.info"
   ].join("\n");
 }
 
-/** Admin-only: launch announcement from legal@hernandezlaw.info only. */
+/** Admin-only: launch announcement from the signed-in admin's Gmail. */
 export async function POST() {
   try {
-    const { token: sessionToken } = await requireAdminSessionAccessToken();
-    const { accessToken, mailbox, via } = await resolveFirmOutboundAccessToken(sessionToken);
+    const { token: accessToken, email: sessionEmail } = await requireAdminSessionAccessToken();
+    const mailbox = await getGmailAccountEmail(accessToken, sessionEmail);
 
     const list = recipients();
     const subject = "HA Office is ready — install on desktop & mobile";
@@ -98,6 +98,7 @@ export async function POST() {
       try {
         await sendHtmlEmailViaGmail({
           accessToken,
+          fromEmail: mailbox,
           to,
           subject,
           html: buildHtml(to),
@@ -115,7 +116,6 @@ export async function POST() {
     return NextResponse.json({
       ok: failed.length === 0,
       fromMailbox: mailbox,
-      tokenVia: via,
       sent,
       failed
     });
@@ -125,9 +125,7 @@ export async function POST() {
       ? 403
       : message.includes("Unauthorized")
         ? 401
-        : message.includes("must show as") || message.includes("must send from")
-          ? 403
-          : 500;
+        : 500;
     return NextResponse.json({ error: message }, { status });
   }
 }

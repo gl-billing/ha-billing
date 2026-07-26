@@ -57,6 +57,11 @@ export function billingHref(link: BillingDeepLink): string {
   return qs ? `/billing?${qs}` : "/billing";
 }
 
+/** Front-desk walk-in consultation entry (Space Create menu). */
+export function walkInConsultationCreateHref(): string {
+  return billingHref({ page: "walkIns" });
+}
+
 export function correspondenceBillingHref(clientCode: string): string {
   return correspondenceHref(clientCode);
 }

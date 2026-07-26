@@ -11,6 +11,11 @@
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
   }
 
+  .firm-workspace.firm-space-shell {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   .login-page,
   .firm-auth {
     padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));

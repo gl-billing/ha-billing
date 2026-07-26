@@ -397,7 +397,7 @@ function Metric({
     >
       <p className="text-[11px] font-semibold text-muted">{label}</p>
       <p
-        className={`mt-1 ${alert ? "text-sm font-extrabold text-red-800" : highlight ? "amount-serif text-lg font-semibold text-ink sm:text-xl" : "text-sm font-extrabold text-ink"}`}
+        className={`mt-1 ${alert ? "text-sm font-extrabold text-red-800" : highlight ? "amount-serif font-semibold text-ink" : "text-sm font-extrabold text-ink"}`}
       >
         {value}
       </p>

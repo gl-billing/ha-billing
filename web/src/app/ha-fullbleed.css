@@ -1,0 +1,1055 @@
+/**
+ * HA chrome — kill gold accents, full-window Space shell, mobile-first.
+ * Loaded after ha-visual-polish.css (last CSS wins).
+ */
+
+/* ── Tokens: no gold, no warm cream ── */
+:root,
+.firm-workspace,
+.office-hub-page,
+.firm-auth,
+.login-page {
+  --gold: #0a0a0a !important;
+  --gold-light: #222222 !important;
+  --gold-dark: #000000 !important;
+  --gold-glow: transparent !important;
+  --site-gold: #0a0a0a !important;
+  --site-gold-strong: #000000 !important;
+  --site-gold-soft: rgba(0, 0, 0, 0.06) !important;
+  --site-glance-gold-text: #0a0a0a !important;
+  --space-gold: #0a0a0a !important;
+  --space-gold-light: #222222 !important;
+  --space-gold-bright: #000000 !important;
+  --space-gold-deep: #111111 !important;
+  --d-gold: #0a0a0a !important;
+  --cream: #f5f5f5 !important;
+  --soft: #eeeeee !important;
+}
+
+/* Dark Space chrome only — light ink, never bronze */
+.firm-workspace.firm-space-shell .bitrix-space-rail,
+.firm-workspace.firm-space-shell .bitrix-space-topnav,
+.firm-workspace.firm-space-shell .bitrix-space-topnav__tools,
+.firm-workspace.firm-space-shell .mobile-space-desk-nav {
+  --space-gold: #ffffff;
+  --space-gold-light: #f0f0f0;
+  --space-gold-bright: #ffffff;
+  --space-gold-deep: #e8e8e8;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__item--active,
+.firm-workspace.firm-space-shell .bitrix-space-rail__item--active:hover {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #0a0a0a !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__item--active .bitrix-space-rail__icon,
+.firm-workspace.firm-space-shell .bitrix-space-rail__item--active:hover .bitrix-space-rail__icon {
+  color: #0a0a0a !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__hub {
+  color: #ffffff !important;
+  min-width: 0 !important;
+  gap: 0.4rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__hub-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  width: 1.35rem !important;
+  height: 1.35rem !important;
+  border-radius: 0.25rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__hub-icon svg {
+  width: 0.85rem !important;
+  height: 0.85rem !important;
+  stroke: currentColor !important;
+  fill: none !important;
+  stroke-width: 1.7 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__hub-full {
+  font-size: 0.72rem !important;
+  letter-spacing: 0.1em !important;
+  font-weight: 800 !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__logo {
+  display: none !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__collapse {
+  position: relative !important;
+  z-index: 2 !important;
+  pointer-events: auto !important;
+  flex-shrink: 0 !important;
+  width: 1.4rem !important;
+  height: 1.4rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__brand {
+  margin-bottom: 0.25rem !important;
+  padding-bottom: 0.3rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__group {
+  margin-bottom: 0.28rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__group + .bitrix-space-rail__group {
+  margin-top: 0.15rem !important;
+  margin-bottom: 0.15rem !important;
+  padding-top: 0.28rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__group-label {
+  margin-bottom: 0.12rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__list {
+  gap: 0.04rem !important;
+}
+
+/* Single cool-black top bar — white logo flush left, tools on the right */
+.firm-workspace.firm-space-shell .bitrix-space-topnav {
+  display: flex !important;
+  grid-template-columns: none !important;
+  align-items: stretch !important;
+  gap: 0.75rem 1rem !important;
+  min-height: 5.85rem !important;
+  padding: 0 max(0.85rem, env(safe-area-inset-right, 0px)) 0 0 !important;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  background: #050505 !important;
+  animation: bitrix-space-banner-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav__brand {
+  display: none !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav__brand-link {
+  display: flex !important;
+  align-items: center !important;
+  align-self: stretch !important;
+  flex-direction: row !important;
+  flex-shrink: 0 !important;
+  gap: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  padding: 0.2rem 0.75rem 0.2rem max(0.55rem, env(safe-area-inset-left, 0px)) !important;
+  background: transparent !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav__logo-plate {
+  display: flex !important;
+  align-items: center !important;
+  align-self: stretch !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav__logo {
+  display: block !important;
+  width: auto !important;
+  max-width: min(26rem, 56vw) !important;
+  height: auto !important;
+  max-height: 5.35rem !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav__wordmark {
+  display: none !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav__utility {
+  display: none !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav__tools {
+  display: contents !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav__search {
+  flex: 0 1 18rem !important;
+  min-width: 10rem !important;
+  max-width: 20rem !important;
+  margin-left: auto !important;
+  align-self: center !important;
+  padding-inline: 0 !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav__actions {
+  display: inline-flex !important;
+  align-self: center !important;
+  flex-shrink: 0 !important;
+  padding-right: 0 !important;
+  gap: 0.4rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav__void {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+@media (max-width: 900px) {
+  .firm-workspace.firm-space-shell .bitrix-space-topnav {
+    grid-template-columns: none !important;
+    min-height: 4.75rem !important;
+    gap: 0.45rem !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__brand-link {
+    padding: 0.2rem 0.5rem 0.2rem max(0.4rem, env(safe-area-inset-left, 0px)) !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__logo-plate {
+    min-height: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__logo {
+    max-height: 4.25rem !important;
+    max-width: 18rem !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__search {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__void,
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__modules {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__wordmark {
+    display: none !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav {
+    grid-template-columns: none !important;
+    min-height: 4.25rem !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__logo {
+    max-height: 3.7rem !important;
+    max-width: 16rem !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-btn--invite {
+    display: none !important;
+  }
+}
+
+/* Rail nav icons: light strokes on black rail (beats quiet-idle near-black). */
+.firm-workspace.firm-space-shell .bitrix-space-rail__item .bitrix-space-rail__icon {
+  color: rgba(245, 245, 245, 0.68) !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__item:hover .bitrix-space-rail__icon {
+  color: #ffffff !important;
+}
+
+/* Checklist / my-work cards stretch edge-to-edge inside the desk
+ * (last-layer reinforcement — see ha-visual-polish.css for root-cause notes) */
+.firm-workspace.firm-space-shell .desk-checklist-row,
+.firm-workspace.firm-space-shell .desk-checklist__list > li,
+.firm-workspace.firm-space-shell li.desk-checklist-row {
+  display: flex !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.firm-workspace.firm-space-shell .desk-checklist-row > .my-work-list__row,
+.firm-workspace.firm-space-shell .desk-checklist-row > .item-card,
+.firm-workspace.firm-space-shell li.desk-checklist-row > .my-work-list__row,
+.firm-workspace.firm-space-shell li.desk-checklist-row > .item-card {
+  flex: 1 1 0% !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.firm-workspace.firm-space-shell .desk-checklist-row > .my-work-list__row::before,
+.firm-workspace.firm-space-shell .desk-checklist-row > .my-work-list__row::after {
+  display: none !important;
+}
+
+.firm-workspace.firm-space-shell .my-work-list,
+.firm-workspace.firm-space-shell .my-work-feed__list,
+.firm-workspace.firm-space-shell .desk-checklist__list,
+.firm-workspace.firm-space-shell .bucket-section__items {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.firm-workspace.firm-space-shell .my-work-list__row,
+.firm-workspace.firm-space-shell .item-card {
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  justify-items: stretch !important;
+}
+
+.firm-workspace.firm-space-shell .my-work-list__kind {
+  width: fit-content !important;
+  max-width: 8.25rem !important;
+  justify-self: start !important;
+}
+
+.firm-workspace.firm-space-shell .my-work-list__main,
+.firm-workspace.firm-space-shell .my-work-list__bottom {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+  box-sizing: border-box !important;
+}
+
+.firm-workspace.firm-space-shell .my-work-list__main .task-prep-checklist,
+.firm-workspace.firm-space-shell .my-work-list__main .hearing-prep-checklist,
+.firm-workspace.firm-space-shell .task-prep-checklist {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+.firm-workspace.firm-space-shell .task-prep-checklist__toggle {
+  display: flex !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+/* Desk checklist prep-ready + checkbox — HA B&W */
+.firm-workspace.firm-space-shell .desk-checklist-row--prep-ready,
+.firm-workspace.firm-space-shell .desk-checklist-row__panel--prep-ready,
+.firm-workspace.firm-space-shell .my-work-list__row--prep-ready {
+  border-color: rgba(10, 10, 10, 0.28) !important;
+  background: #f5f5f5 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-space-shell .desk-checklist-row__check {
+  accent-color: #0a0a0a !important;
+}
+
+.firm-workspace.firm-space-shell .desk-checklist-row__prep-ready-note {
+  color: #0a0a0a !important;
+}
+
+/* Literal gold hex leftovers (letterhead / legacy) */
+.firm-lh__amp,
+.firm-lh__closing-rule span,
+[class*="text-[#c9a227]"],
+[class*="border-[#c9a227]"],
+[class*="bg-[#c9a227]"],
+.text-\[\#c9a227\],
+.border-\[\#c9a227\],
+.bg-\[\#c9a227\] {
+  color: #0a0a0a !important;
+  border-color: #0a0a0a !important;
+  background-color: #0a0a0a !important;
+  background-image: none !important;
+}
+
+.firm-lh__masthead-line--fine,
+.firm-lh__discipline--caps::before,
+.firm-lh__discipline--caps::after,
+.firm-lh__closing-rule::before,
+.firm-lh__masthead-line--heavy {
+  background: linear-gradient(90deg, transparent, #0a0a0a 50%, transparent) !important;
+  background-image: linear-gradient(90deg, transparent, #0a0a0a 50%, transparent) !important;
+}
+
+.firm-lh__closing-rule span {
+  background: #0a0a0a !important;
+  border-color: #0a0a0a !important;
+}
+
+/* Amber / warm warning surfaces → neutral ink */
+.bg-amber-50,
+.bg-amber-100,
+.bg-amber-50\/80,
+.bg-amber-50\/90,
+.bg-amber-50\/95,
+[class*="bg-amber-"],
+[class*="border-amber-"],
+.text-amber-800,
+.text-amber-900,
+.text-amber-950,
+.text-amber-900\/75,
+.text-amber-900\/70,
+.text-amber-900\/55 {
+  background-color: #f4f4f4 !important;
+  background-image: none !important;
+  border-color: rgba(10, 10, 10, 0.18) !important;
+  color: #0a0a0a !important;
+}
+
+.btn-gold,
+a.btn-gold,
+.client-profile-hero__action-btn--gold,
+.stat-tile--gold {
+  background: #0a0a0a !important;
+  background-image: none !important;
+  color: #fff !important;
+  border: 1px solid #0a0a0a !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.btn-gold:hover:not(:disabled),
+a.btn-gold:hover {
+  background: #1a1a1a !important;
+  color: #fff !important;
+}
+
+.text-gold,
+.text-gold-dark,
+.text-gold-light {
+  color: #0a0a0a !important;
+}
+
+/* Warm cream canvases → cool gray */
+body,
+body:has(.firm-workspace),
+body:has(.office-hub-page),
+body:has(.firm-auth) {
+  background: #f3eee6 !important;
+  background-image: none !important;
+}
+
+.firm-auth--login {
+  background: #f0f0f0 !important;
+  background-image: none !important;
+}
+
+.firm-auth-ambient--gold,
+.firm-auth-hero__gold-line {
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+}
+
+/* Warm cream canvases → cool gray (catch attribute/arbitrary classes) */
+[class*="bg-[#f7f4ee]"],
+[class*="bg-[#f4f1eb]"],
+[class*="bg-[#faf6ee]"],
+[class*="from-[#f7f4ee]"],
+[class*="to-[#fffdf7]"],
+[class*="ring-offset-[#f7f4ee]"],
+.bg-\[\#f7f4ee\],
+.bg-\[\#f4f1eb\] {
+  background-color: #f0f0f0 !important;
+  background-image: none !important;
+  --tw-ring-offset-color: #f0f0f0 !important;
+}
+
+.space-messenger {
+  background: #f4f4f4 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Full-window Space shell (edge-to-edge)
+   ═══════════════════════════════════════════════════════════════ */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  overflow-x: clip;
+}
+
+.firm-workspace.firm-space-shell.app-shell,
+.firm-workspace.firm-space-shell {
+  --space-rail-width: 14rem;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100dvh !important;
+  min-height: -webkit-fill-available !important;
+  height: 100dvh !important;
+  height: -webkit-fill-available !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  /* Cool ink chrome shell; warm paper lives on the desk column */
+  background: #050505 !important;
+}
+
+/*
+ * Rail collapse must shrink the GRID COLUMN, not only hide labels.
+ * Use literal 4.25rem (not only a custom property) — transitioning
+ * grid-template-columns via var(--space-rail-width) often fails to apply.
+ * BitrixSpaceRail toggles shell/layout classes; :has() is a CSS fallback.
+ */
+.firm-workspace.firm-space-shell.firm-space-shell--rail-collapsed,
+.firm-workspace.firm-space-shell:has(.bitrix-space-rail--collapsed),
+.firm-workspace.firm-space-shell .trial-firm-layout--rail-collapsed {
+  --space-rail-width: 4.25rem;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav {
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  border-bottom: 1px solid #000 !important;
+  box-shadow: none !important;
+  min-height: 5.85rem !important;
+  padding: 0 max(0.85rem, env(safe-area-inset-right, 0px)) 0 0 !important;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  align-items: stretch !important;
+  background: #050505 !important;
+}
+
+.firm-workspace.firm-space-shell .trial-firm-layout {
+  /* Fill remaining shell height; desk column scrolls (footer at content end) */
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  display: grid !important;
+  grid-template-columns: 14rem minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  overflow: hidden !important;
+  transition: grid-template-columns 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.firm-workspace.firm-space-shell.firm-space-shell--rail-collapsed .trial-firm-layout,
+.firm-workspace.firm-space-shell .trial-firm-layout.trial-firm-layout--rail-collapsed,
+.firm-workspace.firm-space-shell:has(.bitrix-space-rail--collapsed) .trial-firm-layout {
+  --space-rail-width: 4.25rem;
+  grid-template-columns: 4.25rem minmax(0, 1fr) !important;
+}
+
+.firm-workspace.firm-space-shell .trial-firm-layout__nav {
+  position: relative !important;
+  top: auto !important;
+  width: 14rem !important;
+  min-width: 14rem !important;
+  max-width: 14rem !important;
+  height: 100% !important;
+  max-height: none !important;
+  align-self: stretch !important;
+  overflow: hidden !important;
+  transition:
+    width 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    min-width 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    max-width 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.firm-workspace.firm-space-shell.firm-space-shell--rail-collapsed .trial-firm-layout__nav,
+.firm-workspace.firm-space-shell .trial-firm-layout--rail-collapsed .trial-firm-layout__nav,
+.firm-workspace.firm-space-shell:has(.bitrix-space-rail--collapsed) .trial-firm-layout__nav {
+  width: 4.25rem !important;
+  min-width: 4.25rem !important;
+  max-width: 4.25rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+  border-right: 1px solid #000 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: hidden !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail--collapsed {
+  padding-inline: 0.35rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail--collapsed .bitrix-space-rail__item-label,
+.firm-workspace.firm-space-shell .bitrix-space-rail--collapsed .bitrix-space-rail__badge,
+.firm-workspace.firm-space-shell .bitrix-space-rail--collapsed .bitrix-space-rail__hub-full {
+  display: none !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail--collapsed .bitrix-space-rail__hub {
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0.22rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail--collapsed .bitrix-space-rail__hub-short {
+  display: block !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail--collapsed .bitrix-space-rail__hub-icon {
+  width: 1.55rem !important;
+  height: 1.55rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail--collapsed .bitrix-space-rail__item {
+  justify-content: center !important;
+  padding: 0.62rem 0.2rem !important;
+  gap: 0 !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail--collapsed .bitrix-space-rail__brand {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 0.35rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail--collapsed .bitrix-space-rail__collapse {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail--collapsed .bitrix-space-rail__logo {
+  display: none !important;
+}
+
+.firm-workspace.firm-space-shell .trial-firm-layout__main {
+  --space-main-pad-x: clamp(0.85rem, 2vw, 1.5rem);
+  --space-main-pad-left: clamp(0.85rem, 2vw, 1.5rem);
+  --space-main-pad-top: 0.65rem;
+  --space-main-pad-bottom: 0.85rem;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: 100% !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: #f7f4ee !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: var(--space-main-pad-top) var(--space-main-pad-x) var(--space-main-pad-bottom)
+    var(--space-main-pad-left) !important;
+}
+
+.firm-workspace.firm-space-shell .firm-workspace-body,
+.firm-workspace.firm-space-shell .firm-workspace-body > *,
+.firm-workspace.firm-space-shell .tab-page-body,
+.firm-workspace.firm-space-shell .page-enter,
+.firm-workspace.firm-space-shell .page-stagger {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.firm-workspace.firm-space-shell .mx-auto.max-w-xl,
+.firm-workspace.firm-space-shell .mx-auto.max-w-2xl,
+.firm-workspace.firm-space-shell .mx-auto.max-w-3xl,
+.firm-workspace.firm-space-shell .mx-auto.max-w-4xl,
+.firm-workspace.firm-space-shell .mx-auto.max-w-5xl,
+.firm-workspace.firm-space-shell .mx-auto.max-w-6xl,
+.firm-workspace.firm-space-shell .mx-auto.max-w-7xl {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Fallback desk (no rail): one scrollport so footer sits after content */
+.firm-workspace.firm-space-shell > .firm-space-desk-scroll {
+  --space-main-pad-x: clamp(0.85rem, 2vw, 1.5rem);
+  --space-main-pad-left: clamp(0.85rem, 2vw, 1.5rem);
+  --space-main-pad-top: 0.65rem;
+  --space-main-pad-bottom: 0.85rem;
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  background: #f7f4ee !important;
+  padding: var(--space-main-pad-top) var(--space-main-pad-x) var(--space-main-pad-bottom)
+    var(--space-main-pad-left) !important;
+  box-sizing: border-box !important;
+}
+
+.firm-workspace.firm-space-shell > .firm-space-desk-scroll > .firm-shell-chrome,
+.firm-workspace.firm-space-shell > .firm-space-desk-scroll > .firm-workspace-body {
+  width: 100%;
+  overflow: visible;
+}
+
+/* Brand footer at end of desk scroll — not pinned to the viewport */
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .app-footer,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .app-footer {
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  margin: 1rem 0 0 !important;
+  padding: 0.25rem 0 0.35rem !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  color: #333 !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__firm,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__name,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__name__line,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__tagline,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__contact,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__line,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__meta,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__copy,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__confidential,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__legal,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__copyright,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer .brand-footer__link,
+.firm-workspace.firm-space-shell .trial-firm-layout__main > .brand-footer a,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__firm,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__name,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__name__line,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__tagline,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__contact,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__line,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__meta,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__copy,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__confidential,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__legal,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__copyright,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer .brand-footer__link,
+.firm-workspace.firm-space-shell .firm-space-desk-scroll > .brand-footer a {
+  color: #333 !important;
+}
+
+.office-hub-page {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100dvh !important;
+}
+
+.office-hub-page .office-hub__shell,
+.office-hub-page .office-hub__letterhead {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Mobile / phone — bottom nav + edge-to-edge content
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  :root {
+    --touch-min: 44px;
+    --mobile-bottom-nav-offset: calc(3.65rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .firm-workspace.firm-space-shell {
+    height: 100dvh !important;
+    height: -webkit-fill-available !important;
+    padding-bottom: 0 !important;
+  }
+
+  .firm-workspace.firm-space-shell .trial-firm-layout {
+    grid-template-columns: 1fr !important;
+    min-height: 0 !important;
+    height: auto !important;
+    flex: 1 1 0% !important;
+  }
+
+  .firm-workspace.firm-space-shell .trial-firm-layout__nav,
+  .firm-workspace.firm-space-shell .bitrix-space-rail {
+    display: none !important;
+  }
+
+  .firm-workspace.firm-space-shell .trial-firm-layout__main,
+  .firm-workspace.firm-space-shell > .firm-space-desk-scroll {
+    --space-main-pad-x: max(0.75rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+    --space-main-pad-left: max(0.75rem, env(safe-area-inset-left, 0px));
+    --space-main-pad-top: 0.5rem;
+    --space-main-pad-bottom: calc(var(--mobile-bottom-nav-offset) + 0.5rem);
+    border-radius: 0 !important;
+    max-height: none !important;
+    height: 100% !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav {
+    margin: 0 !important;
+    padding-inline: 0 !important;
+  }
+
+  .mobile-space-desk-nav.mobile-clio-desk-nav {
+    display: grid !important;
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    z-index: 80 !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    padding-left: env(safe-area-inset-left, 0px) !important;
+    padding-right: env(safe-area-inset-right, 0px) !important;
+  }
+
+  .mobile-space-desk-nav__item {
+    min-height: var(--touch-min) !important;
+    font-size: 0.65rem !important;
+  }
+
+  .firm-workspace.firm-space-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
+  .firm-workspace.firm-space-shell select,
+  .firm-workspace.firm-space-shell textarea,
+  .firm-workspace.firm-space-shell .field,
+  .firm-workspace.firm-space-shell .field-input {
+    font-size: 16px !important;
+    min-height: var(--touch-min) !important;
+  }
+
+  .firm-workspace.firm-space-shell .btn-primary,
+  .firm-workspace.firm-space-shell .btn-secondary,
+  .firm-workspace.firm-space-shell .btn-gold,
+  .firm-workspace.firm-space-shell .bitrix-space-btn,
+  .firm-workspace.firm-space-shell .tool-action-btn {
+    min-height: var(--touch-min) !important;
+    min-width: var(--touch-min);
+  }
+
+  .firm-workspace.firm-space-shell .table-wrap,
+  .firm-workspace.firm-space-shell .data-table-wrap,
+  .firm-workspace.firm-space-shell .filing-workspace__scroll,
+  .firm-workspace.firm-space-shell .overflow-x-auto {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-section-tabs,
+  .firm-workspace.firm-space-shell .firm-shell-subnav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-section-tabs::-webkit-scrollbar,
+  .firm-workspace.firm-space-shell .firm-shell-subnav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .firm-workspace.firm-space-shell .filing-workspace__selection-bar {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--mobile-bottom-nav-offset) !important;
+    max-width: none !important;
+    border-radius: 0 !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .firm-workspace.firm-space-shell .trial-firm-layout__main,
+  .firm-workspace.firm-space-shell > .firm-space-desk-scroll {
+    --space-main-pad-x: max(0.65rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+    --space-main-pad-left: max(0.65rem, env(safe-area-inset-left, 0px));
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__title {
+    font-size: 0.9rem !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__lede,
+  .firm-workspace.firm-space-shell .firm-shell-chrome__guide {
+    display: none !important;
+  }
+}
+
+/* PWA / standalone */
+@media (display-mode: standalone) {
+  .firm-workspace.firm-space-shell .bitrix-space-topnav {
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0px)) !important;
+  }
+}
+
+/* Large desktop: still full width, slightly roomier pad */
+@media (min-width: 1280px) {
+  .firm-workspace.firm-space-shell .trial-firm-layout__main,
+  .firm-workspace.firm-space-shell > .firm-space-desk-scroll {
+    --space-main-pad-x: clamp(1.25rem, 2.5vw, 2.25rem);
+    --space-main-pad-left: clamp(1.25rem, 2.5vw, 2.25rem);
+  }
+}
+
+/* ── Redesign pass: unified black bar, slim desk find, B&W bell ── */
+.firm-workspace.firm-space-shell .bitrix-space-toolbar__eyebrow {
+  display: none !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-toolbar {
+  background: transparent !important;
+  border-bottom-color: rgba(10, 10, 10, 0.1) !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-toolbar__find-input {
+  background: #ffffff !important;
+  border-color: rgba(10, 10, 10, 0.16) !important;
+  color: #0a0a0a !important;
+}
+
+/* Kill duplicate page-header / view-hero slabs when toolbar already titles the desk */
+.firm-workspace.firm-space-shell .client-directory > .page-header,
+.firm-workspace.firm-space-shell .client-directory .page-header,
+.firm-workspace.firm-space-shell .client-directory__title,
+.firm-workspace.firm-space-shell .tab-page-body > .view-hero:first-child,
+.firm-workspace.firm-space-shell .page-enter > .view-hero:first-child,
+.firm-workspace.firm-space-shell .firm-workspace-body > .page-enter > .view-hero:first-child {
+  display: none !important;
+}
+
+.firm-workspace.firm-space-shell .client-directory {
+  display: grid !important;
+  gap: 0.65rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.firm-workspace.firm-space-shell .client-directory__find {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 0.55rem 0.85rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-space-shell .client-directory__find-input {
+  flex: 1 1 14rem !important;
+  min-width: 0 !important;
+  max-width: 28rem !important;
+  height: 2.15rem !important;
+  min-height: 2.15rem !important;
+  margin: 0 !important;
+  border-radius: 0.35rem !important;
+  border: 1px solid rgba(10, 10, 10, 0.16) !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-space-shell .client-directory__closed {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+  margin: 0 !important;
+  font-size: 0.75rem !important;
+  color: rgba(10, 10, 10, 0.62) !important;
+  white-space: nowrap !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav__actions .notifications-center__bell--compact,
+.firm-workspace.firm-space-shell .notifications-center--compact .notifications-center__bell {
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #f5f5f5 !important;
+  box-shadow: none !important;
+  border-radius: 0.35rem !important;
+}
+
+.firm-workspace.firm-space-shell .notifications-center__bell-icon {
+  width: 1.05rem !important;
+  height: 1.05rem !important;
+  stroke: currentColor !important;
+  fill: none !important;
+  stroke-width: 1.7 !important;
+  color: inherit !important;
+}
+
+.firm-workspace.firm-space-shell .notifications-center--compact .notifications-center__badge,
+.firm-workspace.firm-space-shell .bitrix-space-topnav__actions .notifications-center__badge {
+  background: #ffffff !important;
+  color: #0a0a0a !important;
+  box-shadow: 0 0 0 2px #050505 !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__badge {
+  background: #ffffff !important;
+  color: #0a0a0a !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__item--active {
+  background: #ffffff !important;
+  color: #0a0a0a !important;
+  border-radius: 0.4rem !important;
+  font-weight: 700 !important;
+}
+
+.firm-workspace.firm-space-shell .firm-workspace-body {
+  background: transparent !important;
+}
+
+.firm-workspace.firm-space-shell .firm-shell-chrome {
+  background: transparent !important;
+}

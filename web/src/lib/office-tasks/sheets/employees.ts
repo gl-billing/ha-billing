@@ -6,10 +6,12 @@ export type EmployeeRecord = {
   email: string;
   role: string;
   active: boolean;
+  /** Optional WhatsApp/SMS mobile when present on the Employees sheet. */
+  phone?: string;
 };
 
 export async function getEmployeeDirectory(accessToken: string): Promise<EmployeeRecord[]> {
-  const range = toA1Range(SHEETS.employees, "A2:D");
+  const range = toA1Range(SHEETS.employees, "A2:E");
   const rows = await getSheetValues(accessToken, range);
   const list: EmployeeRecord[] = [];
 
@@ -18,8 +20,9 @@ export async function getEmployeeDirectory(accessToken: string): Promise<Employe
     const email = String(row[1] || "").trim();
     const role = String(row[2] || "").trim();
     const active = String(row[3] ?? "").toUpperCase() !== "FALSE";
+    const phone = String(row[4] || "").trim();
     if (name && active) {
-      list.push({ name, email, role, active });
+      list.push({ name, email, role, active, phone: phone || undefined });
     }
   });
 

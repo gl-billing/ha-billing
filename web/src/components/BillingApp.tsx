@@ -1,14 +1,14 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFocusOnMount } from "@/hooks/useFocusOnMount";
 import type { ClientSummary, NewClientPayload } from "@/lib/gl-config";
 import { GL, formatPeso } from "@/lib/gl-config";
 import { FirmWorkspaceShell } from "@/components/FirmWorkspaceShell";
-import { ClioRail } from "@/components/clio/ClioRail";
-import { ClioSubTabs } from "@/components/clio/ClioSubTabs";
+import { BitrixSpaceRail } from "@/components/BitrixSpaceRail";
+import { BitrixSpaceSectionTabs } from "@/components/BitrixSpaceSectionTabs";
 import { HomeDashboard, type HomeNavigate } from "@/components/HomeDashboard";
 import { MatterIntakeWizard } from "@/components/MatterIntakeWizard";
 import { ClientsDirectory } from "@/components/ClientsDirectory";
@@ -50,6 +50,11 @@ import {
   saveClioNav,
   type ClioVisibilityOptions
 } from "@/lib/clio/workspace-nav";
+import {
+  filterSpaceBillingSectionTabs,
+  resolveActiveSpaceNav,
+  spaceNavItemsForUser
+} from "@/lib/space-nav";
 import { matterHref } from "@/lib/matter-routes";
 import { BillingTabGuide, BillingTabGuideText, TabPageHeader } from "@/components/BillingTabGuide";
 import { TabPageBody, TabPickerCard } from "@/components/TabPageLayout";
@@ -249,8 +254,22 @@ export function BillingApp() {
         : billingNavTabsForUser(false, navProfile),
     [adminResolved, canManageTeamRoster, isAdmin, navProfile]
   );
+  const pathname = usePathname() || "";
+  const spaceActiveId = resolveActiveSpaceNav(pathname, searchParams.toString());
+  const spaceSectionTabs = useMemo(
+    () => filterSpaceBillingSectionTabs(spaceActiveId, billingNavTabs),
+    [billingNavTabs, spaceActiveId]
+  );
   const introContent = useMemo(() => getBillingIntroContent(billingNavTabs), [billingNavTabs]);
-  const tabShortcuts = useMemo(() => buildTabShortcutHelp(billingNavTabs), [billingNavTabs]);
+  const tabShortcuts = useMemo(() => {
+    const { primary, footer } = spaceNavItemsForUser({
+      billingAccess,
+      isAdmin,
+      navProfile
+    });
+    return buildTabShortcutHelp([...primary, ...footer].map((item) => ({ id: item.id, label: item.label })));
+  }, [billingAccess, isAdmin, navProfile]);
+  const tabShortcutsTitle = "Space desks";
 
   const handleIntroClose = useCallback(() => {
     markWorkspaceIntroSeen("billing", email);
@@ -655,36 +674,34 @@ export function BillingApp() {
           ) : undefined
         }
         tabShortcuts={tabShortcuts}
-        tabShortcutsTitle="Billing tabs"
+        tabShortcutsTitle={tabShortcutsTitle}
         onReplayWorkspaceGuide={replayWorkspaceGuide}
+        isAdmin={isAdmin}
+        navProfile={navProfile}
         clioSectionTabs={
-          <ClioSubTabs
-            activeNav={clioActive.nav}
-            activeSection={clioActive.section}
-            isAdmin={isAdmin}
-            billingAccess={billingAccess}
-            navProfile={navProfile}
-            email={email}
-            canManageTeamRoster={canManageTeamRoster}
-            canViewLiaisonTab={canViewLiaisonConfidential}
-            canViewPresenceTab={canViewPresenceTab}
-            billingPath={billingPath}
-            tasksPath={tasksPath}
-          />
+          spaceSectionTabs.length ? (
+            <BitrixSpaceSectionTabs
+              tabs={spaceSectionTabs}
+              activeId={page}
+              onSelect={(id) => {
+                const next = id as AppPage;
+                goToPage(next);
+                if (spaceActiveId === "drive" && next === "documents" && typeof window !== "undefined") {
+                  const params = new URLSearchParams(window.location.search);
+                  params.set("page", "documents");
+                  params.set("space", "drive");
+                  router.replace(`${billingPath}?${params.toString()}`, { scroll: false });
+                }
+              }}
+              ariaLabel="Billing sections"
+            />
+          ) : null
         }
         navTabs={
-          <ClioRail
-            activeNav={clioActive.nav}
-            activeSection={clioActive.section}
-            billingPath={billingPath}
-            tasksPath={tasksPath}
-            isAdmin={isAdmin}
+          <BitrixSpaceRail
             billingAccess={billingAccess}
+            isAdmin={isAdmin}
             navProfile={navProfile}
-            email={email}
-            canManageTeamRoster={canManageTeamRoster}
-            canViewLiaisonTab={canViewLiaisonConfidential}
-            canViewPresenceTab={canViewPresenceTab}
           />
         }
       >

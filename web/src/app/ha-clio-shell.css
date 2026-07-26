@@ -934,7 +934,7 @@
 }
 
 .day-schedule-view__empty {
-  color: color-mix(in srgb, var(--muted) 50%, transparent);
+  color: var(--muted, #454545);
   font-size: 0.85rem;
 }
 

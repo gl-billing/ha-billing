@@ -124,25 +124,25 @@ export function CalendarViewSkeleton() {
   );
 }
 
-/** All-items search + list while loading. */
+/** All-items search + ledger while loading. */
 export function AllItemsSkeleton() {
   return (
-    <div className="space-y-4">
+    <div className="space-tasks-ledger space-y-4">
       <div className="view-hero space-y-2">
         <Shimmer className="h-3 w-24" />
-        <Shimmer className="h-8 w-40 max-w-full border border-line" />
+        <Shimmer className="h-8 w-48 max-w-full border border-line" />
       </div>
-      <div className="card space-y-3">
-        <Shimmer className="h-10 w-full border border-line" />
+      <div className="space-tasks-ledger__filters space-y-3">
+        <Shimmer className="h-4 w-28" />
         <div className="flex flex-wrap gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Shimmer key={i} className="h-8 w-24 border border-line" />
+            <Shimmer key={i} className="h-10 w-24 border border-line" />
           ))}
         </div>
       </div>
-      <div className="space-y-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Shimmer key={i} className="h-[4.5rem] border border-line" />
+      <div className="space-tasks-ledger__table-wrap overflow-hidden">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Shimmer key={i} className="h-9 w-full border-b border-line" />
         ))}
       </div>
     </div>

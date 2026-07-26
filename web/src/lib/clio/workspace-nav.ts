@@ -586,15 +586,17 @@ export function parseClioNavParam(value: string | null | undefined): ClioNavId |
   return HA_CLIO_NAV.some((item) => item.id === normalized) ? (normalized as ClioNavId) : null;
 }
 
-/** Read Calendar day/week/month mode from URL (`cal` or calendar `section`). */
+/** Read Calendar day/week/month/schedule mode from URL (`cal` or calendar `section`). */
 export function parseCalendarModeParam(
   params: URLSearchParams | string
-): "day" | "week" | "month" | null {
+): "day" | "week" | "month" | "schedule" | null {
   const search = typeof params === "string" ? new URLSearchParams(params) : params;
   const cal = search.get("cal")?.trim().toLowerCase();
-  if (cal === "day" || cal === "week" || cal === "month") return cal;
+  if (cal === "day" || cal === "week" || cal === "month" || cal === "schedule") return cal;
   if (parseClioNavParam(search.get("nav")) !== "calendar") return null;
   const sectionId = search.get("section")?.trim().toLowerCase();
-  if (sectionId === "day" || sectionId === "week" || sectionId === "month") return sectionId;
+  if (sectionId === "day" || sectionId === "week" || sectionId === "month" || sectionId === "schedule") {
+    return sectionId;
+  }
   return null;
 }

@@ -47,24 +47,29 @@ export function ClientsDirectory({ busy }: Props) {
 
   return (
     <>
-      <section className="card space-y-3">
-        <div>
-          <label className="mb-1.5 block text-xs font-bold text-[#4a4339]">Find client</label>
+      <div className="client-directory">
+        <div className="client-directory__find">
+          <label className="sr-only" htmlFor="client-directory-find">
+            Find client
+          </label>
           <input
-            className="field"
+            id="client-directory-find"
+            className="field client-directory__find-input"
             value={query}
             disabled={busy}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Code, name, case title, email..."
+            placeholder="Code, name, case title, email…"
+            autoComplete="off"
+            enterKeyHint="search"
           />
-          <label className="mt-2 flex items-center gap-2 text-xs text-muted">
+          <label className="client-directory__closed">
             <input
               type="checkbox"
               checked={includeClosed}
               disabled={busy}
               onChange={(e) => setIncludeClosed(e.target.checked)}
             />
-            Include closed clients
+            Include closed
           </label>
         </div>
 
@@ -73,7 +78,7 @@ export function ClientsDirectory({ busy }: Props) {
         ) : (
           <ClientListTable clients={clients} busy={busy || loading} onOpenClient={openClient} />
         )}
-      </section>
+      </div>
 
       <ClientDirectoryPopup clientCode={popupCode} onClose={() => setPopupCode(null)} />
     </>

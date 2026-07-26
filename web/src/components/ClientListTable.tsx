@@ -113,7 +113,7 @@ export function ClientListTable({ clients, busy, onOpenClient }: Props) {
       </div>
 
       <div className="scroll-panel-hint firm-ledger-table-wrap overflow-x-auto">
-        <table className="client-list-table firm-ledger-table firm-ledger-table--responsive-stack w-full min-w-[42rem] text-left text-xs">
+        <table className="client-list-table firm-ledger-table firm-ledger-table--responsive-stack w-full min-w-[42rem] text-left">
           <thead>
             <tr>
               <th className="client-list-table__col-code py-2"><SortBtn label="Code" col="code" /></th>
@@ -140,6 +140,7 @@ export function ClientListTable({ clients, busy, onOpenClient }: Props) {
                     <button
                       type="button"
                       className="client-code-link font-bold text-ink no-underline"
+                      title={client.code}
                       onClick={(event) => {
                         event.stopPropagation();
                         onOpenClient(client.code);

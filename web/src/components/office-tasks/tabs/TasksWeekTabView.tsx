@@ -7,12 +7,13 @@ import type { ItemSummary } from "@/components/office-tasks/ItemCard";
 import type { ItemStatusUpdate } from "@/lib/office-tasks/status";
 import type { WorkItemFilingActionProps } from "@/lib/office-tasks/work-item-filing-actions";
 import { DayScheduleView } from "@/components/office-tasks/DayScheduleView";
+import { ScheduleAgendaView } from "@/components/office-tasks/ScheduleAgendaView";
 import { WeeklyPlannerView } from "@/components/office-tasks/WeeklyPlannerView";
 import { BillingTabGuide, BillingTabGuideText, TabPageHeader } from "@/components/BillingTabGuide";
 import { TabPageBody } from "@/components/TabPageLayout";
 
 type Props = {
-  calendarMode: "day" | "week" | "month";
+  calendarMode: "day" | "week" | "month" | "schedule";
   items: OfficeItem[];
   today: string;
   weekStart: string;
@@ -27,7 +28,7 @@ type Props = {
   onCourtConfirmed?: (item: ItemSummary) => void;
 } & WorkItemFilingActionProps;
 
-/** Calendar week tab — day hourly schedule or seven-day planner. */
+/** Calendar week tab — day hourly schedule, agenda list, or seven-day planner. */
 export function TasksWeekTabView({
   calendarMode,
   items,
@@ -63,6 +64,37 @@ export function TasksWeekTabView({
             items={items}
             today={today}
             initialDate={today}
+            onToggleDone={onToggleDone}
+            onSetStatus={onSetStatus}
+            onResetWithDate={onResetWithDate}
+            onDeleteItem={onDeleteItem}
+            onUpdateNextAction={onUpdateNextAction}
+            onSaveEdit={onSaveEdit}
+            onCourtConfirmed={onCourtConfirmed}
+            onMarkSubmitted={onMarkSubmitted}
+            onConfirmParentFiled={onConfirmParentFiled}
+            formOptions={formOptions}
+            togglingKey={togglingKey}
+          />
+        </TabPageBody>
+      </>
+    );
+  }
+
+  if (calendarMode === "schedule") {
+    return (
+      <>
+        <TabPageHeader resetKey="schedule">
+          <BillingTabGuide title="About schedule">
+            <BillingTabGuideText>
+              Upcoming agenda — chronological list of hearings, deadlines, and tasks for the next few weeks.
+            </BillingTabGuideText>
+          </BillingTabGuide>
+        </TabPageHeader>
+        <TabPageBody>
+          <ScheduleAgendaView
+            items={items}
+            today={today}
             onToggleDone={onToggleDone}
             onSetStatus={onSetStatus}
             onResetWithDate={onResetWithDate}

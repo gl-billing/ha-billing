@@ -3,7 +3,9 @@
 export const SHEETS = {
   tasks: "Master Tasks",
   events: "Hearings & Events",
-  employees: "Employees"
+  employees: "Employees",
+  externalCounsel: "External Counsel",
+  staffMessages: "Staff Messages"
 } as const;
 
 export const TASK_HEADERS = [

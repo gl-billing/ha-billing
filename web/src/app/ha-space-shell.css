@@ -1,0 +1,4364 @@
+/**
+ * HA Space shell — Bitrix-style desk in black & white (logo palette).
+ * Always active under .firm-workspace.firm-space-shell (no theme switcher).
+ */
+
+:root,
+.firm-workspace.firm-space-shell {
+  --space-void: #000000;
+  --space-canvas: #0a0a0a;
+  --space-canvas-mid: #141414;
+  --space-gold: #ffffff;
+  --space-gold-light: #f0f0f0;
+  --space-gold-bright: #ffffff;
+  --space-gold-deep: #333333;
+  --space-glass: rgba(255, 255, 255, 0.94);
+  --space-glass-solid: #ffffff;
+  --space-rail: rgba(10, 10, 10, 0.85);
+  --space-ink: #0a0a0a;
+  --space-ink-on-dark: #f5f5f5;
+  --space-muted: #454545;
+  --space-muted-on-dark: rgba(245, 245, 245, 0.62);
+  --space-line: rgba(255, 255, 255, 0.22);
+  --space-line-soft: rgba(0, 0, 0, 0.1);
+  --space-radius: 0;
+  --space-radius-sm: 0;
+  --space-card-radius: 0;
+  --space-card-border: rgba(0, 0, 0, 0.12);
+  --space-card-gap: 0.35rem;
+  --space-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --space-motion: 0.16s;
+  --space-status-overdue: #111111;
+  --space-status-overdue-bg: #f0f0f0;
+  --space-status-today: #0a0a0a;
+  --space-status-today-bg: #e8e8e8;
+  --space-status-waiting: #555555;
+  --space-status-waiting-bg: #f3f3f3;
+  --space-status-done: #222222;
+  --space-status-done-bg: #ececec;
+  --cream: var(--space-glass-solid);
+  --ink: var(--space-ink);
+  --muted: var(--space-muted);
+  --gold: #111111;
+  --gold-light: #333333;
+  --gold-dark: #000000;
+  --line: var(--space-line-soft);
+  --paper: #ffffff;
+  --soft: #f4f4f4;
+  --charcoal: #1a1a1a;
+}
+
+/* Ambient canvas — monochrome glow */
+body,
+body:has(.firm-workspace),
+body:has(.office-hub-page) {
+  background:
+    radial-gradient(ellipse 48% 42% at 86% 38%, rgba(255, 255, 255, 0.12) 0%, transparent 58%),
+    radial-gradient(ellipse 36% 30% at 94% 72%, rgba(255, 255, 255, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 55% 40% at 12% 0%, rgba(0, 0, 0, 0.85) 0%, transparent 55%),
+    linear-gradient(155deg, var(--space-void) 0%, var(--space-canvas) 42%, #111111 72%, var(--space-canvas-mid) 100%) !important;
+  background-attachment: fixed !important;
+  color: var(--space-ink-on-dark);
+  min-height: 100%;
+}
+
+.text-ink {
+  color: var(--space-ink) !important;
+}
+
+.text-muted {
+  color: var(--space-muted) !important;
+}
+
+.text-gold,
+.text-gold-dark {
+  color: var(--space-gold-deep) !important;
+}
+
+/* Shell */
+.firm-workspace.firm-space-shell {
+  max-width: none !important;
+  width: 100% !important;
+  margin-inline: 0 !important;
+  padding: 0;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  background: transparent;
+  --workspace-max: none;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+}
+
+.firm-space-shell .trial-firm-layout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.55rem;
+  min-height: calc(100dvh - 6.85rem - env(safe-area-inset-top, 0px));
+  min-height: calc(100vh - 6.85rem - env(safe-area-inset-top, 0px));
+  align-items: stretch;
+  padding: 0 0.75rem 0.7rem 0.45rem;
+}
+
+.firm-space-shell .trial-firm-layout__nav {
+  position: sticky;
+  top: max(0.55rem, env(safe-area-inset-top, 0px));
+  align-self: start;
+  height: calc(100dvh - 7.95rem - env(safe-area-inset-top, 0px));
+  height: calc(100vh - 7.95rem - env(safe-area-inset-top, 0px));
+  z-index: 20;
+}
+
+.firm-space-shell .trial-firm-layout__main {
+  --space-main-pad-x: 1.25rem;
+  --space-main-pad-left: 1.35rem;
+  --space-main-pad-top: 0.85rem;
+  --space-main-pad-bottom: 1.1rem;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: var(--space-main-pad-top) var(--space-main-pad-x) var(--space-main-pad-bottom)
+    var(--space-main-pad-left);
+  border-radius: var(--space-radius);
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  background: var(--space-glass);
+  backdrop-filter: blur(32px) saturate(1.2);
+  -webkit-backdrop-filter: blur(32px) saturate(1.2);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  color: var(--space-ink);
+  /* Scrollport for sticky section tabs (toolbar scrolls away; tabs stick) */
+  max-height: calc(100dvh - 7.95rem - env(safe-area-inset-top, 0px));
+  max-height: calc(100vh - 7.95rem - env(safe-area-inset-top, 0px));
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.firm-space-shell .brand-header.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.firm-space-shell .office-nav,
+.firm-space-shell .firm-workspace-nav {
+  display: none !important;
+}
+
+/* ── Left rail ── */
+.bitrix-space-rail {
+  display: flex;
+  flex-direction: column;
+  width: 14rem;
+  height: 100%;
+  min-height: calc(100dvh - 7.95rem - env(safe-area-inset-top, 0px));
+  min-height: calc(100vh - 7.95rem - env(safe-area-inset-top, 0px));
+  max-height: calc(100dvh - 7.95rem - env(safe-area-inset-top, 0px));
+  max-height: calc(100vh - 7.95rem - env(safe-area-inset-top, 0px));
+  padding: 0.4rem 0.35rem 0.55rem;
+  border-radius: var(--space-radius);
+  border: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: #050505;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  color: var(--space-ink-on-dark);
+  overflow: hidden;
+}
+
+.bitrix-space-rail--collapsed {
+  width: 4.25rem;
+  padding-inline: 0.35rem;
+}
+
+.bitrix-space-rail__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+  padding: 0.05rem 0.1rem 0.3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bitrix-space-rail__hub {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.4rem;
+  color: #ffffff;
+  font-family: var(--font-display), "Arial Black", Arial, Helvetica, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.bitrix-space-rail__hub-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.bitrix-space-rail__hub-icon svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bitrix-space-rail__hub-full {
+  display: block;
+  min-width: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bitrix-space-rail__hub-short {
+  display: none;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+.bitrix-space-rail__logo {
+  display: none;
+}
+
+.bitrix-space-rail__collapse {
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-left: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.25rem;
+  background: transparent;
+  color: rgba(245, 245, 245, 0.85);
+  font-size: 0.68rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background var(--space-motion) var(--space-ease),
+    border-color var(--space-motion) var(--space-ease);
+}
+
+.bitrix-space-rail__collapse:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.bitrix-space-rail__mobile-label,
+.bitrix-space-rail__mobile-select {
+  display: none;
+}
+
+.bitrix-space-rail__list,
+.bitrix-space-rail__footer {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.06rem;
+}
+
+.bitrix-space-rail__footer {
+  margin-top: auto;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.bitrix-space-rail__item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 0.4rem;
+  color: rgba(245, 245, 245, 0.88);
+  text-decoration: none;
+  transition:
+    background var(--space-motion) var(--space-ease),
+    color var(--space-motion) var(--space-ease),
+    box-shadow var(--space-motion) var(--space-ease);
+}
+
+button.bitrix-space-rail__item {
+  width: 100%;
+  margin: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.bitrix-space-rail__item:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.bitrix-space-rail__item--active {
+  background: #ffffff;
+  color: #0a0a0a;
+  box-shadow: none;
+  font-weight: 700;
+  border-radius: 0.4rem;
+}
+
+.bitrix-space-rail__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  color: rgba(245, 245, 245, 0.72);
+  flex-shrink: 0;
+}
+
+.bitrix-space-rail__icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bitrix-space-rail__item--active .bitrix-space-rail__icon {
+  color: #0a0a0a;
+}
+
+.bitrix-space-rail__item-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--type-nav, 0.9375rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+.bitrix-space-rail__badge {
+  flex: 0 0 auto;
+  margin-left: auto;
+  min-width: 1.15rem;
+  padding: 0.06rem 0.32rem;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #0a0a0a;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  box-shadow: none;
+}
+
+.bitrix-space-rail__item-desc {
+  display: none;
+}
+
+.bitrix-space-rail--collapsed .bitrix-space-rail__item {
+  justify-content: center;
+  padding: 0.62rem 0.2rem;
+}
+
+.bitrix-space-rail--collapsed .bitrix-space-rail__item-label {
+  display: none;
+}
+
+.bitrix-space-rail--collapsed .bitrix-space-rail__brand {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  padding-inline: 0.1rem;
+}
+
+.bitrix-space-rail--collapsed .bitrix-space-rail__hub {
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.22rem;
+  padding: 0.15rem 0 0.05rem;
+}
+
+.bitrix-space-rail--collapsed .bitrix-space-rail__hub-full {
+  display: none;
+}
+
+.bitrix-space-rail--collapsed .bitrix-space-rail__hub-short {
+  display: block;
+}
+
+.bitrix-space-rail--collapsed .bitrix-space-rail__hub-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.bitrix-space-rail--collapsed .bitrix-space-rail__logo {
+  display: none;
+}
+
+.bitrix-space-rail--collapsed .bitrix-space-rail__collapse {
+  margin-left: 0;
+  width: 100%;
+}
+
+.bitrix-space-rail__group {
+  margin-bottom: 0.35rem;
+}
+
+.bitrix-space-rail__group:nth-of-type(2),
+.bitrix-space-rail__group:last-of-type {
+  min-height: 0;
+}
+
+/* Workspace list is long (Filing, Templates, Drive, Mail…) — keep Settings pinned, scroll the rest. */
+.bitrix-space-rail__group + .bitrix-space-rail__group {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+  padding-top: 0.35rem;
+  padding-bottom: 0.15rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bitrix-space-rail__group-label {
+  margin: 0 0 0.18rem;
+  padding: 0 0.65rem;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── Top strip — single cool-black bar (no cream/black split) ── */
+.bitrix-space-topnav {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem 1rem;
+  margin: 0;
+  padding: 0 max(0.85rem, env(safe-area-inset-right, 0px)) 0 max(0.55rem, env(safe-area-inset-left, 0px));
+  min-height: 5.85rem;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid #000;
+  background: #050505;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  color: #f5f5f5;
+  z-index: 30;
+  animation: bitrix-space-banner-in 0.32s var(--space-ease) both;
+}
+
+@keyframes bitrix-space-banner-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.bitrix-space-topnav__modules--empty {
+  display: none;
+}
+
+.bitrix-space-topnav__brand {
+  display: none;
+}
+
+.bitrix-space-topnav__brand-link {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  align-self: stretch;
+  min-width: 0;
+  padding: 0.2rem 0.75rem 0.2rem max(0.55rem, env(safe-area-inset-left, 0px));
+  text-decoration: none;
+  color: inherit;
+  background: transparent;
+}
+
+/* Legacy plate class — keep transparent so stale markup cannot revive a white box. */
+.bitrix-space-topnav__logo-plate {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.bitrix-space-topnav__logo {
+  display: block;
+  flex-shrink: 0;
+  width: auto;
+  max-width: min(26rem, 56vw);
+  height: auto;
+  max-height: 5.35rem;
+  padding: 0;
+  border-radius: 0;
+  object-fit: contain;
+  object-position: left center;
+  background: transparent;
+  box-shadow: none;
+  /* Asset is white mark on transparent (`logo-on-dark.png`) — no invert plate. */
+  filter: none;
+}
+
+.bitrix-space-topnav__wordmark {
+  display: none !important;
+}
+
+.bitrix-space-topnav__utility {
+  display: none;
+}
+
+.bitrix-space-topnav__tools {
+  display: contents;
+}
+
+.bitrix-space-topnav__void {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 1px;
+}
+
+.bitrix-space-topnav__modules {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.1rem 0.95rem;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  min-width: 0;
+  padding: 0.1rem 0.15rem;
+  align-self: center;
+}
+
+.bitrix-space-topnav__modules::-webkit-scrollbar {
+  display: none;
+}
+
+.bitrix-space-topnav__link {
+  flex-shrink: 0;
+  padding: 0.4rem 0.05rem;
+  color: rgba(245, 245, 245, 0.72);
+  text-decoration: none;
+  font-size: var(--type-nav, 0.9375rem);
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+
+.bitrix-space-topnav__link:hover {
+  color: #ffffff;
+}
+
+.bitrix-space-topnav__link--active {
+  color: #ffffff;
+  border-bottom-color: #f0f0f0;
+}
+
+.bitrix-space-topnav__search {
+  flex: 0 1 18rem;
+  min-width: 10rem;
+  max-width: 20rem;
+  align-self: center;
+  margin-left: auto;
+  padding-inline: 0;
+}
+
+.bitrix-space-topnav__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: center;
+  padding: 0;
+}
+
+.bitrix-space-topnav__search .search-hero,
+.bitrix-space-topnav__search .global-search-bar,
+.bitrix-space-topnav__search .search-hero__panel,
+.bitrix-space-topnav__search .tasks-search-bar,
+.bitrix-space-topnav__search .card,
+.bitrix-space-topnav__search .search-jewel {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.bitrix-space-topnav__search .search-hero__label,
+.bitrix-space-topnav__search .search-hero__hint,
+.bitrix-space-topnav__search .search-hero__lede,
+.bitrix-space-topnav__search .search-bar-hint {
+  display: none !important;
+}
+
+.bitrix-space-topnav__search .search-bar-wrap {
+  margin: 0 !important;
+  min-height: 0 !important;
+  height: 2rem !important;
+  align-items: center !important;
+  gap: 0.15rem !important;
+}
+
+.bitrix-space-topnav__search .search-icon,
+.bitrix-space-topnav__search .tasks-search-bar__icon {
+  left: 0.55rem !important;
+  font-size: 0.85rem !important;
+  line-height: 1 !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.bitrix-space-topnav__search .field,
+.bitrix-space-topnav__search .field-input,
+.bitrix-space-topnav__search .search-hero-input,
+.bitrix-space-topnav__search .tasks-search-bar__input,
+.bitrix-space-topnav__search input[type="search"] {
+  height: 2rem !important;
+  min-height: 2rem !important;
+  max-height: 2rem !important;
+  padding: 0.2rem 4.25rem 0.2rem 1.85rem !important;
+  border-radius: 0.35rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #f5f5f5 !important;
+  box-shadow: none !important;
+  font-size: 0.78rem !important;
+  line-height: 1.2 !important;
+}
+
+.bitrix-space-topnav__search input::placeholder {
+  color: rgba(245, 245, 245, 0.45) !important;
+}
+
+.bitrix-space-topnav__search .search-voice-btn,
+.bitrix-space-topnav__search .voice-quick-add {
+  right: 1.85rem !important;
+  width: 1.55rem !important;
+  height: 1.55rem !important;
+  min-width: 1.55rem !important;
+  min-height: 1.55rem !important;
+  padding: 0 !important;
+  font-size: 0.7rem !important;
+}
+
+.bitrix-space-topnav__search .search-clear {
+  right: 0.25rem !important;
+  width: 1.55rem !important;
+  height: 1.55rem !important;
+  min-width: 1.55rem !important;
+  min-height: 1.55rem !important;
+  font-size: 0.95rem !important;
+  line-height: 1 !important;
+}
+
+/* Brand footer on dark Space canvas — light text so it stays readable */
+.firm-workspace > .brand-footer,
+.firm-space-shell > .brand-footer,
+.brand-footer {
+  margin-top: 0.5rem;
+  margin-inline: 0.65rem;
+  padding: 0.55rem 0.75rem 0.65rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--space-radius-sm);
+  background: rgba(12, 10, 8, 0.45);
+  backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  color: #f5f5f5;
+}
+
+.brand-footer__firm {
+  color: #f5f5f5 !important;
+}
+
+.brand-footer__tagline {
+  color: var(--space-gold-light) !important;
+}
+
+.brand-footer__contact,
+.brand-footer__line,
+.brand-footer__meta,
+.brand-footer__staff-note,
+.brand-footer__copy,
+.brand-footer__copyright-row {
+  color: rgba(245, 245, 245, 0.72) !important;
+}
+
+.brand-footer__link,
+.brand-footer__meta-link,
+.brand-footer__contact a {
+  color: rgba(245, 245, 245, 0.88) !important;
+}
+
+.brand-footer__link:hover,
+.brand-footer__meta-link:hover,
+.brand-footer__contact a:hover {
+  color: var(--space-gold-light) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.brand-footer__sep,
+.brand-footer__dot {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.brand-footer__bar::after,
+.brand-footer__divider,
+.brand-footer__ornament {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  ) !important;
+  opacity: 0.9;
+}
+
+.bitrix-space-topnav__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  align-self: center;
+  padding-right: 0;
+}
+
+/* Space top strip: one clear help control on the right (no keyboard + ? stack) */
+.bitrix-space-topnav__actions .keyboard-shortcuts-trigger--header {
+  position: relative;
+  width: 2.2rem;
+  height: 2.2rem;
+  min-width: 2.2rem;
+  min-height: 2.2rem;
+  padding: 0;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f5f5;
+}
+
+.bitrix-space-topnav__actions .keyboard-shortcuts-trigger__glyph {
+  display: none;
+}
+
+.bitrix-space-topnav__actions .keyboard-shortcuts-trigger__key {
+  position: static;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #f5f5f5;
+  font-size: 0.95rem;
+  font-weight: 800;
+  box-shadow: none;
+  line-height: 1;
+}
+
+.bitrix-space-topnav__actions .keyboard-shortcuts-trigger--header:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.bitrix-space-topnav__actions .notifications-center__bell--compact,
+.bitrix-space-topnav__actions .theme-switcher__trigger--header {
+  width: 2.2rem;
+  height: 2.2rem;
+  min-width: 2.2rem;
+  min-height: 2.2rem;
+  border-radius: 0.35rem;
+}
+
+.bitrix-space-topnav__actions .notifications-center__bell-icon,
+.notifications-center__bell-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: block;
+}
+
+/* ── Buttons ── */
+.bitrix-space-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  box-sizing: border-box;
+  min-height: 2.05rem;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.12s ease, background 0.12s ease, transform 0.12s ease;
+}
+
+.bitrix-space-btn__plus {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.bitrix-space-btn--create {
+  border-color: #0a0a0a;
+  background: #0a0a0a;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.bitrix-space-btn--create:hover {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+}
+
+.bitrix-space-create {
+  position: relative;
+  z-index: 40;
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.bitrix-space-create .bitrix-space-btn--create:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-right: 0.85rem;
+}
+
+.bitrix-space-create__caret {
+  min-width: 2rem;
+  padding-inline: 0.55rem !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+.bitrix-space-create__menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  z-index: 50;
+  min-width: 11rem;
+  padding: 0.25rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #f7f7f7;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+}
+
+.bitrix-space-create--open {
+  z-index: 60;
+}
+
+.bitrix-space-create__option {
+  display: block;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.4rem;
+  color: var(--space-ink, #111111);
+  font-size: 0.8rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.bitrix-space-create__option:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Space create menu — mobile placement */
+@media (max-width: 640px) {
+  .bitrix-space-create__menu {
+    right: 0;
+    left: auto;
+  }
+}
+
+/* Bitrix Messenger desk */
+.space-messenger {
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  min-height: min(70vh, 42rem);
+  border-radius: 0.85rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #f4f4f4;
+  overflow: hidden;
+}
+
+.space-messenger__sidebar {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+.space-messenger__sidebar-head {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem 1.1rem 0.65rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.space-messenger__tabs {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.space-messenger__tab {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.62);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.space-messenger__tab--active {
+  background: rgba(255, 255, 255, 0.18);
+  color: #111111;
+}
+
+.space-messenger__find {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.space-messenger__find-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: #f7f4ef;
+  padding: 0 0.85rem;
+  font-size: 0.82rem;
+}
+
+.space-messenger__compose-btn {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(55, 120, 210, 0.35);
+  background: rgba(55, 120, 210, 0.12);
+  color: #2a5ea8;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.space-messenger__list-wrap {
+  flex: 1 1 auto;
+  overflow: auto;
+  min-height: 0;
+}
+
+.space-messenger__list {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0;
+}
+
+.space-messenger__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 0.7rem 1.1rem;
+  cursor: pointer;
+}
+
+.space-messenger__row:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.space-messenger__row--active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.space-messenger__row--unread .space-messenger__row-title {
+  font-weight: 800;
+}
+
+.space-messenger__avatar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.55rem;
+  background: linear-gradient(145deg, #3d7ad6, #2458a8);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.space-messenger__row-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.space-messenger__row-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.space-messenger__row-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #111111;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.space-messenger__row-time {
+  flex: 0 0 auto;
+  font-size: 0.68rem;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.space-messenger__row-preview {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: rgba(0, 0, 0, 0.58);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.space-messenger__pane {
+  min-width: 0;
+  background: #f7f4ef;
+  display: flex;
+  flex-direction: column;
+}
+
+.space-messenger__empty,
+.space-messenger__detail,
+.space-messenger__compose {
+  flex: 1 1 auto;
+  padding: 1.5rem 1.35rem;
+}
+
+.space-messenger__empty {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.45rem;
+  text-align: center;
+}
+
+.space-messenger__empty-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #111111;
+}
+
+.space-messenger__empty-lede,
+.space-messenger__empty-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.space-messenger__pane-title,
+.space-messenger__detail-subject {
+  margin: 0 0 0.85rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #111111;
+}
+
+.space-messenger__detail-meta {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.space-messenger__detail-body {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.55;
+  color: #111111;
+}
+
+.space-messenger__compose {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  max-width: 36rem;
+}
+
+.space-messenger__field {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.72);
+}
+
+.space-messenger__field input,
+.space-messenger__field select,
+.space-messenger__field textarea {
+  border-radius: 0.55rem;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: #fff;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  font-weight: 500;
+  color: #111111;
+}
+
+.space-messenger__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  color: #111111;
+}
+
+.space-messenger__compose-actions {
+  display: flex;
+  gap: 0.45rem;
+  justify-content: flex-end;
+}
+
+.space-messenger__error {
+  margin: 0;
+  color: #9b2c2c;
+  font-size: 0.82rem;
+}
+
+.space-messenger__whatsapp,
+.space-messenger__hint {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.62);
+}
+
+/* Bitrix Staff ledger */
+.space-staff-ledger {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.space-staff-ledger__toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.1rem 0.25rem 0.15rem 0.4rem;
+}
+
+.space-staff-ledger__eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.space-staff-ledger__title {
+  margin: 0.15rem 0 0;
+  font-size: var(--type-page, 1.25rem);
+  font-weight: 800;
+  color: #111111;
+}
+
+.space-staff-ledger__filters {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.space-staff-ledger__search {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 2.05rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+  padding: 0 0.75rem;
+  font-size: 0.85rem;
+}
+
+.space-staff-ledger__count {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.space-staff-ledger__invite-title {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.space-staff-ledger__invite {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.65rem;
+  padding: 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+.space-staff-ledger__invite label {
+  display: grid;
+  gap: 0.28rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.space-staff-ledger__invite input,
+.space-staff-ledger__invite select {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  padding: 0.5rem 0.65rem;
+  font: inherit;
+  font-weight: 500;
+}
+
+.space-staff-ledger__invite-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.space-staff-ledger__table-wrap {
+  overflow: auto;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+.space-staff-ledger__table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 42rem;
+}
+
+.space-staff-ledger__table thead th {
+  text-align: left;
+  padding: 0.7rem 0.95rem 0.7rem 1.15rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.55);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.space-staff-ledger__table tbody td {
+  padding: 0.75rem 0.95rem 0.75rem 1.15rem;
+  font-size: 0.86rem;
+  color: #111111;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  vertical-align: middle;
+}
+
+.space-staff-ledger__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.space-staff-ledger__row {
+  cursor: pointer;
+}
+
+.space-staff-ledger__row:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.space-staff-ledger__row--active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.space-staff-ledger__person {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.space-staff-ledger__avatar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #3d7ad6, #2458a8);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.space-staff-ledger__person-text {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.space-staff-ledger__name {
+  font-weight: 700;
+}
+
+.space-staff-ledger__sub {
+  font-size: 0.72rem;
+  color: rgba(0, 0, 0, 0.52);
+}
+
+.space-staff-ledger__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.space-staff-ledger__layout--with-panel {
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 20rem);
+}
+
+.space-staff-ledger__panel {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
+  min-width: 0;
+}
+
+.space-staff-ledger__panel-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.space-staff-ledger__panel-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.space-staff-ledger__panel-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #111111;
+  line-height: 1.2;
+}
+
+.space-staff-ledger__panel-role {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.space-staff-ledger__panel-close {
+  flex: 0 0 auto;
+  width: 1.65rem;
+  height: 1.65rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.45rem;
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.space-staff-ledger__panel-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #111111;
+}
+
+.space-staff-ledger__panel-details {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.space-staff-ledger__panel-details div {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.space-staff-ledger__panel-details dt {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.48);
+}
+
+.space-staff-ledger__panel-details dd {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #111111;
+  word-break: break-word;
+}
+
+.space-staff-ledger__panel-edit {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.space-staff-ledger__panel-edit label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.62);
+}
+
+.space-staff-ledger__panel-edit input,
+.space-staff-ledger__panel-edit select {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  padding: 0.45rem 0.6rem;
+  font: inherit;
+  font-weight: 500;
+}
+
+.space-staff-ledger__panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.space-staff-ledger__panel-deactivate {
+  color: #8b1a1a;
+}
+
+.space-staff-ledger__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  padding: 0.35rem 0.15rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.space-staff-ledger__footer-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Bitrix Tasks / Find item ledger */
+.space-tasks-ledger {
+  display: grid;
+  gap: 0.55rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.space-tasks-ledger__head {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.1rem 0.05rem 0.25rem;
+}
+
+.space-tasks-ledger__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #111;
+  line-height: 1.2;
+}
+
+.space-tasks-ledger__lede {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.space-tasks-ledger__filters {
+  padding: 0.85rem 1.1rem 0.95rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.space-tasks-ledger__count {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.space-tasks-ledger__table-wrap {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.space-tasks-ledger__table {
+  width: 100%;
+  min-width: 64rem;
+  table-layout: auto;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.space-tasks-ledger__table thead th {
+  padding: 0.45rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+}
+
+.space-tasks-ledger__table tbody td {
+  padding: 0.42rem 0.55rem;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  color: #111;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.space-tasks-ledger__col-type,
+.space-tasks-ledger__type {
+  white-space: nowrap;
+  width: 7.5rem;
+}
+
+.space-tasks-ledger__col-date,
+.space-tasks-ledger__date,
+.space-tasks-ledger__col-status,
+.space-tasks-ledger__status-cell,
+.space-tasks-ledger__col-assignee,
+.space-tasks-ledger__assignee,
+.space-tasks-ledger__col-category,
+.space-tasks-ledger__category {
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.space-tasks-ledger__col-status,
+.space-tasks-ledger__status-cell {
+  min-width: 6.75rem;
+}
+
+.space-tasks-ledger__col-actions,
+.space-tasks-ledger__actions {
+  width: 5.5rem;
+  min-width: 5.5rem;
+  white-space: nowrap;
+  text-align: right;
+  vertical-align: middle;
+}
+
+.space-tasks-ledger__col-matter,
+.space-tasks-ledger__matter-cell {
+  min-width: 10rem;
+  max-width: 16rem;
+}
+
+.space-tasks-ledger__col-details,
+.space-tasks-ledger__details {
+  min-width: 12rem;
+  max-width: 18rem;
+}
+
+.space-tasks-ledger__col-venue,
+.space-tasks-ledger__venue {
+  min-width: 8rem;
+  max-width: 14rem;
+}
+
+.space-tasks-ledger__row {
+  cursor: pointer;
+}
+
+.space-tasks-ledger__row:hover td {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.space-tasks-ledger__row--expanded td {
+  background: rgba(0, 0, 0, 0.045);
+}
+
+.space-tasks-ledger__kind {
+  display: inline-block;
+  font-weight: 700;
+  color: #111;
+  white-space: nowrap;
+}
+
+.space-tasks-ledger__source {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+
+.space-tasks-ledger__matter {
+  font-weight: 700;
+  color: #111;
+  cursor: pointer;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.space-tasks-ledger__details,
+.space-tasks-ledger__venue {
+  color: rgba(0, 0, 0, 0.72);
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: manual;
+}
+
+.space-tasks-ledger__date {
+  font-variant-numeric: tabular-nums;
+}
+
+.space-tasks-ledger__time {
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: 600;
+}
+
+.space-tasks-ledger__status {
+  display: inline-block;
+  font-weight: 700;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.space-tasks-ledger__status--overdue,
+.space-tasks-ledger__kind--overdue {
+  color: #7f1d1d;
+}
+
+.space-tasks-ledger__status--done {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.space-tasks-ledger__status--cancelled,
+.space-tasks-ledger__kind--deadline {
+  color: #1f2937;
+  font-weight: 800;
+}
+
+/* Beat global button wrap rules (overflow-wrap: anywhere) so "Open" never stacks. */
+.space-tasks-ledger__open-btn,
+.firm-workspace .space-tasks-ledger__actions .btn-secondary,
+.firm-workspace .space-tasks-ledger__actions .btn-sm,
+.firm-workspace .space-tasks-ledger__open-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 4.5rem !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  text-wrap: nowrap !important;
+  line-height: 1.2 !important;
+  padding-left: 0.85rem !important;
+  padding-right: 0.85rem !important;
+}
+
+.space-tasks-ledger__detail-row td {
+  padding: 0.55rem 0.65rem 0.85rem;
+  background: rgba(0, 0, 0, 0.025);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.space-tasks-ledger__detail {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+}
+
+/* Keep horizontal scroll (never stack/crush) — beats globals .firm-ledger-table mobile cards. */
+@media (max-width: 720px) {
+  .space-tasks-ledger__table-wrap,
+  .space-tasks-ledger__table-wrap.firm-ledger-table-wrap {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+  }
+
+  .space-tasks-ledger__table,
+  .space-tasks-ledger__table.firm-ledger-table {
+    min-width: 64rem !important;
+    width: max-content !important;
+  }
+
+  .space-tasks-ledger__table.firm-ledger-table thead {
+    display: table-header-group !important;
+  }
+
+  .space-tasks-ledger__table.firm-ledger-table tbody tr {
+    display: table-row !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  .space-tasks-ledger__table.firm-ledger-table tbody td {
+    display: table-cell !important;
+    justify-content: unset !important;
+    gap: unset !important;
+    padding: 0.42rem 0.55rem !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+    text-align: left !important;
+  }
+
+  .space-tasks-ledger__table.firm-ledger-table tbody td::before {
+    content: none !important;
+  }
+
+  .space-tasks-ledger__detail-row td {
+    display: table-cell !important;
+    padding: 0.55rem 0.65rem 0.85rem !important;
+  }
+
+  .space-tasks-ledger__detail-row td::before {
+    content: none !important;
+  }
+}
+
+.space-messenger__back {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .space-staff-ledger__layout--with-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .space-staff-ledger__panel {
+    order: -1;
+  }
+
+  .space-messenger {
+    grid-template-columns: 1fr;
+    min-height: min(70dvh, 36rem);
+  }
+
+  .space-messenger__sidebar {
+    border-right: 0;
+    border-bottom: 0;
+    max-height: none;
+  }
+
+  .space-messenger:not(.space-messenger--thread-open) .space-messenger__pane {
+    display: none;
+  }
+
+  .space-messenger--thread-open .space-messenger__sidebar {
+    display: none;
+  }
+
+  .space-messenger__pane {
+    min-height: min(70dvh, 36rem);
+  }
+
+  .space-messenger__back {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 0 0.65rem;
+    padding: 0.35rem 0.55rem;
+    border: 0;
+    border-radius: 0.45rem;
+    background: color-mix(in srgb, var(--ink, #111111) 6%, transparent);
+    color: var(--ink, #111111);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+.bitrix-space-btn--invite {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.bitrix-space-btn--invite:hover {
+  filter: brightness(1.08);
+}
+
+.bitrix-space-btn--chip {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.82);
+  color: #f5f5f5;
+}
+
+.bitrix-space-btn--chip:hover {
+  background: rgba(0, 0, 0, 0.92);
+}
+
+.bitrix-space-btn--ghost {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.62);
+  color: #111111;
+}
+
+.bitrix-space-btn--ghost:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: #fff;
+}
+
+.bitrix-space-btn--signout {
+  border-color: rgba(192, 57, 43, 0.35);
+  background: rgba(255, 255, 255, 0.55);
+  color: #8b1a1a;
+}
+
+.bitrix-space-btn--signout:hover {
+  border-color: rgba(192, 57, 43, 0.55);
+  background: rgba(192, 57, 43, 0.08);
+  color: #6d1212;
+}
+
+/* ── Content toolbar ── */
+.bitrix-space-toolbar {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0 0 0.65rem;
+  padding: 0.15rem 0.35rem 0.65rem 0.15rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  overflow: visible;
+}
+
+.bitrix-space-toolbar__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem 0.75rem;
+}
+
+.bitrix-space-toolbar__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.65rem;
+  min-width: 0;
+}
+
+.bitrix-space-toolbar__left {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  padding-left: 0;
+}
+
+.bitrix-space-toolbar__eyebrow {
+  display: none !important;
+}
+
+.bitrix-space-toolbar__title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: var(--space-ink);
+  line-height: 1.15;
+}
+
+.bitrix-space-toolbar__find {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 11rem;
+  max-width: 16rem;
+  flex: 1 1 11rem;
+}
+
+.bitrix-space-toolbar__find-icon {
+  position: absolute;
+  left: 0.65rem;
+  font-size: 0.85rem;
+  line-height: 1;
+  color: rgba(10, 10, 10, 0.4);
+  pointer-events: none;
+}
+
+.bitrix-space-toolbar__find-input {
+  width: 100%;
+  min-height: 2.05rem;
+  margin: 0;
+  padding: 0.35rem 0.75rem 0.35rem 1.85rem;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 0.45rem;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0a0a0a;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 550;
+  line-height: 1.2;
+  box-shadow: none;
+}
+
+.bitrix-space-toolbar__find-input::placeholder {
+  color: rgba(10, 10, 10, 0.42);
+}
+
+.bitrix-space-toolbar__find-input:focus {
+  outline: 2px solid rgba(10, 10, 10, 0.35);
+  outline-offset: 1px;
+  border-color: rgba(10, 10, 10, 0.35);
+}
+
+.bitrix-space-toolbar__lede {
+  margin: 0;
+  padding-left: 0.15rem;
+  font-size: 0.72rem;
+  color: var(--space-muted);
+}
+
+.bitrix-space-toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.3rem;
+}
+
+.bitrix-space-toolbar__messenger {
+  display: inline-flex;
+  align-items: center;
+}
+
+.bitrix-space-toolbar__messenger .staff-messages-center__trigger,
+.bitrix-space-toolbar__messenger .staff-messages-center__trigger--compact {
+  min-height: 2.05rem !important;
+  padding: 0.4rem 1rem !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  background: rgba(0, 0, 0, 0.82) !important;
+  color: #f5f5f5 !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+  gap: 0.4rem !important;
+}
+
+.bitrix-space-toolbar__messenger .staff-messages-center__trigger::after {
+  content: "Messenger";
+}
+
+/* Section tabs — slim Bitrix row (low height, full width, even share) */
+.bitrix-space-section-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.1rem;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  margin: 0;
+  padding: 0.1rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--space-ink, #111111) 8%, transparent);
+  background: color-mix(in srgb, var(--space-panel, #f7f7f7) 82%, #ebe4da);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.bitrix-space-section-tabs__link {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 1.85rem;
+  margin: 0;
+  padding: 0.22rem 0.4rem;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: color-mix(in srgb, var(--space-ink, #111111) 68%, transparent);
+  font-size: var(--type-nav, 0.9375rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  text-transform: none;
+  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.bitrix-space-section-tabs__link:hover {
+  color: var(--space-ink, #111111);
+  background: color-mix(in srgb, #fff 70%, transparent);
+}
+
+.bitrix-space-section-tabs__link--active {
+  color: var(--space-ink, #111111);
+  background: #fff;
+  border-color: color-mix(in srgb, var(--space-gold, #333333) 45%, transparent);
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 var(--space-gold, #ffffff);
+}
+
+.bitrix-space-section-tabs__link:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.bitrix-space-section-tabs__link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--space-gold, #333333) 70%, transparent);
+  outline-offset: 1px;
+}
+
+.bitrix-space-toolbar__tabs .nav-tabs-scroll--inline,
+.bitrix-space-toolbar__tabs .nav-tabs-scroll-wrap--desk {
+  display: none !important;
+}
+
+/* Surfaces — denser Bitrix-like content, but keep text clear of the left edge */
+.firm-workspace .card:not(.matter-case-details),
+.firm-workspace .ui-card,
+.firm-workspace .card-elevated,
+.firm-workspace .view-hero,
+.firm-workspace .empty-state,
+.firm-workspace .form-panel,
+.firm-workspace .my-work-panel__block,
+.firm-workspace .my-work-feed,
+.firm-workspace .bucket-section,
+.firm-workspace .my-work-sidecard,
+.firm-workspace .stat-tile,
+.firm-workspace .today-work-stats,
+.firm-workspace .day-detail-panel {
+  border-radius: 0.55rem !important;
+  border-color: rgba(0, 0, 0, 0.07) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+  backdrop-filter: blur(8px);
+}
+
+.firm-workspace .card:not(.matter-case-details),
+.firm-workspace .ui-card,
+.firm-workspace .card-elevated,
+.firm-workspace .form-panel,
+.firm-workspace .empty-state,
+.firm-workspace .bucket-section,
+.firm-workspace .my-work-panel__block,
+.firm-workspace .my-work-feed,
+.firm-workspace .my-work-sidecard,
+.firm-workspace .day-detail-panel,
+.firm-workspace .desk-checklist > .card,
+.firm-workspace .page-stagger > .card,
+.firm-workspace .space-staff-ledger__invite,
+.firm-workspace .space-tasks-ledger__filters,
+.firm-workspace .space-staff-ledger__filters {
+  padding: 0.85rem 1.25rem 0.95rem 1.25rem !important;
+}
+
+.firm-workspace .view-hero,
+.firm-workspace .my-work-hero.view-hero {
+  padding: 0.85rem 1.25rem !important;
+  margin-bottom: 0.65rem !important;
+  gap: 0.35rem !important;
+}
+
+/* Accent-bar panels need extra left room so titles clear the inset rule */
+.firm-workspace .my-work-panel__block,
+.firm-workspace .my-work-panel__queue {
+  padding-left: 1.35rem !important;
+}
+
+.firm-workspace .view-hero__title,
+.firm-workspace .my-work-hero .view-hero__title,
+.firm-workspace .section-title,
+.firm-workspace .empty-state__title,
+.firm-workspace .page-loading__title {
+  font-size: 1.05rem !important;
+  line-height: 1.25 !important;
+  margin: 0 !important;
+}
+
+.firm-workspace .view-hero__subtitle,
+.firm-workspace .empty-state__message,
+.firm-workspace .section-label {
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
+  margin-top: 0.2rem !important;
+}
+
+.firm-workspace .view-hero .btn-primary,
+.firm-workspace .view-hero .btn-secondary {
+  min-height: 2.05rem !important;
+  padding: 0.4rem 1rem !important;
+  font-size: 0.78rem !important;
+}
+
+.firm-workspace .empty-state {
+  min-height: 0 !important;
+  padding: 1rem 1.25rem !important;
+  gap: 0.35rem !important;
+}
+
+.firm-workspace .empty-state__mark {
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.firm-workspace .empty-state__action {
+  margin-top: 0.55rem !important;
+}
+
+.firm-workspace .item-list-section__items,
+.firm-workspace .bucket-section__items {
+  margin-top: 0.4rem !important;
+  gap: 0.35rem !important;
+}
+
+.firm-workspace .item-list-section__items > * + *,
+.firm-workspace .bucket-section__items > * + * {
+  margin-top: 0.35rem !important;
+}
+
+.firm-workspace .stat-tile,
+.firm-workspace .today-work-stats .stat-tile {
+  padding: 0.6rem 0.9rem !important;
+  min-height: 0 !important;
+}
+
+.firm-workspace .stat-tile__value {
+  font-size: var(--desk-type-stat, var(--type-amount-lg, 1.0625rem)) !important;
+  line-height: 1.2 !important;
+}
+
+.firm-workspace .stat-tile__label {
+  font-size: var(--desk-type-stat-label, 0.6875rem) !important;
+  color: var(--space-muted, #454545) !important;
+}
+
+.firm-workspace .firm-workspace-body {
+  gap: 0.65rem;
+  /* Cream content desk — native controls should not inherit html color-scheme: dark. */
+  color-scheme: light;
+}
+
+.firm-workspace .firm-workspace-body > * + * {
+  margin-top: 0.65rem;
+}
+
+.firm-workspace .my-work-list,
+.firm-workspace .my-work-feed__list {
+  gap: 0.35rem !important;
+}
+
+.firm-workspace .my-work-list__row,
+.firm-workspace .item-card {
+  border-color: rgba(0, 0, 0, 0.07) !important;
+  background: rgba(255, 255, 255, 0.74) !important;
+  border-radius: 0.5rem !important;
+  padding: 0.6rem 0.95rem 0.6rem 1.05rem !important;
+  gap: 0.35rem !important;
+}
+
+.firm-workspace .my-work-list__row + .my-work-list__row,
+.firm-workspace .item-card + .item-card {
+  margin-top: 0.35rem !important;
+}
+
+.firm-workspace .btn-primary,
+.firm-workspace .btn-secondary,
+.firm-workspace .btn-gold,
+.firm-workspace .tool-action-btn,
+.firm-workspace .tool-action-btn--primary {
+  min-height: 2.05rem !important;
+  padding: 0.4rem 1rem !important;
+  font-size: 0.78rem !important;
+  box-sizing: border-box !important;
+}
+
+.firm-workspace .btn-primary,
+.firm-workspace .tool-action-btn--primary {
+  border-radius: 999px !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: linear-gradient(135deg, #111111 0%, #ffffff 48%, #333333 100%) !important;
+  color: #111111 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 14px rgba(255, 255, 255, 0.22) !important;
+}
+
+/* Secondary = light desk control (near-black on white). Do not use on-dark ink. */
+.firm-workspace .btn-secondary {
+  border-radius: 999px !important;
+  border-color: rgba(10, 10, 10, 0.22) !important;
+  background: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
+.firm-workspace .btn-gold {
+  border-radius: 999px !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  background: rgba(0, 0, 0, 0.82) !important;
+  color: #f5f5f5 !important;
+}
+
+.firm-workspace .btn-secondary:hover {
+  filter: none;
+  background: #f4f4f4 !important;
+  color: #0a0a0a !important;
+  border-color: rgba(10, 10, 10, 0.3) !important;
+}
+
+.firm-workspace .btn-gold:hover {
+  filter: brightness(1.08);
+}
+
+.firm-workspace .field,
+.firm-workspace .field-input,
+.firm-workspace select.field,
+.firm-workspace textarea.field {
+  min-height: 2rem !important;
+  padding: 0.4rem 0.6rem !important;
+  font-size: 0.84rem !important;
+  border-radius: 0.45rem !important;
+}
+
+.firm-workspace .calendar-shell,
+.firm-workspace .weekly-board,
+.firm-workspace .calendar-day-cell,
+.firm-workspace .weekly-day-column {
+  border-radius: 0.5rem !important;
+}
+
+/* Stretch calendar / week / schedule to the content panel edges */
+.firm-workspace .firm-workspace-body,
+.firm-workspace .day-schedule-view,
+.firm-workspace .schedule-agenda-view,
+.firm-workspace #print-weekly,
+.firm-workspace #print-monthly,
+.firm-workspace .calendar-shell,
+.firm-workspace .weekly-board,
+.firm-workspace .weekly-day-strip,
+.firm-workspace .day-schedule-view__grid {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+.firm-workspace .calendar-shell,
+.firm-workspace .weekly-board,
+.firm-workspace .weekly-day-strip {
+  --week-day-col-width: minmax(0, 1fr);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.firm-workspace .calendar-shell__weekday-row,
+.firm-workspace .calendar-shell__week-row,
+.firm-workspace .weekly-board__grid,
+.firm-workspace .weekly-day-strip__grid {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  gap: 0.25rem !important;
+}
+
+.firm-workspace .calendar-day-cell,
+.firm-workspace .weekly-day-column {
+  padding: 0.55rem 0.65rem 0.55rem 0.75rem !important;
+  min-height: 3.75rem !important;
+  min-width: 0 !important;
+  width: auto !important;
+}
+
+/* Month cells keep absolute date heads — pad the head, not the cell shell */
+.firm-workspace .calendar-day-cell {
+  padding: 0 !important;
+}
+
+.firm-workspace .calendar-day-head {
+  left: 0.7rem !important;
+  top: 0.55rem !important;
+}
+
+.firm-workspace .calendar-day-body {
+  padding-left: 0.7rem !important;
+  padding-right: 0.55rem !important;
+}
+
+.firm-workspace .calendar-weekday {
+  padding: 0.5rem 0.45rem !important;
+  font-size: var(--desk-type-mark, 0.6875rem) !important;
+  color: var(--space-muted, #454545) !important;
+}
+
+.firm-workspace .weekly-day-column__head {
+  padding: 0 0.1rem 0.45rem 0.15rem !important;
+}
+
+/* Bitrix Calendar — Day / Week / Month / Schedule density */
+.firm-workspace .day-schedule-view {
+  gap: 0.55rem !important;
+}
+
+.firm-workspace .day-schedule-view .view-hero,
+.firm-workspace .day-schedule-view .hint-bar,
+.firm-workspace #print-weekly .view-hero,
+.firm-workspace #print-weekly .hint-bar,
+.firm-workspace #print-monthly .view-hero,
+.firm-workspace #print-monthly .hint-bar {
+  display: none !important;
+}
+
+.firm-workspace .day-schedule-view__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem !important;
+  margin-bottom: 0.45rem !important;
+  padding: 0.45rem 0.85rem 0.55rem 1rem !important;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.firm-workspace .day-schedule-view__date {
+  margin-left: 0.15rem;
+  padding-left: 0.65rem !important;
+  padding-right: 0.65rem !important;
+  /* Space root uses color-scheme: dark — native date chrome goes black; force light for cream desk. */
+  color-scheme: light;
+  background: #fff !important;
+  color: var(--space-ink) !important;
+  border: 1px solid rgba(0, 0, 0, 0.14) !important;
+  border-radius: 0.45rem !important;
+  min-height: 2rem;
+}
+
+.firm-workspace .day-schedule-view__date::-webkit-calendar-picker-indicator {
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+/* Native date/time fields on the cream desk — keep readable under Space dark color-scheme */
+.firm-workspace input[type="date"],
+.firm-workspace input[type="time"],
+.firm-workspace input[type="datetime-local"],
+.firm-workspace input[type="month"],
+.firm-workspace input[type="week"] {
+  color-scheme: light;
+  background: #fff !important;
+  color: var(--space-ink) !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+
+.firm-workspace .day-schedule-view__grid {
+  border-radius: 0.55rem !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+}
+
+.firm-workspace .day-schedule-view__row {
+  min-height: 2.35rem !important;
+  grid-template-columns: 4.5rem minmax(0, 1fr) !important;
+}
+
+.firm-workspace .day-schedule-view__hour {
+  padding: 0.3rem 0.55rem 0.3rem 0.85rem !important;
+  font-size: var(--desk-type-mark, 0.6875rem) !important;
+  color: var(--space-muted, #454545) !important;
+}
+
+.firm-workspace .day-schedule-view__slot {
+  padding: 0.25rem 0.65rem 0.25rem 0.55rem !important;
+  gap: 0.25rem !important;
+}
+
+.firm-workspace .day-schedule-view__card {
+  padding: 0.35rem 0.55rem !important;
+  border-radius: 0.35rem !important;
+}
+
+.firm-workspace .day-schedule-view__untimed {
+  padding: 0.65rem 1rem !important;
+}
+
+.firm-workspace .day-schedule-view__card-title {
+  font-size: var(--desk-type-card, 0.8125rem) !important;
+}
+
+.firm-workspace .day-schedule-view__card-meta {
+  font-size: var(--desk-type-mark, 0.6875rem) !important;
+  color: var(--space-muted, #454545) !important;
+}
+
+.firm-workspace .weekly-board__grid {
+  gap: 0.35rem !important;
+}
+
+.firm-workspace .calendar-shell__weekday-row,
+.firm-workspace .calendar-shell__week-row {
+  gap: 0.25rem !important;
+}
+
+.firm-workspace .calendar-day-num {
+  font-size: 0.78rem !important;
+}
+
+.firm-workspace .calendar-day-item {
+  font-size: 0.66rem !important;
+  padding: 0.1rem 0.25rem !important;
+}
+
+/* Schedule agenda (Bitrix Schedule tab) */
+.schedule-agenda-view {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.schedule-agenda-view__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0.35rem 0.25rem 0.85rem;
+}
+
+.schedule-agenda-view__eyebrow {
+  margin: 0;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--space-gold-deep, #333333);
+}
+
+.schedule-agenda-view__title {
+  margin: 0.1rem 0 0;
+  font-size: 1.1rem;
+  font-weight: 750;
+  color: var(--space-ink, #111111);
+  line-height: 1.2;
+}
+
+.schedule-agenda-view__lede {
+  margin: 0.15rem 0 0;
+  font-size: var(--desk-type-mark, 0.6875rem);
+  color: var(--space-muted, #454545);
+}
+
+.schedule-agenda-view__list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.schedule-agenda-view__day {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.55rem;
+  background: rgba(255, 255, 255, 0.78);
+  overflow: hidden;
+}
+
+.schedule-agenda-view__day-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0;
+  padding: 0.55rem 1.1rem;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  text-align: left;
+}
+
+.schedule-agenda-view__day-head--active,
+.schedule-agenda-view__day-head--today {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.schedule-agenda-view__day-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--space-ink, #111111);
+}
+
+.schedule-agenda-view__day-count {
+  font-size: var(--desk-type-mark, 0.6875rem);
+  font-weight: 700;
+  color: var(--space-muted, #454545);
+}
+
+.schedule-agenda-view__items {
+  list-style: none;
+  margin: 0;
+  padding: 0.35rem 0.65rem 0.5rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.schedule-agenda-view__item {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  gap: 0.45rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 0.4rem;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.schedule-agenda-view__item:hover {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.schedule-agenda-view__item--done {
+  opacity: 0.62;
+}
+
+.schedule-agenda-view__time {
+  font-size: var(--desk-type-mark, 0.6875rem);
+  font-weight: 700;
+  color: var(--space-muted, #454545);
+  padding-top: 0.1rem;
+}
+
+.schedule-agenda-view__body {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.schedule-agenda-view__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--desk-type-card, 0.8125rem);
+  font-weight: 700;
+  color: var(--space-ink, #111111);
+}
+
+.schedule-agenda-view__meta {
+  font-size: var(--desk-type-mark, 0.6875rem);
+  color: var(--space-muted, #454545);
+}
+
+.firm-workspace .hint-bar,
+.firm-workspace .my-work-panel__card-head {
+  padding: 0.55rem 1.25rem !important;
+  margin-bottom: 0.45rem !important;
+}
+
+.office-hub-page {
+  background: transparent !important;
+  color: var(--space-ink-on-dark);
+}
+
+.office-hub-page .card,
+.office-hub__launcher-card,
+.office-hub__welcome,
+.office-hub__glance {
+  border-radius: var(--space-radius) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  background: var(--space-glass) !important;
+  backdrop-filter: blur(22px);
+  color: var(--space-ink);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35) !important;
+}
+
+.firm-workspace .workspace-breadcrumb,
+.firm-workspace .firm-shell-chrome {
+  color: var(--space-ink);
+}
+
+.firm-space-shell .workspace-breadcrumb a {
+  color: var(--space-gold-deep);
+}
+
+.firm-space-shell .firm-shell-chrome,
+.office-hub-space-shell .firm-shell-chrome {
+  margin-bottom: 0.55rem;
+  position: relative !important;
+  top: auto !important;
+  /* Above sticky section tabs so Create dropdown options are not covered. */
+  z-index: 35;
+  overflow: visible;
+}
+
+.firm-space-shell .firm-shell-chrome__top {
+  gap: 0.35rem;
+}
+
+/*
+ * Section tabs sit above the content card they control.
+ * Only this slim strip sticks — the toolbar card above scrolls away.
+ */
+.firm-space-shell .firm-shell-subnav,
+.office-hub-space-shell .firm-shell-subnav {
+  position: sticky;
+  top: 0;
+  /* Below Create menu / chrome so third+ dropdown options stay visible. */
+  z-index: 20;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 0 0.4rem;
+  padding: 0.15rem 0 0.25rem;
+  background: color-mix(in srgb, var(--space-glass-solid, #ffffff) 97%, #fff);
+  backdrop-filter: blur(10px) saturate(1.05);
+  -webkit-backdrop-filter: blur(10px) saturate(1.05);
+  border-bottom: none;
+  box-shadow: 0 6px 12px -10px rgba(0, 0, 0, 0.22);
+}
+
+.firm-space-shell .firm-shell-subnav .bitrix-space-section-tabs,
+.office-hub-space-shell .firm-shell-subnav .bitrix-space-section-tabs {
+  margin: 0;
+  width: 100%;
+}
+
+.firm-space-shell .workspace-guide-replay {
+  display: inline-block;
+  margin-left: 0.85rem;
+  margin-bottom: 0.55rem;
+}
+
+.firm-space-shell .firm-workspace-body {
+  /* Body is in the main scroll flow — do not create a nested scrollport */
+  overflow: visible;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@media (max-width: 1100px) {
+  .firm-space-shell .trial-firm-layout {
+    padding: 0 0.45rem 0.55rem 0.35rem;
+    gap: 0.4rem;
+  }
+
+  .firm-space-shell .trial-firm-layout__main {
+    --space-main-pad-x: 1rem;
+    --space-main-pad-left: 1.15rem;
+    --space-main-pad-top: 0.65rem;
+    --space-main-pad-bottom: 0.95rem;
+    padding: var(--space-main-pad-top) var(--space-main-pad-x) var(--space-main-pad-bottom)
+      var(--space-main-pad-left);
+  }
+
+  .bitrix-space-topnav {
+    margin: 0.35rem 0.45rem 0.35rem;
+    padding: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  /* Phone: bottom nav owns desks — hide left rail stack entirely */
+  .firm-space-shell .trial-firm-layout {
+    grid-template-columns: 1fr;
+    padding: 0.25rem 0.3rem 0.35rem;
+    gap: 0.25rem;
+    min-height: calc(100dvh - 3.25rem - env(safe-area-inset-top, 0px));
+  }
+
+  .firm-space-shell .trial-firm-layout__nav {
+    display: none !important;
+  }
+
+  .firm-space-shell .trial-firm-layout__main {
+    --space-main-pad-x: 0.75rem;
+    --space-main-pad-left: 0.9rem;
+    --space-main-pad-top: 0.55rem;
+    --space-main-pad-bottom: 0.85rem;
+    padding: var(--space-main-pad-top) var(--space-main-pad-x) var(--space-main-pad-bottom)
+      var(--space-main-pad-left);
+    border-radius: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - 3.25rem - env(safe-area-inset-top, 0px));
+    max-height: calc(100vh - 3.25rem - env(safe-area-inset-top, 0px));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: color-mix(in srgb, var(--space-glass, #ffffff) 94%, #fff);
+  }
+
+  .bitrix-space-rail {
+    display: none !important;
+  }
+
+  /* Match rail hide: tablet/phone use bottom desks, not dual chrome */
+  .mobile-space-desk-nav.mobile-clio-desk-nav {
+    display: grid !important;
+  }
+
+  /* Clear bottom desk nav in the main scrollport */
+  .firm-space-shell .trial-firm-layout__main {
+    --space-main-pad-bottom: calc(var(--mobile-bottom-nav-offset, 4.75rem) + 0.45rem);
+    padding-bottom: var(--space-main-pad-bottom);
+  }
+
+  .firm-space-shell .firm-workspace-body {
+    padding-bottom: 0.35rem;
+  }
+
+  /* iOS focus zoom guard — beats Space density 0.84rem fields */
+  .firm-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
+  .firm-workspace select,
+  .firm-workspace textarea,
+  .firm-workspace .field,
+  .firm-workspace .field-input,
+  .firm-workspace .filing-workspace__field,
+  .firm-workspace [type="search"] {
+    font-size: 16px !important;
+    min-height: var(--touch-min, 44px) !important;
+  }
+
+  .firm-workspace .bitrix-space-topnav__search input,
+  .firm-workspace .bitrix-space-topnav__search .field {
+    font-size: 16px !important;
+    min-height: var(--touch-min, 44px) !important;
+  }
+
+  .firm-workspace .filing-workspace__selection-bar {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--mobile-bottom-nav-offset, 4.75rem) !important;
+    transform: none !important;
+    z-index: 55 !important;
+    border-radius: 0.85rem 0.85rem 0 0 !important;
+    max-width: none !important;
+  }
+
+  .firm-workspace .filing-workspace__actions .btn-primary,
+  .firm-workspace .filing-workspace__actions .btn-secondary,
+  .firm-workspace .filing-workspace__tab,
+  .firm-workspace .filing-workspace__microstat {
+    min-height: var(--touch-min, 44px) !important;
+  }
+
+  .bitrix-space-topnav {
+    display: flex;
+    grid-template-columns: none;
+    margin: 0;
+    width: 100%;
+    max-width: none;
+    align-items: stretch;
+    gap: 0.45rem;
+    padding: 0 max(0.45rem, env(safe-area-inset-right, 0px)) 0 0;
+    min-height: 4.75rem;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .bitrix-space-topnav__brand {
+    display: none;
+  }
+
+  .bitrix-space-topnav__brand-link {
+    max-width: none;
+    padding: 0.2rem 0.5rem 0.2rem max(0.4rem, env(safe-area-inset-left, 0px));
+  }
+
+  .bitrix-space-topnav__logo-plate {
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  .bitrix-space-topnav__logo {
+    height: auto;
+    max-height: 4.25rem;
+    max-width: 18rem;
+  }
+
+  .bitrix-space-topnav__wordmark {
+    display: none !important;
+  }
+
+  .bitrix-space-topnav__utility {
+    display: none;
+  }
+
+  .bitrix-space-topnav__tools {
+    display: contents;
+  }
+
+  .bitrix-space-topnav__modules,
+  .bitrix-space-topnav__modules--empty,
+  .bitrix-space-topnav__void {
+    display: none !important;
+  }
+
+  .bitrix-space-topnav__search {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+    margin-left: 0;
+    width: auto;
+    align-self: center;
+    padding-right: 0;
+  }
+
+  .bitrix-space-topnav__actions {
+    align-self: center;
+    padding-right: 0;
+  }
+
+  .bitrix-space-topnav__search .search-bar-wrap,
+  .bitrix-space-topnav__search .search-hero-input,
+  .bitrix-space-topnav__search .tasks-search-bar__input,
+  .bitrix-space-topnav__search .field,
+  .bitrix-space-topnav__search .field-input,
+  .bitrix-space-topnav__search input[type="search"] {
+    height: var(--touch-min, 44px) !important;
+    min-height: var(--touch-min, 44px) !important;
+    max-height: none !important;
+    font-size: 16px !important;
+  }
+
+  .bitrix-space-topnav__actions .keyboard-shortcuts-trigger--header,
+  .bitrix-space-topnav__actions .notifications-center__bell--compact,
+  .bitrix-space-topnav__actions .theme-switcher__trigger--header {
+    width: var(--touch-min, 44px) !important;
+    height: var(--touch-min, 44px) !important;
+    min-width: var(--touch-min, 44px) !important;
+    min-height: var(--touch-min, 44px) !important;
+    touch-action: manipulation;
+  }
+
+  .brand-footer {
+    margin-inline: 0.35rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .bitrix-space-toolbar {
+    margin-bottom: 0.2rem;
+    padding: 0.05rem 0.15rem 0.3rem 0.45rem;
+    gap: 0.1rem;
+  }
+
+  .bitrix-space-toolbar__row {
+    gap: 0.3rem 0.45rem;
+  }
+
+  .bitrix-space-toolbar__title {
+    font-size: 1.1rem;
+  }
+
+  .bitrix-space-toolbar__heading,
+  .bitrix-space-toolbar__actions {
+    width: 100%;
+  }
+
+  .bitrix-space-toolbar__actions {
+    justify-content: flex-start;
+  }
+
+  .bitrix-space-toolbar__lede,
+  .bitrix-space-toolbar__eyebrow {
+    display: none;
+  }
+
+  .bitrix-space-btn--desktop {
+    display: none !important;
+  }
+
+  .firm-space-shell .firm-shell-subnav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    margin: 0 0 0.35rem;
+    padding: 0.12rem 0 0.2rem;
+    background: color-mix(in srgb, var(--space-glass-solid, #ffffff) 98%, #fff);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .bitrix-space-section-tabs {
+    width: 100%;
+    gap: 0.08rem;
+    padding: 0.08rem;
+    margin-bottom: 0;
+  }
+
+  /* Month / week: fill phone width; scroll only if columns get too tight */
+  .firm-workspace .calendar-shell__weekday-row,
+  .firm-workspace .calendar-shell__week-row,
+  .firm-workspace .weekly-board__grid,
+  .firm-workspace .weekly-day-strip__grid {
+    width: max(100%, 28rem) !important;
+    min-width: max(100%, 28rem) !important;
+    max-width: none !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  }
+
+  .firm-workspace .calendar-day-cell {
+    min-height: 3.25rem !important;
+    padding: 0 !important;
+  }
+
+  .firm-workspace .calendar-day-head {
+    left: 0.55rem !important;
+    top: 0.4rem !important;
+  }
+
+  .firm-workspace .calendar-day-body {
+    padding-left: 0.55rem !important;
+    padding-right: 0.4rem !important;
+  }
+
+  .firm-workspace .calendar-day-num {
+    font-size: 0.72rem !important;
+  }
+
+  .firm-workspace .calendar-day-item {
+    font-size: 0.58rem !important;
+    padding: 0.05rem 0.15rem !important;
+  }
+
+  .firm-workspace .weekly-day-column {
+    padding: 0.5rem 0.55rem 0.5rem 0.7rem !important;
+  }
+
+  .firm-workspace .day-schedule-view__toolbar {
+    padding: 0.4rem 0.7rem 0.45rem 0.85rem !important;
+  }
+
+  .firm-workspace .day-schedule-view__row {
+    grid-template-columns: 3.75rem minmax(0, 1fr) !important;
+  }
+
+  .firm-workspace .day-schedule-view__hour {
+    font-size: 0.62rem !important;
+    padding: 0.25rem 0.4rem 0.25rem 0.65rem !important;
+  }
+
+  .firm-workspace .day-schedule-view__card {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .schedule-agenda-view__item {
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+  }
+}
+
+
+@media (max-width: 640px) {
+  .firm-space-shell .trial-firm-layout {
+    /* No extra safe-area here — --mobile-bottom-nav-offset on main owns it */
+    padding: 0.2rem 0.2rem 0.35rem;
+    gap: 0.3rem;
+  }
+
+  .firm-space-shell .trial-firm-layout__main {
+    --space-main-pad-x: 0.75rem;
+    --space-main-pad-left: 0.95rem;
+    --space-main-pad-top: 0.55rem;
+    --space-main-pad-bottom: 0.35rem;
+    padding: var(--space-main-pad-top) var(--space-main-pad-x) var(--space-main-pad-bottom)
+      var(--space-main-pad-left);
+    border-radius: 0.7rem;
+  }
+
+  .bitrix-space-topnav {
+    display: flex;
+    margin: 0;
+    padding: 0 max(0.35rem, env(safe-area-inset-right, 0px)) 0 0;
+    border-radius: 0;
+    gap: 0.35rem;
+    min-height: 4.25rem;
+  }
+
+  .bitrix-space-topnav__brand {
+    display: none;
+  }
+
+  .bitrix-space-topnav__logo-plate {
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  .bitrix-space-topnav__logo {
+    max-height: 3.7rem;
+    max-width: 16rem;
+  }
+
+  .bitrix-space-topnav__wordmark,
+  .bitrix-space-topnav__utility {
+    display: none !important;
+  }
+
+  .bitrix-space-topnav__modules {
+    display: none;
+  }
+
+  .bitrix-space-toolbar__title {
+    font-size: 1.05rem;
+  }
+
+  .bitrix-space-toolbar {
+    margin-bottom: 0.25rem;
+    padding: 0.1rem 0.2rem 0.35rem 0.65rem;
+    gap: 0.15rem;
+  }
+
+  .bitrix-space-toolbar__row {
+    gap: 0.25rem;
+  }
+
+  .bitrix-space-toolbar__actions {
+    gap: 0.25rem;
+  }
+
+  .bitrix-space-toolbar__lede,
+  .bitrix-space-toolbar__eyebrow {
+    display: none;
+  }
+
+  .bitrix-space-btn--desktop {
+    display: none !important;
+  }
+
+  .bitrix-space-btn,
+  .bitrix-space-toolbar__messenger .staff-messages-center__trigger,
+  .bitrix-space-toolbar__messenger .staff-messages-center__trigger--compact {
+    min-height: var(--touch-min, 44px) !important;
+    padding: 0.45rem 1.05rem !important;
+    touch-action: manipulation;
+  }
+
+  .firm-space-shell .firm-shell-subnav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    margin: 0 0 0.3rem;
+    padding: 0.1rem 0 0.18rem;
+    background: color-mix(in srgb, var(--space-glass-solid, #ffffff) 98%, #fff);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .bitrix-space-section-tabs {
+    gap: 0.06rem;
+    padding: 0.08rem;
+    scroll-snap-type: x proximity;
+  }
+
+  .bitrix-space-section-tabs__link {
+    scroll-snap-align: start;
+    font-size: 0.74rem;
+    padding: 0.35rem 0.35rem;
+    min-height: 2.15rem;
+  }
+
+  /* Phone: calendar uses full screen width; keep 7 cols readable via light scroll */
+  .firm-workspace .calendar-shell__weekday-row,
+  .firm-workspace .calendar-shell__week-row,
+  .firm-workspace .weekly-board__grid,
+  .firm-workspace .weekly-day-strip__grid {
+    width: max(100%, 22.5rem) !important;
+    min-width: max(100%, 22.5rem) !important;
+  }
+
+  .firm-workspace .weekly-board {
+    padding: 0.45rem !important;
+  }
+
+  .firm-workspace .calendar-weekday {
+    font-size: 0.55rem !important;
+    letter-spacing: 0.04em !important;
+    padding: 0.35rem 0.05rem !important;
+  }
+
+  .firm-workspace .calendar-day-ph-label {
+    font-size: 0.5rem !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+  }
+
+  .firm-workspace .today-work-stats,
+  .firm-workspace .stat-tile {
+    width: 100%;
+  }
+
+  .firm-workspace .day-detail-panel,
+  .firm-workspace .schedule-agenda-view,
+  .firm-workspace .day-schedule-view {
+    width: 100%;
+  }
+
+  .schedule-agenda-view__day-head,
+  .schedule-agenda-view__item {
+    min-height: 2.25rem;
+  }
+}
+
+@media (min-width: 901px) {
+  /* Desktop/tablet landscape: always fill the main glass panel side-to-side */
+  .firm-workspace .calendar-shell__weekday-row,
+  .firm-workspace .calendar-shell__week-row,
+  .firm-workspace .weekly-board__grid,
+  .firm-workspace .weekly-day-strip__grid {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .mobile-space-desk-nav.mobile-clio-desk-nav,
+  .mobile-space-desk-nav__sheet,
+  .mobile-space-desk-nav__sheet-backdrop {
+    display: none !important;
+  }
+}
+
+/* Space Drive — folders + create + recent trail */
+.office-drive-panel {
+  max-width: 52rem;
+}
+
+.office-drive-panel__status {
+  margin: 0 0 0.85rem;
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--ink, #111111) 70%, transparent);
+}
+
+.office-drive-panel__status--warn {
+  color: #8a4b12;
+}
+
+.office-drive-panel__section {
+  margin-top: 1.15rem;
+}
+
+.office-drive-panel__section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+}
+
+.office-drive-panel__section-title {
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink, #111111) 55%, transparent);
+}
+
+.office-drive-panel__section-head .office-drive-panel__section-title {
+  margin-bottom: 0;
+}
+
+.office-drive-panel__section-link {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent, #1f4b7a);
+  text-decoration: none;
+}
+
+.office-drive-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14.5rem, 1fr));
+  gap: 0.85rem;
+}
+
+.office-drive-panel__grid--create {
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.office-drive-panel__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 9.5rem;
+  padding: 1.05rem 1.15rem 1.15rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel, #fff) 92%, #c8d6e8);
+  border: 1px solid color-mix(in srgb, var(--ink, #111111) 10%, transparent);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.office-drive-panel__tile:hover {
+  border-color: color-mix(in srgb, var(--accent, #1f4b7a) 45%, transparent);
+  transform: translateY(-1px);
+}
+
+.office-drive-panel__tile--primary {
+  background: color-mix(in srgb, var(--panel, #fff) 88%, #d4e4f5);
+}
+
+.office-drive-panel__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink, #111111) 55%, transparent);
+}
+
+.office-drive-panel__title {
+  margin: 0 0 0.4rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink, #111111);
+}
+
+.office-drive-panel__copy {
+  margin: 0 0 1rem;
+  flex: 1;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--ink, #111111) 72%, transparent);
+}
+
+.office-drive-panel__cta {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent, #1f4b7a);
+}
+
+.office-drive-panel__recent {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--ink, #111111) 10%, transparent);
+  border-radius: 12px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--panel, #fff) 94%, #fff);
+}
+
+.office-drive-panel__recent-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-top: 1px solid color-mix(in srgb, var(--ink, #111111) 8%, transparent);
+}
+
+.office-drive-panel__recent-row:first-child {
+  border-top: 0;
+}
+
+.office-drive-panel__recent-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink, #111111);
+}
+
+.office-drive-panel__recent-meta {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--ink, #111111) 62%, transparent);
+}
+
+.office-drive-panel__recent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.office-drive-panel__recent-link {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent, #1f4b7a);
+  text-decoration: none;
+}
+
+.office-drive-panel__kind-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.85rem;
+}
+
+.office-drive-panel__kind-chip {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--ink, #111111) 14%, transparent);
+  background: color-mix(in srgb, var(--panel, #fff) 94%, #fff);
+  color: color-mix(in srgb, var(--ink, #111111) 78%, transparent);
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.office-drive-panel__kind-chip.is-active {
+  border-color: color-mix(in srgb, var(--accent, #1f4b7a) 55%, transparent);
+  background: color-mix(in srgb, var(--accent, #1f4b7a) 12%, #fff);
+  color: var(--accent, #1f4b7a);
+}
+
+.office-drive-panel__kind-block {
+  margin-top: 0.85rem;
+}
+
+.office-drive-panel__kind-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0 0 0.45rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--ink, #111111);
+}
+
+.office-drive-panel__kind-count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--ink, #111111) 55%, transparent);
+}
+
+/* Mobile More — grouped bottom sheet */
+.mobile-space-desk-nav__sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  border: 0;
+  background: rgba(12, 10, 8, 0.45);
+}
+
+.mobile-space-desk-nav__sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  max-height: min(78dvh, 34rem);
+  overflow: auto;
+  padding: 0.85rem 1rem calc(1rem + env(safe-area-inset-bottom));
+  border-radius: 1rem 1rem 0 0;
+  background: #ffffff;
+  border: 1px solid color-mix(in srgb, var(--ink, #111111) 12%, transparent);
+  box-shadow: 0 -12px 36px rgba(12, 10, 8, 0.22);
+}
+
+.mobile-space-desk-nav__sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.mobile-space-desk-nav__sheet-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink, #111111);
+}
+
+.mobile-space-desk-nav__sheet-close {
+  border: 0;
+  background: color-mix(in srgb, var(--ink, #111111) 7%, transparent);
+  color: var(--ink, #111111);
+  border-radius: 999px;
+  min-width: var(--touch-min, 44px);
+  min-height: var(--touch-min, 44px);
+  width: var(--touch-min, 44px);
+  height: var(--touch-min, 44px);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.mobile-space-desk-nav__sheet-group + .mobile-space-desk-nav__sheet-group {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid color-mix(in srgb, var(--ink, #111111) 10%, transparent);
+}
+
+.mobile-space-desk-nav__sheet-label {
+  margin: 0 0 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink, #111111) 55%, transparent);
+}
+
+.mobile-space-desk-nav__sheet-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+}
+
+.mobile-space-desk-nav__sheet-item {
+  display: flex;
+  align-items: center;
+  min-height: var(--touch-min, 44px);
+  padding: 0.65rem 0.7rem;
+  border-radius: 0.55rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--ink, #111111);
+  text-decoration: none;
+  background: color-mix(in srgb, var(--ink, #111111) 4%, transparent);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-space-desk-nav__sheet-item:hover,
+.mobile-space-desk-nav__sheet-item:focus-visible {
+  background: color-mix(in srgb, var(--accent, #1f4b7a) 12%, transparent);
+}
+
+.walk-in-cal-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.35rem;
+  padding: 0.08rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #5a3a0e;
+  background: color-mix(in srgb, #d4a017 28%, #fff);
+  border: 1px solid color-mix(in srgb, #ffffff 45%, transparent);
+  vertical-align: middle;
+}
+
+.walk-in-cal-badge:hover,
+.walk-in-cal-badge:focus-visible {
+  background: color-mix(in srgb, #d4a017 42%, #fff);
+}
+
+/* Focus rings — Space */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, #ffffff 80%, #1f4b7a);
+  outline-offset: 2px;
+}
+
+
+.space-staff-ledger__cards {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0.45rem;
+}
+
+.space-staff-ledger__card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--ink, #111111) 10%, transparent);
+  border-radius: 0.75rem;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.space-staff-ledger__card--active {
+  border-color: color-mix(in srgb, #ffffff 55%, transparent);
+  background: color-mix(in srgb, #fff 88%, #f3e6c4);
+}
+
+.space-staff-ledger__card-main {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.space-staff-ledger__card-meta {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: end;
+}
+
+.space-staff-ledger__pill {
+  display: inline-flex;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5a3a0e;
+  background: color-mix(in srgb, #d4a017 22%, #fff);
+  border: 1px solid color-mix(in srgb, #ffffff 40%, transparent);
+}
+
+.space-staff-ledger__pill--muted {
+  color: color-mix(in srgb, var(--ink, #111111) 55%, transparent);
+  background: color-mix(in srgb, var(--ink, #111111) 6%, #fff);
+  border-color: color-mix(in srgb, var(--ink, #111111) 12%, transparent);
+}
+
+@media (max-width: 860px) {
+  .space-staff-ledger__cards {
+    display: grid;
+  }
+
+  .space-staff-ledger__table {
+    display: none;
+  }
+
+  .space-messenger {
+    min-height: min(72dvh, 40rem);
+  }
+
+  .space-messenger__list-wrap {
+    max-height: none;
+  }
+
+  .firm-space-shell .workspace-guide-replay {
+    display: none;
+  }
+}
+
+.office-hub-space-shell .office-hub {
+  max-width: none;
+}
+
+/* Chapter polish — cream/glass rhythm + gold primary story CTAs */
+.firm-workspace .walk-in-panel__visit-now,
+.firm-workspace .walk-in-chapter-success,
+.firm-workspace .appearance-bill-handoff,
+.firm-workspace .filing-workspace__chapter {
+  border-color: rgba(255, 255, 255, 0.32) !important;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 252, 246, 0.98) 0%,
+    rgba(255, 248, 235, 0.94) 55%,
+    rgba(245, 245, 245, 0.9) 100%
+  ) !important;
+  box-shadow: 0 8px 24px rgba(12, 10, 8, 0.08) !important;
+  backdrop-filter: blur(10px);
+}
+
+.firm-workspace .walk-in-panel__action-btn--story-now,
+.firm-workspace .appearance-bill-handoff .btn-primary {
+  border-radius: 999px !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  background: linear-gradient(135deg, #111111 0%, #ffffff 48%, #333333 100%) !important;
+  color: #111111 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 14px rgba(255, 255, 255, 0.24) !important;
+}
+
+.firm-workspace .day-schedule-view__card--selected,
+.firm-workspace .schedule-agenda-view__item--selected {
+  outline: 2px solid rgba(255, 255, 255, 0.55);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+}
+
+.firm-workspace .filing-workspace__guide {
+  color: var(--space-muted);
+}
+
+.firm-workspace .filing-workspace__empty {
+  border-radius: var(--space-radius);
+  background: var(--space-glass);
+  border: 1px solid var(--space-line-soft);
+}
+
+.firm-workspace .filing-workspace__table-wrap--ledger {
+  border-color: var(--space-line) !important;
+  background: var(--space-glass-solid) !important;
+  box-shadow: 0 10px 28px rgba(5, 4, 3, 0.18) !important;
+  backdrop-filter: blur(8px);
+}
+
+.firm-workspace .filing-workspace__ledger-caption {
+  background: rgba(239, 232, 218, 0.92) !important;
+  border-bottom-color: var(--space-line) !important;
+  color: var(--space-muted) !important;
+}
+
+.firm-workspace .filing-workspace__table--ledger thead th {
+  background: #efe8da !important;
+  color: var(--space-muted) !important;
+}
+
+.firm-workspace .filing-workspace__proof-upload-btn {
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  background: linear-gradient(135deg, rgba(224, 188, 104, 0.35), rgba(255, 255, 255, 0.18)) !important;
+  color: var(--space-gold-deep) !important;
+}
+
+.firm-workspace .filing-workspace__field--mono {
+  color: var(--space-ink) !important;
+}
+
+.firm-workspace .filing-workspace__band {
+  border-color: var(--space-line-soft) !important;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 252, 246, 0.98) 0%,
+    rgba(245, 245, 245, 0.88) 100%
+  ) !important;
+  box-shadow: 0 8px 22px rgba(5, 4, 3, 0.1) !important;
+  backdrop-filter: blur(10px);
+}
+
+.firm-workspace .filing-workspace__tabs {
+  border-color: var(--space-line-soft) !important;
+  background: rgba(239, 232, 218, 0.55) !important;
+}
+
+.firm-workspace .filing-workspace__tab--active {
+  background: rgba(255, 252, 246, 0.98) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 12px rgba(5, 4, 3, 0.08) !important;
+}
+
+.firm-workspace .filing-workspace__microstat {
+  background: rgba(255, 252, 246, 0.72) !important;
+}
+
+.firm-workspace .filing-workspace__microstat--on {
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  background: rgba(224, 188, 104, 0.22) !important;
+  color: var(--space-ink) !important;
+}
+
+.firm-workspace .filing-workspace__filters {
+  border-color: var(--space-line-soft) !important;
+  background: var(--space-glass) !important;
+  backdrop-filter: blur(8px);
+}
+
+.firm-workspace .filing-workspace__actions .btn-primary {
+  border-radius: 999px !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  background: linear-gradient(135deg, #111111 0%, #ffffff 48%, #333333 100%) !important;
+  color: #111111 !important;
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.22) !important;
+}
+
+.firm-workspace .filing-workspace__actions .btn-secondary {
+  border-color: var(--space-line-soft) !important;
+  background: rgba(255, 252, 246, 0.7) !important;
+}
+
+.firm-workspace .filing-workspace__selection-bar {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  background: rgba(255, 248, 235, 0.94) !important;
+  box-shadow: 0 10px 28px rgba(5, 4, 3, 0.18) !important;
+}
+
+.firm-workspace .filing-checklist {
+  border-color: var(--space-line) !important;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 252, 246, 0.99) 0%,
+    rgba(245, 245, 245, 0.96) 100%
+  ) !important;
+  box-shadow: 0 16px 40px rgba(5, 4, 3, 0.2) !important;
+}
+
+.firm-workspace .filing-checklist__flags {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(224, 188, 104, 0.12) !important;
+}
+
+.firm-workspace .filing-checklist__item--done {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  background: rgba(224, 188, 104, 0.14) !important;
+}
+
+.firm-workspace .filing-checklist__progress-bar {
+  background: linear-gradient(90deg, #111111, #ffffff) !important;
+}
+
+.firm-workspace .filing-workspace__row--overdue td:first-child {
+  box-shadow: inset 3px 0 0 #b45309;
+}
+
+.firm-workspace .filing-workspace__row--due-today td:first-child {
+  box-shadow: inset 3px 0 0 #ffffff;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Space 9.5 polish — type, chrome, cards, status, empty, toolbar, tables,
+   motion, iPhone parity, focus (CSS only; no flow / button removals)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Type hierarchy ── */
+.firm-space-shell .bitrix-space-toolbar__title {
+  font-size: 1.18rem !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.15 !important;
+}
+
+.firm-space-shell .bitrix-space-toolbar__eyebrow {
+  display: none !important;
+}
+
+.firm-space-shell .bitrix-space-toolbar__lede {
+  font-size: 0.7rem !important;
+  color: var(--space-muted) !important;
+}
+
+.firm-workspace .view-hero__title,
+.firm-workspace .section-title,
+.firm-workspace .empty-state__title,
+.firm-workspace .page-loading__title,
+.firm-workspace .filing-workspace__title,
+.firm-workspace .client-directory__title {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.015em !important;
+  line-height: 1.2 !important;
+  color: var(--space-ink) !important;
+}
+
+.firm-workspace .my-work-list__title,
+.firm-workspace .item-card__title,
+.firm-workspace .desk-checklist-row__title,
+.firm-workspace .bucket-section__title,
+.firm-workspace .my-work-feed__group-title,
+.firm-workspace .client-list-table .client-name,
+.firm-workspace .filing-workspace__matter {
+  font-size: 0.9rem !important;
+  font-weight: 650 !important;
+  line-height: 1.25 !important;
+  color: var(--space-ink) !important;
+}
+
+.firm-workspace .view-hero__subtitle,
+.firm-workspace .empty-state__message,
+.firm-workspace .section-label,
+.firm-workspace .my-work-list__meta,
+.firm-workspace .item-card__meta {
+  font-size: 0.76rem !important;
+  line-height: 1.35 !important;
+  color: var(--space-muted) !important;
+}
+
+/* ── 2. Quiet idle chrome ── */
+.bitrix-space-rail__item {
+  color: rgba(245, 245, 245, 0.72) !important;
+  opacity: 1;
+  transition:
+    background var(--space-motion) var(--space-ease),
+    color var(--space-motion) var(--space-ease),
+    box-shadow var(--space-motion) var(--space-ease);
+}
+
+/* Idle icons must stay light on the dark rail (near-black made them invisible). */
+.bitrix-space-rail__item .bitrix-space-rail__icon {
+  color: rgba(245, 245, 245, 0.7) !important;
+}
+
+.bitrix-space-rail__item:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.bitrix-space-rail__item:hover .bitrix-space-rail__icon {
+  color: #ffffff !important;
+}
+
+.bitrix-space-rail__item--active,
+.bitrix-space-rail__item--active:hover {
+  color: #0a0a0a !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  font-weight: 700 !important;
+  border-radius: 0.4rem !important;
+}
+
+.bitrix-space-rail__item--active .bitrix-space-rail__icon,
+.bitrix-space-rail__item--active:hover .bitrix-space-rail__icon {
+  color: #0a0a0a !important;
+}
+
+.bitrix-space-rail__group-label {
+  color: rgba(245, 245, 245, 0.38) !important;
+}
+
+.bitrix-space-topnav__link {
+  color: rgba(245, 245, 245, 0.48) !important;
+  transition: color var(--space-motion) var(--space-ease), border-color var(--space-motion) var(--space-ease);
+}
+
+.bitrix-space-topnav__link:hover {
+  color: rgba(245, 245, 245, 0.9) !important;
+}
+
+.bitrix-space-topnav__link--active {
+  color: #ffffff !important;
+  border-bottom-color: var(--space-gold-light) !important;
+}
+
+.bitrix-space-section-tabs__link {
+  color: color-mix(in srgb, var(--space-ink) 55%, transparent) !important;
+}
+
+.bitrix-space-section-tabs__link:hover {
+  color: var(--space-ink) !important;
+}
+
+.bitrix-space-section-tabs__link--active {
+  color: var(--space-ink) !important;
+  box-shadow: inset 0 -2px 0 var(--space-gold) !important;
+}
+
+/* Gold reserved for primary / active — quiet secondaries */
+.firm-workspace .btn-secondary,
+.firm-workspace .bitrix-space-btn--ghost {
+  box-shadow: none !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.firm-workspace .btn-primary,
+.firm-workspace .bitrix-space-btn--primary,
+.firm-workspace .tool-action-btn--primary {
+  border-color: color-mix(in srgb, var(--space-gold) 55%, transparent) !important;
+  background: linear-gradient(135deg, #ffffff 0%, var(--space-gold) 55%, var(--space-gold-deep) 100%) !important;
+  color: #111111 !important;
+  font-weight: 700 !important;
+}
+
+/* ── 3. Card rhythm ── */
+.firm-workspace .card:not(.matter-case-details),
+.firm-workspace .ui-card,
+.firm-workspace .card-elevated,
+.firm-workspace .form-panel,
+.firm-workspace .empty-state,
+.firm-workspace .bucket-section,
+.firm-workspace .my-work-panel__block,
+.firm-workspace .my-work-feed,
+.firm-workspace .my-work-sidecard,
+.firm-workspace .stat-tile,
+.firm-workspace .day-detail-panel,
+.firm-workspace .view-hero,
+.firm-workspace .filing-workspace__table-wrap,
+.firm-workspace .filing-workspace__band,
+.firm-workspace .client-directory,
+.firm-workspace .space-tasks-ledger__filters,
+.firm-workspace .space-staff-ledger__filters {
+  border-radius: var(--space-card-radius) !important;
+  border-color: var(--space-card-border) !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035) !important;
+}
+
+.firm-workspace .my-work-list__row,
+.firm-workspace .item-card,
+.firm-workspace .desk-checklist-row,
+.firm-workspace .bucket-section__row,
+.firm-workspace .my-work-enum__item {
+  border-radius: calc(var(--space-card-radius) - 0.05rem) !important;
+  border-color: var(--space-card-border) !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace .my-work-list,
+.firm-workspace .my-work-feed__list,
+.firm-workspace .item-list-section__items,
+.firm-workspace .bucket-section__items,
+.firm-workspace .my-work-enum {
+  gap: var(--space-card-gap) !important;
+}
+
+.firm-workspace .my-work-list__row + .my-work-list__row,
+.firm-workspace .item-card + .item-card,
+.firm-workspace .firm-workspace-body > * + * {
+  margin-top: var(--space-card-gap) !important;
+}
+
+.firm-workspace .firm-workspace-body > .firm-shell-subnav + * {
+  margin-top: 0.45rem !important;
+}
+
+/* ── 4. Status color system ── */
+.firm-workspace .desk-checklist-meta__value--overdue,
+.firm-workspace .my-work-list__due--overdue,
+.firm-workspace .item-tone--overdue,
+.firm-workspace .tone-dot--overdue,
+.firm-workspace .calendar-day-chip--overdue,
+.firm-workspace .event-chip--overdue {
+  color: var(--space-status-overdue) !important;
+}
+
+.firm-workspace .item-tone--overdue,
+.firm-workspace .my-work-list__row--overdue,
+.firm-workspace .desk-checklist-row--overdue {
+  border-color: color-mix(in srgb, var(--space-status-overdue) 35%, var(--space-card-border)) !important;
+  background: var(--space-status-overdue-bg) !important;
+}
+
+.firm-workspace .filing-workspace__row--overdue td:first-child {
+  box-shadow: inset 3px 0 0 var(--space-status-overdue) !important;
+}
+
+.firm-workspace .filing-followup-alert__badge--overdue {
+  background: var(--space-status-overdue-bg) !important;
+  border-color: color-mix(in srgb, var(--space-status-overdue) 45%, transparent) !important;
+  color: var(--space-status-overdue) !important;
+}
+
+.firm-workspace .my-work-list__due--today,
+.firm-workspace .item-tone--due-today,
+.firm-workspace .tone-dot--due-today,
+.firm-workspace .calendar-day-chip--today,
+.firm-workspace .event-chip--today {
+  color: var(--space-status-today) !important;
+}
+
+.firm-workspace .filing-workspace__row--due-today td:first-child {
+  box-shadow: inset 3px 0 0 var(--space-status-today) !important;
+}
+
+.firm-workspace .filing-followup-alert__badge--due-today,
+.firm-workspace .filing-followup-alert__badge--due-soon {
+  background: var(--space-status-today-bg) !important;
+  border-color: color-mix(in srgb, var(--space-status-today) 45%, transparent) !important;
+  color: var(--space-gold-deep) !important;
+}
+
+.firm-workspace .item-tone--waiting,
+.firm-workspace .tone-dot--waiting,
+.firm-workspace .my-work-feed__tone--waiting,
+.firm-workspace .my-work-list__waiting-chip {
+  color: var(--space-status-waiting) !important;
+}
+
+.firm-workspace .my-work-feed__group--waiting .my-work-enum__item--clickable,
+.firm-workspace .filing-workspace__status-pill--on.filing-workspace__status-pill--queued {
+  border-color: color-mix(in srgb, var(--space-status-waiting) 40%, transparent) !important;
+  background: var(--space-status-waiting-bg) !important;
+  color: var(--space-status-waiting) !important;
+}
+
+.firm-workspace .item-tone--done,
+.firm-workspace .tone-dot--done,
+.firm-workspace .filing-workspace__status-pill--on.filing-workspace__status-pill--filed,
+.firm-workspace .filing-checklist__item--done {
+  color: var(--space-status-done) !important;
+}
+
+.firm-workspace .filing-workspace__status-pill--on.filing-workspace__status-pill--filed {
+  border-color: color-mix(in srgb, var(--space-status-done) 40%, transparent) !important;
+  background: var(--space-status-done-bg) !important;
+  font-weight: 700;
+}
+
+.firm-workspace .desk-checklist-row--prep-ready,
+.firm-workspace .my-work-list__row--prep-ready {
+  border-color: color-mix(in srgb, var(--space-status-today) 40%, var(--space-card-border)) !important;
+  background: var(--space-status-today-bg) !important;
+}
+
+/* ── 5. Empty + loading ── */
+.firm-workspace .skeleton-shimmer,
+.office-hub-space-shell .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--space-glass-solid) 92%, #e8e0d4) 0%,
+    #fff 48%,
+    color-mix(in srgb, var(--space-glass-solid) 92%, #e8e0d4) 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation-duration: 1.85s !important;
+  border-radius: 0.45rem;
+  opacity: 0.9;
+}
+
+.firm-workspace .empty-state {
+  padding: 0.85rem 1.05rem !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  gap: 0.28rem !important;
+}
+
+.firm-workspace .empty-state__mark {
+  width: 1.85rem !important;
+  height: 1.85rem !important;
+  margin-bottom: 0.2rem !important;
+  opacity: 0.7;
+}
+
+.firm-workspace .empty-state__title {
+  font-size: 0.98rem !important;
+}
+
+.firm-workspace .empty-state__message,
+.firm-workspace .filing-workspace__loading,
+.firm-workspace .filing-workspace__empty-message,
+.firm-workspace .page-loading__message {
+  font-size: 0.78rem !important;
+  color: var(--space-muted) !important;
+  font-weight: 550;
+}
+
+.firm-workspace .filing-workspace__loading {
+  padding: 0.65rem 0.15rem !important;
+  letter-spacing: 0.02em;
+}
+
+/* ── 6. Toolbar density ── */
+.firm-space-shell .bitrix-space-toolbar {
+  margin: 0 0 0.35rem !important;
+  padding: 0.05rem 0.15rem 0.4rem 0.35rem !important;
+  gap: 0.15rem !important;
+  border-bottom-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+.firm-space-shell .bitrix-space-toolbar__row {
+  gap: 0.3rem 0.55rem !important;
+}
+
+.firm-space-shell .bitrix-space-toolbar__left {
+  gap: 0.05rem !important;
+  padding-left: 0.05rem !important;
+}
+
+.firm-space-shell .bitrix-space-toolbar__actions {
+  gap: 0.25rem !important;
+}
+
+.firm-space-shell .bitrix-space-toolbar__actions .bitrix-space-btn,
+.firm-space-shell .bitrix-space-toolbar__actions .btn-primary,
+.firm-space-shell .bitrix-space-toolbar__actions .btn-secondary {
+  min-height: 1.95rem !important;
+  padding: 0.32rem 0.85rem !important;
+  font-size: 0.78rem !important;
+}
+
+.firm-space-shell .firm-shell-subnav {
+  margin-bottom: 0.35rem !important;
+  padding-top: 0.08rem !important;
+  padding-bottom: 0.18rem !important;
+}
+
+.firm-space-shell .firm-shell-chrome {
+  margin-bottom: 0.35rem !important;
+}
+
+/* ── 7. Table polish ── */
+.firm-workspace .client-list-table thead th,
+.firm-workspace .filing-workspace__table thead th,
+.firm-workspace .space-tasks-ledger table thead th,
+.firm-workspace .space-staff-ledger table thead th,
+.firm-workspace table.firm-ledger thead th {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: color-mix(in srgb, var(--space-glass-solid) 94%, #efe8dc) !important;
+  border-bottom: 1px solid var(--space-card-border) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--space-muted) !important;
+  padding: 0.42rem 0.55rem !important;
+}
+
+.firm-workspace .client-list-table tbody tr:nth-child(even) td,
+.firm-workspace .filing-workspace__table tbody tr:nth-child(even) td,
+.firm-workspace .space-tasks-ledger table tbody tr:nth-child(even) td,
+.firm-workspace .space-staff-ledger table tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--space-glass-solid) 55%, transparent) !important;
+}
+
+.firm-workspace .client-list-table tbody tr:hover td,
+.firm-workspace .filing-workspace__table tbody tr:hover td {
+  background: color-mix(in srgb, var(--space-status-today-bg) 70%, #fff) !important;
+}
+
+.firm-workspace .client-list-table td,
+.firm-workspace .filing-workspace__table td {
+  padding: 0.42rem 0.55rem !important;
+  border-color: color-mix(in srgb, var(--space-card-border) 80%, transparent) !important;
+}
+
+.firm-workspace .filing-workspace__table-wrap,
+.firm-workspace .client-directory,
+.firm-workspace [class*="table-wrap"] {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── 8. Motion restraint ── */
+.firm-workspace .btn-primary,
+.firm-workspace .btn-secondary,
+.firm-workspace .bitrix-space-btn,
+.firm-workspace .item-card,
+.firm-workspace .my-work-list__row,
+.firm-workspace .field,
+.firm-workspace .bitrix-space-section-tabs__link {
+  transition:
+    background var(--space-motion) var(--space-ease),
+    border-color var(--space-motion) var(--space-ease),
+    color var(--space-motion) var(--space-ease),
+    box-shadow var(--space-motion) var(--space-ease),
+    opacity var(--space-motion) var(--space-ease) !important;
+}
+
+.firm-workspace .btn-primary:hover,
+.firm-workspace .bitrix-space-btn--primary:hover {
+  transform: none !important;
+  filter: brightness(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .firm-workspace .btn-primary,
+  .firm-workspace .btn-secondary,
+  .firm-workspace .bitrix-space-btn,
+  .firm-workspace .item-card,
+  .firm-workspace .my-work-list__row,
+  .firm-workspace .field,
+  .bitrix-space-rail__item,
+  .bitrix-space-topnav__link,
+  .bitrix-space-section-tabs__link,
+  .firm-workspace .skeleton-shimmer,
+  .office-hub-space-shell .skeleton-shimmer {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* ── 9. iPhone parity ── */
+@media (max-width: 767px) {
+  .firm-space-shell .trial-firm-layout__main {
+    max-height: calc(100dvh - 3.25rem - env(safe-area-inset-top, 0px));
+  }
+
+  .firm-space-shell .bitrix-space-toolbar {
+    margin-bottom: 0.25rem !important;
+    padding-bottom: 0.3rem !important;
+  }
+
+  .firm-space-shell .bitrix-space-toolbar__title {
+    font-size: 1.1rem !important;
+  }
+
+  .firm-space-shell .firm-shell-subnav {
+    margin-bottom: 0.28rem !important;
+    padding: 0.08rem 0 0.14rem !important;
+  }
+
+  .bitrix-space-section-tabs {
+    padding: 0.06rem !important;
+    gap: 0.05rem !important;
+  }
+
+  .bitrix-space-section-tabs__link {
+    min-height: 2.05rem !important;
+    padding: 0.3rem 0.3rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .mobile-space-desk-nav.mobile-clio-desk-nav {
+    min-height: calc(var(--mobile-bottom-nav-height, 3.25rem) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, #ffffff 94%, #ebe4da) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 -4px 18px rgba(12, 10, 8, 0.12);
+  }
+
+  .mobile-clio-desk-nav__link,
+  .mobile-clio-desk-nav__search {
+    min-height: var(--touch-min, 44px) !important;
+    font-size: 0.7rem !important;
+    font-weight: 650 !important;
+  }
+
+  .mobile-clio-desk-nav__link--active {
+    color: var(--space-ink) !important;
+    box-shadow: inset 0 -2.5px 0 var(--space-gold) !important;
+    background: color-mix(in srgb, var(--space-status-today-bg) 55%, transparent);
+  }
+
+  .mobile-space-desk-nav__sheet {
+    max-height: min(78dvh, 34rem);
+    padding: 0.7rem 0.85rem calc(0.85rem + env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 1rem 1rem 0 0 !important;
+    background: var(--space-glass-solid) !important;
+    box-shadow: 0 -12px 40px rgba(12, 10, 8, 0.2) !important;
+  }
+
+  .mobile-space-desk-nav__sheet-title {
+    font-size: 0.98rem !important;
+  }
+
+  .mobile-space-desk-nav__sheet-label {
+    font-size: 0.62rem !important;
+    margin-bottom: 0.3rem !important;
+  }
+
+  .mobile-space-desk-nav__sheet-item {
+    min-height: var(--touch-min, 44px) !important;
+    padding: 0.55rem 0.7rem !important;
+    font-size: 0.86rem !important;
+    border-radius: 0.5rem !important;
+    border: 1px solid var(--space-card-border);
+    background: rgba(255, 255, 255, 0.85);
+  }
+
+  .mobile-space-desk-nav__sheet-links {
+    gap: 0.28rem !important;
+  }
+
+  .firm-workspace .filing-workspace__selection-bar {
+    bottom: var(--mobile-bottom-nav-offset, 4.75rem) !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .bitrix-space-section-tabs__link {
+    font-size: 0.66rem !important;
+  }
+
+  .mobile-clio-desk-nav__link,
+  .mobile-clio-desk-nav__search {
+    font-size: 0.64rem !important;
+  }
+}
+
+/* ── 10. Focus rings ── */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--space-gold) 85%, #fff) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--space-gold) 22%, transparent) !important;
+}
+
+.bitrix-space-rail__item:focus-visible {
+  outline-color: var(--space-gold-light) !important;
+  outline-offset: 1px !important;
+}
+
+.bitrix-space-section-tabs__link:focus-visible,
+.bitrix-space-topnav__link:focus-visible {
+  outline-offset: 1px !important;
+  border-radius: 4px;
+}
+
+.firm-workspace .field:focus-visible,
+.firm-workspace input:focus-visible,
+.firm-workspace select:focus-visible,
+.firm-workspace textarea:focus-visible,
+.firm-workspace .search-hero-input:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--space-gold) 80%, transparent) !important;
+  outline-offset: 0 !important;
+  border-color: color-mix(in srgb, var(--space-gold) 55%, transparent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--space-gold) 18%, transparent) !important;
+}

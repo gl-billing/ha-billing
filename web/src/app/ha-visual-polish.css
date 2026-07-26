@@ -1,0 +1,417 @@
+/**
+ * HA visual polish — monochrome desk, elegant type scale (not oversized).
+ * Load after ha-space-shell.css + letterhead-polish.css.
+ */
+
+:root {
+  /* Refined ladder — compact elegance */
+  --ha-text-body: 0.9375rem; /* 15px */
+  --ha-text-ui: 0.8125rem; /* 13px */
+  --ha-text-meta: 0.6875rem; /* 11px */
+  --ha-text-caption: 0.625rem; /* 10px — footers / legal only */
+  --ha-leading: 1.45;
+  --ha-leading-tight: 1.35;
+  --gold: #111111;
+  --gold-light: #333333;
+  --gold-dark: #000000;
+  --cream: #f7f4ee;
+  --soft: #efeae2;
+}
+
+/* ── Warm paper desk + cool ink chrome ── */
+body,
+body:has(.firm-workspace),
+body:has(.office-hub-page) {
+  background: #f3eee6 !important;
+  color: #0a0a0a !important;
+}
+
+.firm-workspace.firm-space-shell {
+  --space-void: #050505;
+  --space-canvas: #0a0a0a;
+  --space-canvas-mid: #111111;
+  --space-gold: #0a0a0a;
+  --space-gold-light: #333333;
+  --space-gold-bright: #000000;
+  --space-gold-deep: #111111;
+  --space-glass: #f7f4ee;
+  --space-glass-solid: #f7f4ee;
+  --space-rail: #050505;
+  --space-ink: #0a0a0a;
+  --space-ink-on-dark: #f5f5f5;
+  --space-muted: #454545;
+  --space-muted-on-dark: rgba(245, 245, 245, 0.68);
+  --space-line: rgba(255, 255, 255, 0.16);
+  --space-line-soft: rgba(0, 0, 0, 0.1);
+  --gold: #111111;
+  --gold-light: #333333;
+  --gold-dark: #000000;
+  --cream: #f7f4ee;
+  color: #0a0a0a;
+  font-size: var(--ha-text-body) !important;
+  line-height: var(--ha-leading) !important;
+}
+
+/* Space chrome — quiet, precise */
+.firm-workspace.firm-space-shell .bitrix-space-rail__item,
+.firm-workspace.firm-space-shell .bitrix-space-rail__item-label,
+.firm-workspace.firm-space-shell .bitrix-space-btn,
+.firm-workspace.firm-space-shell .bitrix-space-section-tabs a,
+.firm-workspace.firm-space-shell .bitrix-space-section-tabs button,
+.firm-workspace.firm-space-shell .mobile-space-desk-nav__item {
+  font-size: var(--ha-text-ui) !important;
+  line-height: var(--ha-leading-tight) !important;
+  letter-spacing: 0.01em;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-rail__group-label,
+.firm-workspace.firm-space-shell .bitrix-space-toolbar__lede,
+.firm-workspace.firm-space-shell .section-label,
+.firm-workspace.firm-space-shell .view-eyebrow {
+  font-size: var(--ha-text-meta) !important;
+  letter-spacing: 0.12em !important;
+  font-weight: 600 !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-toolbar__eyebrow {
+  display: none !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-toolbar__title {
+  font-size: 1.12rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Tiny utilities stay small — elegance, not enlargement */
+.firm-workspace.firm-space-shell .text-\[9px\],
+.firm-workspace.firm-space-shell .text-\[10px\] {
+  font-size: var(--ha-text-caption) !important;
+  line-height: var(--ha-leading-tight) !important;
+  letter-spacing: 0.06em;
+}
+
+.firm-workspace.firm-space-shell .text-\[11px\],
+.firm-workspace.firm-space-shell .text-xs {
+  font-size: var(--ha-text-meta) !important;
+  line-height: var(--ha-leading-tight) !important;
+}
+
+.firm-workspace.firm-space-shell input:not([type="checkbox"]):not([type="radio"]),
+.firm-workspace.firm-space-shell select,
+.firm-workspace.firm-space-shell textarea {
+  font-size: 1rem !important; /* iOS zoom guard only */
+}
+
+/* Gold / amber → ink */
+.firm-workspace .text-gold,
+.firm-workspace .text-gold-dark,
+.firm-workspace .text-amber-800,
+.firm-workspace .text-amber-900,
+.firm-workspace .text-amber-950,
+.office-hub-page .text-gold,
+.office-hub-page .text-gold-dark {
+  color: #0a0a0a !important;
+}
+
+.firm-workspace .bg-amber-50,
+.firm-workspace .bg-amber-100,
+.firm-workspace [class*="bg-amber-"],
+.firm-workspace [class*="border-amber-"],
+.office-hub-page [class*="bg-amber-"] {
+  background-color: #f4f4f4 !important;
+  background-image: none !important;
+  border-color: rgba(10, 10, 10, 0.16) !important;
+  color: #0a0a0a !important;
+}
+
+.firm-workspace .btn-gold,
+.firm-workspace a.btn-gold,
+.firm-workspace .btn-primary {
+  background: #0a0a0a !important;
+  background-image: none !important;
+  color: #fff !important;
+  border: 1px solid #0a0a0a !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  font-size: var(--ha-text-ui) !important;
+  letter-spacing: 0.08em !important;
+  font-weight: 600 !important;
+}
+
+.firm-workspace [class*="from-[#faf6ee]"],
+.firm-workspace [class*="to-[#faf6ee]"],
+.firm-workspace [class*="via-[#faf6ee]"],
+.firm-workspace [class*="bg-[#faf6ee]"],
+.firm-workspace [class*="from-[#f5f0e6]"],
+.firm-workspace [class*="to-[#3d3018]"],
+.firm-workspace [class*="from-[#1a1612]"],
+.firm-workspace [class*="from-[#2b251d]"],
+.office-hub-page [class*="from-[#faf6ee]"] {
+  background: #fff !important;
+  background-image: none !important;
+}
+
+.stat-tile--gold,
+.firm-workspace .stat-tile--gold {
+  background: #fff !important;
+  border-color: rgba(10, 10, 10, 0.12) !important;
+  color: #0a0a0a !important;
+}
+
+.office-hub-page,
+.office-hub {
+  background: #f3f3f3 !important;
+}
+
+.office-hub-page .my-work-hub-summary,
+.office-hub-page .office-hub__desk-enter {
+  background: #fff !important;
+  border-color: rgba(10, 10, 10, 0.12) !important;
+}
+
+/* Space frames */
+.firm-workspace.firm-space-shell .bitrix-space-rail {
+  background: #050505 !important;
+  color: #f5f5f5 !important;
+  border: none !important;
+  border-right: 1px solid #000 !important;
+  padding: 0.4rem 0.35rem 0.55rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-topnav {
+  background: #050505 !important;
+  color: #f5f5f5 !important;
+  border-bottom: 1px solid #000 !important;
+}
+
+.firm-workspace.firm-space-shell .trial-firm-layout__main,
+.firm-workspace.firm-space-shell .firm-workspace-body {
+  background: #f7f4ee !important;
+  color: #0a0a0a !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-toolbar {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+  padding-block: 0.55rem !important;
+}
+
+.firm-workspace.firm-space-shell .bitrix-space-btn--create {
+  background: #0a0a0a !important;
+  color: #fff !important;
+  border-color: #0a0a0a !important;
+  font-size: var(--ha-text-ui) !important;
+  letter-spacing: 0.06em !important;
+}
+
+.firm-workspace.firm-space-shell .mobile-space-desk-nav {
+  background: #0a0a0a !important;
+  border-top: 1px solid #000 !important;
+}
+
+.firm-workspace.firm-space-shell .mobile-space-desk-nav__item {
+  color: rgba(245, 245, 245, 0.78) !important;
+  font-size: var(--ha-text-meta) !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+.firm-workspace.firm-space-shell .mobile-space-desk-nav__item--active {
+  color: #fff !important;
+  font-weight: 700 !important;
+}
+
+/* Auth / login — refined small footer */
+.firm-auth--login .firm-auth-footer__contact,
+.firm-auth--login .firm-auth-footer__legal,
+.firm-auth--login .firm-auth-footer__tagline,
+.firm-auth--login .firm-auth-footer__copyright,
+.firm-auth .firm-auth-footer__contact,
+.firm-auth .firm-auth-footer__legal,
+.firm-auth .firm-auth-footer__tagline {
+  font-size: 0.75rem !important;
+  line-height: 1.4 !important;
+  color: #555555 !important;
+  letter-spacing: 0.04em !important;
+}
+
+.firm-auth--login .firm-auth-footer__contact a,
+.firm-auth--login .firm-auth-footer__legal a {
+  font-size: inherit !important;
+  color: #0a0a0a !important;
+}
+
+.firm-logo-banner__img,
+img[src*="/brand/logo.png"],
+img[src*="/brand/cover"],
+.bitrix-space-rail__logo {
+  filter: grayscale(1) contrast(1.06);
+}
+
+/* Topnav: white-on-transparent asset — leave filters off. */
+.bitrix-space-topnav__logo {
+  filter: none;
+}
+
+.login-page,
+.login-page__panel {
+  font-size: var(--ha-text-body) !important;
+}
+
+.login-page__contact,
+.login-page__footer-links,
+.firm-footer__address,
+.login-page .firm-footer,
+.login-page footer {
+  font-size: 0.75rem !important;
+  line-height: 1.4 !important;
+  color: #555555 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.login-page__contact a,
+.login-page__footer-links a,
+.firm-footer__address a {
+  font-size: inherit !important;
+  color: #0a0a0a !important;
+}
+
+.login-page__title,
+.login-page .section-label {
+  font-size: 0.8125rem !important;
+  letter-spacing: 0.14em !important;
+  font-weight: 600 !important;
+}
+
+.login-page__lede,
+.login-page p.text-muted {
+  font-size: 0.8125rem !important;
+  color: #666 !important;
+}
+
+/* Tools → Integrations deep-link focus */
+.tools-panel__section--focus {
+  outline: 2px solid #111 !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.06);
+}
+
+/* Desk checklist cards — fill the full allotted width (no empty right gutter)
+ *
+ * Root cause: `desk-checklist-row` is a horizontal flex (checkbox + row). The nested
+ * `.my-work-list__row` defaults to flex-grow:0 / content width, so the outer white
+ * card keeps a large empty gutter on the right. Also both layers carried card chrome,
+ * so the inner panel looked inset. Force grow + flatten nested chrome.
+ */
+.firm-workspace .desk-checklist-row,
+.firm-workspace .desk-checklist__list > li,
+.firm-workspace li.desk-checklist-row {
+  display: flex !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.firm-workspace .desk-checklist-row > .my-work-list__row,
+.firm-workspace .desk-checklist-row > .item-card,
+.firm-workspace li.desk-checklist-row > .my-work-list__row,
+.firm-workspace li.desk-checklist-row > .item-card {
+  flex: 1 1 0% !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+  /* Flatten nested card — outer desk-checklist-row is the single white card */
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+
+.firm-workspace .desk-checklist-row > .my-work-list__row::before,
+.firm-workspace .desk-checklist-row > .my-work-list__row::after,
+.firm-workspace li.desk-checklist-row > .my-work-list__row::before,
+.firm-workspace li.desk-checklist-row > .my-work-list__row::after {
+  display: none !important;
+}
+
+.firm-workspace .my-work-list__row,
+.firm-workspace .item-card {
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  justify-items: stretch !important;
+}
+
+.firm-workspace .my-work-list__kind {
+  width: fit-content !important;
+  max-width: 8.25rem !important;
+  justify-self: start !important;
+}
+
+.firm-workspace .my-work-list__main,
+.firm-workspace .my-work-list__bottom {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+  box-sizing: border-box !important;
+}
+
+.firm-workspace .my-work-list__extras {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.firm-workspace .my-work-list__actions {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.firm-workspace .my-work-list__main .task-prep-checklist,
+.firm-workspace .my-work-list__main .hearing-prep-checklist,
+.firm-workspace .task-prep-checklist,
+.firm-workspace .task-prep-checklist__toggle {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+.firm-workspace .task-prep-checklist__toggle {
+  display: flex !important;
+}
+
+.firm-workspace .my-work-list__prep-badge,
+.firm-workspace .bucket-section__count,
+.firm-workspace .my-work-feed__count,
+.firm-workspace [class*="prep-badge"] {
+  background: #f0f0f0 !important;
+  background-image: none !important;
+  border-color: rgba(10, 10, 10, 0.2) !important;
+  color: #0a0a0a !important;
+}
+
+/* Desk checklist prep-ready — HA B&W (no gold/amber) */
+.firm-workspace .desk-checklist-row--prep-ready,
+.firm-workspace .desk-checklist-row__panel--prep-ready {
+  border-color: rgba(10, 10, 10, 0.28) !important;
+  background: #f5f5f5 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.firm-workspace .desk-checklist-row__check {
+  accent-color: #0a0a0a !important;
+}
+
+.firm-workspace .desk-checklist-row__prep-ready-note {
+  color: #0a0a0a !important;
+}

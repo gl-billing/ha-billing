@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { signOut } from "next-auth/react";
 import { useKeepFormFocusAlive } from "@/hooks/useKeepFormFocusAlive";
 import { AppFooter } from "@/components/AppFooter";
 import { FirmBrandHeader } from "@/components/FirmBrandHeader";
@@ -15,8 +16,14 @@ import { TodayBirthdaysProvider } from "@/components/TodayBirthdaysProvider";
 import { WorkspaceBreadcrumb } from "@/components/WorkspaceBreadcrumb";
 import { WorkspaceBootstrap } from "@/components/WorkspaceBootstrap";
 import { OfflineStatusBanner } from "@/components/OfflineStatusBanner";
+import { MobileSpaceDeskNav } from "@/components/MobileSpaceDeskNav";
+import { BitrixSpaceToolbar } from "@/components/BitrixSpaceToolbar";
+import { BitrixSpaceTopNav } from "@/components/BitrixSpaceTopNav";
+import { spaceInviteHref } from "@/lib/space-nav";
+import { FIRM_COPYRIGHT_HOLDER } from "@/lib/firm-brand";
 import { useStaffPresenceHeartbeat } from "@/hooks/useStaffPresenceHeartbeat";
 import type { TabShortcutItem } from "@/lib/workspace-tab-shortcuts";
+import type { NavUserProfile } from "@/lib/workspace-labels";
 
 export type FirmWorkspace = "billing" | "tasks";
 
@@ -37,19 +44,21 @@ type Props = {
   statusVariant?: FirmStatusVariant;
   onOfflineStatus?: (message: string, isError?: boolean) => void;
   chromeTopBanner?: ReactNode;
-  /** Clio secondary sections above firm search. */
+  /** Space secondary sections under the top chrome. */
   clioSectionTabs?: ReactNode;
   navTabs?: ReactNode;
   tabShortcuts?: TabShortcutItem[];
   tabShortcutsTitle?: string;
   onReplayWorkspaceGuide?: () => void;
   signOutCallbackUrl?: string;
+  /** Space top-nav / rail filtering (optional). */
+  isAdmin?: boolean;
+  navProfile?: NavUserProfile;
   children: ReactNode;
 };
 
 /**
- * HA firm shell — Clio left rail + sub-tabs layout (Practice structure).
- * Theme stays HA monochrome via ha-theme.css / ha-clio-shell.css.
+ * HA firm shell — Bitrix Space always on (black/white via ha-space-shell.css).
  */
 export function FirmWorkspaceShell({
   workspace,
@@ -74,18 +83,26 @@ export function FirmWorkspaceShell({
   tabShortcutsTitle,
   onReplayWorkspaceGuide,
   signOutCallbackUrl,
+  isAdmin = false,
+  navProfile = "full",
   children
 }: Props) {
   useKeepFormFocusAlive();
   useStaffPresenceHeartbeat({ workspace });
 
+  const signOutUrl = signOutCallbackUrl ?? "/login";
+  const firmName = FIRM_COPYRIGHT_HOLDER;
+
   const shellClass = [
     "app-shell",
     "app-shell-wide",
     "firm-workspace",
-    "firm-clio-shell",
-    workspace === "tasks" ? "tasks-app" : "billing-app"
-  ].join(" ");
+    "firm-space-shell",
+    workspace === "tasks" ? "tasks-app" : "billing-app",
+    wide ? "" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <TodayBirthdaysProvider billingAccess={billingAccess}>
@@ -96,44 +113,73 @@ export function FirmWorkspaceShell({
           email={email}
           displayName={displayName}
           billingAccess={billingAccess}
-          signOutCallbackUrl={signOutCallbackUrl ?? "/login"}
-          className="brand-header--shell-flush mb-1"
-        >
-          <NotificationsCenter compact />
-          <KeyboardShortcutsHelp
-            className="brand-header__shortcuts"
-            tabShortcuts={tabShortcuts}
-            tabShortcutsTitle={tabShortcutsTitle}
-          />
-        </FirmBrandHeader>
+          signOutCallbackUrl={signOutUrl}
+          className="sr-only"
+        />
+
+        <BitrixSpaceTopNav
+          billingAccess={billingAccess}
+          isAdmin={isAdmin}
+          navProfile={navProfile}
+          firmName={firmName}
+          inviteHref={spaceInviteHref()}
+          searchSlot={
+            <GlobalSearchBar
+              value={searchValue}
+              onChange={onSearchChange}
+              onSubmit={onSearchSubmit}
+              busy={searchBusy}
+              billingAccess={billingAccess}
+              placeholder="Search"
+            />
+          }
+          utilitiesSlot={
+            <>
+              <NotificationsCenter compact />
+              <KeyboardShortcutsHelp
+                className="brand-header__shortcuts"
+                tabShortcuts={tabShortcuts}
+                tabShortcutsTitle={tabShortcutsTitle}
+              />
+            </>
+          }
+        />
 
         {navTabs ? (
-          <div className="ha-clio-layout">
-            <div className="ha-clio-layout__nav no-print">{navTabs}</div>
-            <div className="ha-clio-layout__main min-w-0">
+          <div className="trial-firm-layout">
+            <div className="trial-firm-layout__nav no-print">{navTabs}</div>
+            <div className="trial-firm-layout__main min-w-0">
               <div className="firm-shell-chrome no-print">
                 <div className="firm-shell-chrome__top">
                   {chromeTopBanner}
+                  <BitrixSpaceToolbar
+                    billingAccess={billingAccess}
+                    messagesSlot={null}
+                    notificationsSlot={null}
+                    themeSlot={null}
+                    hideInvite
+                    findValue={searchValue}
+                    onFindChange={onSearchChange}
+                    onFindSubmit={onSearchSubmit}
+                    profileSlot={
+                      email ? (
+                        <button
+                          type="button"
+                          className="bitrix-space-btn bitrix-space-btn--ghost bitrix-space-btn--signout"
+                          onClick={() => {
+                            void signOut({ callbackUrl: signOutUrl });
+                          }}
+                        >
+                          Sign out
+                        </button>
+                      ) : null
+                    }
+                  />
                   <OfflineStatusBanner onStatus={onOfflineStatus} />
                   <WorkspaceBootstrap billingAccess={billingAccess} />
                   <TodayBirthdaysBanner billingAccess={billingAccess} />
-                  {clioSectionTabs}
-                  <GlobalSearchBar
-                    value={searchValue}
-                    onChange={onSearchChange}
-                    onSubmit={onSearchSubmit}
-                    busy={searchBusy}
-                    billingAccess={billingAccess}
-                    placeholder="Type here — client name, matter code, task, or hearing…"
-                  />
                 </div>
 
-                <WorkspaceBreadcrumb
-                  workspace={workspace}
-                  page={breadcrumbPage}
-                  detail={breadcrumbDetail}
-                  className="firm-shell-chrome__crumb"
-                />
                 {onReplayWorkspaceGuide ? (
                   <button
                     type="button"
@@ -147,25 +193,47 @@ export function FirmWorkspaceShell({
 
               <FirmStatusToast message={statusMessage} variant={statusVariant} />
 
-              <div className="firm-workspace-body min-w-0">{children}</div>
+              <div className="firm-workspace-body min-w-0">
+                {clioSectionTabs ? (
+                  <div className="firm-shell-subnav no-print">{clioSectionTabs}</div>
+                ) : null}
+                {children}
+              </div>
+
+              <AppFooter />
             </div>
           </div>
         ) : (
-          <>
+          <div className="firm-space-desk-scroll min-w-0">
             <div className="firm-shell-chrome no-print">
               <div className="firm-shell-chrome__top">
                 {chromeTopBanner}
+                <BitrixSpaceToolbar
+                  billingAccess={billingAccess}
+                  messagesSlot={null}
+                  notificationsSlot={null}
+                  themeSlot={null}
+                  hideInvite
+                  findValue={searchValue}
+                  onFindChange={onSearchChange}
+                  onFindSubmit={onSearchSubmit}
+                  profileSlot={
+                    email ? (
+                      <button
+                        type="button"
+                        className="bitrix-space-btn bitrix-space-btn--ghost bitrix-space-btn--signout"
+                        onClick={() => {
+                          void signOut({ callbackUrl: signOutUrl });
+                        }}
+                      >
+                        Sign out
+                      </button>
+                    ) : null
+                  }
+                />
                 <OfflineStatusBanner onStatus={onOfflineStatus} />
                 <WorkspaceBootstrap billingAccess={billingAccess} />
                 <TodayBirthdaysBanner billingAccess={billingAccess} />
-                {clioSectionTabs}
-                <GlobalSearchBar
-                  value={searchValue}
-                  onChange={onSearchChange}
-                  onSubmit={onSearchSubmit}
-                  busy={searchBusy}
-                  billingAccess={billingAccess}
-                />
               </div>
 
               <WorkspaceBreadcrumb
@@ -188,10 +256,12 @@ export function FirmWorkspaceShell({
             <FirmStatusToast message={statusMessage} variant={statusVariant} />
 
             <div className="firm-workspace-body min-w-0">{children}</div>
-          </>
+
+            <AppFooter />
+          </div>
         )}
 
-        <AppFooter />
+        <MobileSpaceDeskNav billingAccess={billingAccess} />
 
         <FirmCommandPalette workspace={workspace} billingAccess={billingAccess} />
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import type { EntryFormOptions } from "@/components/office-tasks/AddEntryForm";
 import type { EditableItem } from "@/components/office-tasks/EditItemDialog";
@@ -8,9 +8,18 @@ import { ItemCard, type ItemSummary } from "@/components/office-tasks/ItemCard";
 import type { ItemStatusUpdate } from "@/lib/office-tasks/status";
 import type { WorkItemFilingActionProps } from "@/lib/office-tasks/work-item-filing-actions";
 import type { PrepChecklistMutation } from "@/lib/office-tasks/prep-checklist-storage";
-import { EmptyState, ToneLegend, ViewHero } from "@/components/office-tasks/PremiumUI";
+import { EmptyState, ToneLegend } from "@/components/office-tasks/PremiumUI";
 import { ClientCaseLink } from "@/components/office-tasks/ClientCodeBadge";
-import { isCancelledStatus, officeItemKey } from "@/lib/office-tasks/schedule";
+import { eventVenueDisplay } from "@/lib/office-tasks/event-join-link";
+import { formatDisplayDate } from "@/lib/office-tasks/date-only";
+import {
+  isCancelledStatus,
+  itemTone,
+  myWorkItemKindLabel,
+  officeItemKey,
+  todayYmd,
+  truncate
+} from "@/lib/office-tasks/schedule";
 import {
   filterItemsBySmartIntent,
   formatSmartSearchLabel,
@@ -20,7 +29,7 @@ import {
 type SourceFilter = "all" | "Task" | "Event";
 type StatusFilter = "open" | "done" | "cancelled" | "all";
 
-/** Cap rendered cards for very large sheets; filters/search narrow the list first. */
+/** Cap rendered rows for very large sheets; filters/search narrow the list first. */
 const RENDER_LIMIT = 500;
 
 type Props = {
@@ -50,7 +59,7 @@ export function SearchView({
   items,
   employees,
   query = "",
-  busy,
+  busy: _busy,
   togglingKey,
   onQueryChange,
   onSearch,
@@ -74,6 +83,7 @@ export function SearchView({
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [assigneeFilter, setAssigneeFilter] = useState("");
   const [sortBy, setSortBy] = useState<"date" | "priority" | "client">("date");
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
   const trimmedQuery = query.trim();
   const hasQuery = Boolean(trimmedQuery);
@@ -82,6 +92,7 @@ export function SearchView({
     [trimmedQuery, employees]
   );
   const intentLabel = formatSmartSearchLabel(intent);
+  const today = todayYmd();
 
   const { results, matchCount } = useMemo(() => {
     const q = trimmedQuery.toLowerCase();
@@ -164,40 +175,36 @@ export function SearchView({
 
   const truncated = matchCount > results.length;
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, OfficeItem[]>();
-    results.forEach((item) => {
-      const key = item.clientCase?.trim() || "(No client / case)";
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(item);
-    });
-    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-  }, [results]);
-
   function clearFilters() {
     onQueryChange?.("");
     setSourceFilter("all");
     setStatusFilter("all");
     setAssigneeFilter("");
+    setExpandedKey(null);
     onSearch("");
   }
 
+  function toggleExpand(key: string) {
+    setExpandedKey((prev) => (prev === key ? null : key));
+  }
+
   return (
-    <div className="search-page">
-      <ViewHero
-        eyebrow={hasQuery ? "Search results" : "Master list"}
-        title={hasQuery ? "Refine results" : "All tasks & events"}
-        subtitle={
-          hasQuery
+    <div className="search-page space-tasks-ledger">
+      <header className="space-tasks-ledger__head">
+        <h3 className="space-tasks-ledger__title">
+          {hasQuery ? "Search results" : "All tasks & events"}
+        </h3>
+        <p className="space-tasks-ledger__lede">
+          {hasQuery
             ? intentLabel
               ? `Showing ${intentLabel}. Adjust filters below or clear to browse everything.`
               : `Matches for “${trimmedQuery}”. Adjust filters below or clear to browse everything.`
-            : "Full list from your office sheet. Use the search bar above — try searching for a client, hearing date, task, or assignee."
-        }
-      />
+            : "Search or filter the ledger, then open a row for actions."}
+        </p>
+      </header>
 
-      <section className="card mt-3 p-4 sm:p-5">
-        <h3 className="section-label mb-4">Refine results</h3>
+      <section className="space-tasks-ledger__filters mt-3">
+        <h3 className="section-label mb-3">Refine results</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <RefineSegment
             label="Type"
@@ -248,26 +255,25 @@ export function SearchView({
             </select>
           </label>
         </div>
-        <div className="mt-4 flex justify-end">
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="space-tasks-ledger__count">
+            {truncated
+              ? `${results.length} of ${matchCount} items`
+              : `${results.length} item${results.length === 1 ? "" : "s"}`}
+            {truncated ? " — use search or filters to narrow" : ""}
+            {hasQuery ? ` · “${trimmedQuery}”` : ""}
+          </p>
           <button type="button" className="btn-secondary btn-sm" onClick={clearFilters}>
             Reset filters
           </button>
         </div>
       </section>
 
-      <div className="mt-4 flex items-center justify-between gap-3">
-        <p className="text-sm font-bold text-ink">
-          {truncated
-            ? `${results.length} of ${matchCount} items`
-            : `${results.length} item${results.length === 1 ? "" : "s"}`}
-          {truncated ? " — use search or filters to narrow" : ""}
-          {hasQuery ? ` · “${trimmedQuery}”` : ""}
+      {!hasQuery && statusFilter === "all" && !assigneeFilter && sourceFilter === "all" ? (
+        <p className="mt-2 text-sm text-muted">
+          Showing all tasks and events. Type in the search bar above to filter.
         </p>
-      </div>
-
-      {!hasQuery && statusFilter === "all" && !assigneeFilter && sourceFilter === "all" && (
-        <p className="mt-2 text-sm text-muted">Showing all tasks and events. Type in the search bar above to filter.</p>
-      )}
+      ) : null}
 
       {results.length === 0 ? (
         <div className="mt-4">
@@ -290,58 +296,155 @@ export function SearchView({
           ) : null}
         </div>
       ) : (
-        <div className="mt-4 space-y-6">
-          {grouped.map(([client, clientItems]) => (
-            <section key={client} className="result-group item-list-section">
-              <ClientGroupHeader client={client} items={clientItems} />
-              <ul className="item-list-section__items my-work-list my-work-panel--elegant">
-                {clientItems.map((item, index) => {
-                  const key = officeItemKey(item, index);
-                  return (
-                    <ItemCard
-                      key={key}
-                      item={item}
-                      allItems={items}
-                      onToggleDone={onToggleDone}
-                      onSetStatus={onSetStatus}
-                      onResetWithDate={onResetWithDate}
-                      onDeleteItem={onDeleteItem}
-                      onUpdateNextAction={onUpdateNextAction}
-                      onTogglePrepChecklistItem={onTogglePrepChecklistItem}
-                      onMutatePrepChecklistItem={onMutatePrepChecklistItem}
-                      onCreatePrepChecklist={onCreatePrepChecklist}
-                      onInitializePrepChecklist={onInitializePrepChecklist}
-                      prepChecklistCreating={prepChecklistCreatingKey === key}
-                      onSaveEdit={onSaveEdit}
-                      onCourtConfirmed={onCourtConfirmed}
-                      onMarkSubmitted={onMarkSubmitted}
-                      onConfirmParentFiled={onConfirmParentFiled}
-                      formOptions={formOptions}
-                      toggling={togglingKey === key}
-                    />
-                  );
-                })}
-              </ul>
-            </section>
-          ))}
+        <div className="space-tasks-ledger__table-wrap firm-ledger-table-wrap mt-4">
+          <table className="space-tasks-ledger__table firm-ledger-table w-full text-left">
+            <thead>
+              <tr>
+                <th scope="col" className="space-tasks-ledger__col-type">
+                  Type
+                </th>
+                <th scope="col" className="space-tasks-ledger__col-matter">
+                  Matter
+                </th>
+                <th scope="col" className="space-tasks-ledger__col-details">
+                  Details
+                </th>
+                <th scope="col" className="space-tasks-ledger__col-date">
+                  Date
+                </th>
+                <th scope="col" className="space-tasks-ledger__col-status">
+                  Status
+                </th>
+                <th scope="col" className="space-tasks-ledger__col-assignee">
+                  Assignee
+                </th>
+                <th scope="col" className="space-tasks-ledger__col-venue">
+                  Venue
+                </th>
+                <th scope="col" className="space-tasks-ledger__col-category">
+                  Category
+                </th>
+                <th scope="col" className="space-tasks-ledger__col-actions" aria-label="Actions" />
+              </tr>
+            </thead>
+            <tbody>
+              {results.map((item, index) => {
+                const key = officeItemKey(item, index);
+                const expanded = expandedKey === key;
+                const tone = itemTone(item, today);
+                const kind = myWorkItemKindLabel(item);
+                const venue = eventVenueDisplay(item.venue, null) || item.venue?.trim() || "—";
+                const details =
+                  truncate(item.details?.trim() || item.nextAction?.trim() || "—", 80);
+                const dateLabel =
+                  item.date && /^\d{4}-\d{2}-\d{2}$/.test(item.date)
+                    ? formatDisplayDate(item.date, "register")
+                    : item.date || "—";
+                const statusLabel =
+                  item.done || item.status === "Done" || item.status === "Submitted"
+                    ? item.status === "Submitted"
+                      ? "Submitted"
+                      : "Done"
+                    : isCancelledStatus(item.status)
+                      ? "Cancelled"
+                      : item.status?.trim() || "Open";
+
+                return (
+                  <Fragment key={key}>
+                    <tr
+                      className={`space-tasks-ledger__row space-tasks-ledger__row--${tone}${
+                        expanded ? " space-tasks-ledger__row--expanded" : ""
+                      }`}
+                      onClick={() => toggleExpand(key)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          toggleExpand(key);
+                        }
+                      }}
+                      tabIndex={0}
+                      aria-expanded={expanded}
+                    >
+                      <td className="space-tasks-ledger__type">
+                        <span className={`space-tasks-ledger__kind space-tasks-ledger__kind--${tone}`}>
+                          {kind}
+                        </span>
+                        <span className="space-tasks-ledger__source">{item.source}</span>
+                      </td>
+                      <td className="space-tasks-ledger__matter-cell">
+                        <ClientCaseLink
+                          clientCase={item.clientCase || "(No client / case)"}
+                          className="space-tasks-ledger__matter"
+                        />
+                      </td>
+                      <td className="space-tasks-ledger__details" title={item.details || ""}>
+                        {details}
+                      </td>
+                      <td className="space-tasks-ledger__date">
+                        {dateLabel}
+                        {item.startTime ? (
+                          <span className="space-tasks-ledger__time"> {item.startTime}</span>
+                        ) : null}
+                      </td>
+                      <td className="space-tasks-ledger__status-cell">
+                        <span className={`space-tasks-ledger__status space-tasks-ledger__status--${tone}`}>
+                          {statusLabel}
+                        </span>
+                      </td>
+                      <td className="space-tasks-ledger__assignee">{item.assignedTo?.trim() || "—"}</td>
+                      <td className="space-tasks-ledger__venue" title={venue}>
+                        {truncate(venue, 36)}
+                      </td>
+                      <td className="space-tasks-ledger__category">{item.category?.trim() || "—"}</td>
+                      <td className="space-tasks-ledger__actions" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          className="btn-secondary btn-sm space-tasks-ledger__open-btn"
+                          aria-expanded={expanded}
+                          onClick={() => toggleExpand(key)}
+                        >
+                          {expanded ? "Close" : "Open"}
+                        </button>
+                      </td>
+                    </tr>
+                    {expanded ? (
+                      <tr className="space-tasks-ledger__detail-row">
+                        <td colSpan={9}>
+                          <ul className="item-list-section__items my-work-list my-work-panel--elegant space-tasks-ledger__detail">
+                            <ItemCard
+                              item={item}
+                              allItems={items}
+                              onToggleDone={onToggleDone}
+                              onSetStatus={onSetStatus}
+                              onResetWithDate={onResetWithDate}
+                              onDeleteItem={onDeleteItem}
+                              onUpdateNextAction={onUpdateNextAction}
+                              onTogglePrepChecklistItem={onTogglePrepChecklistItem}
+                              onMutatePrepChecklistItem={onMutatePrepChecklistItem}
+                              onCreatePrepChecklist={onCreatePrepChecklist}
+                              onInitializePrepChecklist={onInitializePrepChecklist}
+                              prepChecklistCreating={prepChecklistCreatingKey === key}
+                              onSaveEdit={onSaveEdit}
+                              onCourtConfirmed={onCourtConfirmed}
+                              onMarkSubmitted={onMarkSubmitted}
+                              onConfirmParentFiled={onConfirmParentFiled}
+                              formOptions={formOptions}
+                              toggling={togglingKey === key}
+                            />
+                          </ul>
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
       <ToneLegend className="mt-6" />
     </div>
-  );
-}
-
-function ClientGroupHeader({ client, items }: { client: string; items: OfficeItem[] }) {
-  return (
-    <h3 className="mb-3 flex flex-wrap items-baseline justify-between gap-2 border-b border-line/80 pb-2 font-display text-lg font-semibold text-ink">
-      <span className="min-w-0 flex-1 truncate">
-        <ClientCaseLink clientCase={client} className="client-group-title" />
-      </span>
-      <span className="shrink-0 rounded-full bg-cream px-2 py-0.5 font-sans text-[10px] font-extrabold uppercase tracking-wide text-muted">
-        {items.length}
-      </span>
-    </h3>
   );
 }
 
