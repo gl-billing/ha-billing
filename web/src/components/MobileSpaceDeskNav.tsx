@@ -8,6 +8,7 @@ import { tasksHref } from "@/lib/tasks-routes";
 
 type Props = {
   billingAccess?: boolean;
+  isAdmin?: boolean;
 };
 
 function withSpace(href: string, space: string): string {
@@ -20,7 +21,7 @@ type MoreGroup = { label: string; links: { href: string; label: string }[] };
 /**
  * Space mobile bottom nav — core desks + grouped More sheet.
  */
-export function MobileSpaceDeskNav({ billingAccess = true }: Props) {
+export function MobileSpaceDeskNav({ billingAccess = true, isAdmin = false }: Props) {
   const pathname = usePathname() || "";
   const searchParams = useSearchParams();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -81,7 +82,12 @@ export function MobileSpaceDeskNav({ billingAccess = true }: Props) {
         { href: tasksHref({ tab: "team" }), label: "Collaboration" },
         { href: `${filingBase}${filingJoin}filingQueue=e-filing`, label: "E-filing" },
         { href: `${filingBase}${filingJoin}filingQueue=physical`, label: "Physical filing" },
-        { href: tasksHref({ tab: "correspondence" }), label: "Correspondence" },
+        { href: withSpace(tasksHref({ tab: "correspondence" }), "communications"), label: "Correspondence" },
+        {
+          href: withSpace(tasksHref({ tab: "today" }), "communications") + "&panel=client-messaging",
+          label: "Message clients"
+        },
+        { href: tasksHref({ tab: "templates" }), label: "Templates" },
         { href: withSpace(tasksHref({ tab: "today" }), "notifications"), label: "Notifications" }
       ]
     },
@@ -91,14 +97,14 @@ export function MobileSpaceDeskNav({ billingAccess = true }: Props) {
         ...(billingAccess
           ? [
               { href: billingHref({ page: "clients" }), label: "Clients" },
+              { href: billingHref({ page: "newClient" }), label: "Client intake" },
               { href: billingHref({ page: "walkIns" }), label: "Add walk-in" },
               { href: billingHref({ page: "spotBilling" }), label: "Add spot billing" },
-              { href: billingHref({ page: "newClient" }), label: "Intake" },
+              { href: billingHref({ page: "notarizations" }), label: "Notarizations" },
               { href: billingHref({ page: "billing" }), label: "Billing" },
               { href: billingHref({ page: "documents" }), label: "SOA & Receipts" },
               { href: billingHref({ page: "history" }), label: "History" },
               { href: billingHref({ page: "home" }), label: "Firm dashboard" },
-              { href: billingHref({ page: "notarizations" }), label: "Notarizations" },
               { href: withSpace(billingHref({ page: "documents" }), "drive"), label: "Drive" },
               { href: billingHref({ page: "reports" }), label: "Reports" }
             ]
@@ -108,12 +114,18 @@ export function MobileSpaceDeskNav({ billingAccess = true }: Props) {
     {
       label: "Admin",
       links: [
-        { href: withSpace(toolsHref, "staff"), label: "Staff" },
+        { href: toolsHref, label: "Administration" },
+        ...(isAdmin
+          ? [
+              { href: withSpace(toolsHref, "staff"), label: "Staff" },
+              { href: tasksHref({ tab: "presence" }), label: "Staff attendance" },
+              { href: billingHref({ page: "staffSalary" }), label: "Payroll" }
+            ]
+          : []),
         {
           href: `${toolsHref}${toolsHref.includes("?") ? "&" : "?"}panel=integrations`,
-          label: "Integrations"
-        },
-        { href: toolsHref, label: "Settings" }
+          label: "Settings"
+        }
       ]
     }
   ]
@@ -127,10 +139,13 @@ export function MobileSpaceDeskNav({ billingAccess = true }: Props) {
       (space === "staff" ||
         tab === "filing" ||
         tab === "correspondence" ||
+        tab === "templates" ||
         tab === "team" ||
         tab === "tools" ||
+        tab === "presence" ||
         tab === "notifications" ||
-        page === "documents"));
+        page === "documents")) ||
+    (onBilling && page === "staffSalary");
 
   useEffect(() => {
     if (!moreOpen) return;

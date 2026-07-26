@@ -14,7 +14,7 @@ type Props = {
 const FILTERS: { id: BillingHistoryFilter; label: string }[] = [
   { id: "all", label: "All" },
   { id: "ledger", label: "Charges & payments" },
-  { id: "documents", label: "SOA & receipts" },
+  { id: "documents", label: "Documents" },
   { id: "clients", label: "Client updates" }
 ];
 
@@ -25,6 +25,9 @@ const kindLabels: Record<BillingHistoryItem["kind"], string> = {
   edit: "Edit",
   soa: "SOA",
   ar: "Receipt",
+  correspondence: "Letter",
+  engagement: "Engagement",
+  spot: "Spot",
   client: "Client",
   other: "Billing"
 };
@@ -36,6 +39,9 @@ const kindColors: Record<BillingHistoryItem["kind"], string> = {
   edit: "text-muted",
   soa: "text-gold-dark",
   ar: "text-gold-dark",
+  correspondence: "text-gold-dark",
+  engagement: "text-gold-dark",
+  spot: "text-gold-dark",
   client: "text-ink",
   other: "text-muted"
 };

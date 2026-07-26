@@ -3,6 +3,7 @@ import { formatPeso } from "@/lib/gl-config";
 import { callAppsScriptWebApp, isAppsScriptConfigured } from "@/lib/apps-script";
 import { notarizationReceiptPaymentFor } from "@/lib/notarization-utils";
 import { getOrCreateNrFolderId } from "@/lib/sheets/drive-nr-folder";
+import { uploadPdfToDriveFolder } from "@/lib/sheets/drive-outbound-pdf";
 import {
   deleteSheetById,
   getSheetIdByTitle
@@ -159,52 +160,6 @@ async function driveFetch(accessToken: string, url: string, init?: RequestInit):
   });
 }
 
-async function uploadPdfToDrive(
-  accessToken: string,
-  folderId: string,
-  filename: string,
-  pdf: Buffer
-): Promise<string> {
-  const boundary = `ha-billing-${Date.now()}`;
-  const metadata = JSON.stringify({
-    name: filename,
-    parents: [folderId],
-    mimeType: "application/pdf"
-  });
-  const body = Buffer.concat([
-    Buffer.from(
-      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n--${boundary}\r\nContent-Type: application/pdf\r\n\r\n`
-    ),
-    pdf,
-    Buffer.from(`\r\n--${boundary}--`)
-  ]);
-
-  const uploadRes = await driveFetch(
-    accessToken,
-    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true&fields=id,webViewLink",
-    {
-      method: "POST",
-      headers: { "Content-Type": `multipart/related; boundary=${boundary}` },
-      body
-    }
-  );
-
-  if (!uploadRes.ok) {
-    const detail = (await uploadRes.text()).slice(0, 200);
-    if (/insufficient|scope|permission|403/i.test(detail)) {
-      throw new Error(
-        "Google Drive permission is required to save receipt PDFs. Sign out and sign in again to grant Drive access, then retry."
-      );
-    }
-    throw new Error(`Could not save receipt PDF to Drive (${uploadRes.status}).`);
-  }
-
-  const file = (await uploadRes.json()) as { id?: string; webViewLink?: string };
-  if (file.webViewLink) return file.webViewLink;
-  if (file.id) return `https://drive.google.com/file/d/${file.id}/view`;
-  throw new Error("Receipt PDF was uploaded but no view link was returned.");
-}
-
 async function findReceiptLastContentRow(
   accessToken: string,
   sheetTitle: string,
@@ -344,7 +299,7 @@ async function trimTempSheet(
 }
 
 function isNrFolderResolutionError(message: string): boolean {
-  return /NR folder|notarial receipts folder|Could not find a notarial receipts folder/i.test(message);
+  return /NR folder|notarial receipt|Could not find a notarial/i.test(message);
 }
 
 const NR_FOLDER_SETTINGS_HINT =
@@ -427,7 +382,7 @@ async function generateNotarialReceiptNativeInternal(
     const pdf = await exportReceiptPdf(accessToken, tempSheetId, pageSize, bounds);
     const folderId = folderIdOverride || (await getOrCreateNrFolderId(accessToken));
     const filename = `${payload.receiptNo}_Notarial_Acknowledgment_Receipt.pdf`;
-    const pdfUrl = await uploadPdfToDrive(accessToken, folderId, filename, pdf);
+    const pdfUrl = await uploadPdfToDriveFolder(accessToken, folderId, filename, pdf, "NR");
 
     return { pdfUrl, receiptNumber: payload.receiptNo };
   } finally {

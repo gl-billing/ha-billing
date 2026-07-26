@@ -168,7 +168,7 @@ export function FirmCommandPalette({ workspace, billingAccess = true }: Props) {
         run: () => {
           saveBillingPage("newClient");
           close();
-          router.push("/billing");
+          router.push("/billing?page=newClient");
         }
       });
     }

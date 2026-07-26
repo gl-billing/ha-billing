@@ -5,6 +5,10 @@ import { authOptions } from "@/lib/auth";
 import type { SpotBillingTransactionPayload } from "@/lib/gl-config";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
+import {
+  saveOutboundFirmPdf,
+  withDriveSaveMessage
+} from "@/lib/sheets/drive-outbound-pdf";
 import { getSpotBillingEntry } from "@/lib/sheets/spot-billing";
 import {
   buildSpotBillingEmailPreview,
@@ -95,6 +99,28 @@ export async function POST(request: Request, context: RouteContext) {
 
     const email = buildSpotBillingEmailPreview(letterInput);
     const bccEmail = await getGmailAccountEmail(accessToken, session?.user?.email || undefined);
+    const documentType = kind === "charge" ? "Spot Charge" : "Spot Receipt";
+    const amount =
+      Number(body.transaction.charge) ||
+      Number(body.transaction.payment) ||
+      (kind === "charge" ? entry.chargeAmount : entry.paymentAmount) ||
+      0;
+
+    const drive = await saveOutboundFirmPdf({
+      accessToken,
+      category: "spot",
+      documentType,
+      filename,
+      pdf: pdfBytes,
+      clientCode: entry.linkedClientCode || entry.spotId,
+      clientName: entry.payerName,
+      documentNumber: filename.replace(/\.pdf$/i, ""),
+      amount,
+      email: recipient,
+      status: action === "draft" ? "Draft Created" : "Sent",
+      user: session?.user?.email || undefined
+    });
+
     const delivery = await sendHtmlEmailWithAttachmentsViaGmail({
       accessToken,
       to: recipient,
@@ -111,15 +137,21 @@ export async function POST(request: Request, context: RouteContext) {
       action: action === "draft" ? "spot-billing.letter.draft" : "spot-billing.letter.send",
       clientCode: entry.spotId,
       summary: kind === "charge" ? "Spot billing charge notice sent" : "Spot billing payment receipt sent",
-      details: `${filename} → ${recipient}`
+      details: `${filename} → ${recipient}${drive.pdfUrl ? ` · ${drive.pdfUrl}` : ""}`
     }).catch(() => undefined);
 
-    const message =
+    const base =
       action === "draft"
         ? `Gmail draft saved with ${filename} attached. Open Gmail → Drafts to review before sending.`
         : sentMailHint(delivery.senderEmail, recipient, delivery.messageId, true);
 
-    return NextResponse.json({ ok: true, message, filename });
+    return NextResponse.json({
+      ok: true,
+      message: withDriveSaveMessage(base, drive),
+      filename,
+      pdfUrl: drive.pdfUrl,
+      driveSaved: drive.driveSaved
+    });
   } catch (error) {
     if (isQuotaError(error)) {
       return NextResponse.json({ error: quotaErrorMessage() }, { status: 429 });

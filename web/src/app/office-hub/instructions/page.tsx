@@ -150,7 +150,7 @@ export default function OfficeHubInstructionsPage() {
                     <strong>Walk-in</strong> → Billing → Walk-ins (Bill now if paid today)
                   </li>
                   <li>
-                    <strong>New retained client</strong> → Billing → Intake (not Walk-ins)
+                    <strong>New retained client</strong> → Booking → Client intake (not Walk-ins)
                   </li>
                   <li>
                     <strong>Consultation only</strong> → Walk-in + plot Event; no Intake yet

@@ -13,68 +13,12 @@ import { arPdfFilename, buildArPdf } from "@/lib/billing-document-pdf/ar-pdf";
 import { sendHtmlEmailWithAttachmentsViaGmail } from "@/lib/office-tasks/gmail-send";
 import { getSheetValues, sheetExists, updateSheetValues } from "@/lib/sheets/client";
 import { appendDocumentLogEntry, getDocumentLog } from "@/lib/sheets/document-log";
+import { uploadPdfToDriveFolder } from "@/lib/sheets/drive-outbound-pdf";
 import { getOrCreateArFolderId } from "@/lib/sheets/drive-ar-folder";
 import { buildHyperlinkFormula } from "@/lib/sheets/hyperlinks";
 import { updateSingleClientStatus } from "@/lib/sheets/ledger";
 import { getClientDetail } from "@/lib/sheets/master";
 import { readSettingsMap } from "@/lib/sheets/settings";
-
-async function driveFetch(accessToken: string, url: string, init?: RequestInit): Promise<Response> {
-  return fetch(url, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      ...(init?.headers || {})
-    },
-    cache: "no-store"
-  });
-}
-
-async function uploadPdfToDrive(
-  accessToken: string,
-  folderId: string,
-  filename: string,
-  pdf: Buffer
-): Promise<string> {
-  const boundary = `ha-billing-${Date.now()}`;
-  const metadata = JSON.stringify({
-    name: filename,
-    parents: [folderId],
-    mimeType: "application/pdf"
-  });
-  const body = Buffer.concat([
-    Buffer.from(
-      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n--${boundary}\r\nContent-Type: application/pdf\r\n\r\n`
-    ),
-    pdf,
-    Buffer.from(`\r\n--${boundary}--`)
-  ]);
-
-  const uploadRes = await driveFetch(
-    accessToken,
-    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true&fields=id,webViewLink",
-    {
-      method: "POST",
-      headers: { "Content-Type": `multipart/related; boundary=${boundary}` },
-      body
-    }
-  );
-
-  if (!uploadRes.ok) {
-    const detail = (await uploadRes.text()).slice(0, 200);
-    if (/insufficient|scope|permission|403/i.test(detail)) {
-      throw new Error(
-        "Google Drive permission is required to save receipt PDFs. Sign out and sign in again to grant Drive access, then retry."
-      );
-    }
-    throw new Error(`Could not save receipt PDF to Drive (${uploadRes.status}).`);
-  }
-
-  const file = (await uploadRes.json()) as { id?: string; webViewLink?: string };
-  if (file.webViewLink) return file.webViewLink;
-  if (file.id) return `https://drive.google.com/file/d/${file.id}/view`;
-  throw new Error("Receipt PDF was uploaded but no view link was returned.");
-}
 
 async function getNextArReceiptNumber(accessToken: string, clientCode: string): Promise<string> {
   const year = new Date().getFullYear();
@@ -178,11 +122,12 @@ export async function generateClientArReceiptNative(
 
   const folderId = await getOrCreateArFolderId(accessToken);
   const filename = arPdfFilename(receiptNumber, clientCode);
-  const pdfUrl = await uploadPdfToDrive(
+  const pdfUrl = await uploadPdfToDriveFolder(
     accessToken,
     folderId,
     filename,
-    Buffer.from(pdfBytes)
+    Buffer.from(pdfBytes),
+    "AR"
   );
 
   const paymentDateLabel = formatBillingDate(String(rowValues[0] || new Date()));

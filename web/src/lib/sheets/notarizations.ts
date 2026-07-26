@@ -18,6 +18,7 @@ import {
   NOTARIZATION_RETAINER_METHOD
 } from "@/lib/notarization-utils";
 import { generateNotarialReceiptNative } from "@/lib/sheets/notarial-receipt";
+import { appendDocumentLogEntry } from "@/lib/sheets/document-log";
 import { ensureSheetTitle } from "@/lib/sheets/sheet-meta";
 
 const NOTARIZATION_HEADERS = [...GL.notarizationHeaders];
@@ -329,6 +330,18 @@ export async function issueNotarizationReceipt(
 
   const issuedAt = todayYmd();
   await setNotarizationReceiptLink(accessToken, entry.rowNumber, pdfUrl, issuedAt);
+
+  await appendDocumentLogEntry(accessToken, {
+    clientCode: entry.clientCode || "NR",
+    clientName: entry.name,
+    documentType: "NR",
+    documentNumber: entry.receiptNo,
+    amount: entry.amount,
+    email: "",
+    pdfUrl,
+    status: "Issued"
+  }).catch(() => undefined);
+
   return {
     ...entry,
     pdfLink: pdfUrl,

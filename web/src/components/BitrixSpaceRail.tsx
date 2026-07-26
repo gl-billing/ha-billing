@@ -86,16 +86,10 @@ function RailIcon({ id }: { id: SpaceNavId }) {
         <path d="M7 16.5h10" />
       </>
     ),
-    mail: (
+    communications: (
       <>
         <rect x="3.5" y="6" width="17" height="12" rx="2" />
         <path d="m4 8 8 5 8-5" />
-      </>
-    ),
-    employees: (
-      <>
-        <circle cx="12" cy="8" r="3" />
-        <path d="M5 19c1-3.5 3.5-5 7-5s6 1.5 7 5" />
       </>
     ),
     reports: <path d="M5 19V10M10 19V6M15 19v-7M20 19V8" />,
@@ -103,6 +97,14 @@ function RailIcon({ id }: { id: SpaceNavId }) {
       <>
         <path d="M6 16h12l-1.2-2.2a6 6 0 0 1-.8-3V9a4 4 0 1 0-8 0v1.8c0 1.1-.3 2.1-.8 3z" />
         <path d="M10 18a2 2 0 0 0 4 0" />
+      </>
+    ),
+    administration: (
+      <>
+        <path d="M4 20.5h16" />
+        <path d="M6 20.5V8.5l6-4 6 4v12" />
+        <path d="M10 20.5v-5h4v5" />
+        <path d="M9.5 11.5h.01M14.5 11.5h.01M12 14.5h.01" />
       </>
     ),
     settings: (

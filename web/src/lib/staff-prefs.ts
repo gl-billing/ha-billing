@@ -15,6 +15,7 @@ export type SavedTasksTab =
   | "add-event"
   | "all-items"
   | "correspondence"
+  | "templates"
   | "filing"
   | "tools"
   | "liaison"
@@ -66,6 +67,7 @@ export function getSavedTasksTab(): SavedTasksTab | null {
     "add-event",
     "all-items",
     "correspondence",
+    "templates",
     "filing",
     "tools",
     "liaison",

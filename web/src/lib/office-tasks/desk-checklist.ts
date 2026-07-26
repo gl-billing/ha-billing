@@ -18,7 +18,12 @@ import { eventVenueDisplay } from "@/lib/office-tasks/event-join-link";
 import { getWaitingClientChip } from "@/lib/matter-automation";
 import { matterHref } from "@/lib/matter-routes";
 import { tasksHref } from "@/lib/tasks-routes";
-import { isCancelledStatus, myWorkItemKindLabel, splitAssignees } from "@/lib/office-tasks/schedule";
+import {
+  isCancelledStatus,
+  isDeadlineLike,
+  myWorkItemKindLabel,
+  splitAssignees
+} from "@/lib/office-tasks/schedule";
 import {
   isAppearanceOutcomeEvent,
   parseAppearanceOutcomeAction
@@ -146,6 +151,67 @@ export function reorderDeskChecklistByMatter(items: OfficeItem[]): OfficeItem[] 
   }
 
   return order.flatMap((key) => buckets.get(key)!);
+}
+
+/** Kind groups inside each time bucket (Overdue, Due today, …). */
+export type DeskChecklistTypeGroupId = "hearings" | "events" | "submissions" | "tasks";
+
+export type DeskChecklistTypeGroup = {
+  id: DeskChecklistTypeGroupId;
+  title: string;
+  items: OfficeItem[];
+};
+
+const DESK_CHECKLIST_TYPE_GROUP_ORDER: DeskChecklistTypeGroupId[] = [
+  "hearings",
+  "events",
+  "submissions",
+  "tasks"
+];
+
+const DESK_CHECKLIST_TYPE_GROUP_TITLES: Record<DeskChecklistTypeGroupId, string> = {
+  hearings: "Hearings",
+  events: "Events",
+  submissions: "Submissions",
+  tasks: "Tasks"
+};
+
+/**
+ * Classify a feed row by work kind:
+ * - Hearings — Event category Hearing
+ * - Submissions — deadline / filing / submission categories (events or tasks)
+ * - Events — other Event rows (meetings, consultations, calls, …)
+ * - Tasks — remaining Task rows
+ */
+export function classifyDeskChecklistTypeGroup(
+  item: Pick<OfficeItem, "source" | "category">
+): DeskChecklistTypeGroupId {
+  if (isDeadlineLike(item)) return "submissions";
+  if (item.source === "Event") {
+    if (isHearingEventCategory(item.category)) return "hearings";
+    return "events";
+  }
+  return "tasks";
+}
+
+/** Split a time-bucket list into Hearings / Events / Submissions / Tasks (omit empty). */
+export function groupDeskChecklistItemsByType(items: OfficeItem[]): DeskChecklistTypeGroup[] {
+  const buckets: Record<DeskChecklistTypeGroupId, OfficeItem[]> = {
+    hearings: [],
+    events: [],
+    submissions: [],
+    tasks: []
+  };
+
+  for (const item of items) {
+    buckets[classifyDeskChecklistTypeGroup(item)].push(item);
+  }
+
+  return DESK_CHECKLIST_TYPE_GROUP_ORDER.map((id) => ({
+    id,
+    title: DESK_CHECKLIST_TYPE_GROUP_TITLES[id],
+    items: reorderDeskChecklistByMatter(buckets[id])
+  })).filter((group) => group.items.length > 0);
 }
 
 export type DeskChecklistScope = "personal" | "firm";
@@ -294,6 +360,20 @@ export function deskChecklistItemTitle(item: OfficeItem): string {
   const caseTitle = deskChecklistCaseTitle(item);
   if (clientName && clientName !== caseTitle) return `${caseTitle} — ${clientName}`;
   return caseTitle;
+}
+
+/**
+ * One-line summary for Completed / Cancelled feed disclosures.
+ * Example: `Filing prep · Jimmy Santos — Santos vs. John Doe`
+ */
+export function deskChecklistCompactSummary(item: OfficeItem): string {
+  const kind = myWorkItemKindLabel(item);
+  const clientName = deskChecklistClientName(item);
+  const caseTitle = deskChecklistCaseTitle(item);
+  if (clientName && clientName !== caseTitle) {
+    return `${kind} · ${clientName} — ${caseTitle}`;
+  }
+  return `${kind} · ${caseTitle}`;
 }
 
 export function deskChecklistMatterPageHref(item: OfficeItem): string | null {

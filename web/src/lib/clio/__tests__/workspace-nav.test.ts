@@ -77,6 +77,7 @@ describe("HA_CLIO_NAV inventory", () => {
       "contacts",
       "activities",
       "filing",
+      "templates",
       "billing",
       "documents",
       "communications",
@@ -101,6 +102,7 @@ describe("HA_CLIO_NAV inventory", () => {
       "calendar",
       "activities",
       "filing",
+      "templates",
       "communications"
     ]);
     expect(grouped.find((g) => g.id === "clients")?.primaries.map((p) => p.id)).toEqual([
@@ -135,6 +137,7 @@ describe("HA_CLIO_NAV inventory", () => {
       "calendar",
       "activities",
       "filing",
+      "templates",
       "communications"
     ]);
     const activities = clioSectionsForUser(HA_CLIO_NAV.find((item) => item.id === "activities")!, {
@@ -168,6 +171,7 @@ describe("HA_CLIO_NAV inventory", () => {
     expect(resolveClioFromTasksTab("today")).toEqual({ nav: "checklist", section: "today" });
     expect(resolveClioFromTasksTab("desk-checklist")).toEqual({ nav: "checklist", section: "open" });
     expect(resolveClioFromTasksTab("filing")).toEqual({ nav: "filing", section: "e-filing" });
+    expect(resolveClioFromTasksTab("templates")).toEqual({ nav: "templates", section: "library" });
     expect(resolveClioFromTasksTab("week")).toEqual({ nav: "calendar", section: "week" });
     expect(resolveClioFromTasksTab("week", "day")).toEqual({ nav: "calendar", section: "day" });
     // Leftover day mode must not steal My work highlighting.

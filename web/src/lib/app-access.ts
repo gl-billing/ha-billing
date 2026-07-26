@@ -210,6 +210,7 @@ const BILLING_API_PREFIXES = [
   "/api/spot-billing",
   "/api/payment-request",
   "/api/client-portal",
+  "/api/client-messages",
   "/api/my-work",
   "/api/staff-salary",
   "/api/firm-finances",

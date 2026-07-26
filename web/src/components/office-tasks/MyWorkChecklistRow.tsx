@@ -28,6 +28,8 @@ type Props = {
   toggling?: boolean;
   isAdmin?: boolean;
   showOverdueSince?: boolean;
+  /** When embedded inside a compact disclosure, render as a div (not an outer list item). */
+  as?: "li" | "div";
   onToggleDone?: (item: ItemSummary, done: boolean) => void;
   onSetStatus?: (item: ItemSummary, status: ItemStatusUpdate) => void;
   onResetWithDate?: (item: ItemSummary, newDate: string) => void;
@@ -68,6 +70,7 @@ export function MyWorkChecklistRow({
   toggling,
   isAdmin = false,
   showOverdueSince = false,
+  as = "li",
   onToggleDone,
   onSetStatus,
   onResetWithDate,
@@ -122,8 +125,10 @@ export function MyWorkChecklistRow({
         ? { label: "Done", onClick: () => onToggleDone?.(item, true) }
         : null;
 
+  const Wrapper = as;
+
   return (
-    <li
+    <Wrapper
       className={`my-work-checklist__row${isDone ? " my-work-checklist__row--done" : ""}${showOverdueSince && overdueLabel ? " my-work-checklist__row--overdue" : ""}`}
     >
       <label className="my-work-checklist__check-wrap">
@@ -223,6 +228,6 @@ export function MyWorkChecklistRow({
           </dl>
         </div>
       </div>
-    </li>
+    </Wrapper>
   );
 }

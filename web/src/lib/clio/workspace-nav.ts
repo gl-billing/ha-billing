@@ -31,6 +31,7 @@ export type ClioNavId =
   | "contacts"
   | "activities"
   | "filing"
+  | "templates"
   | "billing"
   | "documents"
   | "communications"
@@ -75,7 +76,7 @@ export const HA_CLIO_RAIL_GROUPS: ClioRailGroup[] = [
   {
     id: "work",
     label: "Work",
-    navIds: ["checklist", "calendar", "activities", "filing", "communications"]
+    navIds: ["checklist", "calendar", "activities", "filing", "templates", "communications"]
   },
   {
     id: "clients",
@@ -260,6 +261,21 @@ export const HA_CLIO_NAV: ClioPrimary[] = [
       }
     ]
   },
+    {
+    id: "templates",
+    label: "Templates",
+    description: TASKS_TAB_DESCRIPTIONS.templates,
+    app: "tasks",
+    defaultSectionId: "library",
+    sections: [
+      {
+        id: "library",
+        label: TASKS_TAB_LABELS.templates,
+        description: TASKS_TAB_DESCRIPTIONS.templates,
+        tasksTab: "templates"
+      }
+    ]
+  },
   {
     id: "billing",
     label: "Billing",
@@ -325,7 +341,7 @@ export const HA_CLIO_NAV: ClioPrimary[] = [
   {
     id: "communications",
     label: "Communications",
-    description: "Letters on firm letterhead.",
+    description: "Letters and client messaging.",
     app: "tasks",
     defaultSectionId: "letters",
     sections: [
@@ -515,6 +531,7 @@ export function resolveClioFromTasksTab(
   if (tab === "desk-checklist") return { nav: "checklist", section: "open" };
   if (tab === "today") return { nav: "checklist", section: "today" };
   if (tab === "correspondence") return { nav: "communications", section: "letters" };
+  if (tab === "templates") return { nav: "templates", section: "library" };
   if (tab === "filing") return { nav: "filing", section: "e-filing" };
   if (tab === "tools") return { nav: "settings", section: "firm" };
   if (tab === "presence") return { nav: "settings", section: "presence" };

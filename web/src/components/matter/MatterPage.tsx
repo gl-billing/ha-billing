@@ -6,6 +6,7 @@ import type { Session } from "next-auth";
 import { ClientActivityTimeline } from "@/components/ClientActivityTimeline";
 import { ClientPortalPanel } from "@/components/ClientPortalPanel";
 import { DocumentsPanel } from "@/components/DocumentsPanel";
+import { DocumentVaultPanel } from "@/components/DocumentVaultPanel";
 import { PaymentRequestPanel } from "@/components/PaymentRequestPanel";
 import { SameWindowLink } from "@/components/SameWindowLink";
 import { FirmPrintLetterhead } from "@/components/FirmPrintLetterhead";
@@ -1516,6 +1517,7 @@ export function MatterPage({ matterCode, user }: Props) {
                     onBusy={() => undefined}
                     onStatus={(msg, err) => { setStatusMsg(msg); setStatusIsError(!!err); }}
                   />
+                  <DocumentVaultPanel clientCode={clientDetail.code} limit={20} />
                 </section>
 
                 <section className="card matter-billing-section no-print scroll-mt-3">

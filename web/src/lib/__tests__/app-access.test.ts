@@ -60,6 +60,7 @@ describe("app-access", () => {
 
   it("blocks billing API paths at middleware layer", () => {
     expect(isBillingApiPath("/api/clients/ABC")).toBe(true);
+    expect(isBillingApiPath("/api/client-messages")).toBe(true);
     expect(isBillingApiPath("/api/tasks/items")).toBe(false);
   });
 
@@ -156,7 +157,8 @@ describe("tasks nav for tasks-only staff", () => {
       "add-task",
       "add-event",
       "filing",
-      "calendar"
+      "calendar",
+      "templates"
     ]);
     expect(isAllowedTasksTab("week", false, "tasks-only")).toBe(false);
   });
@@ -174,6 +176,7 @@ describe("associate counsel desk nav", () => {
       "week",
       "filing",
       "correspondence",
+      "templates",
       "all-items"
     ]);
     expect(isAllowedTasksTab("add-task", false, "associate")).toBe(true);

@@ -9,6 +9,9 @@ export type BillingHistoryKind =
   | "edit"
   | "soa"
   | "ar"
+  | "correspondence"
+  | "engagement"
+  | "spot"
   | "client"
   | "other";
 
@@ -64,9 +67,21 @@ function auditTitle(entry: AuditLogEntry, kind: BillingHistoryKind): string {
 
 function documentKind(entry: DocumentLogEntry): BillingHistoryKind {
   const type = entry.documentType.toUpperCase();
-  if (type.includes("AR") || type.includes("RECEIPT")) return "ar";
+  if (type.includes("SPOT")) return "spot";
+  if (type.includes("AR") || (type.includes("RECEIPT") && !type.includes("SPOT"))) return "ar";
   if (type.includes("SOA") || type.includes("STATEMENT")) return "soa";
+  if (type.includes("CORRESPONDENCE") || type.includes("LETTER")) return "correspondence";
+  if (type.includes("ENGAGEMENT") || type.includes("CONTRACT")) return "engagement";
   return "other";
+}
+
+function documentTypeLabel(kind: BillingHistoryKind, documentType: string): string {
+  if (kind === "ar") return "Receipt";
+  if (kind === "soa") return "SOA";
+  if (kind === "correspondence") return "Letter";
+  if (kind === "engagement") return documentType.includes("Contract") ? "Contract" : "Engagement";
+  if (kind === "spot") return documentType.includes("Charge") ? "Spot charge" : "Spot receipt";
+  return documentType || "Document";
 }
 
 function parseAmountFromDetails(details: string): number | undefined {
@@ -94,7 +109,7 @@ function fromAudit(entry: AuditLogEntry): BillingHistoryItem {
 
 function fromDocument(entry: DocumentLogEntry): BillingHistoryItem {
   const kind = documentKind(entry);
-  const typeLabel = kind === "ar" ? "Receipt" : "SOA";
+  const typeLabel = documentTypeLabel(kind, entry.documentType);
   return {
     id: `doc-${entry.logRow}`,
     sortKey: parseSortKey(entry.timestamp, entry.logRow),
@@ -115,7 +130,16 @@ function fromDocument(entry: DocumentLogEntry): BillingHistoryItem {
 function matchesFilter(kind: BillingHistoryKind, filter: BillingHistoryFilter): boolean {
   if (filter === "all") return true;
   if (filter === "ledger") return kind === "charge" || kind === "payment" || kind === "void" || kind === "edit";
-  if (filter === "documents") return kind === "soa" || kind === "ar";
+  if (filter === "documents") {
+    return (
+      kind === "soa" ||
+      kind === "ar" ||
+      kind === "correspondence" ||
+      kind === "engagement" ||
+      kind === "spot" ||
+      kind === "other"
+    );
+  }
   if (filter === "clients") return kind === "client";
   return true;
 }

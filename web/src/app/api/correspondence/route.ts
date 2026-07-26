@@ -11,6 +11,10 @@ import {
 import { inlineLetterHtmlAssets } from "@/lib/html-letter-pdf";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import {
+  saveOutboundFirmPdf,
+  withDriveSaveMessage
+} from "@/lib/sheets/drive-outbound-pdf";
+import {
   getGmailAccountEmail,
   sendHtmlEmailWithAttachmentsViaGmail,
   sentMailHint
@@ -88,6 +92,21 @@ export async function POST(request: Request) {
     const emailPreview = buildCorrespondenceEmailPreview(letter);
     const auditEmail = await sessionAuditEmail();
     const bccEmail = await getGmailAccountEmail(accessToken, auditEmail === "unknown" ? undefined : auditEmail);
+
+    const drive = await saveOutboundFirmPdf({
+      accessToken,
+      category: "correspondence",
+      documentType: "Correspondence",
+      filename,
+      pdf: pdfBytes,
+      clientCode: letter.clientCode,
+      clientName: letter.recipientName,
+      documentNumber: filename.replace(/\.pdf$/i, ""),
+      email: recipient,
+      status: action === "draft" ? "Draft Created" : "Sent",
+      user: auditEmail === "unknown" ? undefined : auditEmail
+    });
+
     const delivery = await sendHtmlEmailWithAttachmentsViaGmail({
       accessToken,
       to: recipient,
@@ -104,15 +123,21 @@ export async function POST(request: Request) {
       action: action === "draft" ? "correspondence.draft" : "correspondence.send",
       clientCode: letter.clientCode || undefined,
       summary: action === "draft" ? "Correspondence Gmail draft created" : "Correspondence letter sent",
-      details: `${filename} → ${recipient}`
+      details: `${filename} → ${recipient}${drive.pdfUrl ? ` · ${drive.pdfUrl}` : ""}`
     });
 
-    const message =
+    const base =
       action === "draft"
         ? `Gmail draft saved with ${filename} attached. Open Gmail → Drafts to review before sending.`
         : sentMailHint(delivery.senderEmail, recipient, delivery.messageId, true);
 
-    return NextResponse.json({ ok: true, message, filename });
+    return NextResponse.json({
+      ok: true,
+      message: withDriveSaveMessage(base, drive),
+      filename,
+      pdfUrl: drive.pdfUrl,
+      driveSaved: drive.driveSaved
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Correspondence action failed.";
     const status = message.startsWith("Unauthorized") ? 401 : 400;

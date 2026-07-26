@@ -5,6 +5,8 @@ import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { Skeleton } from "@/components/Skeleton";
 import { SameWindowLink } from "@/components/SameWindowLink";
 import { matterHref } from "@/lib/matter-routes";
+import { billingHref } from "@/lib/billing-routes";
+import { tasksHref } from "@/lib/tasks-routes";
 import type {
   FirmNotificationKind,
   FirmNotificationMarkFiledAction
@@ -16,6 +18,7 @@ type Notice = {
   title: string;
   subtitle: string;
   href: string;
+  linkLabel: string;
   markFiledAction?: FirmNotificationMarkFiledAction;
 };
 
@@ -25,6 +28,27 @@ const SECTION_LABELS: Record<FirmNotificationKind, string> = {
   "hearing-today": "Hearings today",
   "prep-ready": "Prep ready for filing"
 };
+
+function noticeLink(kind: FirmNotificationKind, clientCode?: string): { href: string; label: string } {
+  const code = (clientCode || "").trim();
+  const hasMatter = Boolean(code) && code.toUpperCase() !== "APP";
+  if (kind === "birthday" && hasMatter) {
+    return { href: matterHref(code), label: "Open matter / greeting" };
+  }
+  if (kind === "birthday") {
+    return { href: billingHref({ page: "clients" }), label: "Open clients" };
+  }
+  if ((kind === "filing-due" || kind === "prep-ready") && hasMatter) {
+    return { href: matterHref(code), label: "Open matter" };
+  }
+  if (kind === "filing-due" || kind === "prep-ready") {
+    return { href: tasksHref({ tab: "filing" }), label: "Open filing queues" };
+  }
+  if (kind === "hearing-today" && hasMatter) {
+    return { href: matterHref(code), label: "Open matter" };
+  }
+  return { href: tasksHref({ tab: "desk-checklist" }), label: "Open today’s desk" };
+}
 
 /** Space Notifications desk — firm alerts from /api/notifications. */
 export function SpaceNotificationsDesk() {
@@ -54,14 +78,18 @@ export function SpaceNotificationsDesk() {
       if (!res.ok) throw new Error(json.error || "Could not load notifications.");
       setIsAdmin(json.isAdmin === true);
       setNotices(
-        (json.notifications || []).map((row) => ({
-          id: row.id,
-          kind: row.kind,
-          title: row.title,
-          subtitle: row.subtitle,
-          href: matterHref(row.clientCode || "APP"),
-          markFiledAction: row.markFiledAction
-        }))
+        (json.notifications || []).map((row) => {
+          const link = noticeLink(row.kind, row.clientCode);
+          return {
+            id: row.id,
+            kind: row.kind,
+            title: row.title,
+            subtitle: row.subtitle,
+            href: link.href,
+            linkLabel: link.label,
+            markFiledAction: row.markFiledAction
+          };
+        })
       );
     } catch (err) {
       setNotices([]);
@@ -136,7 +164,7 @@ export function SpaceNotificationsDesk() {
               {n.subtitle ? <p className="mt-1 text-sm text-muted">{n.subtitle}</p> : null}
               <div className="mt-2 flex flex-wrap gap-2">
                 <SameWindowLink href={n.href} className="text-sm underline">
-                  Open matter
+                  {n.linkLabel}
                 </SameWindowLink>
                 {canMarkFiled(n) ? (
                   <button

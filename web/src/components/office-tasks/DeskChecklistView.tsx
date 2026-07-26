@@ -4,11 +4,12 @@ import { useState } from "react";
 import type { EntryFormOptions } from "@/components/office-tasks/AddEntryForm";
 import type { EditableItem } from "@/components/office-tasks/EditItemDialog";
 import { DeskChecklistItemRow } from "@/components/office-tasks/DeskChecklistItemRow";
+import { FeedCompactDisclosureItem } from "@/components/office-tasks/FeedCompactDisclosureItem";
 import type { ItemSummary } from "@/components/office-tasks/ItemCard";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import {
   buildDeskChecklistSections,
-  reorderDeskChecklistByMatter,
+  groupDeskChecklistItemsByType,
   type DeskChecklistOpenBucket,
   type DeskChecklistScope
 } from "@/lib/office-tasks/desk-checklist";
@@ -195,15 +196,43 @@ export function DeskChecklistView({
 
   function renderChecklistRow(
     item: OfficeItem,
-    options: { muted?: boolean; inactive?: boolean } = {}
+    options: { muted?: boolean; inactive?: boolean; compact?: boolean } = {}
   ) {
+    const { compact = false, ...rowOptions } = options;
+
+    if (compact) {
+      return (
+        <FeedCompactDisclosureItem key={officeItemKey(item)} item={item}>
+          <DeskChecklistItemRow item={item} as="div" options={rowOptions} {...checklistRowProps} />
+        </FeedCompactDisclosureItem>
+      );
+    }
+
     return (
-      <DeskChecklistItemRow
-        key={officeItemKey(item)}
-        item={item}
-        options={options}
-        {...checklistRowProps}
-      />
+      <DeskChecklistItemRow key={officeItemKey(item)} item={item} options={rowOptions} {...checklistRowProps} />
+    );
+  }
+
+  function renderTypeGroupedList(
+    sectionItems: OfficeItem[],
+    rowOptions: { muted?: boolean; inactive?: boolean; compact?: boolean } = {}
+  ) {
+    const typeGroups = groupDeskChecklistItemsByType(sectionItems);
+    const compact = Boolean(rowOptions.compact);
+    return (
+      <div className={`desk-checklist__type-groups${compact ? " desk-checklist__type-groups--compact" : ""}`}>
+        {typeGroups.map((group) => (
+          <div key={group.id} className="desk-checklist__type-group">
+            <h4 className="desk-checklist__type-title">
+              <span>{group.title}</span>
+              <span className="desk-checklist__type-count">{group.items.length}</span>
+            </h4>
+            <ul className={`desk-checklist__list${compact ? " desk-checklist__list--compact" : ""}`}>
+              {group.items.map((item) => renderChecklistRow(item, rowOptions))}
+            </ul>
+          </div>
+        ))}
+      </div>
     );
   }
 
@@ -245,9 +274,7 @@ export function DeskChecklistView({
             {sectionItems.length} {countLabel}
           </span>
         </div>
-        <ul className="desk-checklist__list">
-          {reorderDeskChecklistByMatter(visibleItems).map((item) => renderChecklistRow(item, rowOptions))}
-        </ul>
+        {renderTypeGroupedList(visibleItems, { ...rowOptions, compact: true })}
         {hiddenCount > 0 ? (
           <button
             type="button"
@@ -327,9 +354,7 @@ export function DeskChecklistView({
                 </span>
               </div>
 
-              <ul className="desk-checklist__list">
-                {reorderDeskChecklistByMatter(section.items).map((item) => renderChecklistRow(item))}
-              </ul>
+              {renderTypeGroupedList(section.items)}
             </section>
           );
         })}
@@ -355,9 +380,7 @@ export function DeskChecklistView({
                 {waitingItems.length} waiting
               </span>
             </div>
-            <ul className="desk-checklist__list">
-              {reorderDeskChecklistByMatter(waitingItems).map((item) => renderChecklistRow(item))}
-            </ul>
+            {renderTypeGroupedList(waitingItems)}
           </section>
         ) : null}
 

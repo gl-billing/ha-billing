@@ -19,6 +19,8 @@ export type DeskChecklistItemRowProps = {
   item: OfficeItem;
   id?: string;
   className?: string;
+  /** When embedded inside a compact disclosure, render as a div (not an outer list item). */
+  as?: "li" | "div";
   allItems: OfficeItem[];
   togglingKey?: string | null;
   prepChecklistCreatingKey?: string | null;
@@ -63,6 +65,7 @@ export function DeskChecklistItemRow({
   item,
   id,
   className,
+  as = "li",
   allItems,
   togglingKey,
   prepChecklistCreatingKey,
@@ -101,9 +104,10 @@ export function DeskChecklistItemRow({
   // Never force checked from section chrome — completed rows used options.checked=true which
   // blocked reopening (controlled checkbox snapped back on uncheck).
   const checked = options.inactive ? false : item.done || prepReady;
+  const Wrapper = as;
 
   return (
-    <li
+    <Wrapper
       id={id}
       className={`desk-checklist-row${prepReady ? " desk-checklist-row--prep-ready" : ""}${muted ? " desk-checklist-row--muted" : ""}${
         inactive ? " desk-checklist-row--inactive" : ""
@@ -162,6 +166,6 @@ export function DeskChecklistItemRow({
         viewerPrepRole={viewerPrepRole}
         roster={roster}
       />
-    </li>
+    </Wrapper>
   );
 }

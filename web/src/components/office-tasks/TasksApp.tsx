@@ -16,6 +16,7 @@ import { FirmWorkspaceShell } from "@/components/FirmWorkspaceShell";
 import { BitrixSpaceRail } from "@/components/BitrixSpaceRail";
 import { BitrixSpaceSectionTabs } from "@/components/BitrixSpaceSectionTabs";
 import { SpaceMessengerDesk } from "@/components/office-tasks/SpaceMessengerDesk";
+import { SpaceClientMessengerDesk } from "@/components/office-tasks/SpaceClientMessengerDesk";
 import { SpaceNotificationsDesk } from "@/components/office-tasks/SpaceNotificationsDesk";
 import { SpaceStaffLedgerView } from "@/components/office-tasks/SpaceStaffLedgerView";
 import { ToolsPanel } from "@/components/office-tasks/ToolsPanel";
@@ -79,6 +80,7 @@ import {
   spaceTasksExtraHref,
   type SpaceCalendarView
 } from "@/lib/space-nav";
+import { tasksHref } from "@/lib/tasks-routes";
 import { firmAppHref, getTasksAppUrl } from "@/lib/firm-apps";
 import { useFirmStatusReport } from "@/hooks/useFirmStatusReport";
 import { formatSuccessReport } from "@/lib/firm-status-report";
@@ -147,6 +149,10 @@ const TasksDeskChecklistTab = dynamic(
   () => import("@/components/office-tasks/TasksDeskChecklistTab").then((m) => m.TasksDeskChecklistTab),
   { ssr: false }
 );
+const TasksTemplatesTab = dynamic(
+  () => import("@/components/office-tasks/TasksTemplatesTab").then((m) => m.TasksTemplatesTab),
+  { ssr: false }
+);
 
 type Props = Record<string, never>;
 
@@ -163,6 +169,7 @@ type Tab =
   | "add-event"
   | "all-items"
   | "correspondence"
+  | "templates"
   | "filing"
   | "tools"
   | "liaison"
@@ -1361,12 +1368,23 @@ export function TasksApp() {
   const pathname = usePathname() || "";
   const spaceActiveId = resolveActiveSpaceNav(pathname, searchParams?.toString() || "");
   const spaceSectionTabs = useMemo(() => {
-    if (spaceActiveId === "calendar" || spaceActiveId === "messenger" || spaceActiveId === "employees") {
+    if (spaceActiveId === "calendar" || spaceActiveId === "messenger") {
       return [];
     }
-    return filterSpaceTasksSectionTabs(spaceActiveId, navTabs);
-  }, [spaceActiveId, navTabs]);
-  const spaceDeskOnly = spaceActiveId === "messenger" || spaceActiveId === "employees";
+    const tabs = filterSpaceTasksSectionTabs(spaceActiveId, navTabs, { isAdmin });
+    if (!billingAccess) {
+      return tabs.filter((tab) => tab.id !== "client-messaging");
+    }
+    return tabs;
+  }, [spaceActiveId, navTabs, billingAccess, isAdmin]);
+  const spaceClientMessagingDesk =
+    spaceActiveId === "communications" &&
+    (searchParams.get("panel") || "").toLowerCase() === "client-messaging";
+  const spaceStaffDesk =
+    spaceActiveId === "administration" &&
+    ["staff", "employees"].includes((searchParams.get("space") || "").toLowerCase());
+  const spaceDeskOnly =
+    spaceActiveId === "messenger" || spaceStaffDesk || spaceClientMessagingDesk;
   const spaceNotificationsDesk = spaceActiveId === "notifications";
 
   const selectSpaceSectionTab = useCallback(
@@ -1378,9 +1396,13 @@ export function TasksApp() {
           return;
         }
       }
+      if (spaceActiveId === "administration" && (id === "tools" || id === "presence")) {
+        router.push(tasksHref({ tab: id }));
+        return;
+      }
       selectTab(id as Tab, { syncUrl: true });
     },
-    [router, selectTab]
+    [router, selectTab, spaceActiveId]
   );
 
   const selectSpaceCalendarView = useCallback(
@@ -1714,13 +1736,17 @@ export function TasksApp() {
               activeId={
                 spaceActiveId === "notifications"
                   ? "notifications"
-                  : (searchParams.get("panel") || "").toLowerCase() === "integrations"
-                    ? "integrations"
-                    : filingQueue === "physical" && tab === "filing"
-                      ? "filing-physical"
-                      : filingQueue === "e-filing" && tab === "filing"
-                        ? "filing-e"
-                        : tab
+                  : spaceClientMessagingDesk
+                    ? "client-messaging"
+                    : spaceStaffDesk
+                      ? "staff"
+                      : (searchParams.get("panel") || "").toLowerCase() === "integrations"
+                      ? "integrations"
+                      : filingQueue === "physical" && tab === "filing"
+                        ? "filing-physical"
+                        : filingQueue === "e-filing" && tab === "filing"
+                          ? "filing-e"
+                          : tab
               }
               onSelect={selectSpaceSectionTab}
               ariaLabel="Space sections"
@@ -1769,8 +1795,9 @@ export function TasksApp() {
 
       <PageTransition pageKey={spaceDeskOnly || spaceNotificationsDesk ? spaceActiveId : tab === "week" ? `week-${calendarMode}` : tab}>
       {spaceDeskOnly && spaceActiveId === "messenger" ? <SpaceMessengerDesk /> : null}
+      {spaceClientMessagingDesk ? <SpaceClientMessengerDesk /> : null}
       {spaceNotificationsDesk ? <SpaceNotificationsDesk /> : null}
-      {spaceDeskOnly && spaceActiveId === "employees" ? <SpaceStaffLedgerView /> : null}
+      {spaceDeskOnly && spaceStaffDesk ? <SpaceStaffLedgerView /> : null}
       {!spaceDeskOnly && !spaceNotificationsDesk && tab === "filing" ? (
         <FilingWorkspace
           queue={filingQueue}
@@ -2438,7 +2465,17 @@ export function TasksApp() {
         </>
       )}
 
-      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "correspondence" && billingAccess && (
+      {!spaceDeskOnly &&
+      !spaceNotificationsDesk &&
+      tab === "templates" &&
+      isAllowedTasksTab("templates", billingAccess, navProfile, {
+        canViewLiaisonTab: canViewLiaisonConfidential,
+        canViewPresenceTab
+      }) ? (
+        <TasksTemplatesTab />
+      ) : null}
+
+      {!spaceDeskOnly && !spaceNotificationsDesk && tab === "correspondence" && (billingAccess || navProfile === "associate") && (
         <>
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="write a letter">

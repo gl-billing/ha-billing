@@ -22,10 +22,10 @@ export type SpaceNavId =
   | "filing"
   | "templates"
   | "drive"
-  | "mail"
-  | "employees"
+  | "communications"
   | "reports"
   | "notifications"
+  | "administration"
   | "settings";
 
 export type SpaceNavGroup = "collaboration" | "workspace";
@@ -54,10 +54,20 @@ type Visibility = {
 
 function withSpaceParam(
   href: string,
-  space: "messenger" | "staff" | "drive" | "notifications" | "templates"
+  space: "messenger" | "staff" | "drive" | "notifications" | "templates" | "communications"
 ): string {
   const join = href.includes("?") ? "&" : "?";
   return `${href}${join}space=${space}`;
+}
+
+/** Client messaging desk under Communications. */
+export function clientMessagingHref(options?: { compose?: boolean; clientCode?: string }): string {
+  const base = withSpaceParam(tasksHref({ tab: "today" }), "communications");
+  const params = new URLSearchParams();
+  params.set("panel", "client-messaging");
+  if (options?.compose) params.set("compose", "1");
+  if (options?.clientCode) params.set("client", options.clientCode.trim().toUpperCase());
+  return `${base}&${params.toString()}`;
 }
 
 function notificationsHref(): string {
@@ -126,7 +136,7 @@ export function spaceNavCatalog(v: Visibility): SpaceNavItem[] {
     {
       id: "accounts",
       label: "Accounts",
-      description: "Intake, billing, SOA & receipts, history",
+      description: "Billing, SOA & receipts, history",
       href: billingHref({ page: "billing" }),
       group: "workspace",
       topNav: true,
@@ -135,7 +145,7 @@ export function spaceNavCatalog(v: Visibility): SpaceNavItem[] {
     {
       id: "booking",
       label: "Booking",
-      description: "Walk-ins, spot billing & notarizations",
+      description: "Client intake, walk-ins, spot billing & notarizations",
       href: billingHref({ page: "walkIns" }),
       group: "workspace",
       topNav: true,
@@ -153,8 +163,8 @@ export function spaceNavCatalog(v: Visibility): SpaceNavItem[] {
     {
       id: "templates",
       label: "Templates",
-      description: "Firm letter starters",
-      href: withSpaceParam(tasksHref({ tab: "correspondence" }), "templates"),
+      description: "Firm letter & form starters",
+      href: tasksHref({ tab: "templates" }),
       group: "workspace",
       topNav: true,
       tasksOnlyOk: true
@@ -162,28 +172,20 @@ export function spaceNavCatalog(v: Visibility): SpaceNavItem[] {
     {
       id: "drive",
       label: "Drive",
-      description: "SOA, receipts & documents",
+      description: "Document vault — status reports & outbound PDFs",
       href: withSpaceParam(billingHref({ page: "documents" }), "drive"),
       group: "workspace",
       topNav: true,
       billingOnly: true
     },
     {
-      id: "mail",
-      label: "Mail",
-      description: "Correspondence & client mail",
-      href: correspondenceHref(),
-      group: "workspace",
-      tasksOnlyOk: true
-    },
-    {
-      id: "employees",
-      label: "Staff",
-      description: "Staff directory",
-      href: withSpaceParam(tasksHref({ tab: "tools" }), "staff"),
+      id: "communications",
+      label: "Communications",
+      description: "Letters & client messaging",
+      href: withSpaceParam(correspondenceHref(), "communications"),
       group: "workspace",
       topNav: true,
-      adminOnly: true
+      billingOnly: true
     },
     {
       id: "reports",
@@ -204,12 +206,23 @@ export function spaceNavCatalog(v: Visibility): SpaceNavItem[] {
       tasksOnlyOk: true
     },
     {
+      id: "administration",
+      label: "Administration",
+      description: "Tools, staff roster, payroll & attendance",
+      href: tasksHref({ tab: "tools" }),
+      group: "workspace",
+      topNav: true,
+      tasksOnlyOk: true
+    },
+    {
       id: "settings",
       label: "Settings",
-      description: "Firm settings, integrations & tools",
-      href: tasksHref({ tab: "tools" }),
+      description: "Integrations & firm settings",
+      href: (() => {
+        const base = tasksHref({ tab: "tools" });
+        return `${base}${base.includes("?") ? "&" : "?"}panel=integrations`;
+      })(),
       footer: true,
-      topNav: true,
       tasksOnlyOk: true
     }
   ];
@@ -218,7 +231,13 @@ export function spaceNavCatalog(v: Visibility): SpaceNavItem[] {
 function visibleSpaceItems(v: Visibility): SpaceNavItem[] {
   return spaceNavCatalog(v).filter((item) => {
     if (item.adminOnly && !v.isAdmin) return false;
-    if (item.billingOnly && !v.billingAccess) return false;
+    if (item.billingOnly && !v.billingAccess) {
+      // Associates draft letters / message clients without full billing desk.
+      if (v.navProfile === "associate" && item.id === "communications") {
+        return true;
+      }
+      return false;
+    }
     if (!v.billingAccess && !item.tasksOnlyOk && !item.footer) return false;
     return true;
   });
@@ -256,13 +275,13 @@ export function spaceCreateAction(
       };
     case "accounts":
       return {
-        href: billingHref({ page: "newClient" }),
-        label: "Intake"
+        href: billingHref({ page: "billing" }),
+        label: "Billing"
       };
     case "booking":
       return {
-        href: walkInConsultationCreateHref(),
-        label: "Add walk-in"
+        href: billingHref({ page: "newClient" }),
+        label: "Client intake"
       };
     case "calendar":
       return {
@@ -285,26 +304,25 @@ export function spaceCreateAction(
         href: tasksHref({ tab: "team" }),
         label: "Team board"
       };
-    case "mail":
     case "templates":
       return {
-        href: correspondenceHref(),
+        href: tasksHref({ tab: "templates" }),
+        label: "Upload template"
+      };
+    case "communications":
+      return {
+        href: withSpaceParam(correspondenceHref(), "communications"),
         label: "Draft letter"
       };
     case "drive":
       return {
         href: withSpaceParam(billingHref({ page: "documents" }), "drive"),
-        label: "SOA & Receipts"
+        label: "Document vault"
       };
     case "messenger":
       return {
         href: `${withSpaceParam(tasksHref({ tab: "today" }), "messenger")}&compose=1`,
         label: "Message"
-      };
-    case "employees":
-      return {
-        href: withSpaceParam(tasksHref({ tab: "tools" }), "staff"),
-        label: "Staff"
       };
     case "reports":
       return {
@@ -315,6 +333,16 @@ export function spaceCreateAction(
       return {
         href: notificationsHref(),
         label: "Notifications"
+      };
+    case "administration":
+      return {
+        href: tasksHref({ tab: "tools" }),
+        label: "Administration"
+      };
+    case "settings":
+      return {
+        href: spaceTasksExtraHref("integrations") || tasksHref({ tab: "tools" }),
+        label: "Settings"
       };
     default:
       return {
@@ -348,10 +376,10 @@ const SPACE_TOP_CONTEXT: Record<SpaceNavId, SpaceNavId[]> = {
   filing: [],
   templates: [],
   drive: [],
-  mail: [],
-  employees: [],
+  communications: [],
   reports: [],
   notifications: [],
+  administration: [],
   settings: []
 };
 
@@ -369,13 +397,15 @@ const SPACE_TASKS_SECTION_TABS: Record<SpaceNavId, string[]> = {
   accounts: [],
   booking: [],
   filing: ["filing-e", "filing-physical"],
-  templates: ["correspondence"],
+  templates: ["templates"],
   drive: [],
-  mail: ["correspondence"],
-  employees: [],
+  communications: ["correspondence", "client-messaging"],
   reports: [],
   notifications: ["notifications"],
-  settings: ["tools", "integrations"]
+  /* Admin desk: tools + staff roster + attendance + payroll (extras / navTabs gate visibility). */
+  administration: ["tools", "staff", "presence", "payroll"],
+  /* Integrations / firm connectors — former Settings desk content. */
+  settings: ["integrations"]
 };
 
 /** Space-only / cross-route section tabs injected into Tasks modules. */
@@ -404,6 +434,23 @@ const SPACE_TASKS_EXTRA_TABS: NavTabDef<string>[] = [
     id: "notifications",
     label: "Notifications",
     description: "Alerts and follow-ups."
+  },
+  {
+    id: "client-messaging",
+    label: "Message clients",
+    description: "Email clients from the firm desk."
+  },
+  {
+    id: "staff",
+    label: "Staff",
+    description: "Staff directory and ledger.",
+    adminOnly: true
+  },
+  {
+    id: "payroll",
+    label: "Payroll",
+    description: "Semi-monthly staff payroll and allowances.",
+    adminOnly: true
   }
 ];
 
@@ -411,7 +458,7 @@ export function isSpaceTasksExtraTab(id: string): boolean {
   return SPACE_TASKS_EXTRA_TABS.some((tab) => tab.id === id);
 }
 
-/** Href for Space tasks extras (Hub / Integrations / filing queues). */
+/** Href for Space tasks extras (Hub / Integrations / filing queues / admin desks). */
 export function spaceTasksExtraHref(id: string): string | null {
   if (id === "office-hub") return "/office-hub";
   if (id === "integrations") {
@@ -427,6 +474,9 @@ export function spaceTasksExtraHref(id: string): string | null {
     return `${base}${base.includes("?") ? "&" : "?"}filingQueue=physical`;
   }
   if (id === "notifications") return notificationsHref();
+  if (id === "client-messaging") return clientMessagingHref();
+  if (id === "staff") return withSpaceParam(tasksHref({ tab: "tools" }), "staff");
+  if (id === "payroll") return billingHref({ page: "staffSalary" });
   return null;
 }
 
@@ -440,7 +490,7 @@ export function spaceTasksViewTabs(): NavTabDef<"all-items" | "desk-checklist">[
 /** Create menu options (Bitrix + Create dropdown). */
 export function spaceCreateMenu(
   activeId: SpaceNavId,
-  v: Pick<Visibility, "billingAccess">
+  v: Pick<Visibility, "billingAccess" | "isAdmin">
 ): { label: string; href: string }[] {
   if (activeId === "tasks" || activeId === "start" || activeId === "calendar") {
     return [
@@ -458,13 +508,13 @@ export function spaceCreateMenu(
   }
   if (activeId === "accounts") {
     return [
-      { label: "Intake", href: billingHref({ page: "newClient" }) },
       { label: "Billing", href: billingHref({ page: "billing" }) },
       { label: "SOA & Receipts", href: billingHref({ page: "documents" }) }
     ];
   }
   if (activeId === "booking") {
     return [
+      { label: "Client intake", href: billingHref({ page: "newClient" }) },
       { label: "Walk-in consultation", href: walkInConsultationCreateHref() },
       { label: "Spot billing", href: billingHref({ page: "spotBilling" }) },
       { label: "Notarization", href: billingHref({ page: "notarizations" }) }
@@ -472,7 +522,7 @@ export function spaceCreateMenu(
   }
   if (activeId === "drive" && v.billingAccess) {
     return [
-      { label: "SOA & Receipts", href: withSpaceParam(billingHref({ page: "documents" }), "drive") },
+      { label: "Document vault", href: withSpaceParam(billingHref({ page: "documents" }), "drive") },
       { label: "Pick client for SOA", href: billingHref({ page: "clients" }) }
     ];
   }
@@ -484,6 +534,19 @@ export function spaceCreateMenu(
   }
   if (activeId === "team") {
     return [{ label: "Team board", href: tasksHref({ tab: "team" }) }];
+  }
+  if (activeId === "administration") {
+    const items: { label: string; href: string }[] = [
+      { label: "Administration", href: tasksHref({ tab: "tools" }) }
+    ];
+    if (v.isAdmin) {
+      items.push(
+        { label: "Staff", href: spaceTasksExtraHref("staff") || tasksHref({ tab: "tools" }) },
+        { label: "Staff attendance", href: tasksHref({ tab: "presence" }) },
+        { label: "Payroll", href: spaceTasksExtraHref("payroll") || billingHref({ page: "staffSalary" }) }
+      );
+    }
+    return items;
   }
   if (activeId === "settings") {
     return [
@@ -501,16 +564,14 @@ export function spaceCreateMenu(
       }
     ];
   }
-  if (activeId === "employees") {
-    return [
-      {
-        label: "Staff directory",
-        href: withSpaceParam(tasksHref({ tab: "tools" }), "staff")
-      }
-    ];
+  if (activeId === "templates") {
+    return [{ label: "Upload template", href: tasksHref({ tab: "templates" }) }];
   }
-  if (activeId === "mail" || activeId === "templates") {
-    return [{ label: "Draft letter", href: correspondenceHref() }];
+  if (activeId === "communications") {
+    return [
+      { label: "Draft letter", href: withSpaceParam(correspondenceHref(), "communications") },
+      { label: "Message client", href: clientMessagingHref({ compose: true }) }
+    ];
   }
   return [];
 }
@@ -562,15 +623,16 @@ const SPACE_BILLING_SECTION_PAGES: Record<SpaceNavId, string[]> = {
   tasks: [],
   calendar: [],
   crm: ["clients"],
-  accounts: ["newClient", "billing", "documents", "history", "home"],
-  booking: ["walkIns", "spotBilling", "notarizations"],
+  accounts: ["billing", "documents", "history", "home"],
+  booking: ["newClient", "walkIns", "spotBilling", "notarizations"],
   filing: [],
   templates: [],
   drive: ["documents"],
-  mail: [],
-  employees: [],
-  reports: ["reports", "fieldDispatch", "staffSalary", "firmFinances"],
+  communications: [],
+  reports: ["reports", "fieldDispatch", "firmFinances"],
   notifications: [],
+  /* Payroll lives under Administration — section tabs come from filterSpaceTasksSectionTabs. */
+  administration: [],
   settings: []
 };
 
@@ -586,11 +648,27 @@ export function filterSpaceBillingSectionTabs<T extends { id: string; label?: st
   for (const id of allow) {
     const tab = byId.get(id);
     if (!tab) continue;
-    if (id === "documents" && (activeId === "accounts" || activeId === "drive")) {
+    if (id === "documents" && activeId === "drive") {
+      out.push({
+        ...tab,
+        label: "Document vault",
+        description: "Status Reports and other outbound PDFs by folder."
+      });
+      continue;
+    }
+    if (id === "documents" && activeId === "accounts") {
       out.push({
         ...tab,
         label: "SOA & Receipts",
         description: "Issue statements of account and acknowledgment receipts."
+      });
+      continue;
+    }
+    if (id === "newClient" && activeId === "booking") {
+      out.push({
+        ...tab,
+        label: "Client intake",
+        description: tab.description || "Start a new retained client."
       });
       continue;
     }
@@ -613,7 +691,8 @@ export function spaceTopContextTabs(activeId: SpaceNavId, v: Visibility): SpaceN
 /** Filter Tasks app nav tabs to the active Space module’s contents. */
 export function filterSpaceTasksSectionTabs<T extends { id: string; label?: string; description?: string }>(
   activeId: SpaceNavId,
-  tabs: T[]
+  tabs: T[],
+  options?: { isAdmin?: boolean }
 ): Array<T | NavTabDef<string>> {
   const allow = SPACE_TASKS_SECTION_TABS[activeId] || [];
   if (allow.length === 0) return [];
@@ -622,7 +701,9 @@ export function filterSpaceTasksSectionTabs<T extends { id: string; label?: stri
   const out: Array<T | NavTabDef<string>> = [];
   for (const id of allow) {
     if (extras.has(id)) {
-      out.push(extras.get(id)!);
+      const extra = extras.get(id)!;
+      if (extra.adminOnly && !options?.isAdmin) continue;
+      out.push(extra);
       continue;
     }
     const tab = byId.get(id);
@@ -643,29 +724,40 @@ export function resolveActiveSpaceNav(pathname: string, search: string): SpaceNa
   if (space === "messenger" || (typeof window !== "undefined" && window.location.hash.includes("space-messenger"))) {
     return "messenger";
   }
-  if (space === "staff" || space === "employees") return "employees";
+  /* Staff ledger nests under Administration (legacy space=employees still works). */
+  if (space === "staff" || space === "employees") return "administration";
   if (space === "drive") return "drive";
   if (space === "notifications") return "notifications";
+  /* Legacy Templates deep links that opened correspondence now land on Communications. */
+  if (space === "templates" && tab === "correspondence") return "communications";
   if (space === "templates") return "templates";
-  if (panel === "integrations" || space === "integrations") return "settings";
+  /* Legacy Mail deep links land on Communications. */
+  if (space === "communications" || space === "mail" || panel === "client-messaging") {
+    return "communications";
+  }
+  if (panel === "integrations" || space === "integrations" || space === "settings") return "settings";
   if (path.includes("/office-hub") || path.includes("/hub")) return "start";
   if (path.includes("/matter")) return "tasks";
   if (path.includes("/billing")) {
-    if (page === "walkIns" || page === "spotBilling" || page === "notarizations" || path.includes("walk")) {
+    const section = (params.get("section") || "").toLowerCase();
+    if (
+      page === "newClient" ||
+      page === "walkIns" ||
+      page === "spotBilling" ||
+      page === "notarizations" ||
+      section === "intake" ||
+      section === "walkins" ||
+      section === "notarizations" ||
+      path.includes("walk")
+    ) {
       return "booking";
     }
-    if (page === "reports" || page === "fieldDispatch" || page === "staffSalary" || page === "firmFinances") {
+    if (page === "staffSalary" || section === "salary") return "administration";
+    if (page === "reports" || page === "fieldDispatch" || page === "firmFinances") {
       return "reports";
     }
     if (page === "clients") return "crm";
-    if (
-      page === "newClient" ||
-      page === "billing" ||
-      page === "documents" ||
-      page === "history" ||
-      page === "home" ||
-      !page
-    ) {
+    if (page === "billing" || page === "documents" || page === "history" || page === "home" || !page) {
       return "accounts";
     }
     return "accounts";
@@ -673,9 +765,10 @@ export function resolveActiveSpaceNav(pathname: string, search: string): SpaceNa
   if (path.includes("/app")) {
     if (tab === "calendar" || tab === "week") return "calendar";
     if (tab === "filing") return "filing";
-    if (tab === "correspondence") return "mail";
+    if (tab === "templates") return "templates";
+    if (tab === "correspondence") return "communications";
     if (tab === "notifications") return "notifications";
-    if (tab === "tools") return "settings";
+    if (tab === "tools" || tab === "presence") return "administration";
     if (tab === "team") return "team";
     if (tab === "all-items" || tab === "add-task" || tab === "add-event") return "tasks";
     if (tab === "desk-checklist" || tab === "today" || tab === "history" || !tab) {

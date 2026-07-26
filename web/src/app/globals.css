@@ -17508,6 +17508,23 @@ body:has(.office-hub-page) {
   background: rgba(255, 255, 255, 0.72);
 }
 
+.my-work-checklist--compact {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.my-work-checklist--compact > .feed-compact-disclosure {
+  border-radius: 0.5rem;
+}
+
+.my-work-feed__type-groups--compact .my-work-feed__type-group + .my-work-feed__type-group {
+  margin-top: 0.65rem;
+}
+
 .my-work-checklist--collapsed {
   display: none;
 }
@@ -17999,6 +18016,44 @@ body:has(.office-hub-page) {
   font-size: 0.75rem;
   line-height: 1.45;
   color: #6f675c;
+}
+
+.my-work-feed__type-groups {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.my-work-feed__type-group + .my-work-feed__type-group {
+  padding-top: 0.15rem;
+}
+
+.my-work-feed__type-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0 0 0.45rem;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(26, 22, 18, 0.62);
+}
+
+.my-work-feed__type-count {
+  display: inline-flex;
+  min-width: 1.35rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.05rem 0.4rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(26, 22, 18, 0.58);
 }
 
 .my-work-feed__count {
@@ -20112,8 +20167,111 @@ body:has(.office-hub-page) {
     @apply space-y-2;
   }
 
+  .desk-checklist__list--compact {
+    @apply space-y-2;
+  }
+
+  .desk-checklist__type-groups {
+    @apply space-y-3;
+  }
+
+  .desk-checklist__type-groups--compact {
+    @apply space-y-2.5;
+  }
+
+  .desk-checklist__type-group + .desk-checklist__type-group {
+    @apply pt-1;
+  }
+
+  .desk-checklist__type-title {
+    @apply mb-2 flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-wide text-ink/70;
+  }
+
+  .desk-checklist__type-count {
+    @apply rounded-full border border-line/60 bg-white/80 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-muted;
+  }
+
+  .feed-compact-disclosure {
+    @apply list-none;
+    position: static;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(26, 22, 18, 0.18);
+    border-radius: 0.65rem;
+    background: #fff;
+  }
+
+  .feed-compact-disclosure__details {
+    position: static;
+    display: block;
+    width: 100%;
+  }
+
+  .feed-compact-disclosure__details::details-content {
+    display: block;
+    height: auto;
+    overflow: visible;
+    transition: none;
+  }
+
+  .feed-compact-disclosure__summary {
+    position: static;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    list-style: none;
+    padding: 0.7rem 0.85rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: rgba(26, 22, 18, 0.92);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .feed-compact-disclosure__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .feed-compact-disclosure__summary::marker {
+    content: "";
+  }
+
+  .feed-compact-disclosure__summary:focus-visible {
+    outline: 2px solid rgba(184, 148, 72, 0.55);
+    outline-offset: -2px;
+  }
+
+  .feed-compact-disclosure__body {
+    position: static;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    border-top: 1px solid rgba(26, 22, 18, 0.12);
+    padding: 0.55rem 0.65rem 0.7rem;
+  }
+
   .desk-checklist-row {
     @apply flex w-full max-w-full items-stretch gap-3 rounded-xl border border-line/70 bg-white/95 px-3 py-2.5 shadow-sm transition;
+  }
+
+  /* Keep expanded detail flush inside the disclosure card (no nested card / overlay). */
+  .feed-compact-disclosure__body .desk-checklist-row,
+  .feed-compact-disclosure__body .my-work-checklist__row {
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding-left: 0.15rem;
+    padding-right: 0.15rem;
+  }
+
+  .feed-compact-disclosure__body .my-work-checklist__row {
+    border-bottom: 0 !important;
   }
 
   .desk-checklist-row--prep-ready {

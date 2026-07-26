@@ -15,6 +15,7 @@ export const TASKS_TAB_LABELS: Record<SavedTasksTab, string> = {
   "add-event": "New hearing & filing",
   "all-items": "Find item",
   correspondence: "Correspondence",
+  templates: "Templates",
   filing: "Filing",
   tools: "Administration",
   liaison: "Liaison",
@@ -38,6 +39,7 @@ export const TASKS_TAB_DESCRIPTIONS: Record<SavedTasksTab, string> = {
   "all-items": "Search open tasks, hearings, and events by keyword, client, or staff member.",
   correspondence:
     "Draft demand letters, proposals, replies, and other letters on firm letterhead.",
+  templates: "Reusable firm letter and form starters for the desk.",
   filing: "E-filing and registered mail / courier / personal service queues for submitted pleadings.",
   tools: "Update data, sync Google Calendar, print lists, and other administration.",
   liaison:
@@ -114,6 +116,12 @@ export const TASKS_NAV_TABS: NavTabDef<SavedTasksTab>[] = [
     group: "actions"
   },
   {
+    id: "templates",
+    label: TASKS_TAB_LABELS.templates,
+    description: TASKS_TAB_DESCRIPTIONS.templates,
+    group: "actions"
+  },
+  {
     id: "filing",
     label: TASKS_TAB_LABELS.filing,
     description: TASKS_TAB_DESCRIPTIONS.filing,
@@ -153,6 +161,7 @@ const FULL_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
   "week",
   "all-items",
   "correspondence",
+  "templates",
   "team",
   "history",
   "tools"
@@ -330,7 +339,8 @@ const TASKS_ONLY_NAV_TAB_IDS: SavedTasksTab[] = [
   "add-task",
   "add-event",
   "filing",
-  "calendar"
+  "calendar",
+  "templates"
 ];
 
 /** Associate lawyers — counsel desk essentials (no billing / team oversight). */
@@ -343,6 +353,7 @@ const ASSOCIATE_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
   "week",
   "filing",
   "correspondence",
+  "templates",
   "all-items"
 ];
 
@@ -356,7 +367,8 @@ const SECRETARY_TASKS_NAV_TAB_IDS: SavedTasksTab[] = [
   "calendar",
   "week",
   "all-items",
-  "correspondence"
+  "correspondence",
+  "templates"
 ];
 
 export function resolveNavUserProfile(options: {
@@ -441,6 +453,7 @@ export function isAllowedTasksTab(
 ): boolean {
   if (tab === "presence") return options?.canViewPresenceTab === true;
   if (tab === "liaison") return options?.canViewLiaisonTab === true;
+  if (tab === "templates") return true;
   if (tab === "correspondence" && profile === "associate") return true;
   if (tab === "correspondence" && !billingAccess && profile !== "associate") return false;
   const resolved = profile === "full" && !billingAccess ? "tasks-only" : profile;

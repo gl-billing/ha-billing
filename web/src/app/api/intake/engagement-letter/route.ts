@@ -11,6 +11,10 @@ import {
 } from "@/lib/engagement-letter";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import {
+  saveOutboundFirmPdf,
+  withDriveSaveMessage
+} from "@/lib/sheets/drive-outbound-pdf";
+import {
   getGmailAccountEmail,
   sendHtmlEmailWithAttachmentsViaGmail,
   sentMailHint
@@ -85,6 +89,22 @@ export async function POST(request: Request) {
 
     const email = buildEngagementEmailPreview(letter);
     const bccEmail = await getGmailAccountEmail(accessToken, session?.user?.email || undefined);
+    const documentType = letter.documentType === "contract" ? "Contract" : "Engagement";
+
+    const drive = await saveOutboundFirmPdf({
+      accessToken,
+      category: "engagement",
+      documentType,
+      filename,
+      pdf: pdfBytes,
+      clientCode: letter.clientCode,
+      clientName: letter.clientName,
+      documentNumber: filename.replace(/\.pdf$/i, ""),
+      email: recipient,
+      status: action === "draft" ? "Draft Created" : "Sent",
+      user: session?.user?.email || undefined
+    });
+
     const delivery = await sendHtmlEmailWithAttachmentsViaGmail({
       accessToken,
       to: recipient,
@@ -101,15 +121,21 @@ export async function POST(request: Request) {
       action: action === "draft" ? "engagement-letter.draft" : "engagement-letter.send",
       clientCode: letter.clientCode || undefined,
       summary: action === "draft" ? "Engagement letter Gmail draft created" : "Engagement letter sent",
-      details: `${filename} → ${recipient}`
+      details: `${filename} → ${recipient}${drive.pdfUrl ? ` · ${drive.pdfUrl}` : ""}`
     });
 
-    const message =
+    const base =
       action === "draft"
         ? `Gmail draft saved with ${filename} attached. Open Gmail → Drafts to review before sending.`
         : sentMailHint(delivery.senderEmail, recipient, delivery.messageId, true);
 
-    return NextResponse.json({ ok: true, message, filename });
+    return NextResponse.json({
+      ok: true,
+      message: withDriveSaveMessage(base, drive),
+      filename,
+      pdfUrl: drive.pdfUrl,
+      driveSaved: drive.driveSaved
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Engagement letter action failed.";
     const status = message.startsWith("Unauthorized") ? 401 : 400;

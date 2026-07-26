@@ -23,6 +23,7 @@ type Props = {
   /** When true, Invite lives only in the topnav. */
   hideInvite?: boolean;
   billingAccess?: boolean;
+  isAdmin?: boolean;
   /** Controlled Find query (Tasks desk). */
   findValue?: string;
   onFindChange?: (query: string) => void;
@@ -41,6 +42,7 @@ export function BitrixSpaceToolbar({
   themeSlot,
   hideInvite = false,
   billingAccess = true,
+  isAdmin = false,
   findValue,
   onFindChange,
   onFindSubmit
@@ -59,24 +61,27 @@ export function BitrixSpaceToolbar({
         ? "Feed"
         : activeId === "calendar"
           ? "Calendar"
-          : activeId === "mail"
-            ? "Mail"
+          : activeId === "communications"
+            ? "Communications"
             : activeId === "drive"
-              ? "Documents"
+              ? "Drive"
               : activeId === "messenger"
                 ? "Messenger"
-                : activeId === "employees"
-                  ? "Staff"
+                : activeId === "administration"
+                  ? "Administration"
                   : activeId === "crm"
                     ? "Client Directory"
                     : activeId === "settings"
-                      ? "Firm settings"
+                      ? "Settings"
                       : active?.label || "Workspace");
   const create = spaceCreateAction(activeId, { billingAccess });
-  const createMenu = spaceCreateMenu(activeId, { billingAccess });
+  const createMenu = spaceCreateMenu(activeId, { billingAccess, isAdmin });
   const inviteHref = spaceInviteHref();
   const teamHref = spaceTeamHref();
-  const settingsHref = tasksHref({ tab: "tools" });
+  const settingsHref = (() => {
+    const base = tasksHref({ tab: "tools" });
+    return `${base}${base.includes("?") ? "&" : "?"}panel=integrations`;
+  })();
   const findHref = tasksHref({ tab: "all-items" });
   const [menuOpen, setMenuOpen] = useState(false);
   const [localFind, setLocalFind] = useState("");

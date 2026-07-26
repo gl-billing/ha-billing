@@ -13,6 +13,7 @@ import { HomeDashboard, type HomeNavigate } from "@/components/HomeDashboard";
 import { MatterIntakeWizard } from "@/components/MatterIntakeWizard";
 import { ClientsDirectory } from "@/components/ClientsDirectory";
 import { DocumentsPanel } from "@/components/DocumentsPanel";
+import { DocumentVaultPanel } from "@/components/DocumentVaultPanel";
 import { NewClientForm } from "@/components/NewClientForm";
 import { ReportsPanel } from "@/components/ReportsPanel";
 import { FirmFinancesPanel } from "@/components/FirmFinancesPanel";
@@ -52,9 +53,13 @@ import {
 } from "@/lib/clio/workspace-nav";
 import {
   filterSpaceBillingSectionTabs,
+  filterSpaceTasksSectionTabs,
+  isSpaceTasksExtraTab,
   resolveActiveSpaceNav,
-  spaceNavItemsForUser
+  spaceNavItemsForUser,
+  spaceTasksExtraHref
 } from "@/lib/space-nav";
+import { tasksHref } from "@/lib/tasks-routes";
 import { matterHref } from "@/lib/matter-routes";
 import { BillingTabGuide, BillingTabGuideText, TabPageHeader } from "@/components/BillingTabGuide";
 import { TabPageBody, TabPickerCard } from "@/components/TabPageLayout";
@@ -205,6 +210,11 @@ export function BillingApp() {
       const href = buildClioHref(clio.nav, clio.section, { billingPath, tasksPath });
       const nextParams = new URLSearchParams(href.split("?")[1] || "");
       if (clientCode) nextParams.set("client", clientCode);
+      /* Clio rewrite used to drop space=drive, so Drive rail clicks remapped to Accounts. */
+      const space = searchParams.get("space")?.toLowerCase();
+      if (space === "drive" && next === "documents") {
+        nextParams.set("space", "drive");
+      }
       const nextSearch = nextParams.toString();
       const current = searchParams.toString();
       if (current === nextSearch) return;
@@ -256,10 +266,19 @@ export function BillingApp() {
   );
   const pathname = usePathname() || "";
   const spaceActiveId = resolveActiveSpaceNav(pathname, searchParams.toString());
-  const spaceSectionTabs = useMemo(
-    () => filterSpaceBillingSectionTabs(spaceActiveId, billingNavTabs),
-    [billingNavTabs, spaceActiveId]
-  );
+  const spaceSectionTabs = useMemo(() => {
+    if (spaceActiveId === "administration") {
+      return filterSpaceTasksSectionTabs(
+        "administration",
+        [
+          { id: "tools", label: "Administration", description: "Firm tools and maintenance." },
+          { id: "presence", label: "Staff attendance", description: "Attendance register." }
+        ],
+        { isAdmin: isAdmin || canManageTeamRoster }
+      );
+    }
+    return filterSpaceBillingSectionTabs(spaceActiveId, billingNavTabs);
+  }, [billingNavTabs, spaceActiveId, isAdmin, canManageTeamRoster]);
   const introContent = useMemo(() => getBillingIntroContent(billingNavTabs), [billingNavTabs]);
   const tabShortcuts = useMemo(() => {
     const { primary, footer } = spaceNavItemsForUser({
@@ -335,7 +354,14 @@ export function BillingApp() {
         }
         saveClioNav(clioNav, section.id);
         if (section.id !== requested.id) {
-          router.replace(buildClioHref(clioNav, section.id, { billingPath, tasksPath }), {
+          const corrected = buildClioHref(clioNav, section.id, { billingPath, tasksPath });
+          const correctedParams = new URLSearchParams(corrected.split("?")[1] || "");
+          if (params.get("space")?.toLowerCase() === "drive" && section.billingPage === "documents") {
+            correctedParams.set("space", "drive");
+          }
+          const client = params.get("client")?.trim();
+          if (client) correctedParams.set("client", client);
+          router.replace(`${billingPath}?${correctedParams.toString()}`, {
             scroll: false
           });
         }
@@ -682,8 +708,21 @@ export function BillingApp() {
           spaceSectionTabs.length ? (
             <BitrixSpaceSectionTabs
               tabs={spaceSectionTabs}
-              activeId={page}
+              activeId={spaceActiveId === "administration" && page === "staffSalary" ? "payroll" : page}
               onSelect={(id) => {
+                if (spaceActiveId === "administration") {
+                  if (isSpaceTasksExtraTab(id)) {
+                    const href = spaceTasksExtraHref(id);
+                    if (href) {
+                      router.push(href);
+                      return;
+                    }
+                  }
+                  if (id === "tools" || id === "presence") {
+                    router.push(tasksHref({ tab: id }));
+                    return;
+                  }
+                }
                 const next = id as AppPage;
                 goToPage(next);
                 if (spaceActiveId === "drive" && next === "documents" && typeof window !== "undefined") {
@@ -910,19 +949,40 @@ export function BillingApp() {
 
       {page === "documents" && (
         <>
-          <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="print SOA or receipt">
-              <BillingTabGuideText>
-                Pick a client, then choose <strong>Statement of Account (SOA)</strong> to show what they owe, or{" "}
-                <strong>Acknowledgment Receipt (AR)</strong> for a payment already recorded on their ledger.
-              </BillingTabGuideText>
-              <BillingTabGuideText>
-                Record new fees and payments first on <strong>Charges &amp; payments</strong> — this tab only prints or
-                emails documents from what is already posted.
-              </BillingTabGuideText>
-            </BillingTabGuide>
+          <TabPageHeader resetKey={`${page}-${spaceActiveId}`}>
+            {spaceActiveId === "drive" ? (
+              <BillingTabGuide title="Drive">
+                <BillingTabGuideText>
+                  Browse outbound PDFs by folder — <strong>Status Reports</strong>, NR, correspondence,
+                  engagement, and spot billing. Issue a new statement or receipt below when needed.
+                </BillingTabGuideText>
+                <BillingTabGuideText>
+                  Matter status text still rides with SOA emails today; the Status Reports folder is ready for dedicated
+                  PDFs when those are saved to Drive.
+                </BillingTabGuideText>
+              </BillingTabGuide>
+            ) : (
+              <BillingTabGuide title="print SOA or receipt">
+                <BillingTabGuideText>
+                  Pick a client, then choose <strong>Statement of Account (SOA)</strong> to show what they owe, or{" "}
+                  <strong>Acknowledgment Receipt (AR)</strong> for a payment already recorded on their ledger.
+                </BillingTabGuideText>
+                <BillingTabGuideText>
+                  Record new fees and payments first on <strong>Charges &amp; payments</strong> — this tab only prints or
+                  emails documents from what is already posted.
+                </BillingTabGuideText>
+              </BillingTabGuide>
+            )}
           </TabPageHeader>
           <TabPageBody>
+          {spaceActiveId === "drive" ? (
+            <DocumentVaultPanel
+              clientCode={undefined}
+              busy={busy}
+              limit={50}
+              vaultMode
+            />
+          ) : null}
           <TabPickerCard label="Client for documents">
             <select
               className="field"
@@ -949,6 +1009,13 @@ export function BillingApp() {
             onBusy={setBusy}
             onStatus={setAppStatus}
           />
+          {spaceActiveId !== "drive" ? (
+            <DocumentVaultPanel
+              clientCode={clientCode || undefined}
+              busy={busy}
+              limit={25}
+            />
+          ) : null}
           </TabPageBody>
         </>
       )}

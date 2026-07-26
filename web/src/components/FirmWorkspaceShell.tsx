@@ -154,6 +154,7 @@ export function FirmWorkspaceShell({
                   {chromeTopBanner}
                   <BitrixSpaceToolbar
                     billingAccess={billingAccess}
+                    isAdmin={isAdmin}
                     messagesSlot={null}
                     notificationsSlot={null}
                     themeSlot={null}
@@ -210,6 +211,7 @@ export function FirmWorkspaceShell({
                 {chromeTopBanner}
                 <BitrixSpaceToolbar
                   billingAccess={billingAccess}
+                  isAdmin={isAdmin}
                   messagesSlot={null}
                   notificationsSlot={null}
                   themeSlot={null}
@@ -261,7 +263,7 @@ export function FirmWorkspaceShell({
           </div>
         )}
 
-        <MobileSpaceDeskNav billingAccess={billingAccess} />
+        <MobileSpaceDeskNav billingAccess={billingAccess} isAdmin={isAdmin} />
 
         <FirmCommandPalette workspace={workspace} billingAccess={billingAccess} />
       </div>

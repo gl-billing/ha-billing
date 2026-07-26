@@ -8,6 +8,8 @@ import { SameWindowLink } from "@/components/SameWindowLink";
 import { useMatterNavigation } from "@/hooks/useMatterNavigation";
 import { BIRTHDAYS_REFRESH_EVENT } from "@/components/TodayBirthdaysProvider";
 import { matterHref } from "@/lib/matter-routes";
+import { billingHref } from "@/lib/billing-routes";
+import { tasksHref } from "@/lib/tasks-routes";
 import type {
   FirmNotificationKind,
   FirmNotificationMarkFiledAction
@@ -19,6 +21,7 @@ type Notice = {
   title: string;
   subtitle: string;
   href: string;
+  linkLabel: string;
   markFiledAction?: FirmNotificationMarkFiledAction;
 };
 
@@ -38,6 +41,27 @@ const SECTION_LABELS: Record<FirmNotificationKind, string> = {
   "hearing-today": "Hearings today",
   "prep-ready": "Prep ready for filing"
 };
+
+function noticeLink(kind: FirmNotificationKind, clientCode?: string): { href: string; label: string } {
+  const code = (clientCode || "").trim();
+  const hasMatter = Boolean(code) && code.toUpperCase() !== "APP";
+  if (kind === "birthday" && hasMatter) {
+    return { href: matterHref(code), label: "Open matter / greeting" };
+  }
+  if (kind === "birthday") {
+    return { href: billingHref({ page: "clients" }), label: "Open clients" };
+  }
+  if ((kind === "filing-due" || kind === "prep-ready") && hasMatter) {
+    return { href: matterHref(code), label: "Open matter" };
+  }
+  if (kind === "filing-due" || kind === "prep-ready") {
+    return { href: tasksHref({ tab: "filing" }), label: "Open filing queues" };
+  }
+  if (kind === "hearing-today" && hasMatter) {
+    return { href: matterHref(code), label: "Open matter" };
+  }
+  return { href: tasksHref({ tab: "desk-checklist" }), label: "Open today’s desk" };
+}
 
 export function NotificationsCenter({ compact = false }: Props) {
   const { withReturn } = useMatterNavigation();
@@ -71,14 +95,18 @@ export function NotificationsCenter({ compact = false }: Props) {
           subtitle: string;
           clientCode: string;
           markFiledAction?: FirmNotificationMarkFiledAction;
-        }) => ({
-          id: row.id,
-          kind: row.kind,
-          title: row.title,
-          subtitle: row.subtitle,
-          href: matterHref(row.clientCode || "APP"),
-          markFiledAction: row.markFiledAction
-        })
+        }) => {
+          const link = noticeLink(row.kind, row.clientCode);
+          return {
+            id: row.id,
+            kind: row.kind,
+            title: row.title,
+            subtitle: row.subtitle,
+            href: link.href,
+            linkLabel: link.label,
+            markFiledAction: row.markFiledAction
+          };
+        }
       );
       setNotices(list.slice(0, 24));
     } finally {
