@@ -1,6 +1,6 @@
 /**
- * Extra iPhone / small-phone polish for the Clio shell.
- * Loaded after viewport-shell + ha-clio-shell.
+ * Extra iPhone / small-phone polish for HA Space (+ legacy Clio shell).
+ * Loaded last among app CSS layers so mobile rules win without breaking desktop.
  */
 
 /* Safe-area padding for notched iPhones */
@@ -22,12 +22,325 @@
   }
 }
 
+/* ── Bottom desk nav — base layout (hidden on desktop via ha-space-shell) ── */
+.mobile-space-desk-nav.mobile-clio-desk-nav {
+  display: none;
+  box-sizing: border-box;
+  grid-auto-flow: column;
+  align-items: stretch;
+  justify-items: stretch;
+  gap: 0;
+  background: #0a0a0a;
+  border-top: 1px solid #000;
+  color: rgba(245, 245, 245, 0.82);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-clio-desk-nav__link,
+.mobile-clio-desk-nav__search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: var(--touch-min, 44px);
+  padding: 0.35rem 0.2rem;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 1.15;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.mobile-clio-desk-nav__link--active {
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: inset 0 -2.5px 0 #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mobile-clio-desk-nav__search {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
 @media (max-width: 900px) {
   :root {
     --touch-min: 44px;
+    --mobile-bottom-nav-height: 3.25rem;
+    --mobile-bottom-nav-offset: calc(
+      var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px)
+    );
   }
 
-  /* Compact padding around letterhead — logo size unchanged */
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  /* ── Space shell: fill phone viewport without horizontal blowout ── */
+  .firm-workspace.firm-space-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100dvh !important;
+    height: -webkit-fill-available !important;
+    min-height: 100dvh !important;
+    overflow-x: clip !important;
+    padding-bottom: 0 !important;
+  }
+
+  .firm-workspace.firm-space-shell .trial-firm-layout,
+  .firm-workspace.firm-space-shell .trial-firm-layout__main,
+  .firm-workspace.firm-space-shell > .firm-space-desk-scroll,
+  .firm-workspace.firm-space-shell .firm-workspace-body {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .firm-workspace.firm-space-shell .trial-firm-layout__main,
+  .firm-workspace.firm-space-shell > .firm-space-desk-scroll {
+    --space-main-pad-x: max(0.75rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+    --space-main-pad-left: max(0.75rem, env(safe-area-inset-left, 0px));
+    --space-main-pad-top: 0.5rem;
+    --space-main-pad-bottom: calc(var(--mobile-bottom-nav-offset) + 0.55rem);
+    padding-bottom: var(--space-main-pad-bottom) !important;
+  }
+
+  /* Compact top banner logo — usable, not dominant */
+  .firm-workspace.firm-space-shell .bitrix-space-topnav {
+    min-height: 3.65rem !important;
+    padding-top: env(safe-area-inset-top, 0px) !important;
+    padding-right: max(0.45rem, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__brand-link {
+    padding: 0.15rem 0.4rem 0.15rem max(0.35rem, env(safe-area-inset-left, 0px)) !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__logo {
+    max-height: 2.85rem !important;
+    max-width: min(11.5rem, 42vw) !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__actions .keyboard-shortcuts-trigger--header,
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__actions .notifications-center__bell--compact,
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__actions .theme-switcher__trigger--header {
+    width: var(--touch-min) !important;
+    height: var(--touch-min) !important;
+    min-width: var(--touch-min) !important;
+    min-height: var(--touch-min) !important;
+  }
+
+  /* Bottom nav — fixed, safe-area aware, above content */
+  .mobile-space-desk-nav.mobile-clio-desk-nav {
+    display: grid !important;
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    z-index: 80 !important;
+    min-height: var(--mobile-bottom-nav-offset) !important;
+    padding-top: 0.2rem !important;
+    padding-bottom: max(0.3rem, env(safe-area-inset-bottom, 0px)) !important;
+    padding-left: env(safe-area-inset-left, 0px) !important;
+    padding-right: env(safe-area-inset-right, 0px) !important;
+    background: #0a0a0a !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.28) !important;
+    color: rgba(245, 245, 245, 0.82) !important;
+  }
+
+  .mobile-clio-desk-nav__link,
+  .mobile-clio-desk-nav__search {
+    min-height: var(--touch-min) !important;
+    font-size: 0.66rem !important;
+    color: rgba(245, 245, 245, 0.82) !important;
+  }
+
+  .mobile-clio-desk-nav__link--active {
+    color: #ffffff !important;
+    box-shadow: inset 0 -2.5px 0 #ffffff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* More sheet covers bottom nav (standard phone sheet) */
+  .mobile-space-desk-nav__sheet-backdrop {
+    z-index: 85 !important;
+  }
+
+  .mobile-space-desk-nav__sheet {
+    z-index: 90 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    max-height: min(82dvh, 36rem) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.75rem max(0.85rem, env(safe-area-inset-right, 0px))
+      calc(0.9rem + env(safe-area-inset-bottom, 0px))
+      max(0.85rem, env(safe-area-inset-left, 0px)) !important;
+    border-radius: 1rem 1rem 0 0 !important;
+  }
+
+  .mobile-space-desk-nav__sheet-item,
+  .mobile-space-desk-nav__sheet-close {
+    min-height: var(--touch-min) !important;
+  }
+
+  /* Forms — 16px prevents iOS focus zoom; primary controls ≥44px */
+  .firm-workspace.firm-space-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
+  .firm-workspace.firm-space-shell select,
+  .firm-workspace.firm-space-shell textarea,
+  .firm-workspace.firm-space-shell .field,
+  .firm-workspace.firm-space-shell .field-input,
+  .firm-workspace.firm-space-shell [type="search"] {
+    font-size: 16px !important;
+    min-height: var(--touch-min) !important;
+  }
+
+  .firm-workspace.firm-space-shell .btn-primary,
+  .firm-workspace.firm-space-shell .btn-secondary,
+  .firm-workspace.firm-space-shell .btn-gold,
+  .firm-workspace.firm-space-shell .bitrix-space-btn,
+  .firm-workspace.firm-space-shell .tool-action-btn,
+  .firm-workspace.firm-space-shell .bitrix-space-section-tabs__link {
+    min-height: var(--touch-min) !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-section-tabs__link {
+    padding-inline: 0.55rem !important;
+    font-size: 0.78rem !important;
+    white-space: nowrap;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-section-tabs,
+  .firm-workspace.firm-space-shell .firm-shell-subnav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-section-tabs::-webkit-scrollbar,
+  .firm-workspace.firm-space-shell .firm-shell-subnav::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Ledgers / tables — scroll sideways, don’t crush columns */
+  .firm-workspace.firm-space-shell .table-wrap,
+  .firm-workspace.firm-space-shell .data-table-wrap,
+  .firm-workspace.firm-space-shell .filing-workspace__scroll,
+  .firm-workspace.firm-space-shell .firm-ledger-table-wrap,
+  .firm-workspace.firm-space-shell .staff-salary__annex-ledger-wrap,
+  .firm-workspace.firm-space-shell .staff-salary__annex-table-wrap,
+  .firm-workspace.firm-space-shell .overflow-x-auto,
+  .firm-workspace.firm-space-shell .client-directory__table-wrap,
+  .firm-workspace.firm-space-shell .space-staff-ledger__scroll,
+  .firm-workspace.firm-space-shell .billing-history-panel__scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .firm-workspace.firm-space-shell .firm-ledger-table:not(.firm-ledger-table--responsive-stack),
+  .firm-workspace.firm-space-shell table.data-table,
+  .firm-workspace.firm-space-shell .client-list-table:not(.firm-ledger-table--responsive-stack) {
+    min-width: 36rem;
+  }
+
+  /* Modals / overlays / command palette — fit viewport + keyboard */
+  .firm-workspace .modal-backdrop,
+  .firm-workspace .reset-dialog-backdrop,
+  .firm-command-palette {
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    padding-left: env(safe-area-inset-left, 0px) !important;
+    padding-right: env(safe-area-inset-right, 0px) !important;
+  }
+
+  .firm-command-palette {
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0px)) !important;
+    align-items: stretch !important;
+  }
+
+  .firm-workspace .modal-panel,
+  .firm-workspace .reset-dialog,
+  .firm-command-palette__panel,
+  .firm-workspace .client-matter-panel,
+  .firm-workspace .client-directory-overlay__panel,
+  .firm-workspace .birthday-greeting-dialog,
+  .firm-workspace .print-preview-sheet {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: min(92dvh, 100%) !important;
+    border-radius: 1rem 1rem 0 0 !important;
+    margin: 0 !important;
+  }
+
+  .firm-command-palette__panel {
+    max-height: min(88dvh, 100%) !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .firm-command-palette__results {
+    max-height: min(48dvh, 22rem) !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .firm-command-palette__input {
+    font-size: 16px !important;
+    min-height: var(--touch-min) !important;
+  }
+
+  .firm-command-palette__action,
+  .firm-command-palette__result {
+    min-height: var(--touch-min) !important;
+  }
+
+  .firm-workspace .modal-panel,
+  .firm-workspace .entry-form__footer--dialog,
+  .firm-workspace .client-profile-modal__actions {
+    padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .firm-workspace .filing-workspace__selection-bar {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--mobile-bottom-nav-offset) !important;
+    max-width: none !important;
+    border-radius: 0 !important;
+    padding-left: max(0.75rem, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(0.75rem, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  /* Readable body copy without forcing zoom */
+  .firm-workspace.firm-space-shell .firm-workspace-body,
+  .firm-workspace.firm-space-shell .tasks-app {
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__title {
+    font-size: 1.05rem !important;
+  }
+
+  /* Compact padding around letterhead — Clio shell legacy */
   .firm-workspace.firm-clio-shell .brand-header--shell-flush {
     margin-bottom: 0.15rem !important;
   }
@@ -62,14 +375,12 @@
     margin: 0 0 0.3rem;
   }
 
-  /* Workspace picker — large tap target */
   .ha-clio-rail__mobile-select {
     min-height: var(--touch-min);
     font-size: 16px !important;
     border-radius: 0;
   }
 
-  /* Sub-tabs: swipeable, no wrap crush */
   .ha-clio-subtabs__list {
     gap: 0.15rem;
     padding-bottom: 0.15rem;
@@ -89,7 +400,6 @@
     white-space: nowrap;
   }
 
-  /* Forms / buttons — 16px inputs prevent iOS zoom */
   .firm-workspace.firm-clio-shell input:not([type="checkbox"]):not([type="radio"]),
   .firm-workspace.firm-clio-shell select,
   .firm-workspace.firm-clio-shell textarea {
@@ -103,7 +413,6 @@
     min-height: var(--touch-min);
   }
 
-  /* Tables: horizontal scroll without page blowout */
   .firm-workspace.firm-clio-shell .table-wrap,
   .firm-workspace.firm-clio-shell .data-table-wrap,
   .firm-workspace.firm-clio-shell .filing-workspace__scroll {
@@ -113,10 +422,49 @@
   }
 }
 
+/* iPhone-sized widths */
+@media (max-width: 430px) {
+  .firm-workspace.firm-space-shell .bitrix-space-topnav {
+    min-height: 3.35rem !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__logo {
+    max-height: 2.45rem !important;
+    max-width: min(9.75rem, 40vw) !important;
+  }
+
+  .firm-workspace.firm-space-shell .trial-firm-layout__main,
+  .firm-workspace.firm-space-shell > .firm-space-desk-scroll {
+    --space-main-pad-x: max(0.65rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+    --space-main-pad-left: max(0.65rem, env(safe-area-inset-left, 0px));
+  }
+
+  .mobile-space-desk-nav__sheet-links {
+    grid-template-columns: 1fr !important;
+  }
+
+  .mobile-clio-desk-nav__link,
+  .mobile-clio-desk-nav__search {
+    font-size: 0.6rem !important;
+    padding-inline: 0.1rem !important;
+  }
+}
+
 /* Very small phones */
 @media (max-width: 390px) {
   .ha-clio-subtabs__item {
     padding-inline: 0.7rem;
     font-size: 0.84rem;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__title {
+    font-size: 0.98rem !important;
+  }
+}
+
+/* PWA / standalone — keep notch clearance on the black banner */
+@media (display-mode: standalone) {
+  .firm-workspace.firm-space-shell .bitrix-space-topnav {
+    padding-top: max(0.35rem, env(safe-area-inset-top, 0px)) !important;
   }
 }

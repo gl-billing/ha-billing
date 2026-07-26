@@ -49,8 +49,9 @@ export function MobileSpaceDeskNav({ billingAccess = true, isAdmin = false }: Pr
       href: feedHref,
       label: "Feed",
       active:
-        onHub ||
-        (onTasks && !space && (tab === "desk-checklist" || tab === "today" || tab === "history" || !tab))
+        onTasks &&
+        !space &&
+        (tab === "desk-checklist" || tab === "today" || tab === "history" || !tab)
     },
     {
       href: tasksHrefList,
@@ -74,15 +75,32 @@ export function MobileSpaceDeskNav({ billingAccess = true, isAdmin = false }: Pr
 
   const filingBase = tasksHref({ tab: "filing" });
   const filingJoin = filingBase.includes("?") ? "&" : "?";
+  const communicationsHref = withSpace(tasksHref({ tab: "correspondence" }), "communications");
+  const driveHref = withSpace(billingHref({ page: "documents" }), "drive");
+  const settingsHref = `${toolsHref}${toolsHref.includes("?") ? "&" : "?"}panel=integrations`;
   const moreGroups: MoreGroup[] = [
     {
-      label: "Desk",
+      label: "Workspace",
       links: [
         { href: "/office-hub", label: "Office Hub" },
         { href: tasksHref({ tab: "team" }), label: "Collaboration" },
+        ...(billingAccess
+          ? [
+              { href: billingHref({ page: "clients" }), label: "Clients" },
+              { href: billingHref({ page: "walkIns" }), label: "Booking" },
+              { href: driveHref, label: "Drive" }
+            ]
+          : []),
+        { href: communicationsHref, label: "Communications" },
+        { href: toolsHref, label: "Administration" },
+        { href: settingsHref, label: "Settings" }
+      ]
+    },
+    {
+      label: "Desk",
+      links: [
         { href: `${filingBase}${filingJoin}filingQueue=e-filing`, label: "E-filing" },
         { href: `${filingBase}${filingJoin}filingQueue=physical`, label: "Physical filing" },
-        { href: withSpace(tasksHref({ tab: "correspondence" }), "communications"), label: "Correspondence" },
         {
           href: withSpace(tasksHref({ tab: "today" }), "communications") + "&panel=client-messaging",
           label: "Message clients"
@@ -96,7 +114,6 @@ export function MobileSpaceDeskNav({ billingAccess = true, isAdmin = false }: Pr
       links: [
         ...(billingAccess
           ? [
-              { href: billingHref({ page: "clients" }), label: "Clients" },
               { href: billingHref({ page: "newClient" }), label: "Client intake" },
               { href: billingHref({ page: "walkIns" }), label: "Add walk-in" },
               { href: billingHref({ page: "spotBilling" }), label: "Add spot billing" },
@@ -105,7 +122,6 @@ export function MobileSpaceDeskNav({ billingAccess = true, isAdmin = false }: Pr
               { href: billingHref({ page: "documents" }), label: "SOA & Receipts" },
               { href: billingHref({ page: "history" }), label: "History" },
               { href: billingHref({ page: "home" }), label: "Firm dashboard" },
-              { href: withSpace(billingHref({ page: "documents" }), "drive"), label: "Drive" },
               { href: billingHref({ page: "reports" }), label: "Reports" }
             ]
           : [])
@@ -114,18 +130,13 @@ export function MobileSpaceDeskNav({ billingAccess = true, isAdmin = false }: Pr
     {
       label: "Admin",
       links: [
-        { href: toolsHref, label: "Administration" },
         ...(isAdmin
           ? [
               { href: withSpace(toolsHref, "staff"), label: "Staff" },
               { href: tasksHref({ tab: "presence" }), label: "Staff attendance" },
               { href: billingHref({ page: "staffSalary" }), label: "Payroll" }
             ]
-          : []),
-        {
-          href: `${toolsHref}${toolsHref.includes("?") ? "&" : "?"}panel=integrations`,
-          label: "Settings"
-        }
+          : [])
       ]
     }
   ]
@@ -137,15 +148,16 @@ export function MobileSpaceDeskNav({ billingAccess = true, isAdmin = false }: Pr
     onHub ||
     (onTasks &&
       (space === "staff" ||
+        space === "drive" ||
+        space === "communications" ||
+        space === "notifications" ||
         tab === "filing" ||
         tab === "correspondence" ||
         tab === "templates" ||
         tab === "team" ||
         tab === "tools" ||
         tab === "presence" ||
-        tab === "notifications" ||
-        page === "documents")) ||
-    (onBilling && page === "staffSalary");
+        page === "documents"));
 
   useEffect(() => {
     if (!moreOpen) return;

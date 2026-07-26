@@ -14,9 +14,10 @@ import "./print.css";
 import "./viewport-shell.css";
 import "./letterhead-polish.css";
 import "./ha-visual-polish.css";
-import "./mobile-iphone.css";
 import "./ha-fullbleed.css";
 import "./templates-library.css";
+/* Last CSS wins for phone/iPhone overrides — keep after fullbleed */
+import "./mobile-iphone.css";
 
 const uiSans = Inter({
   subsets: ["latin"],
