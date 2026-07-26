@@ -157,27 +157,19 @@ export function BitrixSpaceRail({
   }, []);
 
   /* Keep shell grid column in sync with rail width — parent layout must shrink too.
-   * CSS uses !important width locks, so parent styles must also use important priority. */
+   * CSS uses !important width locks, so parent styles must also use important priority.
+   * On phone (≤900px) the rail is CSS-hidden; NEVER leave a 14rem/4.25rem inline grid
+   * lock — with display:none nav, main would occupy only the first track and leave a
+   * black void in the empty 1fr column (the iPhone half-screen bug). */
   useLayoutEffect(() => {
     const rail = railRef.current;
     if (!rail) return;
     const layout = rail.closest(".trial-firm-layout") as HTMLElement | null;
     const shell = rail.closest(".firm-workspace") as HTMLElement | null;
     const navCol = rail.closest(".trial-firm-layout__nav") as HTMLElement | null;
-    const width = collapsed ? "4.25rem" : "14rem";
+    const mq = window.matchMedia("(max-width: 900px)");
 
-    layout?.classList.toggle(LAYOUT_COLLAPSED_CLASS, collapsed);
-    shell?.classList.toggle(SHELL_COLLAPSED_CLASS, collapsed);
-    shell?.style.setProperty("--space-rail-width", width);
-    layout?.style.setProperty("--space-rail-width", width);
-    layout?.style.setProperty("grid-template-columns", `${width} minmax(0, 1fr)`, "important");
-    if (navCol) {
-      navCol.style.setProperty("width", width, "important");
-      navCol.style.setProperty("min-width", width, "important");
-      navCol.style.setProperty("max-width", width, "important");
-    }
-
-    return () => {
+    function clearRailLocks() {
       layout?.classList.remove(LAYOUT_COLLAPSED_CLASS);
       shell?.classList.remove(SHELL_COLLAPSED_CLASS);
       shell?.style.removeProperty("--space-rail-width");
@@ -188,6 +180,31 @@ export function BitrixSpaceRail({
         navCol.style.removeProperty("min-width");
         navCol.style.removeProperty("max-width");
       }
+    }
+
+    function applyRailWidth() {
+      if (mq.matches) {
+        clearRailLocks();
+        return;
+      }
+      const width = collapsed ? "4.25rem" : "14rem";
+      layout?.classList.toggle(LAYOUT_COLLAPSED_CLASS, collapsed);
+      shell?.classList.toggle(SHELL_COLLAPSED_CLASS, collapsed);
+      shell?.style.setProperty("--space-rail-width", width);
+      layout?.style.setProperty("--space-rail-width", width);
+      layout?.style.setProperty("grid-template-columns", `${width} minmax(0, 1fr)`, "important");
+      if (navCol) {
+        navCol.style.setProperty("width", width, "important");
+        navCol.style.setProperty("min-width", width, "important");
+        navCol.style.setProperty("max-width", width, "important");
+      }
+    }
+
+    applyRailWidth();
+    mq.addEventListener("change", applyRailWidth);
+    return () => {
+      mq.removeEventListener("change", applyRailWidth);
+      clearRailLocks();
     };
   }, [collapsed]);
 

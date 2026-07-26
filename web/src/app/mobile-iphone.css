@@ -87,10 +87,11 @@
     overflow-x: clip;
   }
 
-  /* ── Space shell: fill phone viewport without horizontal blowout ── */
+  /* ── Space shell: full-bleed phone column (kill 14rem half-screen void) ── */
   .firm-workspace.firm-space-shell {
+    --space-rail-width: 0px;
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: 100vw !important;
     height: 100dvh !important;
     height: -webkit-fill-available !important;
     min-height: 100dvh !important;
@@ -99,11 +100,38 @@
   }
 
   .firm-workspace.firm-space-shell .trial-firm-layout,
+  .firm-workspace.firm-space-shell.firm-space-shell--rail-collapsed .trial-firm-layout,
+  .firm-workspace.firm-space-shell .trial-firm-layout.trial-firm-layout--rail-collapsed,
+  .firm-workspace.firm-space-shell:has(.bitrix-space-rail--collapsed) .trial-firm-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  .firm-workspace.firm-space-shell .trial-firm-layout__nav,
+  .firm-workspace.firm-space-shell .bitrix-space-rail,
+  .firm-workspace.firm-space-shell.firm-space-shell--rail-collapsed .trial-firm-layout__nav,
+  .firm-workspace.firm-space-shell .trial-firm-layout--rail-collapsed .trial-firm-layout__nav,
+  .firm-workspace.firm-space-shell:has(.bitrix-space-rail--collapsed) .trial-firm-layout__nav {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+  }
+
   .firm-workspace.firm-space-shell .trial-firm-layout__main,
   .firm-workspace.firm-space-shell > .firm-space-desk-scroll,
   .firm-workspace.firm-space-shell .firm-workspace-body {
-    max-width: 100%;
-    min-width: 0;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
   }
 
   .firm-workspace.firm-space-shell .trial-firm-layout__main,
@@ -112,32 +140,100 @@
     --space-main-pad-left: max(0.75rem, env(safe-area-inset-left, 0px));
     --space-main-pad-top: 0.5rem;
     --space-main-pad-bottom: calc(var(--mobile-bottom-nav-offset) + 0.55rem);
+    grid-column: 1 / -1 !important;
     padding-bottom: var(--space-main-pad-bottom) !important;
+    border-radius: 0 !important;
   }
 
-  /* Compact top banner logo — usable, not dominant */
+  /* Compact top banner — logo + search + icons share one row */
   .firm-workspace.firm-space-shell .bitrix-space-topnav {
-    min-height: 3.65rem !important;
+    display: flex !important;
+    align-items: center !important;
+    min-height: 3.35rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 0.35rem !important;
     padding-top: env(safe-area-inset-top, 0px) !important;
-    padding-right: max(0.45rem, env(safe-area-inset-right, 0px)) !important;
+    padding-right: max(0.4rem, env(safe-area-inset-right, 0px)) !important;
+    padding-left: 0 !important;
   }
 
   .firm-workspace.firm-space-shell .bitrix-space-topnav__brand-link {
-    padding: 0.15rem 0.4rem 0.15rem max(0.35rem, env(safe-area-inset-left, 0px)) !important;
+    flex: 0 0 auto !important;
+    padding: 0.1rem 0.3rem 0.1rem max(0.3rem, env(safe-area-inset-left, 0px)) !important;
   }
 
   .firm-workspace.firm-space-shell .bitrix-space-topnav__logo {
-    max-height: 2.85rem !important;
-    max-width: min(11.5rem, 42vw) !important;
+    max-height: 2.35rem !important;
+    max-width: min(8.5rem, 34vw) !important;
+    width: auto !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__search {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__void,
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__modules,
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__wordmark,
+  .firm-workspace.firm-space-shell .bitrix-space-btn--invite {
+    display: none !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__actions {
+    flex: 0 0 auto !important;
+    gap: 0.25rem !important;
   }
 
   .firm-workspace.firm-space-shell .bitrix-space-topnav__actions .keyboard-shortcuts-trigger--header,
   .firm-workspace.firm-space-shell .bitrix-space-topnav__actions .notifications-center__bell--compact,
   .firm-workspace.firm-space-shell .bitrix-space-topnav__actions .theme-switcher__trigger--header {
-    width: var(--touch-min) !important;
-    height: var(--touch-min) !important;
-    min-width: var(--touch-min) !important;
-    min-height: var(--touch-min) !important;
+    width: 2.35rem !important;
+    height: 2.35rem !important;
+    min-width: 2.35rem !important;
+    min-height: 2.35rem !important;
+  }
+
+  /* Toolbar: stack cleanly — find/create, then action chips that wrap */
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.45rem !important;
+    width: 100% !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__left,
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__heading,
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__find {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.4rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__actions .bitrix-space-btn,
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__actions .btn-primary,
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__actions .btn-secondary {
+    flex: 0 1 auto !important;
+    max-width: 100% !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__lede,
+  .firm-workspace.firm-space-shell .bitrix-space-toolbar__eyebrow {
+    display: none !important;
   }
 
   /* Bottom nav — fixed, safe-area aware, above content */
@@ -221,22 +317,39 @@
     min-height: var(--touch-min) !important;
   }
 
-  .firm-workspace.firm-space-shell .bitrix-space-section-tabs__link {
-    padding-inline: 0.55rem !important;
-    font-size: 0.78rem !important;
-    white-space: nowrap;
-  }
-
+  /* Section tabs: horizontal scroll — never crush/overlap labels */
   .firm-workspace.firm-space-shell .bitrix-space-section-tabs,
   .firm-workspace.firm-space-shell .firm-shell-subnav {
-    overflow-x: auto;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
     scrollbar-width: none;
+    scroll-snap-type: x proximity;
   }
 
   .firm-workspace.firm-space-shell .bitrix-space-section-tabs::-webkit-scrollbar,
   .firm-workspace.firm-space-shell .firm-shell-subnav::-webkit-scrollbar {
     display: none;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-section-tabs__link {
+    flex: 0 0 auto !important;
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    width: auto !important;
+    padding-inline: 0.7rem !important;
+    font-size: 0.78rem !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    scroll-snap-align: start;
   }
 
   /* Ledgers / tables — scroll sideways, don’t crush columns */
@@ -425,12 +538,16 @@
 /* iPhone-sized widths */
 @media (max-width: 430px) {
   .firm-workspace.firm-space-shell .bitrix-space-topnav {
-    min-height: 3.35rem !important;
+    min-height: 3.1rem !important;
   }
 
   .firm-workspace.firm-space-shell .bitrix-space-topnav__logo {
-    max-height: 2.45rem !important;
-    max-width: min(9.75rem, 40vw) !important;
+    max-height: 2.15rem !important;
+    max-width: min(7.75rem, 32vw) !important;
+  }
+
+  .firm-workspace.firm-space-shell .bitrix-space-topnav__actions .keyboard-shortcuts-trigger--header {
+    display: none !important;
   }
 
   .firm-workspace.firm-space-shell .trial-firm-layout__main,

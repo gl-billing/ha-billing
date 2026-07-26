@@ -802,18 +802,31 @@ body {
     height: 100dvh !important;
     height: -webkit-fill-available !important;
     padding-bottom: 0 !important;
+    --space-rail-width: 0px;
   }
 
-  .firm-workspace.firm-space-shell .trial-firm-layout {
-    grid-template-columns: 1fr !important;
+  /* Single column — beat desktop 14rem/4.25rem locks (incl. collapsed :has rules) */
+  .firm-workspace.firm-space-shell .trial-firm-layout,
+  .firm-workspace.firm-space-shell.firm-space-shell--rail-collapsed .trial-firm-layout,
+  .firm-workspace.firm-space-shell .trial-firm-layout.trial-firm-layout--rail-collapsed,
+  .firm-workspace.firm-space-shell:has(.bitrix-space-rail--collapsed) .trial-firm-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
     min-height: 0 !important;
     height: auto !important;
     flex: 1 1 0% !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .firm-workspace.firm-space-shell .trial-firm-layout__nav,
-  .firm-workspace.firm-space-shell .bitrix-space-rail {
+  .firm-workspace.firm-space-shell .bitrix-space-rail,
+  .firm-workspace.firm-space-shell.firm-space-shell--rail-collapsed .trial-firm-layout__nav,
+  .firm-workspace.firm-space-shell .trial-firm-layout--rail-collapsed .trial-firm-layout__nav,
+  .firm-workspace.firm-space-shell:has(.bitrix-space-rail--collapsed) .trial-firm-layout__nav {
     display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
   }
 
   .firm-workspace.firm-space-shell .trial-firm-layout__main,
@@ -825,6 +838,9 @@ body {
     border-radius: 0 !important;
     max-height: none !important;
     height: 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    grid-column: 1 / -1 !important;
   }
 
   .firm-workspace.firm-space-shell .bitrix-space-topnav {
