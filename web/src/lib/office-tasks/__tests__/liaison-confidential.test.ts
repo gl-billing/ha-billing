@@ -21,7 +21,7 @@ describe("liaison-confidential", () => {
     const secret = makeItem({
       id: "T-secret",
       remarks: markLiaisonConfidentialRemarks(""),
-      assignedTo: "James Bryan Hakola"
+      assignedTo: "Liaison Officer"
     });
     const items = [open, secret];
 
@@ -34,18 +34,18 @@ describe("liaison-confidential", () => {
     const mine = makeItem({
       id: "T-mine",
       remarks: markLiaisonConfidentialRemarks(""),
-      assignedTo: "James Bryan Hakola"
+      assignedTo: "Liaison Officer"
     });
     const other = makeItem({
       id: "T-other",
       remarks: markLiaisonConfidentialRemarks(""),
-      assignedTo: "James Bryan Hakola, Atty. Maria Hernandez"
+      assignedTo: "Liaison Officer, Atty. Maria Hernandez"
     });
-    const roster = ["James Bryan Hakola", "Atty. Maria Hernandez"];
+    const roster = ["Liaison Officer", "Atty. Maria Hernandez"];
 
     const liaisonView = liaisonConfidentialItemsForViewer([mine, other], {
       isAdmin: false,
-      staffName: "James Bryan Hakola",
+      staffName: "Liaison Officer",
       roster
     });
     expect(liaisonView.map((row) => row.id).sort()).toEqual(["T-mine", "T-other"]);

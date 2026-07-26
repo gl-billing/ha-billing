@@ -11,7 +11,7 @@ function filingForm(overrides: Partial<EventFormInput> = {}): EventFormInput {
   return {
     clientCase: "SAMPLE001 · Alpha Test Client",
     category: "Court Filing",
-    responsible: "Andrea",
+    responsible: "Shiela",
     priority: "Medium",
     filingDeadline: "2026-06-15",
     details: "File motion for extension",

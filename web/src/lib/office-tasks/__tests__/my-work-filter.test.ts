@@ -2,23 +2,23 @@ import { describe, expect, it } from "vitest";
 import { filterItemsForMyWork } from "@/lib/office-tasks/my-work-filter";
 import { makeItem } from "@/lib/office-tasks/__tests__/fixtures";
 
-const ROSTER = ["Atty. Maria Hernandez", "James Bryan Hakola", "Atty. Carlos Hernandez"];
+const ROSTER = ["Atty. Maria Hernandez", "Liaison Officer", "Atty. Carlos Hernandez"];
 
 describe("filterItemsForMyWork", () => {
   it("keeps items assigned to the staff member", () => {
     const items = [
-      makeItem({ id: "T-1", assignedTo: "Jas" }),
+      makeItem({ id: "T-1", assignedTo: "Liaison Officer" }),
       makeItem({ id: "T-2", assignedTo: "Atty. Carlos Hernandez" }),
       makeItem({ id: "T-3", assignedTo: "Unassigned" })
     ];
 
-    const mine = filterItemsForMyWork(items, "James Bryan Hakola", ROSTER);
+    const mine = filterItemsForMyWork(items, "Liaison Officer", ROSTER);
     expect(mine.map((item) => item.id)).toEqual(["T-1"]);
   });
 
   it("matches any assignee in a comma-separated list", () => {
-    const items = [makeItem({ id: "T-1", assignedTo: "Nikki, Jas" })];
-    const mine = filterItemsForMyWork(items, "James Bryan Hakola", ROSTER);
+    const items = [makeItem({ id: "T-1", assignedTo: "Nikki, Liaison Officer" })];
+    const mine = filterItemsForMyWork(items, "Liaison Officer", ROSTER);
     expect(mine.map((item) => item.id)).toEqual(["T-1"]);
   });
 
@@ -28,8 +28,8 @@ describe("filterItemsForMyWork", () => {
     expect(mine.map((item) => item.id)).toEqual(["T-1"]);
   });
 
-  it("includes pending court-confirmation hearings in Andrea my work", () => {
-    const roster = [...ROSTER, "Ellyza Andrea Aguanta (Secretary)"];
+  it("includes pending court-confirmation hearings in secretary my work", () => {
+    const roster = [...ROSTER, "Shiela (Secretary)"];
     const items = [
       makeItem({
         source: "Event",
@@ -43,7 +43,7 @@ describe("filterItemsForMyWork", () => {
       })
     ];
 
-    const mine = filterItemsForMyWork(items, "Ellyza Andrea Aguanta (Secretary)", roster);
+    const mine = filterItemsForMyWork(items, "Shiela (Secretary)", roster);
     expect(mine.map((item) => item.id)).toEqual(["CHI-EVT-0009"]);
   });
 });

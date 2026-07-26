@@ -29,7 +29,7 @@ function item(partial: Partial<OfficeItem> & Pick<OfficeItem, "clientCase">): Of
     endTime: null,
     category: "Hearing",
     priority: "Normal",
-    assignedTo: "Andrea",
+    assignedTo: "Shiela",
     clientCase: partial.clientCase,
     venue: "RTC",
     details: "Hearing",

@@ -8,7 +8,7 @@ function splitAssignees(value: string): string[] {
     .filter(Boolean);
 }
 
-/** Prep is handled by Andrea / Jas — they own filing prep tasks, not court filing events. */
+/** Prep is handled by secretary / liaison — they own filing prep tasks, not court filing events. */
 export function isFilingPrepOperationsStaff(name: string, roster: string[]): boolean {
   const target = canonicalizeStaffName(name, roster).trim().toLowerCase();
   const owner = resolveFirmOwnerAssignee(roster);

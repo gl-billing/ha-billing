@@ -133,7 +133,7 @@ describe("firm allocation", () => {
         date: "Jun 1, 2026",
         clientCode: "RET-ENA",
         clientName: "Client A",
-        assignedAttorney: "Jas",
+        assignedAttorney: "Atty. April Liz Parreno",
         label: "Appearance fee",
         amount: 2500
       },
@@ -142,13 +142,13 @@ describe("firm allocation", () => {
         date: "Jun 2, 2026",
         clientCode: "RET-BBB",
         clientName: "Client B",
-        assignedAttorney: "Jas",
+        assignedAttorney: "Atty. April Liz Parreno",
         label: "Appearance fee",
         amount: 1500
       }
     ]);
     expect(groups).toHaveLength(1);
-    expect(groups[0]?.assignedAttorney).toBe("Jas");
+    expect(groups[0]?.assignedAttorney).toBe("Atty. April Liz Parreno");
     expect(groups[0]?.total).toBe(4000);
   });
 

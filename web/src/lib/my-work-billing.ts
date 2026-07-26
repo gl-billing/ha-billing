@@ -32,7 +32,8 @@ function assigneeTokens(name: string | null | undefined, email: string | null | 
   if (raw) tokens.add(raw);
   const first = raw.split(/\s+/)[0];
   if (first) tokens.add(first);
-  if (display.includes("andrea") || raw.includes("ellyza")) tokens.add("andrea");
+  if (display.includes("shiela") || raw.includes("shiela")) tokens.add("shiela");
+  if (display.includes("andrea") || raw.includes("ellyza") || raw.includes("andrea")) tokens.add("andrea");
   return Array.from(tokens).filter(Boolean);
 }
 

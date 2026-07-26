@@ -77,7 +77,7 @@ describe("firm notifications", () => {
         category: "Court Filing",
         filingDeadline: "2026-06-20",
         date: "2026-06-20",
-        remarks: prepDoneNoticeMarker("Andrea", "2026-06-14")
+        remarks: prepDoneNoticeMarker("Shiela", "2026-06-14")
       })
     ];
 
@@ -86,7 +86,7 @@ describe("firm notifications", () => {
     );
     expect(
       buildFirmNotifications({ items, today: "2026-06-14", includeAdminNotices: true }).some(
-        (row) => row.kind === "prep-ready" && row.subtitle.includes("Andrea")
+        (row) => row.kind === "prep-ready" && row.subtitle.includes("Shiela")
       )
     ).toBe(true);
   });

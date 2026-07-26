@@ -6,25 +6,25 @@ import {
   resolveJasAssignee
 } from "@/lib/office-tasks/task-assignees";
 
-const ROSTER = ["Ellyza Andrea Aguanta (Secretary)", "James Bryan Hakola", "Atty. Maria Hernandez"];
+const ROSTER = ["Shiela (Secretary)", "Liaison Officer", "Atty. Maria Hernandez"];
 
 describe("filing prep assignees", () => {
-  it("defaults prep to Andrea only", () => {
-    expect(defaultFilingPrepAssignees(ROSTER)).toBe("Ellyza Andrea Aguanta (Secretary)");
+  it("defaults prep to secretary only", () => {
+    expect(defaultFilingPrepAssignees(ROSTER)).toBe("Shiela (Secretary)");
   });
 
-  it("builds Andrea and Jas when both selected", () => {
+  it("builds secretary and liaison when both selected", () => {
     expect(buildFilingPrepAssignees({ andrea: true, jas: true }, ROSTER)).toBe(
-      "Ellyza Andrea Aguanta (Secretary), James Bryan Hakola"
+      "Shiela (Secretary), Liaison Officer"
     );
   });
 
-  it("builds Jas only when Andrea is unchecked", () => {
-    expect(buildFilingPrepAssignees({ andrea: false, jas: true }, ROSTER)).toBe("James Bryan Hakola");
+  it("builds liaison only when secretary is unchecked", () => {
+    expect(buildFilingPrepAssignees({ andrea: false, jas: true }, ROSTER)).toBe("Liaison Officer");
   });
 
-  it("resolves Jas from roster", () => {
-    expect(resolveJasAssignee(ROSTER)).toBe("James Bryan Hakola");
-    expect(resolveAndreaAssignee(ROSTER)).toBe("Ellyza Andrea Aguanta (Secretary)");
+  it("resolves liaison from roster", () => {
+    expect(resolveJasAssignee(ROSTER)).toBe("Liaison Officer");
+    expect(resolveAndreaAssignee(ROSTER)).toBe("Shiela (Secretary)");
   });
 });

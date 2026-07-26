@@ -43,7 +43,7 @@ describe("filing prep reset", () => {
 
   it("clears checklist progress and prep-done notice on reset", () => {
     const marker = prepChecklistMarker({ items: ["Fee", "Sign"], done: [0] });
-    const remarks = `EVENT_REMINDER:EVT-1\nPREP_DONE_NOTICE:Jas:2026-06-10\n${marker}`;
+    const remarks = `EVENT_REMINDER:EVT-1\nPREP_DONE_NOTICE:Liaison Officer:2026-06-10\n${marker}`;
     const reset = resetPrepTaskRemarks(remarks);
     expect(reset.remarks).toContain("PREP_CHECKLIST:");
     expect(reset.remarks).not.toContain("PREP_DONE_NOTICE");

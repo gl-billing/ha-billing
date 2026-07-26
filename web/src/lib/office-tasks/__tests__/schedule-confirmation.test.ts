@@ -40,7 +40,7 @@ describe("schedule confirmation", () => {
         venue: "",
         platform: "Google Meet",
         details: "Initial consultation regarding employment dispute.",
-        assignedTo: "Andrea Aguanta"
+        assignedTo: "Shiela"
       },
       clientName: "John Smith",
       preferredGreeting: "John",

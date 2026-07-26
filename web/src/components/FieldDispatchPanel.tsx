@@ -398,7 +398,7 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
           <h2 className="font-display text-xl font-semibold text-ink">Out-of-town liaison tracking</h2>
           <p className="mt-1 max-w-2xl text-xs text-muted">
             Admin only. Suggested <strong>advance</strong> = round-trip bus from Davao + ₱{FIELD_DISPATCH_MEAL_ALLOWANCE}/meal
-            + tricycle/jeep at destination (meals and local fare scale with <strong>days</strong> when Jas stays overnight).
+            + tricycle/jeep at destination (meals and local fare scale with <strong>days</strong> when the liaison officer stays overnight).
             <strong>Service fee</strong> (liaison pay) is separate and scales with travel time.
           </p>
         </div>
@@ -575,7 +575,7 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
                 onChange={(e) => setPayStaffOnCreate(e.target.checked)}
               />
               <span className="text-xs text-ink">
-                Service fee already paid to Jas — deduct from payroll when salary is calculated
+                Service fee already paid to the liaison officer — deduct from payroll when salary is calculated
               </span>
             </label>
           ) : null}
@@ -595,7 +595,7 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
                 Spent: {formatPeso(newSpent)} · Billable: {formatPeso(newBillable)}.
               </>
             ) : (
-              <> Leave returned blank until Jas is back, or enter now if already reconciled.</>
+              <> Leave returned blank until the liaison officer is back, or enter now if already reconciled.</>
             )}
           </p>
         </div>
@@ -622,7 +622,7 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
         {loading ? (
           <TableSkeleton rows={5} />
         ) : filtered.length === 0 ? (
-          <EmptyState message="No field dispatches yet — register Jas's next out-of-town trip here." />
+          <EmptyState message="No field dispatches yet — register the liaison officer's next out-of-town trip here." />
         ) : (
           <div className="field-dispatch-panel__table-wrap field-dispatch-panel__table-wrap--register firm-ledger-table-wrap">
             <table className="field-dispatch-panel__table field-dispatch-panel__table--register firm-ledger-table firm-ledger-table--responsive-stack">
@@ -656,7 +656,7 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
                   <th className="field-dispatch-panel__col-money">Fee</th>
                   <th className="field-dispatch-panel__col-money">Billable</th>
                   <th>Status</th>
-                  <th>Jas pay</th>
+                  <th>Liaison pay</th>
                   <th className="field-dispatch-panel__col-actions">Actions</th>
                 </tr>
               </thead>
@@ -711,17 +711,17 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
                         {entry.reimbursementStatus}
                       </span>
                     </td>
-                    <td data-label="Jas pay">
+                    <td data-label="Liaison pay">
                       {fieldDispatchSalaryCreditForEntry(entry) > 0 ? (
                         <span
                           className={`field-dispatch-panel__status ${dispatchStaffPayClass(entry)}`}
                           title={
                             entry.staffSalaryPaid
-                              ? `Paid to Jas ${entry.staffSalaryPaidDate || ""} · credit ${formatPeso(fieldDispatchSalaryCreditForEntry(entry))}`
+                              ? `Paid to liaison ${entry.staffSalaryPaidDate || ""} · credit ${formatPeso(fieldDispatchSalaryCreditForEntry(entry))}`
                               : `Due on payroll · credit ${formatPeso(fieldDispatchSalaryCreditForEntry(entry))}`
                           }
                         >
-                          {entry.staffSalaryPaid ? "Paid Jas" : "Payroll"}
+                          {entry.staffSalaryPaid ? "Paid liaison" : "Payroll"}
                         </span>
                       ) : (
                         <span className="text-xs text-muted">—</span>
@@ -783,17 +783,17 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
                               disabled={busy}
                               onClick={() => patchDispatch(entry.dispatchId, "unmarkStaffSalaryPaid")}
                             >
-                              Undo Jas pay
+                              Undo liaison pay
                             </button>
                           ) : (
                             <button
                               type="button"
                               className="field-dispatch-panel__register-btn field-dispatch-panel__register-btn--gold"
                               disabled={busy}
-                              title={`Mark ${formatPeso(fieldDispatchSalaryCreditForEntry(entry))} paid to Jas now`}
+                              title={`Mark ${formatPeso(fieldDispatchSalaryCreditForEntry(entry))} paid to the liaison officer now`}
                               onClick={() => patchDispatch(entry.dispatchId, "markStaffSalaryPaid")}
                             >
-                              Paid Jas
+                              Paid liaison
                             </button>
                           ))}
                       </div>
@@ -989,7 +989,7 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
               Reconcile {reconcileId}
             </h3>
             <p className="mt-1 text-xs text-muted">
-              Enter how much change Jas returned. Spent is computed as advance minus returned; billable = spent + service fee.
+              Enter how much change the liaison officer returned. Spent is computed as advance minus returned; billable = spent + service fee.
             </p>
             <div className="mt-3 grid gap-3">
               {reconcileEntry && (
@@ -1039,7 +1039,7 @@ export function FieldDispatchPanel({ busy, onBusy, onStatus, clients, onOpenBill
                     onChange={(e) => setPayStaffOnReconcile(e.target.checked)}
                   />
                   <span className="text-xs text-ink">
-                    Service fee already paid to Jas ({formatPeso(reconcileSalaryCredit || fieldDispatchSalaryCreditForEntry(reconcileEntry))})
+                    Service fee already paid to the liaison officer ({formatPeso(reconcileSalaryCredit || fieldDispatchSalaryCreditForEntry(reconcileEntry))})
                   </span>
                 </label>
               ) : null}

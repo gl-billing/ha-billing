@@ -12,9 +12,9 @@ import {
 } from "@/lib/office-tasks/prep-workload-view";
 
 const ROSTER = [
-  "Ellyza Andrea Aguanta (Secretary)",
+  "Shiela (Secretary)",
   "Atty. Maria Hernandez",
-  "James Bryan Hakola",
+  "Liaison Officer",
   "Atty. Carlos Hernandez"
 ];
 
@@ -28,7 +28,7 @@ describe("event prep workload split", () => {
       clientCase: "Chicken — Qualified Theft",
       assignedTo: "Atty. Maria Hernandez",
       filingDeadline: "2026-06-15",
-      remarks: "LINKED_REMINDER_TASK:CHI-TASK-0010 PREP_ASSIGNEE:Ellyza Andrea Aguanta (Secretary), James Bryan Hakola"
+      remarks: "LINKED_REMINDER_TASK:CHI-TASK-0010 PREP_ASSIGNEE:Shiela (Secretary), Liaison Officer"
     }),
     makeItem({
       source: "Task",
@@ -36,14 +36,14 @@ describe("event prep workload split", () => {
       rowNumber: 11,
       category: "Filing prep",
       clientCase: "Chicken — Qualified Theft",
-      assignedTo: "Ellyza Andrea Aguanta (Secretary), James Bryan Hakola",
+      assignedTo: "Shiela (Secretary), Liaison Officer",
       remarks: "EVENT_REMINDER:CHI-EVT-0010",
       details: "Filing prep for initiatory pleading due 2026-06-15 (this task is due 3 days before)."
     })
   ];
 
   it("expands linked pairs into each role's My Work queue", () => {
-    expect(filterStaffWorkloadItems("Ellyza Andrea Aguanta (Secretary)", linkedPair, ROSTER).map((i) => i.id)).toEqual(
+    expect(filterStaffWorkloadItems("Shiela (Secretary)", linkedPair, ROSTER).map((i) => i.id)).toEqual(
       expect.arrayContaining(["CHI-TASK-0010", "CHI-EVT-0010"])
     );
     expect(filterStaffWorkloadItems("Atty. Maria Hernandez", linkedPair, ROSTER).map((i) => i.id)).toEqual(
@@ -57,12 +57,12 @@ describe("event prep workload split", () => {
       false
     );
     expect(
-      shouldHideItemFromStaffWorkload(linkedPair[1], "Ellyza Andrea Aguanta (Secretary)", linkedPair, ROSTER)
+      shouldHideItemFromStaffWorkload(linkedPair[1], "Shiela (Secretary)", linkedPair, ROSTER)
     ).toBe(false);
   });
 
-  it("shows checklist on prep tasks for Andrea and on events for Janine", () => {
-    expect(resolvePrepWorkloadViewRole("Ellyza Andrea Aguanta (Secretary)", ROSTER)).toBe("prep");
+  it("shows checklist on prep tasks for secretary and on events for Janine", () => {
+    expect(resolvePrepWorkloadViewRole("Shiela (Secretary)", ROSTER)).toBe("prep");
     expect(resolvePrepWorkloadViewRole("Atty. Maria Hernandez", ROSTER)).toBe("lawyer");
     expect(resolvePrepWorkloadViewRole("Atty. Carlos Hernandez", ROSTER)).toBe("lawyer");
 

@@ -356,7 +356,7 @@ export function fieldDispatchBillableTotal(
   return spent + Math.max(0, parseMoney(serviceFee));
 }
 
-/** Jas salary credit from a trip = liaison fee minus change returned (advance is expense float). */
+/** Liaison salary credit from a trip = liaison fee minus change returned (advance is expense float). */
 export function fieldDispatchSalaryCredit(
   serviceFee: number | string,
   returnedToOffice: number | string,
@@ -496,8 +496,8 @@ export const FIELD_DISPATCH_LOCATION_PRESETS = buildFieldDispatchPresets();
 
 export const FIELD_DISPATCH_LOCATIONS = Object.keys(FIELD_DISPATCH_TRAVEL_HOURS);
 
-export const FIRM_STAFF_LIAISON = "James Bryan Hakola (Liaison Officer)";
-export const FIRM_STAFF_SECRETARY = "Ellyza Andrea Aguanta (Secretary)";
+export const FIRM_STAFF_LIAISON = "Liaison Officer";
+export const FIRM_STAFF_SECRETARY = "Shiela (Secretary)";
 
 /** Default staff on new field dispatch rows — liaison officer only. */
 export const DEFAULT_FIELD_DISPATCH_STAFF = FIRM_STAFF_LIAISON;

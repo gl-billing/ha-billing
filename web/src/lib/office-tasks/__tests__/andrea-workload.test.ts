@@ -4,13 +4,13 @@ import { getTeamEmployeeView } from "@/lib/office-tasks/schedule";
 import { makeItem } from "@/lib/office-tasks/__tests__/fixtures";
 
 const ROSTER = [
-  "Ellyza Andrea Aguanta (Secretary)",
+  "Shiela (Secretary)",
   "Atty. Maria Hernandez",
-  "James Bryan Hakola"
+  "Liaison Officer"
 ];
 
 describe("filterStaffWorkloadItems", () => {
-  it("adds pending court-confirmation hearings to Andrea even when assigned to the attorney", () => {
+  it("adds pending court-confirmation hearings to secretary even when assigned to the attorney", () => {
     const items = [
       makeItem({
         source: "Event",
@@ -29,11 +29,11 @@ describe("filterStaffWorkloadItems", () => {
     const janine = filterStaffWorkloadItems("Atty. Maria Hernandez", items, ROSTER);
     expect(janine.map((item) => item.id)).toEqual(["CHI-EVT-0001"]);
 
-    const andrea = filterStaffWorkloadItems("Ellyza Andrea Aguanta (Secretary)", items, ROSTER);
+    const andrea = filterStaffWorkloadItems("Shiela (Secretary)", items, ROSTER);
     expect(andrea.map((item) => item.id)).toEqual(["CHI-EVT-0001"]);
   });
 
-  it("does not duplicate hearings already assigned to Andrea", () => {
+  it("does not duplicate hearings already assigned to secretary", () => {
     const items = [
       makeItem({
         source: "Event",
@@ -41,14 +41,14 @@ describe("filterStaffWorkloadItems", () => {
         rowNumber: 4,
         category: "Hearing",
         clientCase: "Chicken — Qualified Theft",
-        assignedTo: "Ellyza Andrea Aguanta (Secretary)",
+        assignedTo: "Shiela (Secretary)",
         status: "Scheduled",
         date: "2026-06-13",
         eventDate: "2026-06-13"
       })
     ];
 
-    const andrea = filterStaffWorkloadItems("Ellyza Andrea Aguanta (Secretary)", items, ROSTER);
+    const andrea = filterStaffWorkloadItems("Shiela (Secretary)", items, ROSTER);
     expect(andrea).toHaveLength(1);
   });
 });

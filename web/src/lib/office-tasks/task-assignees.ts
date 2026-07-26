@@ -7,8 +7,29 @@ export function defaultTaxComplianceAssignee(roster: string[]): string {
   return resolveFirmOwnerAssignee(roster) || roster.find((name) => /janine/i.test(name)) || "Admin";
 }
 
+function isSecretaryRosterName(name: string): boolean {
+  const lower = name.toLowerCase();
+  return (
+    lower.includes("shiela") ||
+    lower.includes("hiedee") ||
+    lower.includes("andrea") ||
+    lower.includes("ellyza") ||
+    /\bsecretary\b/i.test(name)
+  );
+}
+
+function isLiaisonRosterName(name: string): boolean {
+  const lower = name.toLowerCase();
+  return (
+    lower.includes("liaison") ||
+    lower.includes("jas") ||
+    lower.includes("james bryan") ||
+    lower.includes("hakola")
+  );
+}
+
 /** Default assignee for billing ops, SOA/AR, and engagement/contract delivery — firm secretary. */
-export function resolveAndreaAssignee(
+export function resolveSecretaryAssignee(
   roster: string[],
   directory?: EmployeeRecord[]
 ): string {
@@ -17,58 +38,70 @@ export function resolveAndreaAssignee(
     if (fromDirectory?.name) return fromDirectory.name;
   }
 
-  const fromRoster = roster.find((name) => {
-    const lower = name.toLowerCase();
-    return (
-      lower.includes("shiela") ||
-      lower.includes("andrea") ||
-      lower.includes("ellyza") ||
-      lower.includes("secretary")
-    );
-  });
+  const fromRoster = roster.find((name) => isSecretaryRosterName(name));
   if (fromRoster) return fromRoster;
 
   return "Shiela";
 }
 
+/** @deprecated Prefer resolveSecretaryAssignee. */
+export function resolveAndreaAssignee(
+  roster: string[],
+  directory?: EmployeeRecord[]
+): string {
+  return resolveSecretaryAssignee(roster, directory);
+}
+
+export function defaultSecretaryOperationsAssignee(
+  roster: string[],
+  directory?: EmployeeRecord[]
+): string {
+  return resolveSecretaryAssignee(roster, directory);
+}
+
+/** @deprecated Prefer defaultSecretaryOperationsAssignee. */
 export function defaultAndreaOperationsAssignee(
   roster: string[],
   directory?: EmployeeRecord[]
 ): string {
-  return resolveAndreaAssignee(roster, directory);
+  return defaultSecretaryOperationsAssignee(roster, directory);
 }
 
-/** Default assignee for filing prep tasks — Jas (field / liaison). */
-export function resolveJasAssignee(
+/** Default assignee for filing prep / field work — liaison officer. */
+export function resolveLiaisonAssignee(
   roster: string[],
   directory?: EmployeeRecord[]
 ): string {
   if (directory?.length) {
-    const fromDirectory = directory.find((row) => {
-      const lower = row.name.toLowerCase();
-      return lower.includes("jas") || lower.includes("james bryan") || lower.includes("hakola");
-    });
+    const fromDirectory = directory.find((row) => isLiaisonRosterName(row.name));
     if (fromDirectory?.name) return fromDirectory.name;
   }
 
-  const fromRoster = roster.find((name) => {
-    const lower = name.toLowerCase();
-    return lower.includes("jas") || lower.includes("james bryan") || lower.includes("hakola");
-  });
+  const fromRoster = roster.find((name) => isLiaisonRosterName(name));
   if (fromRoster) return fromRoster;
 
-  return "Jas";
+  return "Liaison Officer";
 }
 
-/** Comma-separated prep assignees for a filing event prep task — Andrea, Jas, or both. */
+/** @deprecated Prefer resolveLiaisonAssignee. */
+export function resolveJasAssignee(
+  roster: string[],
+  directory?: EmployeeRecord[]
+): string {
+  return resolveLiaisonAssignee(roster, directory);
+}
+
+/** Comma-separated prep assignees for a filing event prep task — secretary, liaison, or both. */
 export function buildFilingPrepAssignees(
-  options: { andrea?: boolean; jas?: boolean },
+  options: { andrea?: boolean; jas?: boolean; secretary?: boolean; liaison?: boolean },
   roster: string[] = [],
   directory?: EmployeeRecord[]
 ): string {
+  const includeSecretary = options.secretary ?? options.andrea ?? true;
+  const includeLiaison = options.liaison ?? options.jas ?? false;
   const names: string[] = [];
-  if (options.andrea !== false) names.push(resolveAndreaAssignee(roster, directory));
-  if (options.jas) names.push(resolveJasAssignee(roster, directory));
+  if (includeSecretary !== false) names.push(resolveSecretaryAssignee(roster, directory));
+  if (includeLiaison) names.push(resolveLiaisonAssignee(roster, directory));
   return names.filter(Boolean).join(", ");
 }
 
@@ -76,5 +109,5 @@ export function defaultFilingPrepAssignees(
   roster: string[] = [],
   directory?: EmployeeRecord[]
 ): string {
-  return resolveAndreaAssignee(roster, directory);
+  return resolveSecretaryAssignee(roster, directory);
 }

@@ -19,7 +19,7 @@ function taskItem(partial: Partial<OfficeItem>): OfficeItem {
     endTime: null,
     category: "Court Follow-up",
     priority: "Medium",
-    assignedTo: "Jas",
+    assignedTo: "Liaison Officer",
     clientCase: "SMITH — John Smith — Smith v. Doe",
     venue: "",
     details: "File motion",
@@ -28,7 +28,7 @@ function taskItem(partial: Partial<OfficeItem>): OfficeItem {
     status: "Waiting",
     done: false,
     completedDate: null,
-    remarks: "HA_CREATED_BY:Andrea Santos",
+    remarks: "HA_CREATED_BY:Shiela Cabaniero",
     reminderDays: 1,
     calendarSync: false,
     calendarEventId: "",
@@ -98,7 +98,7 @@ describe("duplicate entry check", () => {
       dueTime: "09:00"
     });
     expect(match?.id).toBe("SMITH-TASK-0001");
-    expect(match?.registeredBy).toBe("Andrea Santos");
+    expect(match?.registeredBy).toBe("Shiela Cabaniero");
   });
 
   it("ignores tasks with different time or type", () => {

@@ -527,13 +527,13 @@ export function validateEventFormInput(
         return "Enter the period to file (number of days).";
       }
       if (form.createReminderTask && !form.prepAssignedTo?.trim()) {
-        return "Select who will prepare the filing (Andrea, Jas, or both).";
+        return "Select who will prepare the filing (Secretary, Liaison Officer, or both).";
       }
       return null;
     }
     if (!form.filingDeadline?.trim()) return "Enter the due / filing deadline.";
     if (form.createReminderTask && !form.prepAssignedTo?.trim()) {
-      return "Select who will prepare the filing (Andrea, Jas, or both).";
+      return "Select who will prepare the filing (Secretary, Liaison Officer, or both).";
     }
     return null;
   }

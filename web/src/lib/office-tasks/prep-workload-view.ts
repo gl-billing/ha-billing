@@ -36,7 +36,7 @@ export function prepRoleFromLoginEmail(email: string): PrepWorkloadViewRole | nu
   const value = email.trim().toLowerCase();
   if (!value) return null;
   const local = value.split("@")[0] || value;
-  if (/shiela|legal|ellyza|andrea|farvjas|jasbrie|hakola|(?<![a-z])jas(?![a-z])|james.*bryan/.test(local)) {
+  if (/shiela|hiedee|legal|liaison|ellyza|andrea|farvjas|jasbrie|hakola|(?<![a-z])jas(?![a-z])|james.*bryan/.test(local)) {
     return "prep";
   }
   if (
@@ -50,7 +50,7 @@ export function prepRoleFromLoginEmail(email: string): PrepWorkloadViewRole | nu
 function prepRoleFromDisplayText(text: string): PrepWorkloadViewRole | null {
   const value = text.trim().toLowerCase();
   if (!value) return null;
-  if (/\bshiela\b|\bandrea\b|\bellyza\b|\bjas\b|james bryan|hakola/.test(value)) return "prep";
+  if (/\bshiela\b|\bhiedee\b|\bliaison\b|\bandrea\b|\bellyza\b|\bjas\b|james bryan|hakola/.test(value)) return "prep";
   if (/\brobert\b|\bhernandez\b|\bmaria\b|\bcarlos\b|\bparreno\b|\bpasagui\b/.test(value)) return "lawyer";
   return null;
 }
@@ -101,7 +101,7 @@ function isLinkedPrepPairItem(item: OfficeItem, items: OfficeItem[]): boolean {
   return false;
 }
 
-/** Andrea / Jas: checklist on prep tasks. Janine / Nikki: checklist on court filing events. */
+/** Secretary / liaison: checklist on prep tasks. Lawyers: checklist on court filing events. */
 export function shouldShowPrepChecklistForViewer(
   item: OfficeItem,
   items: OfficeItem[],
@@ -123,7 +123,7 @@ export function shouldShowPrepChecklistForViewer(
   return true;
 }
 
-/** Andrea / Jas: link on court filing events. Janine / Nikki: link on prep tasks. */
+/** Secretary / liaison: link on court filing events. Lawyers: link on prep tasks. */
 export function shouldShowPrepLinkForViewer(
   item: OfficeItem,
   items: OfficeItem[],

@@ -187,7 +187,7 @@ export function TaskEditForm({ item, options, busy, onClose, onConfirm }: Props)
               label="Assigned to *"
               value={assignedTo}
               list="employees"
-              placeholder="Jas, Andrea, or staff in charge"
+              placeholder="Secretary, Liaison Officer, or staff in charge"
               onChange={(value) => {
                 assigneeTouched.current = true;
                 setAssignedTo(value);

@@ -80,7 +80,7 @@ export function FieldDispatchCompanion({ dispatches, busy, onBusy, onStatus, onR
           <p className="field-dispatch-companion__eyebrow">Mobile companion</p>
           <h3 className="field-dispatch-companion__title font-display">Active trips</h3>
           <p className="field-dispatch-companion__lede">
-            Reconcile change returned when Jas is back — bill client from the register below.
+            Reconcile change returned when the liaison officer is back — bill client from the register below.
           </p>
         </div>
         <span className="field-dispatch-companion__count">{activeTrips.length} open</span>
@@ -147,7 +147,7 @@ export function FieldDispatchCompanion({ dispatches, busy, onBusy, onStatus, onR
                     <dd className="amount-serif">{formatPeso(billable)}</dd>
                   </div>
                   <div>
-                    <dt>Jas credit</dt>
+                    <dt>Liaison credit</dt>
                     <dd className="amount-serif">{formatPeso(salaryCredit)}</dd>
                   </div>
                 </dl>

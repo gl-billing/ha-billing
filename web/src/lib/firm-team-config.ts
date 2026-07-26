@@ -113,10 +113,10 @@ export const DEFAULT_STAFF_PAYROLL_ROSTER: StaffPayrollRosterEntry[] = [
   }
 ];
 
-/** Field / liaison officer — confidential admin assignments. */
+/** Field / liaison officer — confidential admin assignments (role title; no personal name). */
 export const FIRM_LIAISON = {
-  displayName: "James Bryan Hakola",
-  rosterName: "James Bryan Hakola (Liaison Officer)",
+  displayName: "Liaison Officer",
+  rosterName: "Liaison Officer",
   /** Override via LIAISON_EMAILS env (comma-separated). */
   defaultEmails: [] as string[]
 };

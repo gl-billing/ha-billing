@@ -6,9 +6,9 @@ import {
 } from "@/lib/office-tasks/prep-workload-view";
 
 const ROSTER = [
-  "Ellyza Andrea Aguanta (Secretary)",
+  "Shiela (Secretary)",
   "Atty. Maria Hernandez",
-  "James Bryan Hakola",
+  "Liaison Officer",
   "Atty. Carlos Hernandez"
 ];
 
@@ -16,43 +16,49 @@ const DIRECTORY = ROSTER.map((name, index) => ({
   name,
   email:
     index === 0
-      ? "ellyzaandrea@hernandezassociates.com"
+      ? "legal@hernandezlaw.info"
       : index === 1
         ? "janinerose@hernandezassociates.com"
         : index === 2
-          ? "farvjas53@hernandezassociates.com"
+          ? "liaison@hernandezlaw.info"
           : "nikkigutz@hernandezassociates.com",
   role: "",
   active: true as const
 }));
 
 describe("resolvePrepRoleFromSession", () => {
-  it("identifies Andrea from login email even when staff name resolves to firm owner", () => {
-    expect(prepRoleFromLoginEmail("ellyzaandrea@hernandezassociates.com")).toBe("prep");
+  it("identifies secretary from login email even when staff name resolves to firm owner", () => {
+    expect(prepRoleFromLoginEmail("legal@hernandezlaw.info")).toBe("prep");
     expect(
       resolvePrepRoleFromSession(
-        { email: "ellyzaandrea@hernandezassociates.com", name: "Admin", displayName: "Admin" },
+        { email: "legal@hernandezlaw.info", name: "Admin", displayName: "Admin" },
         DIRECTORY
       )
     ).toBe("prep");
   });
 
-  it("identifies Jas and Janine from login email", () => {
-    expect(prepRoleFromLoginEmail("farvjas53@hernandezassociates.com")).toBe("prep");
-    expect(prepRoleFromLoginEmail("jasbriehappy@hernandezassociates.com")).toBe("prep");
+  it("identifies liaison and lawyers from login email", () => {
+    expect(prepRoleFromLoginEmail("liaison@hernandezlaw.info")).toBe("prep");
     expect(prepRoleFromLoginEmail("janinerose@hernandezassociates.com")).toBe("lawyer");
     expect(resolvePrepRoleFromSession({ email: "janinerose@hernandezassociates.com" }, DIRECTORY)).toBe("lawyer");
   });
 
+  it("still recognizes legacy prep-staff email patterns", () => {
+    expect(prepRoleFromLoginEmail("ellyzaandrea@hernandezassociates.com")).toBe("prep");
+    expect(prepRoleFromLoginEmail("farvjas53@hernandezassociates.com")).toBe("prep");
+    expect(prepRoleFromLoginEmail("jasbriehappy@hernandezassociates.com")).toBe("prep");
+  });
+
   it("falls back to roster staff names when email is unknown", () => {
-    expect(resolvePrepRoleFromSession({ email: "unknown@hernandezassociates.com", name: "Ellyza Andrea Aguanta (Secretary)" }, DIRECTORY)).toBe(
+    expect(resolvePrepRoleFromSession({ email: "unknown@hernandezassociates.com", name: "Shiela (Secretary)" }, DIRECTORY)).toBe(
       "prep"
     );
-    expect(resolvePrepWorkloadViewRole("Ellyza Andrea Aguanta (Secretary)", ROSTER)).toBe("prep");
+    expect(resolvePrepWorkloadViewRole("Shiela (Secretary)", ROSTER)).toBe("prep");
+    expect(resolvePrepWorkloadViewRole("Liaison Officer", ROSTER)).toBe("prep");
   });
 
   it("works without employee directory loaded (email-only matter page)", () => {
-    expect(resolvePrepRoleFromSession({ email: "ellyzaandrea@hernandezassociates.com" }, [])).toBe("prep");
+    expect(resolvePrepRoleFromSession({ email: "legal@hernandezlaw.info" }, [])).toBe("prep");
     expect(resolvePrepRoleFromSession({ email: "janinerose@hernandezassociates.com" }, [])).toBe("lawyer");
   });
 });

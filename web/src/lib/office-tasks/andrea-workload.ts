@@ -21,7 +21,7 @@ export function isPrepStaffName(name: string, roster: string[] = []): boolean {
   return isFilingPrepOperationsStaff(name, roster);
 }
 
-/** Raw assignee match — Andrea also gets firm-wide hearings pending court confirmation. */
+/** Raw assignee match — secretary also gets firm-wide hearings pending court confirmation. */
 export function itemsForEmployeeWorkload(
   name: string,
   items: OfficeItem[],

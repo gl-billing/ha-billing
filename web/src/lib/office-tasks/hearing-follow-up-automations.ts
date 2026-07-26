@@ -50,7 +50,7 @@ async function appendEventMarkers(accessToken: string, event: OfficeItem, marker
   await updateSheetValues(accessToken, toA1Range(SHEETS.events, `R${event.rowNumber}`), [[remarks]]);
 }
 
-/** Create Andrea court-confirmation call task when a hearing is logged. */
+/** Create secretary court-confirmation call task when a hearing is logged. */
 export async function createCourtConfirmationTaskForHearing(
   accessToken: string,
   eventId: string,

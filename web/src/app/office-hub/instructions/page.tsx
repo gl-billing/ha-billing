@@ -104,7 +104,7 @@ export default function OfficeHubInstructionsPage() {
           </p>
 
           <section id="register" className="office-hub-instructions__card office-hub-instructions__register">
-            <h2 className="office-hub-instructions__question">Morning register — Andrea &amp; Jas</h2>
+            <h2 className="office-hub-instructions__question">Morning register — Secretary &amp; Liaison Officer</h2>
             <p className="office-hub-instructions__register-lead">
               Keep this open on a second tab or print for the desk. Full procedures follow below.
             </p>
@@ -140,7 +140,7 @@ export default function OfficeHubInstructionsPage() {
               </div>
 
               <div className="office-hub-instructions__register-block">
-                <h3>Andrea — desk &amp; billing</h3>
+                <h3>Secretary — desk &amp; billing</h3>
                 <p className="office-hub-instructions__note">
                   Sign in as <strong>legal@hernandezlaw.info</strong> for the simplified desk view — core tabs only
                   (no Week, Team, Tools, Reports, or History).
@@ -168,7 +168,7 @@ export default function OfficeHubInstructionsPage() {
               </div>
 
               <div className="office-hub-instructions__register-block">
-                <h3>Jas — calendar &amp; field</h3>
+                <h3>Liaison Officer — calendar &amp; field</h3>
                 <ul>
                   <li>
                     <strong>Hearing / consultation / deadline</strong> → Tasks → + Event
@@ -191,8 +191,8 @@ export default function OfficeHubInstructionsPage() {
               <div className="office-hub-instructions__register-block office-hub-instructions__register-block--wide">
                 <h3>Office procedures</h3>
                 <p>
-                  <strong>App / system</strong> → Atty. Janine · <strong>Files / SOA / walk-ins</strong> → Andrea + assigned
-                  attorney · <strong>Calendar / hearings / field</strong> → Jas + assigned attorney
+                  <strong>App / system</strong> → Atty. Janine · <strong>Files / SOA / walk-ins</strong> → Secretary + assigned
+                  attorney · <strong>Calendar / hearings / field</strong> → Liaison Officer + assigned attorney
                 </p>
               </div>
             </div>
@@ -227,11 +227,11 @@ export default function OfficeHubInstructionsPage() {
             </p>
             <ul>
               <li>
-                <strong>Andrea — secretary.</strong> Client intake and walk-ins, consultation logging, SOA/AR,
+                <strong>Secretary (Shiela).</strong> Client intake and walk-ins, consultation logging, SOA/AR,
                 calendar coordination, and promoting walk-ins to client files when a matter is retained.
               </li>
               <li>
-                <strong>James Bryan — liaison officer.</strong> Plots hearings, consultations, and tasks on the
+                <strong>Liaison Officer.</strong> Plots hearings, consultations, and tasks on the
                 calendar; updates status and follow-ups; court liaison and field coordination with the assigned
                 attorney.
               </li>
@@ -246,8 +246,8 @@ export default function OfficeHubInstructionsPage() {
               </li>
             </ul>
             <InstructionsTip>
-              <strong>Note:</strong> The assigned attorney on each client profile is the lead on that matter. Andrea and
-              Jas handle day-to-day plotting and desk work; attorneys approve strategy and sign off on major steps.
+              <strong>Note:</strong> The assigned attorney on each client profile is the lead on that matter. The secretary and
+              liaison officer handle day-to-day plotting and desk work; attorneys approve strategy and sign off on major steps.
             </InstructionsTip>
           </InstructionsQuestion>
 
@@ -307,7 +307,7 @@ export default function OfficeHubInstructionsPage() {
 
           <InstructionsQuestion id="tasks-tabs" question="Schedule tabs">
             <p>
-              Tasks &amp; calendar is where Jas plots hearings and deadlines and where everyone checks what is due. Think
+              Tasks &amp; calendar is where the liaison officer plots hearings and deadlines and where everyone checks what is due. Think
               of it as the firm&apos;s shared task and calendar board. Billing lives in a separate app — use Office hub
               in the header to switch.
             </p>
@@ -334,7 +334,7 @@ export default function OfficeHubInstructionsPage() {
 
             <h3>What is Week?</h3>
             <p>
-              Seven-day planner — use for hearings, deadlines, and firm planning. Helpful when coordinating with Jas or
+              Seven-day planner — use for hearings, deadlines, and firm planning. Helpful when coordinating with the liaison officer or
               prepping for a busy week.
             </p>
 
@@ -374,7 +374,7 @@ export default function OfficeHubInstructionsPage() {
 
           <InstructionsQuestion id="billing-tabs" question="Accounts tabs">
             <p>
-              Billing system is where Andrea records money in and out, opens new client files, and sends SOA/AR. Most
+              Billing system is where the secretary records money in and out, opens new client files, and sends SOA/AR. Most
               tabs are for a specific job — use the desk reference above if you are unsure which tab to open.
             </p>
             <p>
@@ -430,7 +430,7 @@ export default function OfficeHubInstructionsPage() {
           <InstructionsQuestion id="matter" question="Client matter page">
             <p>
               The matter page is one stop for a single client: profile, balance, billing steps, tasks, hearings, and
-              timeline. Andrea often uses it for SOA/AR and reviewing a file; Jas uses it to see what is open on that
+              timeline. The secretary often uses it for SOA/AR and reviewing a file; the liaison officer uses it to see what is open on that
               client. You can open it two ways:
             </p>
             <InstructionsOptions>
@@ -484,7 +484,7 @@ export default function OfficeHubInstructionsPage() {
 
           <InstructionsQuestion id="consultation" question="Consultations and walk-ins">
             <p>
-              Consultations are usually Andrea&apos;s desk workflow; Jas plots them on the calendar so the team sees
+              Consultations are usually the secretary&apos;s desk workflow; the liaison officer plots them on the calendar so the team sees
               date and time. A walk-in who has not hired the firm yet stays on Walk-ins — do not run Intake until they
               retain.
             </p>
@@ -896,11 +896,11 @@ export default function OfficeHubInstructionsPage() {
               <strong>Atty. Hernandez & Associates</strong>.
             </p>
             <p>
-              Intake, walk-ins, SOA/AR, and client files: <strong>Andrea</strong> (secretary) with the assigned
+              Intake, walk-ins, SOA/AR, and client files: <strong>Secretary (Shiela)</strong> with the assigned
               attorney.
             </p>
             <p>
-              Hearings, consultations on the calendar, and court follow-ups: <strong>James Bryan</strong> (liaison)
+              Hearings, consultations on the calendar, and court follow-ups: <strong>Liaison Officer</strong>
               with the responsible attorney and assignee on each task.
             </p>
           </InstructionsQuestion>

@@ -24,7 +24,7 @@ describe("formatMyWorkListText", () => {
   it("includes sections and item lines", () => {
     const text = formatMyWorkListText({
       today: "2026-06-17",
-      scopeLabel: "Assigned to Jas",
+      scopeLabel: "Assigned to Liaison Officer",
       lists: {
         overdue: [item({ id: "T-2", details: "Follow up payment" })],
         eventsToday: [],
@@ -37,7 +37,7 @@ describe("formatMyWorkListText", () => {
     });
 
     expect(text).toContain("HA Office — My work");
-    expect(text).toContain("Assigned to Jas");
+    expect(text).toContain("Assigned to Liaison Officer");
     expect(text).toContain("Overdue");
     expect(text).toContain("Follow up payment");
     expect(text).toContain("Due now — tasks");

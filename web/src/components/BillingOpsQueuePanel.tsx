@@ -77,7 +77,7 @@ export function BillingOpsQueuePanel({ busy, onNavigate }: Props) {
     <section className="billing-ops-queue card page-stagger__item">
       <div className="billing-ops-queue__head">
         <div>
-          <p className="billing-ops-queue__eyebrow">Andrea billing ops</p>
+          <p className="billing-ops-queue__eyebrow">Secretary billing ops</p>
           <h3 className="billing-ops-queue__title font-display">Ops queue</h3>
           <p className="billing-ops-queue__lede">
             Overdue SOA, pending AR, follow-ups, billing tasks, walk-ins, and notarizations in one place.

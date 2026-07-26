@@ -13,6 +13,6 @@ describe("formatStaffDisplayName", () => {
   });
 
   it("falls back to first name from profile when email is unknown", () => {
-    expect(formatStaffDisplayName("James Bryan Hakola", "unknown@example.com")).toBe("James");
+    expect(formatStaffDisplayName("Atty. Sample Name", "unknown@example.com")).toBe("Atty.");
   });
 });

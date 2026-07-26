@@ -52,7 +52,7 @@ function resolvePrepAssigneeFromEvent(
   return normalizePrepAssignees(raw, roster);
 }
 
-/** Linked court filing events belong on the handling lawyer — not Andrea / Jas. */
+/** Linked court filing events belong on the handling lawyer — not secretary / liaison. */
 export async function resolvePleadingEventResponsible(
   accessToken: string,
   clientCase: string,
@@ -106,7 +106,7 @@ export async function ensurePleadingEventAssignedToAttorneyById(
   return ensurePleadingEventAssignedToAttorney(accessToken, event, names);
 }
 
-/** Backfill: move open pleading events off Andrea / Jas onto the case attorney. */
+/** Backfill: move open pleading events off secretary / liaison onto the case attorney. */
 export async function reconcilePleadingEventsAssignedToPrepStaff(accessToken: string): Promise<number> {
   const roster = await getActiveEmployeeNames(accessToken);
   const items = await collectAllItems(accessToken);
@@ -121,7 +121,7 @@ export async function reconcilePleadingEventsAssignedToPrepStaff(accessToken: st
   return updated;
 }
 
-/** Backfill: move linked filing prep tasks off the handling lawyer onto Andrea / Jas. */
+/** Backfill: move linked filing prep tasks off the handling lawyer onto secretary / liaison. */
 export async function reconcileLinkedPrepTaskAssignees(accessToken: string): Promise<number> {
   const roster = await getActiveEmployeeNames(accessToken);
   const items = await collectAllItems(accessToken);

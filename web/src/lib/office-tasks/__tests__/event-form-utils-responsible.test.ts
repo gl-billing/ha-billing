@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { defaultEventResponsiblePerson } from "@/lib/office-tasks/event-form-utils";
 
-const ROSTER = ["Ellyza Andrea Aguanta (Secretary)", "Atty. Maria Hernandez", "James Bryan Hakola"];
+const ROSTER = ["Shiela (Secretary)", "Atty. Maria Hernandez", "Liaison Officer"];
 
 describe("defaultEventResponsiblePerson", () => {
   it("defaults filing events to the case attorney", () => {

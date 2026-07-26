@@ -27,10 +27,10 @@ describe("prep completion", () => {
   });
 
   it("stores and parses prep done notice markers", () => {
-    const marker = prepDoneNoticeMarker("Jas", "2026-06-14");
-    expect(marker).toContain("PREP_DONE_NOTICE:Jas:2026-06-14");
+    const marker = prepDoneNoticeMarker("Liaison Officer", "2026-06-14");
+    expect(marker).toContain("PREP_DONE_NOTICE:Liaison Officer:2026-06-14");
     expect(parsePrepDoneNotice(`linked\n${marker}`)).toEqual({
-      staffName: "Jas",
+      staffName: "Liaison Officer",
       dateYmd: "2026-06-14"
     });
   });

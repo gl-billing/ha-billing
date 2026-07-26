@@ -25,7 +25,7 @@ Copy from `web/.env.example`. Set for **Production**, **Preview**, and **Develop
 | `NEXTAUTH_URL` | `https://YOUR-PROJECT.vercel.app` (update when custom domain is live) |
 | `ALLOWED_EMAIL_DOMAIN` | e.g. `hernandezassociates.com` **or** use `ALLOWED_EMAILS` |
 | `ADMIN_EMAILS` | Comma-separated owner emails allowed to **permanently delete** clients |
-| `TASKS_ONLY_EMAILS` | Staff who **must not** open billing — tasks & calendar only. Example: `farvjas53@gmail.com,jasbriehappy@hernandezassociates.com`. Must also be in `ALLOWED_EMAILS` or `ALLOWED_EMAIL_DOMAIN`. After changing, redeploy and have them **sign out and sign in again**. |
+| `TASKS_ONLY_EMAILS` | Staff who **must not** open billing — tasks & calendar only. Example: `liaison@hernandezlaw.info`. Must also be in `ALLOWED_EMAILS` or `ALLOWED_EMAIL_DOMAIN`. After changing, redeploy and have them **sign out and sign in again**. |
 | `APPS_SCRIPT_WEB_APP_URL` | Apps Script deployment URL |
 | `APPS_SCRIPT_WEB_APP_SECRET` | Same as Settings → Web App Secret in spreadsheet |
 | `CRON_SECRET` | Random string — Vercel sends this for hourly dashboard cron (`openssl rand -base64 32`) |

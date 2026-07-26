@@ -475,7 +475,7 @@ export type TeamEmployeeView = {
   operations: EmployeeItemGroups | null;
 };
 
-/** Split team workload — owner tax/admin buckets and Andrea billing ops. */
+/** Split team workload — owner tax/admin buckets and secretary billing ops. */
 export function getTeamEmployeeView(
   name: string,
   items: OfficeItem[],

@@ -734,7 +734,7 @@ export function MatterIntakeWizard({ busy, onStatus, onComplete }: Props) {
             <p className="matter-intake-wizard__panel-title">Starter checklist</p>
             <p className="matter-intake-wizard__panel-hint">
               Conflict review is completed above <strong>before</strong> this client is registered. Selected items
-              create tasks in <strong>Office Tasks</strong> (due in 7 days). Document prep goes to Andrea; conference
+              create tasks in <strong>Office Tasks</strong> (due in 7 days). Document prep goes to the secretary; conference
               tasks go to the handling attorney.
             </p>
 

@@ -48,14 +48,14 @@ export function isTaxComplianceItem(item: OfficeItem): boolean {
   return item.category.toLowerCase().includes("filing") && haystack.includes("bir");
 }
 
-/** Filing prep checklist tasks — Andrea's ops queue, not court/client matters. */
+/** Filing prep checklist tasks — secretary ops queue, not court/client matters. */
 export function isFilingPrepItem(item: OfficeItem): boolean {
   if (item.source !== "Task") return false;
   if (looksLikePrepReminderTask(item)) return true;
   return item.category.trim().toLowerCase() === "filing prep";
 }
 
-/** Billing, SOA/AR, engagement/contract delivery, and filing prep — Andrea's queue. */
+/** Billing, SOA/AR, engagement/contract delivery, and filing prep — secretary queue. */
 export function isAndreaOperationsItem(item: OfficeItem): boolean {
   if (isFilingPrepItem(item)) return true;
   if (item.remarks.includes("BILLING_TRIGGER")) return true;
@@ -81,7 +81,7 @@ export function isAndreaOperationsItem(item: OfficeItem): boolean {
   return false;
 }
 
-/** Firm-wide admin work on the owner profile — excludes tax compliance and Andrea ops. */
+/** Firm-wide admin work on the owner profile — excludes tax compliance and secretary ops. */
 export function isFirmAdminItem(item: OfficeItem): boolean {
   if (isTaxComplianceItem(item)) return false;
   if (isAndreaOperationsItem(item)) return false;
