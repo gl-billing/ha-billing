@@ -175,15 +175,14 @@ html[data-layout-mode="mobile"] {
     border-color: var(--ha-m-divider);
   }
 
-  & .mobile-office-header__logo-ring,
   & .mobile-office-header__name,
   & .mobile-office-header__menu-btn {
     color: var(--ha-m-accent);
   }
 
   & .mobile-office-header__logo-ring {
-    background: var(--ha-m-card);
-    border-color: var(--ha-m-accent);
+    background: transparent;
+    border: 0;
   }
 
   & .mobile-office-menu {

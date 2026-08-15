@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DayDetailPanel } from "@/components/office-tasks/DayDetailPanel";
 import { HintBar, ViewHero } from "@/components/office-tasks/PremiumUI";
 import type { EntryFormOptions } from "@/components/office-tasks/AddEntryForm";
@@ -9,6 +9,7 @@ import type { ItemSummary } from "@/components/office-tasks/ItemCard";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import type { ItemStatusUpdate } from "@/lib/office-tasks/status";
 import type { WorkItemFilingActionProps } from "@/lib/office-tasks/work-item-filing-actions";
+import { useNativeMobileLayout } from "@/hooks/useNativeMobileLayout";
 import {
   addDays,
   formatDisplayDate,
@@ -72,9 +73,16 @@ export function DayScheduleView({
   formOptions,
   togglingKey
 }: Props) {
+  const nativeMobile = useNativeMobileLayout();
   const [date, setDate] = useState(initialDate || today);
   const [highlightItemKey, setHighlightItemKey] = useState<string | null>(null);
   const detailAnchorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate)) {
+      setDate(initialDate);
+    }
+  }, [initialDate]);
 
   function openScheduleItem(item: OfficeItem, index = 0) {
     const key = officeItemKey(item, index);
@@ -89,6 +97,11 @@ export function DayScheduleView({
       .filter((item) => isItemOpen(item) && item.date === date)
       .sort((a, b) => String(a.startTime || "").localeCompare(String(b.startTime || "")));
   }, [items, date]);
+
+  const allDayItems = useMemo(
+    () => items.filter((item) => item.date === date),
+    [items, date]
+  );
 
   const byHour = useMemo(() => {
     const map = new Map<number, OfficeItem[]>();
@@ -108,34 +121,40 @@ export function DayScheduleView({
   }, [dayItems]);
 
   return (
-    <div className="day-schedule-view">
-      <ViewHero
-        eyebrow="Daily schedule"
-        title={formatDisplayDate(date, "long")}
-        subtitle={`${dayItems.length} open item${dayItems.length === 1 ? "" : "s"} with times where set.`}
-      />
-      <HintBar>
-        Hourly lanes for hearings and meetings. Items without a time appear under Untimed.
-      </HintBar>
+    <div className={`day-schedule-view${nativeMobile ? " day-schedule-view--native-mobile" : ""}`}>
+      {nativeMobile ? null : (
+        <ViewHero
+          eyebrow="Daily schedule"
+          title={formatDisplayDate(date, "long")}
+          subtitle={`${dayItems.length} open item${dayItems.length === 1 ? "" : "s"} with times where set.`}
+        />
+      )}
+      {nativeMobile ? null : (
+        <HintBar>
+          Hourly lanes for hearings and meetings. Items without a time appear under Untimed.
+        </HintBar>
+      )}
 
       <div className="day-schedule-view__toolbar no-print">
         <button type="button" className="btn-secondary text-sm" onClick={() => setDate(addDays(date, -1))}>
-          ← Previous day
+          {nativeMobile ? "← Prev" : "← Previous day"}
         </button>
         <button type="button" className="btn-secondary text-sm" onClick={() => setDate(today)}>
           Today
         </button>
         <button type="button" className="btn-secondary text-sm" onClick={() => setDate(addDays(date, 1))}>
-          Next day →
+          {nativeMobile ? "Next →" : "Next day →"}
         </button>
         <input
           type="date"
-          className="rounded border border-line px-2 py-1 text-sm"
+          className="rounded border border-line px-2 py-1 text-sm day-schedule-view__date"
           value={date}
           onChange={(event) => setDate(event.target.value)}
+          aria-label="Jump to date"
         />
       </div>
 
+      {nativeMobile ? null : (
       <div className="day-schedule-view__grid">
         {HOURS.map((hour) => {
           const slotItems = byHour.map.get(hour) || [];
@@ -170,8 +189,9 @@ export function DayScheduleView({
           );
         })}
       </div>
+      )}
 
-      {byHour.untimed.length ? (
+      {nativeMobile || !byHour.untimed.length ? null : (
         <div className="day-schedule-view__untimed">
           <p className="section-label">Untimed</p>
           <ul className="day-schedule-view__untimed-list">
@@ -193,12 +213,12 @@ export function DayScheduleView({
             ))}
           </ul>
         </div>
-      ) : null}
+      )}
 
       <div ref={detailAnchorRef} className="day-schedule-view__detail-anchor" />
       <DayDetailPanel
         date={date}
-        items={dayItems}
+        items={nativeMobile ? allDayItems : dayItems}
         today={today}
         highlightItemKey={highlightItemKey}
         onToggleDone={onToggleDone}

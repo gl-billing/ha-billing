@@ -55,7 +55,7 @@ export function MobileLoginPage({
         <div className={styles.brand}>
           <span className={styles.logoWrap}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/logo.png" alt="" width={72} height={72} className={styles.logo} />
+            <img src="/brand/logo.png" alt="" width={240} height={90} className={styles.logo} />
           </span>
           <p className={styles.firmName}>{APP_SHORT_NAME}</p>
           <p className={styles.practice}>{FIRM_COPYRIGHT_HOLDER}</p>

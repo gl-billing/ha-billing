@@ -64,6 +64,7 @@ import { MatterIntakeChecklist } from "@/components/matter/MatterIntakeChecklist
 import { MatterInlineLedger } from "@/components/matter/MatterInlineLedger";
 import { MatterAdvancedSettings } from "@/components/matter/MatterClientAdmin";
 import { MatterBackLink } from "@/components/matter/MatterBackLink";
+import { MatterMobileChrome } from "@/components/matter/MatterMobileChrome";
 import { MatterLedgerHistory } from "@/components/matter/MatterLedgerHistory";
 import { openPrintPreview } from "@/lib/print-preview";
 import { readMatterReturnFromSearchParams } from "@/lib/matter-return";
@@ -1152,11 +1153,17 @@ export function MatterPage({ matterCode, user }: Props) {
           code={billingCode || matterCode}
           name={profileTitle}
           balance={billingClient?.balance}
-          visible={stickyBarVisible}
+          visible={stickyBarVisible && !nativeMobile}
         />
-        <MatterBackLink
-          fallbackHref={billingAccess ? "/billing" : "/app"}
-        />
+        {nativeMobile ? (
+          <MatterMobileChrome
+            title={billingCode || matterCode}
+            fallbackHref={billingAccess ? "/billing" : "/app"}
+            onPrint={printMatterSummary}
+          />
+        ) : (
+          <MatterBackLink fallbackHref={billingAccess ? "/billing" : "/app"} />
+        )}
 
         {isOffline ? (
           <div className="matter-offline-banner no-print" role="status">

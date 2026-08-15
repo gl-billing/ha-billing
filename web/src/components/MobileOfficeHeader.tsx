@@ -91,7 +91,7 @@ function MobileOfficeHeaderView({
           <SameWindowLink href={officeHref} className={styles.brand} aria-label={`${title} home`}>
             <span className={styles.logoRing}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/logo.png" alt="" width={40} height={40} className={styles.logo} />
+              <img src="/brand/logo.png" alt="" width={80} height={30} className={styles.logo} />
             </span>
             <span className={styles.firmName}>{title}</span>
           </SameWindowLink>

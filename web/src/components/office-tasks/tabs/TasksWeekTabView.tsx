@@ -17,6 +17,7 @@ type Props = {
   items: OfficeItem[];
   today: string;
   weekStart: string;
+  initialDate?: string;
   formOptions?: EntryFormOptions;
   togglingKey?: string | null;
   onToggleDone?: (item: ItemSummary, done: boolean) => void;
@@ -34,6 +35,7 @@ export function TasksWeekTabView({
   items,
   today,
   weekStart,
+  initialDate,
   formOptions,
   togglingKey,
   onToggleDone,
@@ -63,7 +65,7 @@ export function TasksWeekTabView({
           <DayScheduleView
             items={items}
             today={today}
-            initialDate={today}
+            initialDate={initialDate || today}
             onToggleDone={onToggleDone}
             onSetStatus={onSetStatus}
             onResetWithDate={onResetWithDate}

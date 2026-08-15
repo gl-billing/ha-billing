@@ -1,17 +1,21 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import type { EntryFormOptions } from "@/components/office-tasks/AddEntryForm";
 import type { EditableItem } from "@/components/office-tasks/EditItemDialog";
 import { ItemCard, type ItemSummary } from "@/components/office-tasks/ItemCard";
+import { DeskChecklistItemRow } from "@/components/office-tasks/DeskChecklistItemRow";
 import type { ItemStatusUpdate } from "@/lib/office-tasks/status";
 import type { WorkItemFilingActionProps } from "@/lib/office-tasks/work-item-filing-actions";
 import type { PrepChecklistMutation } from "@/lib/office-tasks/prep-checklist-storage";
 import { EmptyState, ToneLegend } from "@/components/office-tasks/PremiumUI";
 import { ClientCaseLink } from "@/components/office-tasks/ClientCodeBadge";
+import { MobilePageHeader } from "@/components/mobile-app/MobilePageHeader";
 import { eventVenueDisplay } from "@/lib/office-tasks/event-join-link";
 import { formatDisplayDate } from "@/lib/office-tasks/date-only";
+import { deskChecklistRowState } from "@/lib/office-tasks/checklist-row-state";
+import { parseClientCaseDisplay } from "@/lib/office-tasks/client-matter";
 import {
   isCancelledStatus,
   itemTone,
@@ -25,12 +29,35 @@ import {
   formatSmartSearchLabel,
   parseSmartSearchQuery
 } from "@/lib/smart-search-query";
+import { useNativeMobileLayout } from "@/hooks/useNativeMobileLayout";
 
 type SourceFilter = "all" | "Task" | "Event";
 type StatusFilter = "open" | "done" | "cancelled" | "all";
 
 /** Cap rendered rows for very large sheets; filters/search narrow the list first. */
 const RENDER_LIMIT = 500;
+const MOBILE_PAGE_SIZE = 25;
+const MOBILE_COMPLETED_PAGE_SIZE = 15;
+
+function isCompletedItem(item: OfficeItem): boolean {
+  return (
+    item.done ||
+    item.status === "Done" ||
+    item.status === "Completed" ||
+    item.status === "Submitted" ||
+    isCancelledStatus(item.status)
+  );
+}
+
+function groupItems(list: OfficeItem[]): Array<[string, OfficeItem[]]> {
+  const map = new Map<string, OfficeItem[]>();
+  list.forEach((item) => {
+    const key = item.clientCase?.trim() || "(No client / case)";
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(item);
+  });
+  return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+}
 
 type Props = {
   items: OfficeItem[];
@@ -79,11 +106,15 @@ export function SearchView({
   onConfirmParentFiled,
   formOptions
 }: Props) {
+  const nativeMobile = useNativeMobileLayout();
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [assigneeFilter, setAssigneeFilter] = useState("");
   const [sortBy, setSortBy] = useState<"date" | "priority" | "client">("date");
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(MOBILE_PAGE_SIZE);
+  const [completedVisible, setCompletedVisible] = useState(MOBILE_COMPLETED_PAGE_SIZE);
+  const [completedOpen, setCompletedOpen] = useState(false);
 
   const trimmedQuery = query.trim();
   const hasQuery = Boolean(trimmedQuery);
@@ -94,7 +125,7 @@ export function SearchView({
   const intentLabel = formatSmartSearchLabel(intent);
   const today = todayYmd();
 
-  const { results, matchCount } = useMemo(() => {
+  const { filtered, matchCount } = useMemo(() => {
     const q = trimmedQuery.toLowerCase();
 
     let list = [...items];
@@ -169,11 +200,37 @@ export function SearchView({
       return bDate.localeCompare(aDate) || a.clientCase.localeCompare(b.clientCase);
     });
 
-    const matchCount = list.length;
-    return { results: list.slice(0, RENDER_LIMIT), matchCount };
+    return { filtered: list, matchCount: list.length };
   }, [items, trimmedQuery, sourceFilter, statusFilter, assigneeFilter, sortBy, intent, employees]);
 
-  const truncated = matchCount > results.length;
+  useEffect(() => {
+    setVisibleCount(MOBILE_PAGE_SIZE);
+    setCompletedVisible(MOBILE_COMPLETED_PAGE_SIZE);
+  }, [trimmedQuery, sourceFilter, statusFilter, assigneeFilter, sortBy]);
+
+  const splitCompleted = nativeMobile && statusFilter === "all";
+  const activeFiltered = useMemo(
+    () => (splitCompleted ? filtered.filter((item) => !isCompletedItem(item)) : filtered),
+    [filtered, splitCompleted]
+  );
+  const completedFiltered = useMemo(
+    () => (splitCompleted ? filtered.filter((item) => isCompletedItem(item)) : []),
+    [filtered, splitCompleted]
+  );
+
+  const visibleActive = activeFiltered.slice(0, nativeMobile ? visibleCount : RENDER_LIMIT);
+  const visibleCompleted = completedFiltered.slice(0, completedVisible);
+  const results = nativeMobile ? visibleActive : filtered.slice(0, RENDER_LIMIT);
+  const truncated = nativeMobile
+    ? activeFiltered.length > visibleActive.length
+    : matchCount > RENDER_LIMIT;
+
+  const grouped = useMemo(() => groupItems(results), [results]);
+  const groupedCompleted = useMemo(() => groupItems(visibleCompleted), [visibleCompleted]);
+  const shownCount = nativeMobile
+    ? visibleActive.length + (completedOpen ? visibleCompleted.length : 0)
+    : results.length;
+  const empty = filtered.length === 0;
 
   function clearFilters() {
     onQueryChange?.("");
@@ -188,94 +245,194 @@ export function SearchView({
     setExpandedKey((prev) => (prev === key ? null : key));
   }
 
+  function renderDeskRow(item: OfficeItem, index: number) {
+    const key = officeItemKey(item, index);
+    return (
+      <DeskChecklistItemRow
+        key={key}
+        item={item}
+        allItems={items}
+        togglingKey={togglingKey}
+        prepChecklistCreatingKey={prepChecklistCreatingKey}
+        options={deskChecklistRowState(item)}
+        className="desk-checklist-row--task-mobile"
+        onToggleDone={onToggleDone}
+        onSetStatus={onSetStatus}
+        onResetWithDate={onResetWithDate}
+        onDeleteItem={onDeleteItem}
+        onUpdateNextAction={onUpdateNextAction}
+        onTogglePrepChecklistItem={onTogglePrepChecklistItem}
+        onMutatePrepChecklistItem={onMutatePrepChecklistItem}
+        onCreatePrepChecklist={onCreatePrepChecklist}
+        onInitializePrepChecklist={onInitializePrepChecklist}
+        onSaveEdit={onSaveEdit}
+        onCourtConfirmed={onCourtConfirmed}
+        onMarkSubmitted={onMarkSubmitted}
+        onConfirmParentFiled={onConfirmParentFiled}
+        formOptions={formOptions}
+      />
+    );
+  }
+
   return (
-    <div className="search-page space-tasks-ledger">
-      <header className="space-tasks-ledger__head">
-        <h3 className="space-tasks-ledger__title">
-          {hasQuery ? "Search results" : "All tasks & events"}
-        </h3>
-        <p className="space-tasks-ledger__lede">
-          {hasQuery
-            ? intentLabel
-              ? `Showing ${intentLabel}. Adjust filters below or clear to browse everything.`
-              : `Matches for “${trimmedQuery}”. Adjust filters below or clear to browse everything.`
-            : "Search or filter the ledger, then open a row for actions."}
-        </p>
-      </header>
-
-      <section className="space-tasks-ledger__filters mt-3">
-        <h3 className="section-label mb-3">Refine results</h3>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <RefineSegment
-            label="Type"
-            value={sourceFilter}
-            options={[
-              ["all", "All"],
-              ["Task", "Tasks"],
-              ["Event", "Events"]
-            ]}
-            onChange={(v) => setSourceFilter(v as SourceFilter)}
-          />
-          <RefineSegment
-            label="Status"
-            value={statusFilter}
-            options={[
-              ["open", "Open"],
-              ["done", "Done"],
-              ["cancelled", "Cancelled"],
-              ["all", "All"]
-            ]}
-            onChange={(v) => setStatusFilter(v as StatusFilter)}
-          />
-          <label className="refine-field">
-            <span className="refine-field__label">Assignee</span>
-            <select
-              className="field-input field-input--compact mt-1.5"
-              value={assigneeFilter}
-              onChange={(e) => setAssigneeFilter(e.target.value)}
-            >
-              <option value="">Anyone</option>
-              {employees.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="refine-field">
-            <span className="refine-field__label">Sort by</span>
-            <select
-              className="field-input field-input--compact mt-1.5"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            >
-              <option value="date">Date</option>
-              <option value="priority">Priority</option>
-              <option value="client">Client / case</option>
-            </select>
-          </label>
-        </div>
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <p className="space-tasks-ledger__count">
-            {truncated
-              ? `${results.length} of ${matchCount} items`
-              : `${results.length} item${results.length === 1 ? "" : "s"}`}
-            {truncated ? " — use search or filters to narrow" : ""}
-            {hasQuery ? ` · “${trimmedQuery}”` : ""}
+    <div
+      className={
+        nativeMobile ? "search-page search-page--native-mobile" : "search-page space-tasks-ledger"
+      }
+    >
+      {nativeMobile ? <MobilePageHeader title="Tasks" /> : (
+        <header className="space-tasks-ledger__head">
+          <h3 className="space-tasks-ledger__title">
+            {hasQuery ? "Search results" : "All tasks & events"}
+          </h3>
+          <p className="space-tasks-ledger__lede">
+            {hasQuery
+              ? intentLabel
+                ? `Showing ${intentLabel}. Adjust filters below or clear to browse everything.`
+                : `Matches for “${trimmedQuery}”. Adjust filters below or clear to browse everything.`
+              : "Search or filter the ledger, then open a row for actions."}
           </p>
-          <button type="button" className="btn-secondary btn-sm" onClick={clearFilters}>
-            Reset filters
-          </button>
-        </div>
-      </section>
+        </header>
+      )}
 
-      {!hasQuery && statusFilter === "all" && !assigneeFilter && sourceFilter === "all" ? (
+      {nativeMobile ? (
+        <div className="search-page__toolbar">
+          <input
+            type="search"
+            className="search-page__search"
+            placeholder="Search tasks"
+            value={query}
+            onChange={(event) => onQueryChange?.(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") onSearch(query);
+            }}
+            aria-label="Search tasks"
+          />
+          <div className="search-page__filters">
+            <RefineSegment
+              label="Status"
+              value={statusFilter}
+              options={[
+                ["open", "Open"],
+                ["done", "Done"],
+                ["cancelled", "Cancelled"],
+                ["all", "All"]
+              ]}
+              onChange={(v) => setStatusFilter(v as StatusFilter)}
+            />
+            <div className="search-page__filter-row">
+              <label className="refine-field">
+                <span className="search-page__filter-label">Assignee</span>
+                <select
+                  className="field-input field-input--compact"
+                  value={assigneeFilter}
+                  onChange={(e) => setAssigneeFilter(e.target.value)}
+                >
+                  <option value="">Anyone</option>
+                  {employees.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="refine-field">
+                <span className="search-page__filter-label">Sort</span>
+                <select
+                  className="field-input field-input--compact"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                >
+                  <option value="date">Date</option>
+                  <option value="priority">Priority</option>
+                  <option value="client">Client</option>
+                </select>
+              </label>
+            </div>
+            <button type="button" className="btn-secondary search-page__reset" onClick={clearFilters}>
+              Reset filters
+            </button>
+          </div>
+        </div>
+      ) : (
+        <section className="space-tasks-ledger__filters mt-3">
+          <h3 className="section-label mb-3">Refine results</h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <RefineSegment
+              label="Type"
+              value={sourceFilter}
+              options={[
+                ["all", "All"],
+                ["Task", "Tasks"],
+                ["Event", "Events"]
+              ]}
+              onChange={(v) => setSourceFilter(v as SourceFilter)}
+            />
+            <RefineSegment
+              label="Status"
+              value={statusFilter}
+              options={[
+                ["open", "Open"],
+                ["done", "Done"],
+                ["cancelled", "Cancelled"],
+                ["all", "All"]
+              ]}
+              onChange={(v) => setStatusFilter(v as StatusFilter)}
+            />
+            <label className="refine-field">
+              <span className="refine-field__label">Assignee</span>
+              <select
+                className="field-input field-input--compact mt-1.5"
+                value={assigneeFilter}
+                onChange={(e) => setAssigneeFilter(e.target.value)}
+              >
+                <option value="">Anyone</option>
+                {employees.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="refine-field">
+              <span className="refine-field__label">Sort by</span>
+              <select
+                className="field-input field-input--compact mt-1.5"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              >
+                <option value="date">Date</option>
+                <option value="priority">Priority</option>
+                <option value="client">Client / case</option>
+              </select>
+            </label>
+          </div>
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <p className="space-tasks-ledger__count">
+              {truncated
+                ? `${results.length} of ${matchCount} items`
+                : `${results.length} item${results.length === 1 ? "" : "s"}`}
+              {truncated ? " — use search or filters to narrow" : ""}
+              {hasQuery ? ` · “${trimmedQuery}”` : ""}
+            </p>
+            <button type="button" className="btn-secondary btn-sm" onClick={clearFilters}>
+              Reset filters
+            </button>
+          </div>
+        </section>
+      )}
+
+      {nativeMobile ? (
+        <p className="search-page__count">
+          {`Showing ${shownCount} of ${matchCount}${hasQuery ? ` · “${trimmedQuery}”` : ""}`}
+        </p>
+      ) : !hasQuery && statusFilter === "all" && !assigneeFilter && sourceFilter === "all" ? (
         <p className="mt-2 text-sm text-muted">
           Showing all tasks and events. Type in the search bar above to filter.
         </p>
       ) : null}
 
-      {results.length === 0 ? (
+      {empty ? (
         <div className="mt-4">
           <EmptyState
             title={items.length > 0 ? "Filters hide everything" : hasQuery ? "No matches" : "No items"}
@@ -292,6 +449,57 @@ export function SearchView({
               <button type="button" className="btn-primary max-w-[220px] text-sm" onClick={clearFilters}>
                 Show all {items.length} items
               </button>
+            </div>
+          ) : null}
+        </div>
+      ) : nativeMobile ? (
+        <div className="search-page__groups">
+          {grouped.map(([client, clientItems]) => (
+            <MobileTaskGroup key={client} client={client} count={clientItems.length} defaultOpen>
+              <ul className="desk-checklist__list">
+                {clientItems.map((item, index) => renderDeskRow(item, index))}
+              </ul>
+            </MobileTaskGroup>
+          ))}
+          {activeFiltered.length > visibleActive.length ? (
+            <button
+              type="button"
+              className="search-page__load-more"
+              onClick={() => setVisibleCount((count) => count + MOBILE_PAGE_SIZE)}
+            >
+              Load more ({activeFiltered.length - visibleActive.length} remaining)
+            </button>
+          ) : null}
+          {completedFiltered.length ? (
+            <div className="search-page__completed">
+              <button
+                type="button"
+                className="search-page__completed-toggle"
+                aria-expanded={completedOpen}
+                onClick={() => setCompletedOpen((open) => !open)}
+              >
+                {completedOpen ? "Hide completed" : `Completed (${completedFiltered.length})`}
+              </button>
+              {completedOpen ? (
+                <>
+                  {groupedCompleted.map(([client, clientItems]) => (
+                    <MobileTaskGroup key={`done-${client}`} client={client} count={clientItems.length} defaultOpen>
+                      <ul className="desk-checklist__list">
+                        {clientItems.map((item, index) => renderDeskRow(item, index))}
+                      </ul>
+                    </MobileTaskGroup>
+                  ))}
+                  {completedFiltered.length > visibleCompleted.length ? (
+                    <button
+                      type="button"
+                      className="search-page__load-more"
+                      onClick={() => setCompletedVisible((count) => count + MOBILE_COMPLETED_PAGE_SIZE)}
+                    >
+                      Load more completed ({completedFiltered.length - visibleCompleted.length} remaining)
+                    </button>
+                  ) : null}
+                </>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -443,8 +651,43 @@ export function SearchView({
         </div>
       )}
 
-      <ToneLegend className="mt-6" />
+      {nativeMobile ? null : <ToneLegend className="mt-6" />}
     </div>
+  );
+}
+
+function MobileTaskGroup({
+  client,
+  count,
+  defaultOpen = true,
+  children
+}: {
+  client: string;
+  count: number;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  const parsed = parseClientCaseDisplay(client);
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <details
+      className="search-page__group"
+      open={open}
+      onToggle={(event) => {
+        setOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
+    >
+      <summary className="search-page__group-toggle">
+        <span className="search-page__group-copy">
+          <ClientCaseLink clientCase={client} className="search-page__group-title">
+            {parsed.title}
+          </ClientCaseLink>
+          {parsed.subtitle ? <span className="search-page__group-matter">{parsed.subtitle}</span> : null}
+        </span>
+        <span className="search-page__group-count">{count}</span>
+      </summary>
+      {children}
+    </details>
   );
 }
 

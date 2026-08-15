@@ -10,11 +10,16 @@
 ) {
 .matter-page--native-mobile {
   box-sizing: border-box;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 0 0 auto !important;
   width: 100%;
-  max-width: 100%;
+  max-width: none !important;
   min-width: 0;
-  overflow-x: visible;
-  padding: 0 0 calc(5.25rem + env(safe-area-inset-bottom, 0px));
+  height: auto !important;
+  min-height: 0;
+  overflow: visible !important;
+  padding: 0 0 0.75rem;
   background: var(--ha-m-bg, #0b0b0b) !important;
   color: var(--ha-m-ink, #f5f1e8) !important;
 }
@@ -823,6 +828,26 @@
   width: 100%;
   max-width: 100%;
   min-width: 0;
+  background: var(--ha-m-card, #181818) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+  box-shadow: none !important;
+}
+
+.matter-page--native-mobile .matter-page__print-btn {
+  display: none !important;
+}
+
+.matter-page--native-mobile .matter-page__columns,
+.matter-page--native-mobile .client-matter-panel__columns,
+.matter-page--native-mobile .matter-page__columns.client-matter-panel__columns {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 0.75rem !important;
+}
+
+.matter-page--native-mobile .matter-items-column {
+  overflow: visible !important;
 }
 
 .matter-page--native-mobile .matter-close-file-sheet {

@@ -395,22 +395,23 @@
 }
 
 .logoRing {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0.12rem;
-  border-radius: 999px;
-  border: 1.5px solid var(--ha-m-accent, #ffffff);
+  width: auto;
+  height: 2.15rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
   overflow: hidden;
-  background: var(--ha-m-card, #181818);
+  background: transparent;
 }
 
 .logo {
   display: block;
-  width: 100%;
+  width: auto;
   height: 100%;
+  max-height: 2.15rem;
   object-fit: contain;
 }
 

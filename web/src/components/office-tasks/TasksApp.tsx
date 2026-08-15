@@ -197,6 +197,9 @@ export function TasksApp() {
   const [tab, setTab] = useState<Tab>("today");
   /** Clio/Space Calendar Day/Week/Month/Schedule — day mounts hourly DayScheduleView on the week tab. */
   const [calendarMode, setCalendarMode] = useState<"day" | "week" | "month" | "schedule">("week");
+  const [calendarFocusDay, setCalendarFocusDay] = useState(
+    () => (searchParams.get("day") || "").trim()
+  );
   const [filingQueue, setFilingQueue] = useState<"e-filing" | "physical">("e-filing");
   const {
     message: statusMsg,
@@ -466,6 +469,8 @@ export function TasksApp() {
     const clioNav = parseClioNavParam(params.get("nav"));
     const clioSection = params.get("section")?.trim() || "";
     const calParam = params.get("cal")?.trim().toLowerCase() || "";
+    const dayParam = params.get("day")?.trim() || "";
+    if (dayParam) setCalendarFocusDay(dayParam);
     const filingQueueParam = params.get("filingQueue")?.trim().toLowerCase() || "";
 
     if (filingQueueParam === "physical" || filingQueueParam === "e-filing") {
@@ -1410,7 +1415,7 @@ export function TasksApp() {
   );
 
   const selectSpaceCalendarView = useCallback(
-    (view: SpaceCalendarView) => {
+    (view: SpaceCalendarView, day?: string) => {
       const target = spaceCalendarViewTarget(view);
       setCalendarMode(target.cal);
       selectTab(target.tab, { calendarMode: target.cal, syncUrl: true });
@@ -1418,7 +1423,13 @@ export function TasksApp() {
         const params = new URLSearchParams(window.location.search);
         params.set("tab", target.tab);
         params.set("cal", target.cal);
+        if (day) {
+          params.set("day", day);
+          setCalendarFocusDay(day);
+        }
         window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+      } else if (day) {
+        setCalendarFocusDay(day);
       }
     },
     [selectTab]
@@ -2211,6 +2222,7 @@ export function TasksApp() {
       onConfirmParentFiled={confirmParentFiled}
           formOptions={opts}
           togglingKey={togglingKey}
+          onOpenDay={nativeMobile ? (date) => selectSpaceCalendarView("day", date) : undefined}
         />
           </TabPageBody>
         </>
@@ -2218,10 +2230,11 @@ export function TasksApp() {
 
       {!spaceDeskOnly && !spaceNotificationsDesk && tab === "week" && data ? (
         <TasksWeekTabView
-          calendarMode={calendarMode}
+          calendarMode={nativeMobile ? "day" : calendarMode}
           items={scheduleItems}
           today={today}
           weekStart={data.weekStart}
+          initialDate={nativeMobile ? calendarFocusDay || today : today}
           onToggleDone={toggleItemDone}
           onSetStatus={updateItemStatus}
           onResetWithDate={resetItemWithDate}

@@ -15,7 +15,7 @@
   flex-direction: column;
   align-items: stretch;
   gap: 0.55rem;
-  padding: 0.75rem 0.8rem 0.85rem;
+  padding: 0.5rem 0.55rem 0.6rem;
   border: 1px solid var(--ha-m-divider, #2d2d2d);
   border-radius: 0.85rem;
   background: var(--ha-m-card, #181818);

@@ -813,6 +813,47 @@
   color: var(--ha-m-muted, #c4bdb3) !important;
 }
 
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__row,
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__row.my-work-list__row--open,
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__row.my-work-list__row--done {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 0.28rem !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__row::before,
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__row::after {
+  display: none !important;
+}
+
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__client,
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__client .client-case-link__name,
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__detail,
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__title-row {
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__meta,
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__priority,
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__kind {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__btn,
+.search-page--native-mobile .desk-checklist-row--task-mobile .my-work-list__btn--ghost {
+  background: var(--ha-m-card-elevated, #202020) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
 @media (max-width: 360px) {
   .tasks-page--native-mobile .tasks-page__views {
     grid-template-columns: repeat(2, minmax(0, 1fr));

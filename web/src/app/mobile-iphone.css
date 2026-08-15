@@ -585,3 +585,264 @@
     padding-top: max(0.35rem, env(safe-area-inset-top, 0px)) !important;
   }
 }
+
+/*
+ * Native phone office: one inner scroller, header + bottom nav always on screen.
+ * The Space iPhone shell used height:100dvh + overflow:clip, so Safari panned the
+ * whole window and parked the fixed nav behind the browser chrome.
+ */
+html[data-layout-mode="mobile"],
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) {
+  height: 100%;
+  height: 100svh;
+  overflow: hidden;
+}
+
+html[data-layout-mode="mobile"] body,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) body {
+  height: 100%;
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace.firm-space-shell,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace.firm-space-shell {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 100% !important;
+  height: 100svh !important;
+  max-height: 100svh !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace.firm-space-shell .trial-firm-layout,
+html[data-layout-mode="mobile"] .firm-workspace.firm-space-shell .firm-space-desk-scroll,
+html[data-layout-mode="mobile"] .firm-workspace.firm-space-shell .trial-firm-layout__main,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace.firm-space-shell .trial-firm-layout,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace.firm-space-shell .firm-space-desk-scroll,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace.firm-space-shell .trial-firm-layout__main {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace-body,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace-body {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-y: contain !important;
+  touch-action: auto !important;
+  padding-bottom: 1rem !important;
+}
+
+html[data-layout-mode="mobile"] .mobile-office-home-slot,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .mobile-office-home-slot,
+html[data-layout-mode="mobile"] .mobile-office-home-slot > *,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .mobile-office-home-slot > * {
+  padding-bottom: 0.35rem !important;
+}
+
+html[data-layout-mode="mobile"] .mobile-office-header,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .mobile-office-header {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  top: auto !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace > .layout-mode-switcher--banner,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace > .layout-mode-switcher--banner {
+  display: none !important;
+}
+
+html[data-layout-mode="mobile"] .mobile-office-bottom-nav,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .mobile-office-bottom-nav {
+  display: grid !important;
+  position: relative !important;
+  inset: auto !important;
+  flex: 0 0 auto !important;
+  z-index: 80 !important;
+}
+
+html[data-layout-mode="mobile"] .mobile-space-desk-nav.mobile-clio-desk-nav,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .mobile-space-desk-nav.mobile-clio-desk-nav {
+  display: none !important;
+}
+
+/*
+ * Calendar / Tasks: kill stacked cream gutters and force a dark full-bleed canvas.
+ * Earlier layers set Space cream (#f7f4ee), --space-main-pad-*, --ha-m-gutter, and 16px body padding.
+ */
+html[data-layout-mode="mobile"],
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) {
+  --ha-m-gutter: 0.75rem;
+  --space-main-pad-x: 0px;
+  --space-main-pad-left: 0px;
+  --space-main-pad-top: 0px;
+  --space-main-pad-bottom: 0px;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace.firm-space-shell,
+html[data-layout-mode="mobile"] .firm-workspace.firm-space-shell .trial-firm-layout,
+html[data-layout-mode="mobile"] .firm-workspace.firm-space-shell .trial-firm-layout__main,
+html[data-layout-mode="mobile"] .firm-workspace.firm-space-shell .firm-space-desk-scroll,
+html[data-layout-mode="mobile"] .firm-workspace.firm-space-shell .firm-workspace-body,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace.firm-space-shell,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace.firm-space-shell .trial-firm-layout,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace.firm-space-shell .trial-firm-layout__main,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace.firm-space-shell .firm-workspace-body {
+  background: var(--ha-m-bg, #0b0b0b) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace.firm-space-shell .trial-firm-layout__main,
+html[data-layout-mode="mobile"] .firm-workspace.firm-space-shell > .firm-space-desk-scroll,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace.firm-space-shell .trial-firm-layout__main,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace.firm-space-shell > .firm-space-desk-scroll {
+  --space-main-pad-x: 0px !important;
+  --space-main-pad-left: 0px !important;
+  --space-main-pad-top: 0px !important;
+  --space-main-pad-bottom: 0px !important;
+  padding: 0 !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace-body,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace-body {
+  /* Beat mobile-screens `height: auto` so this flex child is a real scrollport. */
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding-top: 0.1rem !important;
+  padding-left: var(--ha-m-gutter) !important;
+  padding-right: var(--ha-m-gutter) !important;
+  padding-bottom: 0.75rem !important;
+  touch-action: auto !important;
+}
+
+html[data-layout-mode="mobile"] .matter-page--native-mobile,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile {
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+  background: var(--ha-m-bg, #0b0b0b) !important;
+}
+
+html[data-layout-mode="mobile"] .matter-page--native-mobile .card,
+html[data-layout-mode="mobile"] .matter-page--native-mobile .item-card,
+html[data-layout-mode="mobile"] .matter-page--native-mobile .my-work-list__row,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .card,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .item-card,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .my-work-list__row {
+  background: var(--ha-m-card, #181818) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+  box-shadow: none !important;
+}
+
+html[data-layout-mode="mobile"] .matter-page--native-mobile .my-work-list__row::before,
+html[data-layout-mode="mobile"] .matter-page--native-mobile .my-work-list__row::after,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .my-work-list__row::before,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .my-work-list__row::after {
+  display: none !important;
+}
+
+html[data-layout-mode="mobile"] .matter-page--native-mobile .my-work-list__client,
+html[data-layout-mode="mobile"] .matter-page--native-mobile .my-work-list__detail,
+html[data-layout-mode="mobile"] .matter-page--native-mobile .matter-page__client-name,
+html[data-layout-mode="mobile"] .matter-page--native-mobile .matter-letterhead__caption,
+html[data-layout-mode="mobile"] .matter-page--native-mobile .matter-letterhead__code,
+html[data-layout-mode="mobile"] .matter-page--native-mobile .matter-page__section-title,
+html[data-layout-mode="mobile"] .matter-page--native-mobile .matter-page__flow-title,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .my-work-list__client,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .my-work-list__detail,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .matter-page__client-name,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .matter-letterhead__caption,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .matter-letterhead__code,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .matter-page__section-title,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .matter-page__flow-title {
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
+html[data-layout-mode="mobile"] .matter-page--native-mobile .my-work-list__meta,
+html[data-layout-mode="mobile"] .matter-page--native-mobile .text-muted,
+html[data-layout-mode="mobile"] .matter-page--native-mobile .matter-page__flow-lede,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .my-work-list__meta,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .text-muted,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .matter-page--native-mobile .matter-page__flow-lede {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .tab-page-body,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .firm-workspace .tab-page-body {
+  gap: 0.45rem !important;
+  background: transparent !important;
+}
+
+html[data-layout-mode="mobile"] .ha-mobile-page-header,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .ha-mobile-page-header {
+  margin: 0 0 0.35rem !important;
+  padding: 0.15rem 0 0 !important;
+}
+
+html[data-layout-mode="mobile"] .ha-mobile-page-title,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .ha-mobile-page-title {
+  margin: 0 !important;
+}
+
+html[data-layout-mode="mobile"] .day-schedule-view--native-mobile,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .day-schedule-view--native-mobile {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+html[data-layout-mode="mobile"] .day-schedule-view--native-mobile .day-schedule-view__toolbar,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .day-schedule-view--native-mobile .day-schedule-view__toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.4rem;
+  margin: 0 0 0.65rem;
+  padding: 0;
+}
+
+html[data-layout-mode="mobile"] .day-schedule-view--native-mobile .day-schedule-view__date,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .day-schedule-view--native-mobile .day-schedule-view__date {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d);
+  background: var(--ha-m-card, #181818);
+  color: var(--ha-m-ink, #f5f1e8);
+}
+
+html[data-layout-mode="mobile"] .day-schedule-view--native-mobile .day-schedule-view__toolbar .btn-secondary,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .day-schedule-view--native-mobile .day-schedule-view__toolbar .btn-secondary {
+  min-height: 2.75rem;
+  margin: 0;
+  border-radius: 0.85rem;
+  border-color: var(--ha-m-divider, #2d2d2d);
+  background: var(--ha-m-card, #181818);
+  color: var(--ha-m-ink, #f5f1e8);
+}

@@ -50,6 +50,7 @@ type Props = {
   onCourtConfirmed?: (item: ItemSummary) => void;
   formOptions?: EntryFormOptions;
   togglingKey?: string | null;
+  onOpenDay?: (date: string) => void;
 } & WorkItemFilingActionProps;
 
 export function MonthlyCalendarView({
@@ -65,7 +66,8 @@ export function MonthlyCalendarView({
   onMarkSubmitted,
   onConfirmParentFiled,
   formOptions,
-  togglingKey
+  togglingKey,
+  onOpenDay
 }: Props) {
   const nativeMobile = useNativeMobileLayout();
   const { todayCodes } = useTodayBirthdays();
@@ -107,7 +109,10 @@ export function MonthlyCalendarView({
           dayLookup={(date) => byDate[date] || []}
           onShiftMonth={shiftMonth}
           onGoToday={goToday}
-          onOpenDay={setSelectedDate}
+          onOpenDay={(date) => {
+            setSelectedDate(date);
+            onOpenDay?.(date);
+          }}
         />
         <DayDetailPanel
           date={selectedDate}
