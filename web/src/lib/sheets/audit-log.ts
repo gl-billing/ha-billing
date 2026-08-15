@@ -1,4 +1,4 @@
-import { GL, type AuditLogEntry } from "@/lib/gl-config";
+import { HA, type AuditLogEntry } from "@/lib/ha-config";
 import {
   appendSheetValues,
   getSheetValues,
@@ -30,7 +30,7 @@ export async function appendAuditLog(
     details?: string;
   }
 ): Promise<void> {
-  const sheetName = GL.sheets.auditLog;
+  const sheetName = HA.sheets.auditLog;
   await ensureAuditLogReady(accessToken, sheetName);
 
   const timestamp = new Date().toLocaleString("en-PH", {
@@ -57,7 +57,7 @@ export async function getAuditLog(
   accessToken: string,
   options?: { clientCode?: string; limit?: number }
 ): Promise<AuditLogEntry[]> {
-  const sheetName = GL.sheets.auditLog;
+  const sheetName = HA.sheets.auditLog;
   if (!(await sheetTitleExists(accessToken, sheetName))) return [];
 
   const values = await getSheetValues(accessToken, toA1Range(sheetName, "A2:F"));

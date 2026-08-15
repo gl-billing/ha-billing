@@ -9,7 +9,7 @@ import {
   StaffSalaryToolPanel
 } from "@/components/staff-salary/StaffSalaryComputeUI";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import {
   formatStaff13thMonthStatementText,
   formatStaff13thMonthTransferMemo,

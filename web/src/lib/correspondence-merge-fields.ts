@@ -1,4 +1,4 @@
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import type { CorrespondenceLetterInput } from "@/lib/firm-correspondence-preview";
 
 export type CorrespondenceMergeContext = {
@@ -20,7 +20,7 @@ export type CorrespondenceMergeField = {
 
 export const CORRESPONDENCE_MERGE_FIELDS: CorrespondenceMergeField[] = [
   { token: "{{client_name}}", label: "Client name", description: "Recipient / client name" },
-  { token: "{{client_code}}", label: "Client code", description: "Matter code (e.g. GL-001)" },
+  { token: "{{client_code}}", label: "Client code", description: "Matter code (e.g. HA-001)" },
   { token: "{{case_title}}", label: "Case title", description: "Caption or matter title" },
   { token: "{{balance}}", label: "Balance due", description: "Current ledger balance" },
   { token: "{{last_soa_date}}", label: "Last SOA date", description: "When the last SOA was sent" },

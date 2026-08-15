@@ -1,5 +1,5 @@
-import { formatClientCaseLabel } from "@/lib/gl-config";
-import type { ClientSummary } from "@/lib/gl-config";
+import { formatClientCaseLabel } from "@/lib/ha-config";
+import type { ClientSummary } from "@/lib/ha-config";
 import { clientCodeFromCase, taskCodeForBillingClient } from "@/lib/office-tasks/client-matter";
 import { findSimilarClients, type SimilarClientMatch } from "@/lib/sheets/client-similarity";
 

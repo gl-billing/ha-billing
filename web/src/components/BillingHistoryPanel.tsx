@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { BillingHistoryFilter, BillingHistoryItem } from "@/lib/sheets/billing-history";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import { truncateForDisplay } from "@/lib/link-display";
 import { billingHistoryModificationNote } from "@/lib/history-modification-note";
 

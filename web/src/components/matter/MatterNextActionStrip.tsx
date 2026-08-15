@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import type { LedgerEntry } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { LedgerEntry } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import { ymdToUtcDate } from "@/lib/office-tasks/date-only";
 import type { BillingSection } from "@/lib/matter-routes";

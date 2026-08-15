@@ -1,12 +1,12 @@
 import {
-  GL,
+  HA,
   normalizePaymentMethod,
   parseMoney,
   type NotarizationEntry,
   type NotarizationPayload,
   type NotarizationUpdatePayload
-} from "@/lib/gl-config";
-import type { GenerateNotarialReceiptPayload } from "@/lib/gl-config";
+} from "@/lib/ha-config";
+import type { GenerateNotarialReceiptPayload } from "@/lib/ha-config";
 import {
   appendSheetValues,
   getSheetValues,
@@ -21,7 +21,7 @@ import { generateNotarialReceiptNative } from "@/lib/sheets/notarial-receipt";
 import { appendDocumentLogEntry } from "@/lib/sheets/document-log";
 import { ensureSheetTitle } from "@/lib/sheets/sheet-meta";
 
-const NOTARIZATION_HEADERS = [...GL.notarizationHeaders];
+const NOTARIZATION_HEADERS = [...HA.notarizationHeaders];
 const NOTARIZATION_COLS = NOTARIZATION_HEADERS.length;
 export const NOTARIZATION_DELETED_STATUS = "Deleted";
 const NOTARIZATION_HEADER_RANGE = `A1:R1`;
@@ -92,7 +92,7 @@ function padRow(values: unknown[]): unknown[] {
 }
 
 async function ensureNotarizationSheetReady(accessToken: string): Promise<void> {
-  const sheetName = GL.sheets.notarization;
+  const sheetName = HA.sheets.notarization;
   await ensureSheetTitle(accessToken, sheetName);
 
   const headerRow = await getSheetValues(accessToken, toA1Range(sheetName, NOTARIZATION_HEADER_RANGE));
@@ -110,7 +110,7 @@ async function ensureNotarizationSheetReady(accessToken: string): Promise<void> 
 }
 
 async function nextNotarizationReceiptNo(accessToken: string): Promise<string> {
-  const sheetName = GL.sheets.notarization;
+  const sheetName = HA.sheets.notarization;
   const values = await getSheetValues(accessToken, toA1Range(sheetName, "A2:A"));
   let max = 0;
   for (const row of values) {
@@ -127,7 +127,7 @@ function isVisibleNotarization(entry: NotarizationEntry): boolean {
 
 export async function listNotarizations(accessToken: string): Promise<NotarizationEntry[]> {
   await ensureNotarizationSheetReady(accessToken);
-  const sheetName = GL.sheets.notarization;
+  const sheetName = HA.sheets.notarization;
   const values = await getSheetValues(accessToken, toA1Range(sheetName, NOTARIZATION_DATA_RANGE));
   return values
     .map((row, index) => rowToNotarization(row, index + 2))
@@ -143,7 +143,7 @@ async function findNotarizationByReceiptNo(
   if (!target) return null;
 
   await ensureNotarizationSheetReady(accessToken);
-  const sheetName = GL.sheets.notarization;
+  const sheetName = HA.sheets.notarization;
   const values = await getSheetValues(accessToken, toA1Range(sheetName, NOTARIZATION_DATA_RANGE));
   for (let index = 0; index < values.length; index++) {
     const entry = rowToNotarization(values[index], index + 2);
@@ -178,7 +178,7 @@ export async function createNotarization(
   }
 
   await ensureNotarizationSheetReady(accessToken);
-  const sheetName = GL.sheets.notarization;
+  const sheetName = HA.sheets.notarization;
   const receiptNo = await nextNotarizationReceiptNo(accessToken);
   const date = payload.date?.trim() || todayYmd();
   const series = payload.series?.trim() || String(new Date(date).getFullYear() || new Date().getFullYear());
@@ -250,7 +250,7 @@ export async function updateNotarization(
   const series = payload.series?.trim() || entry.series || String(new Date(date).getFullYear());
 
   await ensureNotarizationSheetReady(accessToken);
-  const sheetName = GL.sheets.notarization;
+  const sheetName = HA.sheets.notarization;
   const row = padRow([
     entry.receiptNo,
     date,
@@ -298,7 +298,7 @@ export async function setNotarizationReceiptLink(
   pdfLink: string,
   issuedAt = todayYmd()
 ): Promise<void> {
-  const sheetName = GL.sheets.notarization;
+  const sheetName = HA.sheets.notarization;
   await updateSheetValues(accessToken, toA1Range(sheetName, `O${rowNumber}:P${rowNumber}`), [
     [pdfLink, "Receipt Generated"]
   ]);
@@ -364,7 +364,7 @@ export async function deleteNotarization(
   if (!entry) throw new Error(`Notarization not found: ${receiptNo}`);
 
   const previousStatus = entry.status || "Recorded";
-  const sheetName = GL.sheets.notarization;
+  const sheetName = HA.sheets.notarization;
   await updateSheetValues(accessToken, toA1Range(sheetName, `P${entry.rowNumber}`), [
     [NOTARIZATION_DELETED_STATUS]
   ]);
@@ -383,7 +383,7 @@ export async function restoreNotarization(
     throw new Error(`Notarization ${entry.receiptNo} is not deleted.`);
   }
 
-  const sheetName = GL.sheets.notarization;
+  const sheetName = HA.sheets.notarization;
   const status =
     previousStatus && previousStatus !== NOTARIZATION_DELETED_STATUS
       ? previousStatus

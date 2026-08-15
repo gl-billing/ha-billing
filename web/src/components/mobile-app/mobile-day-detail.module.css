@@ -1,0 +1,290 @@
+.root {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  margin-top: 1.15rem;
+  scroll-margin-top: 5.5rem;
+  padding: 0.15rem
+    calc(1rem + env(safe-area-inset-right, 0px))
+    calc(1.75rem + env(safe-area-inset-bottom, 0px))
+    calc(1rem + env(safe-area-inset-left, 0px));
+  color: var(--ha-m-ink, #f5f1e8);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  padding: 0.95rem 1rem 1.05rem;
+  border: 1px solid var(--ha-m-accent-border, #6b6b6b);
+  border-radius: var(--ha-m-radius-card, 1rem);
+  background: var(--ha-m-card, #181818);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: var(--ha-m-fs-eyebrow, 12px);
+  font-weight: var(--ha-m-fw-eyebrow, 600);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ha-m-accent, #ffffff);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-size: var(--ha-m-fs-section, 21px);
+  font-weight: 600;
+  line-height: var(--ha-m-lh-section, 1.25);
+  letter-spacing: -0.01em;
+  color: var(--ha-m-heading, var(--ha-m-ink, #f5f1e8));
+}
+
+.summary {
+  margin: 0.12rem 0 0;
+  font-size: var(--ha-m-fs-secondary, 13px);
+  font-weight: var(--ha-m-fw-secondary, 400);
+  line-height: var(--ha-m-lh-secondary, 1.45);
+  color: var(--ha-m-muted, #c4bdb3);
+}
+
+.holiday {
+  margin: 0.12rem 0 0;
+  font-size: var(--ha-m-fs-caption, 12px);
+  font-weight: 600;
+  line-height: var(--ha-m-lh-caption, 1.35);
+  color: var(--ha-m-accent, #ffffff);
+}
+
+.dailyBtn {
+  align-self: stretch;
+  min-height: 2.75rem;
+  margin-top: 0.55rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.empty {
+  margin: 0;
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d);
+  border-radius: var(--ha-m-radius-card, 1rem);
+  background: var(--ha-m-card, #181818);
+  color: var(--ha-m-muted, #c4bdb3);
+  font-size: var(--ha-m-fs-secondary, 13px);
+  font-weight: var(--ha-m-fw-secondary, 400);
+  line-height: var(--ha-m-lh-secondary, 1.45);
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+}
+
+.section {
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  min-height: 2.1rem;
+  margin: 0;
+  padding: 0.12rem 0.1rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.head:focus-visible {
+  outline: 2px solid var(--ha-m-accent, #ffffff);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+.headTitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: var(--ha-m-heading, var(--ha-m-ink, #f5f1e8));
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 0.32rem;
+  border-radius: 999px;
+  background: var(--ha-m-accent, #ffffff);
+  color: var(--ha-m-accent-ink, #0a0a0a);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--ha-m-accent, #ffffff);
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 1;
+  transform: rotate(90deg);
+  transition: transform 0.16s ease;
+}
+
+.chevronOpen {
+  transform: rotate(-90deg);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+  margin: 0.08rem 0 0;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.4rem 0.55rem;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0.62rem 0.8rem 0.58rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d);
+  border-radius: 0.85rem;
+  background: var(--ha-m-card, #181818);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card:active,
+.cardSelected {
+  border-color: var(--ha-m-accent, #ffffff);
+  background: color-mix(in srgb, var(--ha-m-accent, #ffffff) 12%, var(--ha-m-card, #181818));
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--ha-m-accent, #ffffff);
+  outline-offset: 2px;
+}
+
+.body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.kind {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ha-m-accent, #ffffff);
+  font-size: 0.625rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.status {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.15rem;
+  padding: 0.08rem 0.4rem;
+  border-radius: 999px;
+  background: var(--ha-m-card-elevated, #202020);
+  color: var(--ha-m-accent, #ffffff);
+  font-size: 0.625rem;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.statusOverdue {
+  background: color-mix(in srgb, var(--ha-m-error, #d86a63) 18%, transparent);
+  color: var(--ha-m-error, #d86a63);
+}
+
+.statusDone {
+  background: var(--ha-m-divider, #2d2d2d);
+  color: var(--ha-m-muted, #c4bdb3);
+}
+
+.client {
+  display: block;
+  margin: 0.16rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 650;
+  line-height: 1.28;
+  letter-spacing: 0;
+  color: var(--ha-m-heading, var(--ha-m-ink, #f5f1e8));
+  overflow-wrap: anywhere;
+}
+
+.matter {
+  display: block;
+  margin: 0.12rem 0 0;
+  font-size: var(--ha-m-fs-secondary, 13px);
+  font-weight: var(--ha-m-fw-secondary, 400);
+  line-height: var(--ha-m-lh-secondary, 1.45);
+  color: var(--ha-m-muted, #c4bdb3);
+  overflow-wrap: anywhere;
+}
+
+.metaLine {
+  display: block;
+  margin: 0.22rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 650;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  color: color-mix(in srgb, var(--ha-m-ink, #f5f1e8) 78%, var(--ha-m-muted, #c4bdb3));
+}
+
+.cardChevron {
+  flex-shrink: 0;
+  color: var(--ha-m-accent, #ffffff);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1;
+}

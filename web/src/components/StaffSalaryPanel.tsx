@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Skeleton } from "@/components/Skeleton";
 import { FIRM_ADDRESS, FIRM_NAME, FIRM_SUBTITLE } from "@/lib/billing-document-design";
 import { firmLogoPublicUrl } from "@/lib/firm-logo-url";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import { openPrintPreview } from "@/lib/print-preview";
 import {
   buildStaffSalaryComputation,

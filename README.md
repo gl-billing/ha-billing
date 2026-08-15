@@ -35,7 +35,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Data setup (when ready)
 
-HA needs **separate** billing and tasks workbooks — not the live G&L spreadsheets.
+HA needs **separate** billing and tasks workbooks owned by Hernandez & Associates.
 
 **Full guide:** [`docs/CLEAN-SHEET-SETUP.md`](docs/CLEAN-SHEET-SETUP.md)
 

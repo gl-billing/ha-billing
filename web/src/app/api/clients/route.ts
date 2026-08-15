@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireBillingAccessToken } from "@/lib/api-auth";
-import { filterClientsByQuery, GL, type NewClientPayload } from "@/lib/gl-config";
+import { filterClientsByQuery, HA, type NewClientPayload } from "@/lib/ha-config";
 import { createClient } from "@/lib/sheets/clients-create";
 import { invalidateCache, isQuotaError, quotaErrorMessage, withCache } from "@/lib/sheets/cache";
 import { getClients } from "@/lib/sheets/master";
@@ -22,8 +22,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       clients,
-      chargeCategories: GL.chargeCategories,
-      paymentMethods: GL.paymentMethods
+      chargeCategories: HA.chargeCategories,
+      paymentMethods: HA.paymentMethods
     });
   } catch (error) {
     if (isQuotaError(error)) {

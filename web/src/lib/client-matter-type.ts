@@ -1,4 +1,4 @@
-import type { ClientSummary } from "@/lib/gl-config";
+import type { ClientSummary } from "@/lib/ha-config";
 
 export type ClientMatterType = "case" | "retainer" | "general";
 

@@ -1,4 +1,4 @@
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import { getAllMasterRows, dashboardFromMasterRows } from "@/lib/sheets/master";
 import { collectAllItems } from "@/lib/office-tasks/sheets/items";
 import { computeEmployeeStats } from "@/lib/office-tasks/schedule";

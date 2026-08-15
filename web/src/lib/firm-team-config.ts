@@ -2,7 +2,7 @@ import type { FirmLawyerRosterEntry } from "@/lib/firm-lawyers-roster";
 import type { StaffPayrollRosterEntry } from "@/lib/staff-payroll-roster";
 import { DEFAULT_STAFF_MONTHLY_ALLOWANCE, STAFF_PAYROLL_BANK } from "@/lib/staff-salary";
 
-/** Firm inbox — secretary Shiela; also the default outbound sender. */
+/** Firm inbox — secretary Shiela. Cron/unattended fallback only; interactive mail uses the signed-in Gmail. */
 export const FIRM_INBOX_EMAIL = "legal@hernandezlaw.info";
 
 /** Firm owner / developer — always allowed to sign in regardless of ALLOWED_EMAIL_DOMAIN. */

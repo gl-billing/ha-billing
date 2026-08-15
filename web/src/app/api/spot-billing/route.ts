@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   try {
     const accessToken = await requireBillingAccessToken();
     const session = await getServerSession(authOptions);
-    const body = (await request.json()) as import("@/lib/gl-config").SpotBillingPayload;
+    const body = (await request.json()) as import("@/lib/ha-config").SpotBillingPayload;
 
     let assignedAttorney = body.assignedAttorney?.trim() || "";
     if (!assignedAttorney && body.linkedClientCode?.trim()) {

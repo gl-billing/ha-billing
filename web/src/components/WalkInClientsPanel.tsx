@@ -8,8 +8,8 @@ import { ClientCodeWarningPanel } from "@/components/ClientCodeWarningPanel";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { TableSkeleton } from "@/components/Skeleton";
 import { useClientCodeCheck } from "@/hooks/useClientCodeCheck";
-import type { WalkInBillingKind, WalkInClient } from "@/lib/gl-config";
-import { formatClientCaseLabel, formatPeso, GL } from "@/lib/gl-config";
+import type { WalkInBillingKind, WalkInClient } from "@/lib/ha-config";
+import { formatClientCaseLabel, formatPeso, HA } from "@/lib/ha-config";
 import type { FormSaveStatus } from "@/lib/firm-status-report";
 import type { EngagementDocumentType, EngagementLetterInput } from "@/lib/engagement-letter";
 import {
@@ -95,13 +95,13 @@ export function WalkInClientsPanel({ busy, onBusy, onStatus, onPromoted, onOpenB
   const [newServiceType, setNewServiceType] = useState<string>(WALK_IN_SERVICE_TYPES[0]);
   const [newCharge, setNewCharge] = useState("");
   const [newPaid, setNewPaid] = useState("");
-  const [newMethod, setNewMethod] = useState<string>(GL.paymentMethods[0]);
+  const [newMethod, setNewMethod] = useState<string>(HA.paymentMethods[0]);
 
   const [billServiceType, setBillServiceType] = useState<string>(WALK_IN_SERVICE_TYPES[0]);
   const [billBillingKind, setBillBillingKind] = useState<WalkInBillingKind>("charge");
   const [billCharge, setBillCharge] = useState("");
   const [billPaid, setBillPaid] = useState("");
-  const [billMethod, setBillMethod] = useState<string>(GL.paymentMethods[0]);
+  const [billMethod, setBillMethod] = useState<string>(HA.paymentMethods[0]);
   const [billDate, setBillDate] = useState(todayLocal());
   const [billDescription, setBillDescription] = useState("");
   const [billPaidNow, setBillPaidNow] = useState(true);
@@ -217,7 +217,7 @@ export function WalkInClientsPanel({ busy, onBusy, onStatus, onPromoted, onOpenB
     setBillBillingKind(entry.billingStatus === "Retainer" ? "retainer" : "charge");
     setBillCharge(entry.chargeAmount ? String(entry.chargeAmount) : "");
     setBillPaid(entry.paymentAmount ? String(entry.paymentAmount) : "");
-    setBillMethod(entry.paymentMethod || GL.paymentMethods[0]);
+    setBillMethod(entry.paymentMethod || HA.paymentMethods[0]);
     setBillDate(entry.billingDate || todayLocal());
     setBillDescription("");
     setBillPaidNow(entry.billingStatus !== "Retainer" && (!entry.chargeAmount || entry.billingStatus !== "Unpaid"));
@@ -506,7 +506,7 @@ export function WalkInClientsPanel({ busy, onBusy, onStatus, onPromoted, onOpenB
                     <div className="walk-in-panel__payment-field sm:col-span-3">
                       <Field label="Payment method">
                         <select className="field" value={newMethod} disabled={saving} onChange={(e) => setNewMethod(e.target.value)}>
-                          {GL.paymentMethods.map((m) => (
+                          {HA.paymentMethods.map((m) => (
                             <option key={m} value={m}>
                               {m}
                             </option>
@@ -754,7 +754,7 @@ export function WalkInClientsPanel({ busy, onBusy, onStatus, onPromoted, onOpenB
                   </Field>
                   <Field label="Payment method">
                     <select className="field" value={billMethod} disabled={saving} onChange={(e) => setBillMethod(e.target.value)}>
-                      {GL.paymentMethods.map((m) => (
+                      {HA.paymentMethods.map((m) => (
                         <option key={m} value={m}>
                           {m}
                         </option>

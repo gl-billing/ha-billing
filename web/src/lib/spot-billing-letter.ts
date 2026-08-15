@@ -23,7 +23,7 @@ import {
 } from "@/lib/firm-letterhead";
 import { getFirmPageSpec, type FirmPageSpec } from "@/lib/firm-page-sizes";
 import { embedFirmLetterheadLogo } from "@/lib/billing-document-pdf/common";
-import { formatPeso, type SpotBillingEntry, type SpotBillingTransactionPayload } from "@/lib/gl-config";
+import { formatPeso, type SpotBillingEntry, type SpotBillingTransactionPayload } from "@/lib/ha-config";
 
 export type SpotBillingLetterKind = "charge" | "payment";
 

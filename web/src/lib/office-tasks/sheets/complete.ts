@@ -471,7 +471,7 @@ function sheetBool(value: unknown): boolean {
   return value === true || String(value ?? "").toUpperCase() === "TRUE";
 }
 
-/** Re-write Status from GL_FOLLOW_UP marker when sheet scripts reset it to Overdue. */
+/** Re-write Status from HA_FOLLOW_UP marker when sheet scripts reset it to Overdue. */
 export async function repairFollowUpStatusesFromRemarks(accessToken: string): Promise<number> {
   const taskRange = toA1Range(SHEETS.tasks, `K2:N`);
   const eventRange = toA1Range(SHEETS.events, `N2:R`);

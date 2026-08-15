@@ -7,7 +7,7 @@
  *   npx tsx scripts/scrub-live-workbooks.ts --yes
  *   npx tsx scripts/scrub-live-workbooks.ts --copy-first --yes
  *
- * Use --copy-first when the connected workbook is a GL-owned file you cannot edit in place.
+ * Use --copy-first when the connected workbook cannot be edited in place.
  * Copies to HA-owned workbooks, scrubs the copies, and prints new env IDs.
  */
 import fs from "fs";
@@ -56,7 +56,7 @@ async function main() {
       console.log("\n--copy-first: makes HA-owned copies first, then scrubs the copies.");
     }
     console.log("\nRe-run with --yes to proceed.");
-    console.log("If scrub fails on a GL-owned file, use --copy-first --yes.");
+    console.log("If scrub fails because the file is not writable, use --copy-first --yes.");
     process.exit(0);
   }
 

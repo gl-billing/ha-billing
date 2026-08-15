@@ -1,6 +1,5 @@
 /**
  * Matter health / urgency helpers used by desk checklist, filing proof, and hearing cron.
- * Slim port from GL — only the exports HA needs (no full intake-gate stack).
  */
 
 import { isHearingItem } from "@/lib/hearing-escalation";

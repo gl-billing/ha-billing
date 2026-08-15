@@ -1,4 +1,4 @@
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 import { appendSheetValues, updateSheetValues } from "@/lib/sheets/client";
 import {
   invalidateSettingsCache,
@@ -45,7 +45,7 @@ export async function upsertStaffPresenceHeartbeat(
 
   const value = serializePresenceEntry(entry);
   const rowIndex = await readSettingsRowIndex(accessToken);
-  const sheet = GL.sheets.settings;
+  const sheet = HA.sheets.settings;
   const row = rowIndex.get(key);
 
   if (row) {

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { NotarizationEntry, NotarizationUpdatePayload, WalkInBillingKind } from "@/lib/gl-config";
-import { GL } from "@/lib/gl-config";
+import type { NotarizationEntry, NotarizationUpdatePayload, WalkInBillingKind } from "@/lib/ha-config";
+import { HA } from "@/lib/ha-config";
 import { formatNotarizationReceiptIssuedDate, isNotarizationRetainer } from "@/lib/notarization-utils";
 import { ModalPortal } from "@/components/ModalPortal";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
@@ -18,7 +18,7 @@ type Props = {
 
 export function NotarizationEditDialog({ entry, open, busy, paymentMethods, onClose, onSave }: Props) {
   useBodyScrollLock(open);
-  const methods = paymentMethods && paymentMethods.length ? paymentMethods : [...GL.paymentMethods];
+  const methods = paymentMethods && paymentMethods.length ? paymentMethods : [...HA.paymentMethods];
 
   const [date, setDate] = useState(entry.date);
   const [name, setName] = useState(entry.name);
@@ -39,7 +39,7 @@ export function NotarizationEditDialog({ entry, open, busy, paymentMethods, onCl
 
   useEffect(() => {
     if (!open) return;
-    const defaultMethod = paymentMethods?.[0] ?? GL.paymentMethods[0];
+    const defaultMethod = paymentMethods?.[0] ?? HA.paymentMethods[0];
     setDate(entry.date);
     setName(entry.name);
     setAddress(entry.address);

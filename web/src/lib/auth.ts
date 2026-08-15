@@ -89,7 +89,7 @@ function isUnreachableAuthHost(hostname: string): boolean {
 
 export const authOptions: NextAuthOptions = {
   useSecureCookies: nextAuthUrl.startsWith("https://"),
-  // Keep HA cookies distinct from GL on the same localhost host (cookies ignore port).
+  // Namespace HA session cookies to this app (localhost cookies ignore port).
   cookies: {
     sessionToken: {
       name: "ha-billing.session-token",

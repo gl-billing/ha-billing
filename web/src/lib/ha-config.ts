@@ -1,5 +1,5 @@
-/** Mirrors GL constants from Apps Script — keep in sync with code.gs */
-export const GL = {
+/** HA Billing sheet constants — keep in sync with Apps Script. */
+export const HA = {
   sheets: {
     settings: "Settings",
     master: "Master List",

@@ -1,6 +1,6 @@
 import {
   DEFAULT_FIELD_DISPATCH_STAFF,
-  GL,
+  HA,
   fieldDispatchBillableTotal,
   fieldDispatchHasReturnedInput,
   fieldDispatchIsReconciled,
@@ -13,7 +13,7 @@ import {
   type FieldDispatchEditPayload,
   type FieldDispatchPayload,
   type FieldDispatchReconcilePayload
-} from "@/lib/gl-config";
+} from "@/lib/ha-config";
 import {
   appendSheetValues,
   getSheetValues,
@@ -22,7 +22,7 @@ import {
 } from "@/lib/sheets/client";
 import { ensureSheetTitle } from "@/lib/sheets/sheet-meta";
 
-const HEADERS = [...GL.fieldDispatchHeaders];
+const HEADERS = [...HA.fieldDispatchHeaders];
 const COLS = HEADERS.length;
 const HEADER_RANGE = `A1:S1`;
 const DATA_RANGE = `A2:S`;
@@ -134,7 +134,7 @@ function padRow(values: unknown[]): unknown[] {
 }
 
 async function ensureSheetReady(accessToken: string): Promise<void> {
-  const sheetName = GL.sheets.fieldDispatch;
+  const sheetName = HA.sheets.fieldDispatch;
   await ensureSheetTitle(accessToken, sheetName);
 
   const headerRow = await getSheetValues(accessToken, toA1Range(sheetName, HEADER_RANGE));
@@ -152,7 +152,7 @@ async function ensureSheetReady(accessToken: string): Promise<void> {
 }
 
 async function nextDispatchId(accessToken: string): Promise<string> {
-  const sheetName = GL.sheets.fieldDispatch;
+  const sheetName = HA.sheets.fieldDispatch;
   const values = await getSheetValues(accessToken, toA1Range(sheetName, "A2:A"));
   let max = 0;
   for (const row of values) {
@@ -165,7 +165,7 @@ async function nextDispatchId(accessToken: string): Promise<string> {
 
 export async function listFieldDispatches(accessToken: string): Promise<FieldDispatchEntry[]> {
   await ensureSheetReady(accessToken);
-  const sheetName = GL.sheets.fieldDispatch;
+  const sheetName = HA.sheets.fieldDispatch;
   const values = await getSheetValues(accessToken, toA1Range(sheetName, DATA_RANGE));
   return values
     .map((row, index) => rowToEntry(row, index + 2))
@@ -188,7 +188,7 @@ export async function createFieldDispatch(
   recordedBy: string
 ): Promise<FieldDispatchEntry> {
   await ensureSheetReady(accessToken);
-  const sheetName = GL.sheets.fieldDispatch;
+  const sheetName = HA.sheets.fieldDispatch;
 
   const location = String(payload.location || "").trim();
   const purpose = String(payload.purpose || "").trim();
@@ -291,7 +291,7 @@ export async function updateFieldDispatch(
   const actualExpenses = reconciled ? fieldDispatchSpentAmount(advanceForMath, returnedForMath) : 0;
   const billable = fieldDispatchBillableTotal(advanceForMath, returnedForMath, feeForMath, reconciled);
   const status = reconciled ? "Reconciled" : "Active";
-  const sheetName = GL.sheets.fieldDispatch;
+  const sheetName = HA.sheets.fieldDispatch;
   const range = toA1Range(sheetName, `A${entry.rowNumber}:S${entry.rowNumber}`);
 
   const row = entryToRow({
@@ -343,7 +343,7 @@ export async function reconcileFieldDispatch(
     true
   );
   const notes = payload.notes?.trim() ? payload.notes.trim() : entry.notes;
-  const sheetName = GL.sheets.fieldDispatch;
+  const sheetName = HA.sheets.fieldDispatch;
   const range = toA1Range(sheetName, `A${entry.rowNumber}:S${entry.rowNumber}`);
 
   const row = entryToRow({
@@ -370,7 +370,7 @@ export async function markFieldDispatchBilled(
   if (!entry) throw new Error(`Dispatch ${dispatchId} not found.`);
   if (!entry.clientCode) throw new Error("Client code is required before billing.");
 
-  const sheetName = GL.sheets.fieldDispatch;
+  const sheetName = HA.sheets.fieldDispatch;
   const range = toA1Range(sheetName, `A${entry.rowNumber}:S${entry.rowNumber}`);
   const date = billedDate?.trim() || todayYmd();
 
@@ -417,7 +417,7 @@ export async function updateFieldDispatchStatus(
   const entry = await findByDispatchId(accessToken, dispatchId);
   if (!entry) throw new Error(`Dispatch ${dispatchId} not found.`);
 
-  const sheetName = GL.sheets.fieldDispatch;
+  const sheetName = HA.sheets.fieldDispatch;
   const range = toA1Range(sheetName, `A${entry.rowNumber}:S${entry.rowNumber}`);
 
   const row = entryToRow({
@@ -445,7 +445,7 @@ export async function setFieldDispatchStaffSalaryPaid(
     throw new Error("Add a service fee before marking salary paid to staff.");
   }
 
-  const sheetName = GL.sheets.fieldDispatch;
+  const sheetName = HA.sheets.fieldDispatch;
   const range = toA1Range(sheetName, `A${entry.rowNumber}:S${entry.rowNumber}`);
   const row = entryToRow({
     ...entry,

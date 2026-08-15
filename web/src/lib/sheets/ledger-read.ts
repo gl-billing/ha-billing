@@ -1,5 +1,5 @@
-import type { ClientLedgerSummary, LedgerEntry } from "@/lib/gl-config";
-import { GL } from "@/lib/gl-config";
+import type { ClientLedgerSummary, LedgerEntry } from "@/lib/ha-config";
+import { HA } from "@/lib/ha-config";
 import { getHyperlinksByRow, resolvePdfUrl } from "@/lib/sheets/hyperlinks";
 import { getSheetValues, sheetExists } from "@/lib/sheets/client";
 
@@ -46,7 +46,7 @@ export async function getClientPayments(
     throw new Error(`Client tab not found: ${clientCode}`);
   }
 
-  const ledger = await getSheetValues(accessToken, `'${clientCode}'!A${GL.ledgerStartRow}:L`);
+  const ledger = await getSheetValues(accessToken, `'${clientCode}'!A${HA.ledgerStartRow}:L`);
   const options: LedgerPaymentOption[] = [];
 
   ledger.forEach((row, index) => {
@@ -59,7 +59,7 @@ export async function getClientPayments(
 
     const description = String(row[3] || row[2] || "Payment");
     options.push({
-      sheetRow: index + GL.ledgerStartRow,
+      sheetRow: index + HA.ledgerStartRow,
       date: formatDateDisplay(row[0]),
       amount,
       balance: Number(row[6]) || 0,
@@ -84,7 +84,7 @@ export async function getAppearanceFees(
     throw new Error(`Client tab not found: ${clientCode}`);
   }
 
-  const ledger = await getSheetValues(accessToken, `'${clientCode}'!A${GL.ledgerStartRow}:L`);
+  const ledger = await getSheetValues(accessToken, `'${clientCode}'!A${HA.ledgerStartRow}:L`);
   const options: AppearanceFeeOption[] = [];
 
   ledger.forEach((row, index) => {
@@ -97,7 +97,7 @@ export async function getAppearanceFees(
     if (!row[0] || type !== "charge" || charge <= 0 || !isAppearance) return;
 
     options.push({
-      sheetRow: index + GL.ledgerStartRow,
+      sheetRow: index + HA.ledgerStartRow,
       date: formatDateDisplay(row[0]),
       amount: charge,
       category,
@@ -157,16 +157,16 @@ export async function getClientLedger(
     throw new Error(`Client tab not found: ${clientCode}`);
   }
 
-  const ledger = await getSheetValues(accessToken, `'${clientCode}'!A${GL.ledgerStartRow}:L`);
+  const ledger = await getSheetValues(accessToken, `'${clientCode}'!A${HA.ledgerStartRow}:L`);
   const entries: LedgerEntry[] = [];
 
   ledger.forEach((row, index) => {
-    const entry = rowToLedgerEntry(row, index + GL.ledgerStartRow);
+    const entry = rowToLedgerEntry(row, index + HA.ledgerStartRow);
     if (entry) entries.push(entry);
   });
 
   if (ledger.length > 0) {
-    const startRow = GL.ledgerStartRow;
+    const startRow = HA.ledgerStartRow;
     const endRow = startRow + ledger.length - 1;
     const hyperlinks = await getHyperlinksByRow(
       accessToken,

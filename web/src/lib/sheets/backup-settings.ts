@@ -4,7 +4,7 @@ import {
   readSettingsRowIndex
 } from "@/lib/sheets/settings";
 import { appendSheetValues, updateSheetValues } from "@/lib/sheets/client";
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 
 export const LAST_PDF_BACKUP_AT_KEY = "Last PDF Backup At";
 
@@ -23,7 +23,7 @@ export async function getLastPdfBackupAt(accessToken: string): Promise<string | 
 
 export async function setLastPdfBackupAt(accessToken: string, isoTimestamp: string): Promise<void> {
   const rowIndex = await readSettingsRowIndex(accessToken);
-  const sheet = GL.sheets.settings;
+  const sheet = HA.sheets.settings;
   const row = rowIndex.get(LAST_PDF_BACKUP_AT_KEY);
   if (row) {
     await updateSheetValues(accessToken, `'${sheet}'!B${row}`, [[isoTimestamp]]);

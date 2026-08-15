@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireBillingAccessToken } from "@/lib/api-auth";
-import { sanitizeSheetName } from "@/lib/gl-config";
+import { sanitizeSheetName } from "@/lib/ha-config";
 import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 import { getClientDetail } from "@/lib/sheets/master";
 import { checkSoaDuplicateWarning } from "@/lib/soa-follow-up";

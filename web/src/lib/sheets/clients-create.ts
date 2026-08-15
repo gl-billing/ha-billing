@@ -1,4 +1,4 @@
-import { GL, parseMoney, sanitizeSheetName, type NewClientPayload } from "@/lib/gl-config";
+import { HA, parseMoney, sanitizeSheetName, type NewClientPayload } from "@/lib/ha-config";
 import { normalizeClientCaseRole } from "@/lib/client-case-role";
 import {
   caseTypeOtherRequired,
@@ -37,7 +37,7 @@ async function getSheetId(accessToken: string, title: string): Promise<number> {
 }
 
 async function getMasterNextRow(accessToken: string): Promise<number> {
-  const values = await getSheetValues(accessToken, `'${GL.sheets.master}'!A2:A`);
+  const values = await getSheetValues(accessToken, `'${HA.sheets.master}'!A2:A`);
   return 2 + values.length;
 }
 
@@ -57,7 +57,7 @@ async function masterRowValues(
     : "";
   const roster = await getActiveEmployeeNames(accessToken);
 
-  const row: unknown[] = new Array(GL.masterHeaders.length).fill("");
+  const row: unknown[] = new Array(HA.masterHeaders.length).fill("");
   row[0] = clientCode;
   row[1] = payload.clientName.trim();
   row[2] = caseTitle;
@@ -144,7 +144,7 @@ export async function applyLedgerTabSetup(
 ): Promise<void> {
   const sheets = getSheetsClient(accessToken);
   const spreadsheetId = getSpreadsheetId();
-  const masterSheetId = await getSheetId(accessToken, GL.sheets.master);
+  const masterSheetId = await getSheetId(accessToken, HA.sheets.master);
   const esc = clientCode.replace(/"/g, '""');
 
   await sheets.spreadsheets.batchUpdate({
@@ -156,7 +156,7 @@ export async function applyLedgerTabSetup(
             range: { sheetId: newSheetId, startRowIndex: 6, endRowIndex: 7, startColumnIndex: 0, endColumnIndex: 12 },
             rows: [
               {
-                values: GL.ledgerHeaders.map((h) => ({
+                values: HA.ledgerHeaders.map((h) => ({
                   userEnteredValue: { stringValue: h },
                   userEnteredFormat: {
                     backgroundColor: { red: 0.09, green: 0.09, blue: 0.09 },
@@ -173,10 +173,10 @@ export async function applyLedgerTabSetup(
           updateCells: {
             range: { sheetId: newSheetId, startRowIndex: 0, endRowIndex: 4, startColumnIndex: 1, endColumnIndex: 2 },
             rows: [
-              { values: [{ userEnteredValue: { formulaValue: `=IFERROR(VLOOKUP("${esc}", '${GL.sheets.master}'!A:U, 3, FALSE), "")` } }] },
-              { values: [{ userEnteredValue: { formulaValue: `=IFERROR(VLOOKUP("${esc}", '${GL.sheets.master}'!A:U, 2, FALSE), "Client Name")` } }] },
-              { values: [{ userEnteredValue: { formulaValue: `=IFERROR(VLOOKUP("${esc}", '${GL.sheets.master}'!A:U, 7, FALSE), "Client Address")` } }] },
-              { values: [{ userEnteredValue: { formulaValue: `=IFERROR(VLOOKUP("${esc}", '${GL.sheets.master}'!A:U, 4, FALSE), "")` } }] }
+              { values: [{ userEnteredValue: { formulaValue: `=IFERROR(VLOOKUP("${esc}", '${HA.sheets.master}'!A:U, 3, FALSE), "")` } }] },
+              { values: [{ userEnteredValue: { formulaValue: `=IFERROR(VLOOKUP("${esc}", '${HA.sheets.master}'!A:U, 2, FALSE), "Client Name")` } }] },
+              { values: [{ userEnteredValue: { formulaValue: `=IFERROR(VLOOKUP("${esc}", '${HA.sheets.master}'!A:U, 7, FALSE), "Client Address")` } }] },
+              { values: [{ userEnteredValue: { formulaValue: `=IFERROR(VLOOKUP("${esc}", '${HA.sheets.master}'!A:U, 4, FALSE), "")` } }] }
             ],
             fields: "userEnteredValue"
           }
@@ -189,7 +189,7 @@ export async function applyLedgerTabSetup(
                 values: [
                   {
                     userEnteredValue: {
-                      formulaValue: `=IFERROR(VLOOKUP("${esc}", '${GL.sheets.master}'!A:U, 9, FALSE), 0) + E3 - E2`
+                      formulaValue: `=IFERROR(VLOOKUP("${esc}", '${HA.sheets.master}'!A:U, 9, FALSE), 0) + E3 - E2`
                     }
                   }
                 ]
@@ -281,7 +281,7 @@ async function writeMasterRow(
   const sheets = getSheetsClient(accessToken);
   await sheets.spreadsheets.values.update({
     spreadsheetId: getSpreadsheetId(),
-    range: `'${GL.sheets.master}'!A${masterRow}:AJ${masterRow}`,
+    range: `'${HA.sheets.master}'!A${masterRow}:AJ${masterRow}`,
     valueInputOption: "USER_ENTERED",
     requestBody: { values: [await masterRowValues(accessToken, payload, clientCode)] }
   });
@@ -291,9 +291,9 @@ async function clearMasterRow(accessToken: string, masterRow: number): Promise<v
   const sheets = getSheetsClient(accessToken);
   await sheets.spreadsheets.values.update({
     spreadsheetId: getSpreadsheetId(),
-    range: `'${GL.sheets.master}'!A${masterRow}:AJ${masterRow}`,
+    range: `'${HA.sheets.master}'!A${masterRow}:AJ${masterRow}`,
     valueInputOption: "USER_ENTERED",
-    requestBody: { values: [new Array(GL.masterHeaders.length).fill("")] }
+    requestBody: { values: [new Array(HA.masterHeaders.length).fill("")] }
   });
 }
 

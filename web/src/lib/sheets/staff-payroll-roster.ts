@@ -8,7 +8,7 @@ import {
 import type { StaffSalaryProfile } from "@/lib/staff-salary";
 import { appendSheetValues, updateSheetValues } from "@/lib/sheets/client";
 import { invalidateSettingsCache, readSettingsMap, readSettingsRowIndex } from "@/lib/sheets/settings";
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 
 async function upsertSettingValue(
   accessToken: string,
@@ -18,10 +18,10 @@ async function upsertSettingValue(
 ): Promise<void> {
   const row = rowIndex.get(key);
   if (row !== undefined) {
-    await updateSheetValues(accessToken, `'${GL.sheets.settings}'!B${row}`, [[value]]);
+    await updateSheetValues(accessToken, `'${HA.sheets.settings}'!B${row}`, [[value]]);
     return;
   }
-  await appendSheetValues(accessToken, `'${GL.sheets.settings}'!A:B`, [[key, value]]);
+  await appendSheetValues(accessToken, `'${HA.sheets.settings}'!A:B`, [[key, value]]);
   rowIndex.set(key, rowIndex.size + 2);
 }
 

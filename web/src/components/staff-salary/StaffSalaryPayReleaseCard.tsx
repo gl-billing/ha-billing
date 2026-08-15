@@ -4,7 +4,7 @@ import {
   StaffSalaryComputeSheet,
   type ComputeSheetRow
 } from "@/components/staff-salary/StaffSalaryComputeUI";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import type { StaffPayPeriod, StaffPayRun, StaffSalaryComputeRow, StaffSalaryReport } from "@/lib/staff-salary";
 import { formatStaffPayrollTransferMemo } from "@/lib/staff-salary";
 

@@ -43,7 +43,10 @@ export function getFirmEmailSigner(): FirmEmailSigner {
 }
 
 /** Content-ID for the inline signature banner image in outgoing email MIME. */
-export const EMAIL_SIGNATURE_BANNER_CID = "gl_email_signature_banner";
+export const EMAIL_SIGNATURE_BANNER_CID = "ha_email_signature_banner";
+const LEGACY_EMAIL_SIGNATURE_BANNER_CID = "gl_email_signature_banner";
+const EMAIL_SIGNATURE_HTML_MARKER = "<!-- ha-email-signature -->";
+const LEGACY_EMAIL_SIGNATURE_HTML_MARKER = "<!-- gl-email-signature -->";
 
 function emailSignatureBannerCidSrc(): string {
   return `cid:${EMAIL_SIGNATURE_BANNER_CID}`;
@@ -74,9 +77,11 @@ function buildSignatureBannerHtml(bannerSrc: string): string {
 /** Detect whether HTML already includes the firm email signature block. */
 export function clientEmailHasSignature(content: string): boolean {
   return (
+    content.includes("ha-email-signature") ||
     content.includes("gl-email-signature") ||
-    content.includes("CONFIDENTIALITY NOTICE:") ||
     content.includes(EMAIL_SIGNATURE_BANNER_CID) ||
+    content.includes(LEGACY_EMAIL_SIGNATURE_BANNER_CID) ||
+    content.includes("CONFIDENTIALITY NOTICE:") ||
     content.includes("/brand/email-signature-banner") ||
     (content.includes(FIRM_NAME) && content.includes("Respectfully,"))
   );
@@ -87,9 +92,13 @@ export function stripClientEmailSignature(html: string): string {
   const trimmed = String(html || "").trim();
   if (!clientEmailHasSignature(trimmed)) return trimmed;
 
-  const marker = "<!-- gl-email-signature -->";
-  const markerIdx = trimmed.indexOf(marker);
-  if (markerIdx >= 0) {
+  const markerIdx = Math.min(
+    ...[EMAIL_SIGNATURE_HTML_MARKER, LEGACY_EMAIL_SIGNATURE_HTML_MARKER]
+      .map((marker) => trimmed.indexOf(marker))
+      .filter((idx) => idx >= 0),
+    Number.POSITIVE_INFINITY
+  );
+  if (Number.isFinite(markerIdx)) {
     return trimmed.slice(0, markerIdx).replace(/(<br\s*\/?>\s*)+$/i, "").trim();
   }
 
@@ -112,7 +121,7 @@ export function getFirmEmailSignatureHtml(options?: { bannerSrc?: string | null 
   const bannerHtml = bannerSrc ? buildSignatureBannerHtml(bannerSrc) : "";
 
   return (
-    `<!-- gl-email-signature -->` +
+    `${EMAIL_SIGNATURE_HTML_MARKER}` +
     `<br><br>` +
     `<table cellpadding="0" cellspacing="0" border="0" width="100%" role="presentation" ` +
     `style="max-width:560px;font-family:Georgia,'Times New Roman',serif;color:${ink};">` +

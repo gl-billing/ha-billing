@@ -1,5 +1,5 @@
 import { clientCodeFromCase, clientNameTokensInLabel } from "@/lib/office-tasks/client-matter";
-import { formatClientCaseLabel } from "@/lib/gl-config";
+import { formatClientCaseLabel } from "@/lib/ha-config";
 import { isRegisteredFirmMatterItem } from "@/lib/office-tasks/firm-matters";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import { getClients } from "@/lib/sheets/master";

@@ -9,13 +9,14 @@ export type OfflineWriteEntry = {
   attempts: number;
 };
 
-const STORAGE_KEY = "gl-offline-write-queue-v1";
+const STORAGE_KEY = "ha-offline-write-queue-v1";
+const LEGACY_STORAGE_KEY = "gl-offline-write-queue-v1";
 const MAX_QUEUE = 40;
 
 function readQueue(): OfflineWriteEntry[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(STORAGE_KEY) || window.localStorage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as OfflineWriteEntry[];
     return Array.isArray(parsed) ? parsed : [];
@@ -28,6 +29,7 @@ function writeQueue(entries: OfflineWriteEntry[]): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries.slice(-MAX_QUEUE)));
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch {
     /* private mode / quota */
   }

@@ -35,8 +35,8 @@ import {
   resolveJasAssignee
 } from "@/lib/office-tasks/task-assignees";
 import { parseContactEmails } from "@/lib/contact-emails";
-import type { CaseOption } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { CaseOption } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { suggestedEventBillingAmount } from "@/lib/office-tasks/event-matter-billing-shared";
 import {
   canAutoSendScheduleConfirmation,

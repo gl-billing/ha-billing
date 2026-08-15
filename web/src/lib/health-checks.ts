@@ -1,4 +1,4 @@
-import { GL, formatPeso } from "@/lib/gl-config";
+import { HA, formatPeso } from "@/lib/ha-config";
 import { getSheetTitles } from "@/lib/sheets/sheet-meta";
 import { findMasterRow, getAllMasterRows } from "@/lib/sheets/master";
 import { sheetExists } from "@/lib/sheets/client";
@@ -21,11 +21,11 @@ export type HealthCheck = {
 
 const PROTECTED_TABS = new Set(
   [
-    GL.sheets.settings,
-    GL.sheets.master,
-    GL.sheets.dashboard,
-    GL.sheets.documentLog,
-    GL.sheets.auditLog,
+    HA.sheets.settings,
+    HA.sheets.master,
+    HA.sheets.dashboard,
+    HA.sheets.documentLog,
+    HA.sheets.auditLog,
     "Template",
     "Invoice",
     "Acknowledgment Receipt",

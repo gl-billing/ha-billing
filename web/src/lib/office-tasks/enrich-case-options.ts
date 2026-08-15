@@ -1,4 +1,4 @@
-import type { CaseOption } from "@/lib/gl-config";
+import type { CaseOption } from "@/lib/ha-config";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 
 /** Fill court/venue from the latest event when Master List has no court pending. */

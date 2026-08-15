@@ -4,7 +4,7 @@ import { LETTER_CORRESPONDENCE_FORM_TYPE } from "@/lib/office-tasks/task-form-ut
 import {
   FIELD_DISPATCH_LOCATION_PRESETS,
   FIELD_DISPATCH_TRAVEL_HOURS
-} from "@/lib/gl-config";
+} from "@/lib/ha-config";
 
 import type { LetterBillTiming } from "@/lib/office-tasks/letter-billing";
 

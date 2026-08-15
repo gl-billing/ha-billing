@@ -1,7 +1,7 @@
 import "server-only";
 
 import { FIRM_LINE } from "@/lib/billing-document-design";
-import { FIRM_STAFF_LIAISON } from "@/lib/gl-config";
+import { FIRM_STAFF_LIAISON } from "@/lib/ha-config";
 import { firmAppHref, getTasksAppUrl } from "@/lib/firm-apps";
 import { appendRemarkMarkers } from "@/lib/office-tasks/event-item-links";
 import { applyFollowUpWithNote, clearFollowUpMarker } from "@/lib/office-tasks/follow-up-marker";

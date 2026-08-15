@@ -1,4 +1,4 @@
-import { formatPeso, type ActivityItem, type WalkInClient } from "@/lib/gl-config";
+import { formatPeso, type ActivityItem, type WalkInClient } from "@/lib/ha-config";
 
 function toSortKey(value: string): number {
   const d = new Date(value);

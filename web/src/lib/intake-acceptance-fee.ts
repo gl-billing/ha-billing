@@ -1,9 +1,11 @@
 import type { EngagementDocumentType } from "@/lib/engagement-letter";
-import { parseMoney, type LedgerEntry } from "@/lib/gl-config";
+import { parseMoney, type LedgerEntry } from "@/lib/ha-config";
+import { readSessionStorage, removeSessionStorage, writeSessionStorage } from "@/lib/ha-browser-storage";
 import { resolveContractAcceptanceFee } from "@/lib/litigation-venue-fees";
 
 export const INTAKE_ACCEPTANCE_FEE_LEDGER_MARKER = "INTAKE_ACCEPTANCE_FEE";
-const PENDING_CHARGE_STORAGE_KEY = "gl-intake-pending-acceptance-fee";
+const PENDING_CHARGE_STORAGE_KEY = "ha-intake-pending-acceptance-fee";
+const LEGACY_PENDING_CHARGE_STORAGE_KEY = "gl-intake-pending-acceptance-fee";
 
 export type IntakePendingAcceptanceFee = {
   clientCode: string;
@@ -42,8 +44,7 @@ export function ledgerHasIntakeAcceptanceFee(entries: Array<Pick<LedgerEntry, "c
 }
 
 export function saveIntakePendingAcceptanceFee(payload: IntakePendingAcceptanceFee): void {
-  if (typeof window === "undefined") return;
-  window.sessionStorage.setItem(PENDING_CHARGE_STORAGE_KEY, JSON.stringify(payload));
+  writeSessionStorage(PENDING_CHARGE_STORAGE_KEY, JSON.stringify(payload), LEGACY_PENDING_CHARGE_STORAGE_KEY);
 }
 
 export function intakePendingAcceptanceFeeMatchesClient(
@@ -59,8 +60,7 @@ export function intakePendingAcceptanceFeeMatchesClient(
 }
 
 export function readIntakePendingAcceptanceFee(...clientCodes: string[]): IntakePendingAcceptanceFee | null {
-  if (typeof window === "undefined") return null;
-  const raw = window.sessionStorage.getItem(PENDING_CHARGE_STORAGE_KEY);
+  const raw = readSessionStorage(PENDING_CHARGE_STORAGE_KEY, LEGACY_PENDING_CHARGE_STORAGE_KEY);
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as IntakePendingAcceptanceFee;
@@ -73,8 +73,7 @@ export function readIntakePendingAcceptanceFee(...clientCodes: string[]): Intake
 }
 
 export function clearIntakePendingAcceptanceFee(): void {
-  if (typeof window === "undefined") return;
-  window.sessionStorage.removeItem(PENDING_CHARGE_STORAGE_KEY);
+  removeSessionStorage(PENDING_CHARGE_STORAGE_KEY, LEGACY_PENDING_CHARGE_STORAGE_KEY);
 }
 
 export function buildIntakePendingAcceptanceFee(input: {

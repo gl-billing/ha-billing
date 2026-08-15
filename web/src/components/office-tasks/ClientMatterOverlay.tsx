@@ -18,7 +18,7 @@ import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import type { PrepChecklistMutation } from "@/lib/office-tasks/prep-checklist-storage";
 import type { TaskActivityEntry } from "@/lib/office-tasks/sheets/activity-log";
 import { officeItemKey } from "@/lib/office-tasks/schedule";
-import { formatPeso, type ActivityItem } from "@/lib/gl-config";
+import { formatPeso, type ActivityItem } from "@/lib/ha-config";
 import {
   formatClientCaseTypeLabel,
   showPsychologistFields

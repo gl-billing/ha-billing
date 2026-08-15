@@ -37,7 +37,7 @@ function formatModified(value?: string): string {
 
 /**
  * Templates library — category folders + upload into the chosen folder.
- * Matches GL Space Templates UX with HA branding.
+ * Native Space Templates UX with HA branding.
  */
 export function TasksTemplatesTab({ testLab = false }: Props) {
   const [folderId, setFolderId] = useState<TemplateFolderId>(TEMPLATE_FOLDERS[0].id);

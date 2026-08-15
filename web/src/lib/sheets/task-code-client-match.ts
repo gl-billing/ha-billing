@@ -1,4 +1,4 @@
-import { formatClientCaseLabel } from "@/lib/gl-config";
+import { formatClientCaseLabel } from "@/lib/ha-config";
 import { clientCodeFromCase, taskCodeForBillingClient } from "@/lib/office-tasks/client-matter";
 import {
   caseTitleTokensFullyInLabel,

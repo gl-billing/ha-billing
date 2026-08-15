@@ -1,5 +1,5 @@
 import { EVENT_LEDGER_CHARGE_MARKER, findEventLedgerCharge } from "@/lib/event-ledger-charge";
-import type { LedgerEntry } from "@/lib/gl-config";
+import type { LedgerEntry } from "@/lib/ha-config";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import type { AppearanceFeeOption } from "@/lib/sheets/ledger-read";
 import {

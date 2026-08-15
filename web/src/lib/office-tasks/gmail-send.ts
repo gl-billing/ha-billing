@@ -98,7 +98,7 @@ async function getEmailFromGoogleUserInfo(accessToken: string): Promise<string |
   }
 }
 
-/** Google account signed in to the app (used for BCC copies and Sent-folder checks). */
+/** Google account signed in to the app (From address + Sent folder for interactive mail). */
 export async function getGmailAccountEmail(
   accessToken: string,
   fallbackEmail?: string
@@ -129,8 +129,8 @@ export async function getGmailSenderAddress(accessToken: string, fallbackEmail?:
 }
 
 /**
- * Uses the caller's OAuth token so From / Sent match whoever is sending.
- * (Cron digests may still pass a cron token; interactive sends pass the session token.)
+ * Uses the caller's OAuth token so From / Sent match whoever is signed in.
+ * Does not swap to the firm inbox (legal@) or cron token.
  */
 export async function resolveFirmOutboundAccessToken(preferredToken: string): Promise<{
   accessToken: string;
@@ -146,8 +146,8 @@ function buildHtmlMimePart(html: string, inlineImages?: GmailInlineImage[]): str
     return ['Content-Type: text/html; charset="UTF-8"', "Content-Transfer-Encoding: 7bit", "", html].join("\r\n");
   }
 
-  const relatedBoundary = `gl_rel_${Date.now().toString(36)}`;
-  const htmlPartId = "gl_html_part";
+  const relatedBoundary = `ha_rel_${Date.now().toString(36)}`;
+  const htmlPartId = "ha_html_part";
   const lines = [
     `Content-Type: multipart/related; boundary="${relatedBoundary}"; type="text/html"; start="<${htmlPartId}>"`,
     "",
@@ -207,17 +207,18 @@ function buildRawMime(input: {
   attachments?: GmailAttachment[];
   inlineImages?: GmailInlineImage[];
 }): string {
-  const alternativeBoundary = `gl_alt_${Date.now().toString(36)}`;
+  const alternativeBoundary = `ha_alt_${Date.now().toString(36)}`;
   const alternativeBody = buildAlternativeMimeBody(alternativeBoundary, {
     plain: input.plain,
     html: input.html,
     inlineImages: input.inlineImages
   });
 
+  const fromAddress = normalizeEmailAddress(input.from);
   const headers = [
     `From: ${input.from}`,
     `To: ${input.to}`,
-    ...(input.bcc && input.bcc !== input.to ? [`Bcc: ${input.bcc}`] : []),
+    ...(input.bcc && input.bcc !== input.to && input.bcc !== fromAddress ? [`Bcc: ${input.bcc}`] : []),
     `Subject: ${encodeSubject(input.subject)}`,
     "MIME-Version: 1.0"
   ];
@@ -228,7 +229,7 @@ function buildRawMime(input: {
     );
   }
 
-  const boundary = `gl_${Date.now().toString(36)}`;
+  const boundary = `ha_${Date.now().toString(36)}`;
   const lines = [
     ...headers,
     `Content-Type: multipart/mixed; boundary="${boundary}"`,
@@ -315,7 +316,7 @@ export async function sendHtmlEmailViaGmail(input: {
   subject: string;
   html: string;
   plain?: string;
-  /** Sends a copy to this address (usually the admin). */
+  /** Optional archive copy. Skipped when it matches To or From (Sent already has the message). Never used to route copies to legal@. */
   bcc?: string;
   inlineImages?: GmailInlineImage[];
 }): Promise<GmailSendResult> {

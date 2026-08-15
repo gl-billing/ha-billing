@@ -1,6 +1,6 @@
 "use client";
 
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import {
   buildRetainerHomeReadiness,
   formatRetainerDirectoryLabel,
@@ -9,7 +9,7 @@ import {
   summarizePackageCoverage,
   type RetainerHomeReadiness
 } from "@/lib/retainer-package";
-import type { ClientDetail } from "@/lib/gl-config";
+import type { ClientDetail } from "@/lib/ha-config";
 import {
   describeCurrentRetainerMonth,
   type RetainerMonthCell

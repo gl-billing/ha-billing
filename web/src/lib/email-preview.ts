@@ -1,4 +1,4 @@
-import type { SoaStatusReportPayload } from "@/lib/gl-config";
+import type { SoaStatusReportPayload } from "@/lib/ha-config";
 import {
   arEmailSubject,
   buildArEmailHtml,

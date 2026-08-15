@@ -12,7 +12,7 @@ import {
   updateNotarization
 } from "@/lib/sheets/notarizations";
 import { canDeleteNotarizations, requireNotarizationManage } from "@/lib/admin";
-import type { NotarizationPayload, NotarizationUpdatePayload } from "@/lib/gl-config";
+import type { NotarizationPayload, NotarizationUpdatePayload } from "@/lib/ha-config";
 
 const CACHE_KEY = "notarizations";
 

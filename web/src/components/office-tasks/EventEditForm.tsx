@@ -25,7 +25,7 @@ import { EventSegmentedControl } from "@/components/office-tasks/EventSegmentedC
 import { EventScheduleEmailPanel } from "@/components/office-tasks/EventScheduleEmailPanel";
 import { displayRemarks } from "@/lib/office-tasks/follow-up-marker";
 import { todayYmd } from "@/lib/office-tasks/schedule";
-import { formatPeso, type CaseOption } from "@/lib/gl-config";
+import { formatPeso, type CaseOption } from "@/lib/ha-config";
 import { pleadingFeeSharingSummary, appearanceFeeSharingSummary } from "@/lib/firm-fee-sharing-labels";
 
 const PERIOD_PRESETS = [5, 10, 15, 30] as const;

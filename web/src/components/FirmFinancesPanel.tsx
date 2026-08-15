@@ -20,7 +20,7 @@ import {
 import { lawyerFeeShareAmount } from "@/lib/firm-lawyers-roster";
 import type { FirmLawyerRosterEntry } from "@/lib/firm-lawyers-roster";
 import type { StaffPayrollRosterEntry } from "@/lib/staff-payroll-roster";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import { matterHref } from "@/lib/matter-routes";
 import {
   PAYMENT_INCOME_TYPES,

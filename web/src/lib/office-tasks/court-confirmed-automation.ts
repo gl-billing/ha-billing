@@ -93,7 +93,7 @@ export async function runCourtConfirmedAutomations(
     ledgerClientCode: "",
     clientCase: event.clientCase
   });
-  let ledgerEntries: import("@/lib/gl-config").LedgerEntry[] = [];
+  let ledgerEntries: import("@/lib/ha-config").LedgerEntry[] = [];
   if (billing.code) {
     try {
       ledgerEntries = (await getClientLedger(accessToken, billing.code)).entries;

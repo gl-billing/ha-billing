@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { TrustLedgerEntry, TrustLedgerEntryType, TrustLedgerSummary } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { TrustLedgerEntry, TrustLedgerEntryType, TrustLedgerSummary } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { LedgerEntryText } from "@/components/LedgerEntryText";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { Skeleton } from "@/components/Skeleton";

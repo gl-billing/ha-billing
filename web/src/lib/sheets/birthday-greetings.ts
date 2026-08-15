@@ -6,7 +6,7 @@ import {
   formatBirthdayDisplay,
   isBirthdayToday
 } from "@/lib/birthday-greeting";
-import { GL, type ClientSummary } from "@/lib/gl-config";
+import { HA, type ClientSummary } from "@/lib/ha-config";
 import { isValidEmailAddress, sendClientEmailViaGmail } from "@/lib/office-tasks/gmail-send";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import { ensureMasterListColumns, getAllMasterRows } from "@/lib/sheets/master";
@@ -161,7 +161,7 @@ export async function sendBirthdayGreetingForClient(
 
   const today = new Date().toISOString().slice(0, 10);
   await ensureMasterListColumns(accessToken);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!AC${candidate.masterRow}`, [[today]]);
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!AC${candidate.masterRow}`, [[today]]);
 
   await appendAuditLog(accessToken, {
     user: input.actorEmail || "system",

@@ -1,5 +1,5 @@
-import type { GenerateSoaPayload } from "@/lib/gl-config";
-import { GL } from "@/lib/gl-config";
+import type { GenerateSoaPayload } from "@/lib/ha-config";
+import { HA } from "@/lib/ha-config";
 import {
   buildSoaEmailHtml,
   buildSoaEmailPlain,
@@ -216,11 +216,11 @@ export async function generateClientSoaNative(
   const billingDate = today.toISOString().slice(0, 10);
   const soaSentValue = deliveryAction === "Send Now" ? billingDate : String(found.values[12] || "");
 
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!H${found.row}:H${found.row}`, [[billingDate]]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!M${found.row}:O${found.row}`, [
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!H${found.row}:H${found.row}`, [[billingDate]]);
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!M${found.row}:O${found.row}`, [
     [soaSentValue, invoiceNumber, buildHyperlinkFormula(pdfUrl, "View SOA")]
   ]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!S${found.row}:S${found.row}`, [
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!S${found.row}:S${found.row}`, [
     [dueDate.toISOString().slice(0, 10)]
   ]);
 

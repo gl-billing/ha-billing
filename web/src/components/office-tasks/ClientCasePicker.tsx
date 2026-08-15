@@ -15,9 +15,9 @@ import { ClientCodeWarningPanel } from "@/components/ClientCodeWarningPanel";
 import { ClientContactEmailField } from "@/components/office-tasks/ClientContactEmailField";
 import { useClientCodeCheck } from "@/hooks/useClientCodeCheck";
 import { contactEmailsToFieldValue, formatContactEmails, parseContactEmails } from "@/lib/contact-emails";
-import type { CaseOption } from "@/lib/gl-config";
-import { sortCaseOptionsByClientCode } from "@/lib/gl-config";
-import { formatClientCaseLabel } from "@/lib/gl-config";
+import type { CaseOption } from "@/lib/ha-config";
+import { sortCaseOptionsByClientCode } from "@/lib/ha-config";
+import { formatClientCaseLabel } from "@/lib/ha-config";
 import type { PrefixCollisionMatch } from "@/lib/sheets/prefix-collision";
 import {
   clientCodeCheckCanProceed,

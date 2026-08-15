@@ -1,6 +1,6 @@
 "use client";
 
-import { formatPeso, type HomeDashboard } from "@/lib/gl-config";
+import { formatPeso, type HomeDashboard } from "@/lib/ha-config";
 
 type Props = {
   upcoming: NonNullable<HomeDashboard["upcomingRetainers"]>;

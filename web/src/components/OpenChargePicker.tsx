@@ -1,7 +1,7 @@
 "use client";
 
 import type { OpenChargeOption } from "@/lib/open-charges";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 
 type Props = {
   charges: OpenChargeOption[];

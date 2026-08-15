@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { SameWindowLink } from "@/components/SameWindowLink";
+import { readBrowserStorage, writeBrowserStorage } from "@/lib/ha-browser-storage";
 
-const DISMISS_KEY = "gl-office-welcome-hint";
+const DISMISS_KEY = "ha-office-welcome-hint";
+const LEGACY_DISMISS_KEY = "gl-office-welcome-hint";
 
 type Props = {
   email?: string | null;
@@ -14,7 +16,7 @@ export function NewStaffHint({ email }: Props) {
 
   useEffect(() => {
     if (!email) return;
-    if (localStorage.getItem(DISMISS_KEY) === "1") return;
+    if (readBrowserStorage(DISMISS_KEY, LEGACY_DISMISS_KEY) === "1") return;
     setVisible(true);
   }, [email]);
 
@@ -34,7 +36,7 @@ export function NewStaffHint({ email }: Props) {
           type="button"
           className="new-staff-hint__dismiss"
           onClick={() => {
-            localStorage.setItem(DISMISS_KEY, "1");
+            writeBrowserStorage(DISMISS_KEY, "1", LEGACY_DISMISS_KEY);
             setVisible(false);
           }}
         >

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireSessionAccessToken } from "@/lib/api-auth";
-import { formatPeso, toCsvRow } from "@/lib/gl-config";
+import { formatPeso, toCsvRow } from "@/lib/ha-config";
 import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 import { getArAgingReport } from "@/lib/sheets/reports";
 
@@ -41,7 +41,7 @@ export async function GET() {
     );
 
     const csv = [header, ...rows].join("\n");
-    const filename = `gl-ar-aging-${new Date().toISOString().slice(0, 10)}.csv`;
+    const filename = `ha-ar-aging-${new Date().toISOString().slice(0, 10)}.csv`;
 
     return new NextResponse(csv, {
       headers: {

@@ -1,0 +1,297 @@
+/**
+ * Native-phone Reports — Workspace toggles.
+ * Desktop automation settings list is unchanged.
+ */
+
+:is(
+  html[data-layout-mode="mobile"]
+) {
+.firm-automation-settings--native {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0 0 1rem;
+  padding: 1rem !important;
+  border-radius: 1rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d) !important;
+  background: var(--ha-m-card, #181818) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  box-shadow: none;
+}
+
+.firm-automation-settings--native,
+.firm-automation-settings--native * {
+  box-sizing: border-box;
+}
+
+.firm-automation-settings--native .section-label,
+.firm-automation-settings--native h3 {
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
+.firm-automation-settings--native .firm-automation-settings__intro,
+.firm-automation-settings--native .firm-automation-settings__status,
+.firm-automation-settings--native .firm-automation-settings__hint {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+.firm-automation-settings--native .firm-automation-settings__intro {
+  margin: 0.35rem 0 0.85rem;
+  font-size: var(--ha-m-fs-secondary, 13px);
+  font-weight: var(--ha-m-fw-secondary, 400);
+  line-height: var(--ha-m-lh-secondary, 1.45);
+}
+
+.firm-automation-settings--native .firm-automation-settings__tech {
+  margin: 0 0 0.85rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.firm-automation-settings--native .firm-automation-settings__tech summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--ha-m-accent, #ffffff);
+  font-size: var(--ha-m-fs-field, 15px);
+  font-weight: var(--ha-m-fw-field, 600);
+  cursor: pointer;
+}
+
+.firm-automation-settings--native .firm-automation-settings__tech p,
+.firm-automation-settings--native .firm-automation-settings__tech code {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+  font-size: var(--ha-m-fs-secondary, 13px);
+  overflow-wrap: anywhere;
+}
+
+.firm-automation-settings--native .firm-automation-settings__groups {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.firm-automation-settings--native .firm-automation-settings__group {
+  margin: 0;
+  padding: 0.15rem 0 0.15rem;
+  border-radius: 0.95rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d);
+  background: var(--ha-m-card-elevated, #202020);
+  overflow: hidden;
+}
+
+.firm-automation-settings--native .firm-automation-settings__group-title {
+  margin: 0;
+  padding: 0.65rem 0.9rem 0.35rem;
+  color: var(--ha-m-accent, #ffffff);
+  font-size: var(--ha-m-fs-eyebrow, 12px);
+  font-weight: var(--ha-m-fw-eyebrow, 600);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.firm-automation-settings--native .firm-automation-settings__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 2.75rem;
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 0;
+  border-top: 1px solid var(--ha-m-divider, #2d2d2d);
+  background: transparent;
+  color: var(--ha-m-ink, #f5f1e8);
+  text-align: left;
+  cursor: pointer;
+}
+
+.firm-automation-settings--native .firm-automation-settings__group > .firm-automation-settings__row:first-of-type,
+.firm-automation-settings--native .firm-automation-settings__group-title + .firm-automation-settings__row {
+  border-top: 0;
+}
+
+.firm-automation-settings--native .firm-automation-settings__copy {
+  min-width: 0;
+}
+
+.firm-automation-settings--native .firm-automation-settings__title {
+  display: block;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  font-size: var(--ha-m-fs-card, 18px);
+  font-weight: var(--ha-m-fw-card, 650);
+  line-height: var(--ha-m-lh-card, 1.3);
+  overflow-wrap: anywhere;
+  font-family: var(--font-ui), system-ui, sans-serif;
+}
+
+.firm-automation-settings--native .firm-automation-settings__desc {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--ha-m-muted, #c4bdb3) !important;
+  font-size: var(--ha-m-fs-secondary, 13px);
+  font-weight: var(--ha-m-fw-secondary, 400);
+  line-height: var(--ha-m-lh-secondary, 1.45);
+  overflow-wrap: anywhere;
+}
+
+.firm-automation-settings--native .firm-automation-settings__switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 1.7rem;
+}
+
+.firm-automation-settings--native .firm-automation-settings__switch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.firm-automation-settings--native .firm-automation-settings__track {
+  position: relative;
+  display: block;
+  width: 2.75rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  background: #3a3a3a;
+  pointer-events: none;
+  transition: background 0.15s ease;
+}
+
+.firm-automation-settings--native .firm-automation-settings__track::after {
+  content: "";
+  position: absolute;
+  top: 0.18rem;
+  left: 0.18rem;
+  width: 1.34rem;
+  height: 1.34rem;
+  border-radius: 999px;
+  background: #f5f1e8;
+  transition: transform 0.15s ease;
+}
+
+.firm-automation-settings--native .firm-automation-settings__switch input:checked + .firm-automation-settings__track {
+  background: var(--ha-m-accent, #ffffff);
+}
+
+.firm-automation-settings--native .firm-automation-settings__switch input:checked + .firm-automation-settings__track::after {
+  transform: translateX(1.05rem);
+}
+
+.firm-automation-settings--native .firm-automation-settings__switch input:disabled + .firm-automation-settings__track {
+  opacity: 0.5;
+}
+
+.firm-automation-settings--native .firm-automation-settings__number {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.7rem 0.9rem 0.9rem;
+  border-top: 1px solid var(--ha-m-divider, #2d2d2d);
+}
+
+.firm-automation-settings--native .firm-automation-settings__number input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  background: var(--ha-m-card, #181818) !important;
+  border: 1px solid var(--ha-m-divider, #2d2d2d) !important;
+  border-radius: 0.75rem;
+  font-size: var(--ha-m-fs-body, 16px);
+  text-align: center;
+}
+
+.firm-automation-settings--native .firm-automation-settings__stepper {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+  gap: 0.45rem;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+}
+
+.firm-automation-settings--native .firm-automation-settings__stepper button {
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0;
+  padding: 0;
+  border-radius: 0.75rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d);
+  background: var(--ha-m-card, #181818);
+  color: var(--ha-m-accent, #ffffff);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.firm-automation-settings--native .firm-automation-settings__stepper button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.firm-automation-settings--native .firm-automation-settings__saving {
+  margin: 0.75rem 0 0;
+  color: var(--ha-m-accent, #ffffff);
+  font-size: var(--ha-m-fs-caption, 12px);
+  font-weight: var(--ha-m-fw-caption, 500);
+}
+
+.reports-page--native-mobile {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0 0 0.5rem;
+  box-sizing: border-box;
+}
+
+.reports-page--native-mobile,
+.reports-page--native-mobile * {
+  box-sizing: border-box;
+}
+
+.reports-page--native-mobile .card,
+.reports-page--native-mobile .ui-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.reports-page--native-mobile .nav-tabs {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  gap: 0.35rem !important;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.reports-page--native-mobile .nav-tab {
+  flex: 1 0 auto !important;
+  min-width: 6.5rem !important;
+  max-width: none !important;
+  width: auto;
+}
+
+.reports-page--native-mobile h2,
+.reports-page--native-mobile h3,
+.reports-page--native-mobile .page-header__title,
+.reports-page--native-mobile .text-ink {
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+}

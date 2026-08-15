@@ -1,5 +1,5 @@
-import type { ClientDetail, ClientSummary, DashboardSummary, UpdateClientPayload } from "@/lib/gl-config";
-import { GL, parseMoney, sanitizeSheetName } from "@/lib/gl-config";
+import type { ClientDetail, ClientSummary, DashboardSummary, UpdateClientPayload } from "@/lib/ha-config";
+import { HA, parseMoney, sanitizeSheetName } from "@/lib/ha-config";
 import { normalizeClientCaseRole } from "@/lib/client-case-role";
 import {
   caseTitleRequiredForMatterType,
@@ -18,11 +18,11 @@ import { withCache } from "@/lib/sheets/cache";
 import { getActiveEmployeeNames } from "@/lib/office-tasks/sheets/employees";
 import { canonicalizeStaffName } from "@/lib/staff-assignee";
 
-const MASTER_COL_COUNT = GL.masterHeaders.length;
+const MASTER_COL_COUNT = HA.masterHeaders.length;
 
 /** Extend Master List through column AI (case type fields) when the sheet stops short. */
 export async function ensureMasterListColumns(accessToken: string): Promise<void> {
-  const sheetName = GL.sheets.master;
+  const sheetName = HA.sheets.master;
   const sheets = getSheetsClient(accessToken);
   const meta = await sheets.spreadsheets.get({
     spreadsheetId: getSpreadsheetId(),
@@ -60,7 +60,7 @@ export async function ensureMasterListColumns(accessToken: string): Promise<void
   if (!birthdayHeader || !greetingHeader) {
     patches.push({
       range: `'${sheetName}'!AB1:AC1`,
-      values: [[GL.masterHeaders[27], GL.masterHeaders[28]]]
+      values: [[HA.masterHeaders[27], HA.masterHeaders[28]]]
     });
   }
 
@@ -68,28 +68,28 @@ export async function ensureMasterListColumns(accessToken: string): Promise<void
   if (psychologistHeaders.some((header) => !header)) {
     patches.push({
       range: `'${sheetName}'!AD1:AF1`,
-      values: [[GL.masterHeaders[29], GL.masterHeaders[30], GL.masterHeaders[31]]]
+      values: [[HA.masterHeaders[29], HA.masterHeaders[30], HA.masterHeaders[31]]]
     });
   }
 
   if (!String(existing[32] || "").trim()) {
     patches.push({
       range: `'${sheetName}'!AG1`,
-      values: [[GL.masterHeaders[32]]]
+      values: [[HA.masterHeaders[32]]]
     });
   }
 
   if (!String(existing[33] || "").trim() || !String(existing[34] || "").trim()) {
     patches.push({
       range: `'${sheetName}'!AH1:AI1`,
-      values: [[GL.masterHeaders[33], GL.masterHeaders[34]]]
+      values: [[HA.masterHeaders[33], HA.masterHeaders[34]]]
     });
   }
 
   if (!String(existing[35] || "").trim()) {
     patches.push({
       range: `'${sheetName}'!AJ1`,
-      values: [[GL.masterHeaders[35]]]
+      values: [[HA.masterHeaders[35]]]
     });
   }
 
@@ -228,7 +228,7 @@ export async function getClients(
 
 export async function getAllMasterRows(accessToken: string): Promise<unknown[][]> {
   return withCache(accessToken, "master-rows", 45_000, () =>
-    getSheetValues(accessToken, `'${GL.sheets.master}'!A2:AI`)
+    getSheetValues(accessToken, `'${HA.sheets.master}'!A2:AI`)
   );
 }
 
@@ -255,7 +255,7 @@ export async function getClientDetail(
   const detail = rowToDetail(found.values, found.row);
   const hyperlinks = await getHyperlinksByRow(
     accessToken,
-    `'${GL.sheets.master}'!O${found.row}`,
+    `'${HA.sheets.master}'!O${found.row}`,
     found.row
   );
   detail.lastInvoiceUrl = resolvePdfUrl(detail.lastInvoiceUrl, hyperlinks.get(found.row));
@@ -402,28 +402,28 @@ export async function updateClient(
     await ensureMasterListColumns(accessToken);
   }
 
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!B${row}:G${row}`, [
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!B${row}:G${row}`, [
     [nextName, resolvedCaseTitle, nextCaseNo, nextEmail, nextPhone, nextAddress]
   ]);
 
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!I${row}`, [[nextPrev]]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!T${row}:U${row}`, [
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!I${row}`, [[nextPrev]]);
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!T${row}:U${row}`, [
     [nextGreeting, nextStatus]
   ]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!V${row}:X${row}`, [
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!V${row}:X${row}`, [
     [nextCourt, nextAttorney, nextRetainer]
   ]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!AA${row}`, [[nextCaseRole]]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!AB${row}`, [[nextBirthday]]);
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!AA${row}`, [[nextCaseRole]]);
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!AB${row}`, [[nextBirthday]]);
   await ensureMasterListColumns(accessToken);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!AD${row}:AF${row}`, [
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!AD${row}:AF${row}`, [
     [nextPsychologistName, nextPsychologistPhone, nextPsychologistAddress]
   ]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!AG${row}`, [[nextMatterType]]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!AH${row}:AI${row}`, [
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!AG${row}`, [[nextMatterType]]);
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!AH${row}:AI${row}`, [
     [nextCaseType, nextCaseTypeOther]
   ]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!AJ${row}`, [[nextCoAttorney]]);
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!AJ${row}`, [[nextCoAttorney]]);
 
   return { ok: true, message: `Client ${code} updated.` };
 }
@@ -485,7 +485,7 @@ export async function updateClientAccountStatus(
   const found = await findMasterRow(accessToken, clientCode);
   if (!found) return;
 
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!P${found.row}:Q${found.row}`, [
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!P${found.row}:Q${found.row}`, [
     [accountStatus, arPending ? "Yes" : "No"]
   ]);
 }
@@ -505,9 +505,9 @@ export async function closeClient(
     day: "numeric"
   });
 
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!P${found.row}`, [["Closed"]]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!U${found.row}`, [["Closed"]]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!Y${found.row}:Z${found.row}`, [
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!P${found.row}`, [["Closed"]]);
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!U${found.row}`, [["Closed"]]);
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!Y${found.row}:Z${found.row}`, [
     [reason.trim() || "Closed by staff", closedDate]
   ]);
 
@@ -522,8 +522,8 @@ export async function reopenClient(
   const found = await findMasterRow(accessToken, code);
   if (!found) throw new Error("Client not found.");
 
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!U${found.row}`, [["Active"]]);
-  await updateSheetValues(accessToken, `'${GL.sheets.master}'!Y${found.row}:Z${found.row}`, [["", ""]]);
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!U${found.row}`, [["Active"]]);
+  await updateSheetValues(accessToken, `'${HA.sheets.master}'!Y${found.row}:Z${found.row}`, [["", ""]]);
 
   const { updateSingleClientStatus } = await import("@/lib/sheets/ledger");
   await updateSingleClientStatus(accessToken, code);

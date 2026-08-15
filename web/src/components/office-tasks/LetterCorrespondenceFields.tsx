@@ -10,7 +10,7 @@ import {
   type LetterBillTiming
 } from "@/lib/office-tasks/letter-task-utils";
 import { assessLedgerBillingClientMatch } from "@/lib/ledger-billing-client-match";
-import { FIELD_DISPATCH_LOCATIONS, GL } from "@/lib/gl-config";
+import { FIELD_DISPATCH_LOCATIONS, HA } from "@/lib/ha-config";
 import { todayYmd } from "@/lib/office-tasks/schedule";
 
 type LetterCorrespondenceFieldsProps = {
@@ -47,7 +47,7 @@ export function LetterCorrespondenceFields({
   const [billThis, setBillThis] = useState(false);
   const [billAmount, setBillAmount] = useState("");
   const [billTiming, setBillTiming] = useState<LetterBillTiming>("client_billing");
-  const [billPaymentMethod, setBillPaymentMethod] = useState<string>(GL.paymentMethods[0]);
+  const [billPaymentMethod, setBillPaymentMethod] = useState<string>(HA.paymentMethods[0]);
 
   const outsideDavao = useMemo(() => isOutsideDavaoFieldDispatch(serveLocation), [serveLocation]);
   const billingMatch = useMemo(
@@ -358,7 +358,7 @@ export function LetterCorrespondenceFields({
                       value={billPaymentMethod}
                       onChange={(e) => setBillPaymentMethod(e.target.value)}
                     >
-                      {GL.paymentMethods.map((method) => (
+                      {HA.paymentMethods.map((method) => (
                         <option key={method} value={method}>
                           {method}
                         </option>

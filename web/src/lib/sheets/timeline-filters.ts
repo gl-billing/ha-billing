@@ -1,4 +1,4 @@
-import type { ActivityItem } from "@/lib/gl-config";
+import type { ActivityItem } from "@/lib/ha-config";
 
 export type TimelineFilter = "all" | "billing" | "documents" | "tasks" | "hearings";
 

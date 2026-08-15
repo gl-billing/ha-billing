@@ -1,5 +1,5 @@
-import type { LedgerEntryPayload } from "@/lib/gl-config";
-import { formatClientCaseLabel } from "@/lib/gl-config";
+import type { LedgerEntryPayload } from "@/lib/ha-config";
+import { formatClientCaseLabel } from "@/lib/ha-config";
 import {
   clientCaseMatchesBillingClient,
   matterClientContextFromDetail,

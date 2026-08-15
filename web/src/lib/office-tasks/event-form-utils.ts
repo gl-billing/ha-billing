@@ -1,5 +1,5 @@
 import { addDaysYmd, todayYmd } from "@/lib/office-tasks/date-only";
-import type { CaseOption } from "@/lib/gl-config";
+import type { CaseOption } from "@/lib/ha-config";
 import type { EventFormInput } from "@/lib/office-tasks/sheets/tasks";
 
 export type EventAddKind = "appearances" | "filings";

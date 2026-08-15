@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 import { OpenChargePicker } from "@/components/OpenChargePicker";
 import { listOpenChargesFromLedger, type OpenChargeOption } from "@/lib/open-charges";
 import { PaymentIncomeFields } from "@/components/PaymentIncomeFields";
@@ -46,11 +46,11 @@ export function MatterInlineLedger({
   const [submitting, setSubmitting] = useState(false);
   const [chargeDate, setChargeDate] = useState(todayLocal());
   const [chargeAmount, setChargeAmount] = useState("");
-  const [chargeCategory, setChargeCategory] = useState(chargeCategories[1] || GL.chargeCategories[1]);
+  const [chargeCategory, setChargeCategory] = useState(chargeCategories[1] || HA.chargeCategories[1]);
   const [chargeDescription, setChargeDescription] = useState("");
   const [paymentDate, setPaymentDate] = useState(todayLocal());
   const [paymentAmount, setPaymentAmount] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState(paymentMethods[0] || GL.paymentMethods[0]);
+  const [paymentMethod, setPaymentMethod] = useState(paymentMethods[0] || HA.paymentMethods[0]);
   const [paymentDetails, setPaymentDetails] = useState("");
   const [paymentDescription, setPaymentDescription] = useState("");
   const [paymentIncomeType, setPaymentIncomeType] = useState<PaymentIncomeType>("Professional Fee");
@@ -111,7 +111,7 @@ export function MatterInlineLedger({
     if (chargeCategories.includes(chargeDraft.category)) {
       setChargeCategory(chargeDraft.category);
     } else {
-      setChargeCategory(chargeCategories.find((cat) => /appearance/i.test(cat)) || chargeCategories[1] || GL.chargeCategories[1]);
+      setChargeCategory(chargeCategories.find((cat) => /appearance/i.test(cat)) || chargeCategories[1] || HA.chargeCategories[1]);
     }
     setChargeDescription(chargeDraft.description);
     if (chargeDraft.amount) setChargeAmount(chargeDraft.amount);

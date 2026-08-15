@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { ClientSummary } from "@/lib/gl-config";
-import { filterClientsByQuery } from "@/lib/gl-config";
+import type { ClientSummary } from "@/lib/ha-config";
+import { filterClientsByQuery } from "@/lib/ha-config";
 
 type Props = {
   clients: ClientSummary[];

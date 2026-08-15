@@ -14,7 +14,7 @@ import {
   splitTaskType,
   TASK_OFFICE_VENUE_PRESETS
 } from "@/lib/office-tasks/task-form-utils";
-import type { CaseOption } from "@/lib/gl-config";
+import type { CaseOption } from "@/lib/ha-config";
 import { displayRemarks } from "@/lib/office-tasks/follow-up-marker";
 import { EventSegmentedControl } from "@/components/office-tasks/EventSegmentedControl";
 

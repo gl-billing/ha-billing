@@ -1,5 +1,5 @@
-import { formatClientCaseLabel } from "@/lib/gl-config";
-import type { AuditLogEntry } from "@/lib/gl-config";
+import { formatClientCaseLabel } from "@/lib/ha-config";
+import type { AuditLogEntry } from "@/lib/ha-config";
 import { getClientDetail } from "@/lib/sheets/master";
 import { appendAuditLog, getAuditLog } from "@/lib/sheets/audit-log";
 import { matterClientContextFromDetail } from "@/lib/office-tasks/client-matter";

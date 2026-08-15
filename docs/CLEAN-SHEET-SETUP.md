@@ -1,6 +1,6 @@
 # HA Billing — clean spreadsheet setup
 
-Hernandez & Associates needs **its own** billing and tasks workbooks — separate from the live G&L spreadsheets. Never point HA at the GL live `GOOGLE_SPREADSHEET_ID`.
+Hernandez & Associates needs **its own** billing and tasks workbooks. Point `GOOGLE_SPREADSHEET_ID` and `TASKS_GOOGLE_SPREADSHEET_ID` only at HA-owned files.
 
 ## Option A — automated (recommended)
 
@@ -15,16 +15,13 @@ In [OAuth Playground](https://developers.google.com/oauthplayground):
 3. Authorize with the **firm Google account** that owns HA Drive files.
 4. Exchange authorization code for tokens → copy the **refresh token**.
 
-> **404 "File not found" when running the script?** The default GL template lives in G&L Drive. Your HA Google account cannot see it until you **make your own copy** (see **Option B** below) and set `GOOGLE_BILLING_TEMPLATE_SPREADSHEET_ID` / `GOOGLE_TASKS_TEMPLATE_SPREADSHEET_ID` to those copy IDs — or skip the script and paste live workbook IDs after manual copy.
+### 1b. HA-owned templates (required before running the script)
 
-### 1b. HA-owned templates (before running the script)
+Use blank billing and tasks templates that already live in **HA Drive** (structure only — empty Master List, no client ledger tabs):
 
-The script cannot read G&L's private template unless your HA account owns a copy:
-
-1. Open the [blank billing template](https://docs.google.com/spreadsheets/d/1MFrcLDnLrmL7jmjcGU934-sd-udAZFzoKIYZ7NvKvf8/edit) (use a Google account that already has access, usually G&L).
-2. **File → Make a copy** → name `HA — Billing (template)` → save to **HA firm's** Google Drive (sign in as HA test user when making the copy, or share the copy to that account).
-3. Same for [blank tasks template](https://docs.google.com/spreadsheets/d/1EeezyqT0AeimXz21iJyskXgUtibXzZ7qwoboPCC1at0/edit) → `HA — Tasks (template)`.
-4. Add to `web/.env.local`:
+1. Open the HA billing template in Drive → **File → Make a copy** if you need a fresh blank, named `HA — Billing (template)`.
+2. Same for the HA tasks template → `HA — Tasks (template)`.
+3. Add to `web/.env.local`:
 
 ```bash
 GOOGLE_BILLING_TEMPLATE_SPREADSHEET_ID=<id from HA billing template URL>
@@ -50,8 +47,8 @@ npx tsx scripts/create-clean-workbooks.ts --also-save-templates
 
 This will:
 
-- Copy the **blank GL billing template** (structure only — no client data) into `Hernandez & Associates — Billing`
-- Copy the **blank GL tasks template** into `Hernandez & Associates — Tasks`
+- Copy the **HA blank billing template** into `Hernandez & Associates — Billing`
+- Copy the **HA blank tasks template** into `Hernandez & Associates — Tasks`
 - Scrub any stray rows or client ledger tabs
 - Optionally save `HA — Billing (template)` and `HA — Tasks (template)` for future resets
 
@@ -73,11 +70,9 @@ Paste the printed IDs into `web/.env.local` and Vercel.
 
 If you prefer not to run the script:
 
-1. Open the blank billing template:  
-   https://docs.google.com/spreadsheets/d/1MFrcLDnLrmL7jmjcGU934-sd-udAZFzoKIYZ7NvKvf8/edit
+1. Open the HA blank billing template in Drive.
 2. **File → Make a copy** → name it `Hernandez & Associates — Billing`
-3. Open the blank tasks template:  
-   https://docs.google.com/spreadsheets/d/1EeezyqT0AeimXz21iJyskXgUtibXzZ7qwoboPCC1at0/edit
+3. Open the HA blank tasks template in Drive.
 4. **File → Make a copy** → name it `Hernandez & Associates — Tasks`
 5. Confirm **Master List** row 2+ is empty and there are **no client-code tabs** (only system tabs like Settings, Walk-In Clients, etc.).
 6. Copy each spreadsheet ID from the URL into `.env.local`:
@@ -89,7 +84,7 @@ TASKS_GOOGLE_SPREADSHEET_ID=<tasks id>
 
 ---
 
-## Template env vars (optional)
+## Template env vars (required for the setup script)
 
 Keep dedicated HA templates for future copies or resets:
 
@@ -106,6 +101,6 @@ These must **not** be the same IDs as your live workbooks.
 
 | Do not use | Why |
 |------------|-----|
-| Live GL billing spreadsheet | Contains G&L client data |
-| A copy of GL billing with client tabs | Scrub may miss protected ranges |
+| Another firm's live billing spreadsheet | Contains another office's client data |
+| A copy that still has client tabs | Scrub may miss protected ranges |
 | Same ID for billing and tasks | Tasks and billing are separate workbooks |

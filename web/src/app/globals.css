@@ -2637,7 +2637,7 @@ html {
   }
 
   .firm-auth-hero__frame {
-    /* Match `/public/brand/cover.png` (976×308) so Lady Justice and GL logo stay in frame. */
+    /* Match `/public/brand/cover.png` (976×308) so Lady Justice and the HA logo stay in frame. */
     @apply relative w-full overflow-hidden rounded-2xl border border-gold/30 shadow-lift;
     aspect-ratio: 976 / 308;
     min-height: 6.5rem;
@@ -19844,7 +19844,7 @@ body:has(.office-hub-page) {
 }
 
 
-/* --- Ported from GL: filing workspace + desk checklist --- */
+/* --- Filing workspace + desk checklist --- */
 
   .filing-workspace {
     @apply relative space-y-3;

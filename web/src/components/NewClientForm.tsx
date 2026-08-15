@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { NewClientPayload } from "@/lib/gl-config";
+import type { NewClientPayload } from "@/lib/ha-config";
 import { ClientCaseRoleSelect } from "@/components/ClientCaseRoleSelect";
 import { ClientCodeWarningPanel } from "@/components/ClientCodeWarningPanel";
 import { FormStatusReport } from "@/components/FormStatusReport";

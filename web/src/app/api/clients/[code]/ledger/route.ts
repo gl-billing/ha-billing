@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireBillingAccessToken } from "@/lib/api-auth";
-import { sanitizeSheetName } from "@/lib/gl-config";
+import { sanitizeSheetName } from "@/lib/ha-config";
 import { getClientLedger } from "@/lib/sheets/ledger-read";
 
 type RouteContext = { params: Promise<{ code: string }> };

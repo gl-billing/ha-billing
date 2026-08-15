@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { AmountDisplay } from "@/components/AmountDisplay";
 import { ClientBirthdayCake } from "@/components/ClientBirthdayCake";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
-import type { ClientSummary } from "@/lib/gl-config";
+import type { ClientSummary } from "@/lib/ha-config";
 import { formatMatterDirectoryCaseLabel } from "@/lib/client-matter-type";
 import { isBirthdayToday } from "@/lib/birthday-greeting";
 

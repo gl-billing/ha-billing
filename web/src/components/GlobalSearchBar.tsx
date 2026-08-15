@@ -94,7 +94,7 @@ export function GlobalSearchBar({
     function onKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        window.dispatchEvent(new CustomEvent("gl-open-command-palette"));
+        window.dispatchEvent(new CustomEvent("ha-open-command-palette"));
       }
     }
     window.addEventListener("keydown", onKeyDown);

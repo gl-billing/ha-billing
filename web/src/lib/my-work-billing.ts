@@ -1,7 +1,7 @@
 import { isAdminEmail } from "@/lib/admin";
 import { isSecretaryNavUser } from "@/lib/app-access";
-import type { FollowUpClient, HomeDashboard, PendingArEntry } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { FollowUpClient, HomeDashboard, PendingArEntry } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { formatStaffDisplayName } from "@/lib/user-display";
 import { canonicalizeStaffName } from "@/lib/staff-assignee";
 

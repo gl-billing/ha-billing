@@ -46,7 +46,7 @@ import {
   type StaffCashAdvanceTermMonths
 } from "@/lib/staff-salary-cash-advance";
 import { computeStaffOvertimePay, formatStaffOvertimeNote } from "@/lib/staff-salary-overtime";
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 import { appendSheetValues, updateSheetValues } from "@/lib/sheets/client";
 import { listFieldDispatches } from "@/lib/sheets/field-dispatch";
 import { invalidateSettingsCache, readSettingsMap, readSettingsRowIndex } from "@/lib/sheets/settings";
@@ -67,7 +67,7 @@ async function upsertSettingValue(
   value: string,
   rowIndex: Map<string, number>
 ): Promise<void> {
-  const sheet = GL.sheets.settings;
+  const sheet = HA.sheets.settings;
   const row = rowIndex.get(key);
   if (row) {
     await updateSheetValues(accessToken, `'${sheet}'!B${row}`, [[value]]);

@@ -15,7 +15,7 @@ function getCalendarClient(accessToken: string) {
 
 function eventTitle(item: OfficeItem): string {
   const prefix = item.source === "Task" ? "Task" : item.category || "Event";
-  return `[GL] ${prefix}: ${item.clientCase || item.id}`.slice(0, 200);
+  return `[HA] ${prefix}: ${item.clientCase || item.id}`.slice(0, 200);
 }
 
 function eventDescription(item: OfficeItem): string {
@@ -88,7 +88,7 @@ export async function pullCalendarChanges(
     updatedMin: min,
     singleEvents: true,
     maxResults: 100,
-    q: "[GL]"
+    q: "[HA] OR [GL]"
   });
 
   const events = list.data.items || [];

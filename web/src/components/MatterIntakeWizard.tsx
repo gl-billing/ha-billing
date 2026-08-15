@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { NewClientPayload } from "@/lib/gl-config";
+import type { NewClientPayload } from "@/lib/ha-config";
 import { AssignedLawyerFields } from "@/components/AssignedLawyerFields";
 import { formatClientAssignedLawyers } from "@/lib/assigned-lawyers";
 import { ClientCaseRoleSelect } from "@/components/ClientCaseRoleSelect";

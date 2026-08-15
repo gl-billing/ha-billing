@@ -7,7 +7,7 @@ import { sessionAuditUser } from "@/lib/audit-user";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 import { addTrustLedgerEntry, getTrustLedger } from "@/lib/sheets/trust-ledger";
-import type { TrustLedgerEntryType } from "@/lib/gl-config";
+import type { TrustLedgerEntryType } from "@/lib/ha-config";
 
 export async function GET(request: Request) {
   try {

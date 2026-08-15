@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminBillingAccessToken } from "@/lib/api-auth";
-import { sanitizeSheetName } from "@/lib/gl-config";
+import { sanitizeSheetName } from "@/lib/ha-config";
 import { buildClientDeletePreview } from "@/lib/sheets/client-delete-preview";
 import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 import { sheetExists } from "@/lib/sheets/client";

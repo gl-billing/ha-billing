@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminBillingAccessToken, requireBillingAccessToken, sessionAuditEmail } from "@/lib/api-auth";
-import { sanitizeSheetName, type UpdateClientPayload } from "@/lib/gl-config";
+import { sanitizeSheetName, type UpdateClientPayload } from "@/lib/ha-config";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import { deleteClientPermanently } from "@/lib/sheets/client-delete";
 import { buildClientDeletePreview, getOpenOfficeItemsForClient } from "@/lib/sheets/client-delete-preview";

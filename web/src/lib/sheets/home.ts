@@ -1,4 +1,4 @@
-import type { FollowUpClient, HomeDashboard } from "@/lib/gl-config";
+import type { FollowUpClient, HomeDashboard } from "@/lib/ha-config";
 import { resolveClientMatterType } from "@/lib/client-matter-type";
 import { readFirmAlertRulesFromSettings } from "@/lib/firm-alert-rules-server";
 import { todayYmd } from "@/lib/office-tasks/schedule";

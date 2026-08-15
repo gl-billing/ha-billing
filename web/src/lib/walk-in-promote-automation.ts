@@ -1,5 +1,5 @@
-import type { WalkInClient } from "@/lib/gl-config";
-import { formatClientCaseLabel } from "@/lib/gl-config";
+import type { WalkInClient } from "@/lib/ha-config";
+import { formatClientCaseLabel } from "@/lib/ha-config";
 import { appendTaskActivity } from "@/lib/office-tasks/sheets/activity-log";
 
 export async function runWalkInPromoteAutomations(

@@ -1,8 +1,11 @@
 import type { WorkspaceId } from "@/lib/office-hub/storage";
 import { getLastWorkspace } from "@/lib/office-hub/storage";
+import { readBrowserStorage, removeBrowserStorage, writeBrowserStorage } from "@/lib/ha-browser-storage";
 
-const TASKS_TAB_KEY = "gl-office-tasks-tab";
-const BILLING_PAGE_KEY = "gl-office-billing-page";
+const TASKS_TAB_KEY = "ha-office-tasks-tab";
+const LEGACY_TASKS_TAB_KEY = "gl-office-tasks-tab";
+const BILLING_PAGE_KEY = "ha-office-billing-page";
+const LEGACY_BILLING_PAGE_KEY = "gl-office-billing-page";
 
 export type SavedTasksTab =
   | "desk-checklist"
@@ -36,26 +39,8 @@ export type SavedBillingPage =
   | "firmFinances"
   | "staffSalary";
 
-function readStorage(key: string): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    return localStorage.getItem(key);
-  } catch {
-    return null;
-  }
-}
-
-function writeStorage(key: string, value: string): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(key, value);
-  } catch {
-    // Private browsing or quota — ignore.
-  }
-}
-
 export function getSavedTasksTab(): SavedTasksTab | null {
-  const value = readStorage(TASKS_TAB_KEY);
+  const value = readBrowserStorage(TASKS_TAB_KEY, LEGACY_TASKS_TAB_KEY);
   const allowed: SavedTasksTab[] = [
     "desk-checklist",
     "today",
@@ -77,11 +62,11 @@ export function getSavedTasksTab(): SavedTasksTab | null {
 }
 
 export function saveTasksTab(tab: SavedTasksTab): void {
-  writeStorage(TASKS_TAB_KEY, tab);
+  writeBrowserStorage(TASKS_TAB_KEY, tab, LEGACY_TASKS_TAB_KEY);
 }
 
 export function getSavedBillingPage(): SavedBillingPage | null {
-  const value = readStorage(BILLING_PAGE_KEY);
+  const value = readBrowserStorage(BILLING_PAGE_KEY, LEGACY_BILLING_PAGE_KEY);
   const allowed: SavedBillingPage[] = [
     "home",
     "billing",
@@ -101,11 +86,13 @@ export function getSavedBillingPage(): SavedBillingPage | null {
 }
 
 export function saveBillingPage(page: SavedBillingPage): void {
-  writeStorage(BILLING_PAGE_KEY, page);
+  writeBrowserStorage(BILLING_PAGE_KEY, page, LEGACY_BILLING_PAGE_KEY);
 }
 
-const MATTER_CODE_KEY = "gl-office-matter-code";
-const MATTER_LABEL_KEY = "gl-office-matter-label";
+const MATTER_CODE_KEY = "ha-office-matter-code";
+const LEGACY_MATTER_CODE_KEY = "gl-office-matter-code";
+const MATTER_LABEL_KEY = "ha-office-matter-label";
+const LEGACY_MATTER_LABEL_KEY = "gl-office-matter-label";
 
 export type SavedMatter = {
   code: string;
@@ -113,27 +100,22 @@ export type SavedMatter = {
 };
 
 export function getSavedMatter(): SavedMatter | null {
-  const code = readStorage(MATTER_CODE_KEY)?.trim().toUpperCase();
+  const code = readBrowserStorage(MATTER_CODE_KEY, LEGACY_MATTER_CODE_KEY)?.trim().toUpperCase();
   if (!code) return null;
-  const label = readStorage(MATTER_LABEL_KEY)?.trim();
+  const label = readBrowserStorage(MATTER_LABEL_KEY, LEGACY_MATTER_LABEL_KEY)?.trim();
   return { code, label: label || undefined };
 }
 
 export function saveMatter(code: string, label?: string): void {
   const trimmed = code.trim().toUpperCase();
   if (!trimmed) return;
-  writeStorage(MATTER_CODE_KEY, trimmed);
-  if (label?.trim()) writeStorage(MATTER_LABEL_KEY, label.trim());
+  writeBrowserStorage(MATTER_CODE_KEY, trimmed, LEGACY_MATTER_CODE_KEY);
+  if (label?.trim()) writeBrowserStorage(MATTER_LABEL_KEY, label.trim(), LEGACY_MATTER_LABEL_KEY);
 }
 
 export function clearSavedMatter(): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.removeItem(MATTER_CODE_KEY);
-    localStorage.removeItem(MATTER_LABEL_KEY);
-  } catch {
-    // ignore
-  }
+  removeBrowserStorage(MATTER_CODE_KEY, LEGACY_MATTER_CODE_KEY);
+  removeBrowserStorage(MATTER_LABEL_KEY, LEGACY_MATTER_LABEL_KEY);
 }
 
 /** Tasks-only staff never get "billing" as last workspace. */

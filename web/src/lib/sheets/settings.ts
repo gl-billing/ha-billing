@@ -1,4 +1,4 @@
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 import { appendSheetValues, getSheetValues, updateSheetValues } from "@/lib/sheets/client";
 import { invalidateCache, withCache } from "@/lib/sheets/cache";
 import { todayYmd } from "@/lib/office-tasks/date-only";
@@ -12,7 +12,7 @@ export function invalidateSettingsCache(accessToken: string): void {
 
 async function loadSettingsRows(accessToken: string): Promise<string[][]> {
   return withCache(accessToken, SETTINGS_ROWS_CACHE_KEY, SETTINGS_TTL_MS, () =>
-    getSheetValues(accessToken, `'${GL.sheets.settings}'!A:B`)
+    getSheetValues(accessToken, `'${HA.sheets.settings}'!A:B`)
   );
 }
 
@@ -112,7 +112,7 @@ async function upsertSettingValue(
   value: string,
   rowIndex: Map<string, number>
 ): Promise<void> {
-  const sheet = GL.sheets.settings;
+  const sheet = HA.sheets.settings;
   const row = rowIndex.get(key);
   if (row) {
     await updateSheetValues(accessToken, `'${sheet}'!B${row}`, [[value]]);

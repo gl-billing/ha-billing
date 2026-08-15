@@ -15,7 +15,6 @@ import {
   withDriveSaveMessage
 } from "@/lib/sheets/drive-outbound-pdf";
 import {
-  getGmailAccountEmail,
   sendHtmlEmailWithAttachmentsViaGmail,
   sentMailHint
 } from "@/lib/office-tasks/gmail-send";
@@ -88,7 +87,6 @@ export async function POST(request: Request) {
     }
 
     const email = buildEngagementEmailPreview(letter);
-    const bccEmail = await getGmailAccountEmail(accessToken, session?.user?.email || undefined);
     const documentType = letter.documentType === "contract" ? "Contract" : "Engagement";
 
     const drive = await saveOutboundFirmPdf({
@@ -111,7 +109,6 @@ export async function POST(request: Request) {
       subject: email.subject,
       html: email.html,
       plain: email.body,
-      bcc: bccEmail,
       attachments: [{ filename, mimeType: "application/pdf", content: pdfBytes }],
       mode: action === "draft" ? "draft" : "send"
     });
@@ -127,7 +124,7 @@ export async function POST(request: Request) {
     const base =
       action === "draft"
         ? `Gmail draft saved with ${filename} attached. Open Gmail → Drafts to review before sending.`
-        : sentMailHint(delivery.senderEmail, recipient, delivery.messageId, true);
+        : sentMailHint(delivery.senderEmail, recipient, delivery.messageId);
 
     return NextResponse.json({
       ok: true,

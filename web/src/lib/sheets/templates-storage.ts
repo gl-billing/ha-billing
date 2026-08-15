@@ -1,5 +1,5 @@
 /**
- * Templates library — Drive root + category folders (mirrors GL Space).
+ * Templates library — Drive root + category folders.
  * Root folder: "Templates — HA Office" beside the billing spreadsheet.
  */
 

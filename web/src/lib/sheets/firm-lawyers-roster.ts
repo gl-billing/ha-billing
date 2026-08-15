@@ -6,7 +6,7 @@ import {
   FIRM_LAWYERS_ROSTER_SETTING_KEY,
   type FirmLawyerRosterEntry
 } from "@/lib/firm-lawyers-roster";
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 import { appendSheetValues, updateSheetValues, toA1Range } from "@/lib/sheets/client";
 import { invalidateSettingsCache, readSettingsMap, readSettingsRowIndex } from "@/lib/sheets/settings";
 import { getSheetsClient, getSpreadsheetId as getTasksSpreadsheetId } from "@/lib/office-tasks/sheets/client";
@@ -20,10 +20,10 @@ async function upsertSettingValue(
 ): Promise<void> {
   const row = rowIndex.get(key);
   if (row !== undefined) {
-    await updateSheetValues(accessToken, `'${GL.sheets.settings}'!B${row}`, [[value]]);
+    await updateSheetValues(accessToken, `'${HA.sheets.settings}'!B${row}`, [[value]]);
     return;
   }
-  await appendSheetValues(accessToken, `'${GL.sheets.settings}'!A:B`, [[key, value]]);
+  await appendSheetValues(accessToken, `'${HA.sheets.settings}'!A:B`, [[key, value]]);
   rowIndex.set(key, rowIndex.size + 2);
 }
 

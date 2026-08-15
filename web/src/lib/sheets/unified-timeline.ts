@@ -1,4 +1,4 @@
-import type { ActivityItem, ClientDetail, LedgerEntry } from "@/lib/gl-config";
+import type { ActivityItem, ClientDetail, LedgerEntry } from "@/lib/ha-config";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import type { TaskActivityEntry } from "@/lib/office-tasks/sheets/activity-log";
 import { mergeTaskTimelineItems } from "@/lib/task-matter-timeline";

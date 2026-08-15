@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { findSimilarClients } from "@/lib/sheets/client-similarity";
-import type { ClientSummary } from "@/lib/gl-config";
+import type { ClientSummary } from "@/lib/ha-config";
 
 const clients: ClientSummary[] = [
   {

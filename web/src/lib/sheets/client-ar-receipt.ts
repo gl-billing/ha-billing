@@ -1,8 +1,8 @@
 import {
-  GL,
+  HA,
   normalizePaymentMethod,
   type GenerateArPayload
-} from "@/lib/gl-config";
+} from "@/lib/ha-config";
 import {
   arEmailSubject,
   buildArEmailHtml,
@@ -39,7 +39,7 @@ async function getNextArReceiptNumber(accessToken: string, clientCode: string): 
   if (await sheetExists(accessToken, clientCode)) {
     const ledger = await getSheetValues(
       accessToken,
-      `'${clientCode}'!J${GL.ledgerStartRow}:J`
+      `'${clientCode}'!J${HA.ledgerStartRow}:J`
     );
     for (const row of ledger) {
       scanNumber(String(row[0] || ""));
@@ -54,7 +54,7 @@ async function readLedgerPaymentRow(
   clientCode: string,
   sheetRow: number
 ): Promise<unknown[] | null> {
-  if (sheetRow < GL.ledgerStartRow) return null;
+  if (sheetRow < HA.ledgerStartRow) return null;
   const values = await getSheetValues(accessToken, `'${clientCode}'!A${sheetRow}:L${sheetRow}`);
   return values[0] || null;
 }

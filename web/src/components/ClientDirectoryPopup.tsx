@@ -13,8 +13,8 @@ import {
   formatClientCaseTypeLabel,
   showPsychologistFields
 } from "@/lib/client-case-type";
-import type { ClientDetail } from "@/lib/gl-config";
-import { formatClientCaseLabel, formatPeso } from "@/lib/gl-config";
+import type { ClientDetail } from "@/lib/ha-config";
+import { formatClientCaseLabel, formatPeso } from "@/lib/ha-config";
 import {
   CLIENT_MATTER_TYPE_LABELS,
   formatMatterCaseCaption,

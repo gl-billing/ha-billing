@@ -1,4 +1,4 @@
-import type { LedgerEntry } from "@/lib/gl-config";
+import type { LedgerEntry } from "@/lib/ha-config";
 
 /** Income types when recording a payment (matches walk-in service types). */
 export const PAYMENT_INCOME_TYPES = [

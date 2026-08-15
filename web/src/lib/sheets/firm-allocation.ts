@@ -39,7 +39,7 @@ import {
   type UnclassifiedIncomeLine
 } from "@/lib/firm-allocation";
 import { resolveAcceptanceFeeAssociateFromClient } from "@/lib/assigned-lawyers";
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 import {
   parseAppearanceAttorneyFromLedgerDetails,
   parsePleadingDrafterFromLedgerDetails,
@@ -113,7 +113,7 @@ async function batchGetClientLedgerPayments(
   for (let i = 0; i < eligible.length; i += chunkSize) {
     const chunk = eligible.slice(i, i + chunkSize);
     const ranges = chunk.map(
-      (c) => `'${c.code.replace(/'/g, "''")}'!A${GL.ledgerStartRow}:I`
+      (c) => `'${c.code.replace(/'/g, "''")}'!A${HA.ledgerStartRow}:I`
     );
 
     const response = await sheets.spreadsheets.values.batchGet({
@@ -155,7 +155,7 @@ function collectUnclassifiedIncomeLines(
       const details = String(row[8] || "");
       if (!isUnclassifiedIncomePayment(category, description, details)) return;
 
-      const sheetRow = index + GL.ledgerStartRow;
+      const sheetRow = index + HA.ledgerStartRow;
       lines.push({
         id: `unclassified-${client.code}-${sheetRow}`,
         sheetRow,
@@ -197,7 +197,7 @@ function collectOfficePaymentLines(
       const details = String(row[8] || "");
       if (!isOfficeSplitPayment(category, description, details)) return;
 
-      const sheetRow = index + GL.ledgerStartRow;
+      const sheetRow = index + HA.ledgerStartRow;
       lines.push({
         id: `payment-${client.code}-${sheetRow}`,
         date: formatDateDisplay(row[0]),
@@ -236,7 +236,7 @@ function collectAppearanceFeeLines(
       const details = String(row[8] || "");
       if (!isAppearanceFeePayment(category, description, details)) return;
 
-      const sheetRow = index + GL.ledgerStartRow;
+      const sheetRow = index + HA.ledgerStartRow;
       lines.push({
         id: `appearance-${client.code}-${sheetRow}`,
         date: formatDateDisplay(row[0]),
@@ -277,7 +277,7 @@ function collectAcceptanceFeeLines(
       if (!isAcceptanceFeePayment(category, description, details)) return;
 
       const shares = computeAcceptanceFeeShares(amount);
-      const sheetRow = index + GL.ledgerStartRow;
+      const sheetRow = index + HA.ledgerStartRow;
       lines.push({
         id: `acceptance-${client.code}-${sheetRow}`,
         date: formatDateDisplay(row[0]),
@@ -324,7 +324,7 @@ function collectPleadingFeeLines(
         parseSoleLawyerFromLedgerDetails(details) ||
         (!client.coAssignedAttorney.trim() && Boolean(client.assignedAttorney.trim()));
       const shares = computePleadingFeeShares(amount, { soleLawyerOnMatter });
-      const sheetRow = index + GL.ledgerStartRow;
+      const sheetRow = index + HA.ledgerStartRow;
       lines.push({
         id: `pleading-${client.code}-${sheetRow}`,
         date: formatDateDisplay(row[0]),
@@ -376,7 +376,7 @@ async function upsertSettingValue(
   value: string,
   rowIndex: Map<string, number>
 ): Promise<void> {
-  const sheet = GL.sheets.settings;
+  const sheet = HA.sheets.settings;
   const row = rowIndex.get(key);
   if (row) {
     await updateSheetValues(accessToken, `'${sheet}'!B${row}`, [[value]]);

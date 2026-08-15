@@ -1,4 +1,4 @@
-import { GL, sanitizeSheetName } from "@/lib/gl-config";
+import { HA, sanitizeSheetName } from "@/lib/ha-config";
 import { getSheetsClient, getSpreadsheetId, sheetExists } from "@/lib/sheets/client";
 import { invalidateCache } from "@/lib/sheets/cache";
 import { applyLedgerTabSetup } from "@/lib/sheets/clients-create";
@@ -7,11 +7,11 @@ import { getSheetIdByTitle, sheetTitleExists } from "@/lib/sheets/sheet-meta";
 
 const PROTECTED_TABS = new Set(
   [
-    GL.sheets.settings,
-    GL.sheets.master,
-    GL.sheets.dashboard,
-    GL.sheets.documentLog,
-    GL.sheets.auditLog,
+    HA.sheets.settings,
+    HA.sheets.master,
+    HA.sheets.dashboard,
+    HA.sheets.documentLog,
+    HA.sheets.auditLog,
     "Template",
     "Invoice",
     "Acknowledgment Receipt",
@@ -65,7 +65,7 @@ export async function renameClientCode(
 
   await sheets.spreadsheets.values.update({
     spreadsheetId,
-    range: `'${GL.sheets.master}'!A${found.row}`,
+    range: `'${HA.sheets.master}'!A${found.row}`,
     valueInputOption: "USER_ENTERED",
     requestBody: { values: [[to]] }
   });
@@ -95,7 +95,7 @@ export async function renameClientCode(
     if (!(await sheetTitleExists(accessToken, to))) {
       await sheets.spreadsheets.values.update({
         spreadsheetId,
-        range: `'${GL.sheets.master}'!A${found.row}`,
+        range: `'${HA.sheets.master}'!A${found.row}`,
         valueInputOption: "USER_ENTERED",
         requestBody: { values: [[from]] }
       });

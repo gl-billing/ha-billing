@@ -7,17 +7,17 @@ describe("correspondence merge fields", () => {
     const text = "Dear {{client_name}}, balance {{balance}} for {{client_code}}.";
     const merged = applyCorrespondenceMergeText(text, {
       clientName: "Juan Dela Cruz",
-      clientCode: "gl-001",
+      clientCode: "ha-001",
       balance: 12500
     });
     expect(merged).toContain("Juan Dela Cruz");
-    expect(merged).toContain("GL-001");
+    expect(merged).toContain("HA-001");
     expect(merged).toContain("₱");
   });
 
   it("builds merge map with formatted balance", () => {
-    const map = buildCorrespondenceMergeMap({ balance: 1000, clientCode: "GL-2" });
-    expect(map["{{client_code}}"]).toBe("GL-2");
+    const map = buildCorrespondenceMergeMap({ balance: 1000, clientCode: "HA-2" });
+    expect(map["{{client_code}}"]).toBe("HA-2");
     expect(map["{{balance}}"]).toMatch(/₱|PHP/);
   });
 });

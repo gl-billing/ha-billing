@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { ArAgingReport, MonthlyCollectionsReport } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { ArAgingReport, MonthlyCollectionsReport } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { MetricSkeleton, Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { SmartLoadEmptyState } from "@/components/SmartLoadEmptyState";

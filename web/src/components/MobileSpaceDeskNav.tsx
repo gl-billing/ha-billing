@@ -204,7 +204,7 @@ export function MobileSpaceDeskNav({ billingAccess = true, isAdmin = false }: Pr
         <button
           type="button"
           className="mobile-clio-desk-nav__search"
-          onClick={() => window.dispatchEvent(new CustomEvent("gl-open-command-palette"))}
+          onClick={() => window.dispatchEvent(new CustomEvent("ha-open-command-palette"))}
         >
           Search
         </button>

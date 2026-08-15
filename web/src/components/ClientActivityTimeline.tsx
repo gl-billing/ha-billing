@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { ActivityItem } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { ActivityItem } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { filterTimelineItems, type TimelineFilter } from "@/lib/sheets/timeline-filters";
 import { activityItemModificationNote } from "@/lib/history-modification-note";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";

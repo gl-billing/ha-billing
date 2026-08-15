@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { FirmWorkspace } from "@/components/FirmWorkspaceShell";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 
 type Props = {
   workspace: FirmWorkspace;

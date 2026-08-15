@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 
 export type StaffSalaryToolTab = "overtime" | "13th" | "adjustments" | "cashAdvances";
 

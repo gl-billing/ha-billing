@@ -54,7 +54,7 @@ export function trialStaffAccessLabel(access: TrialStaffAccess): string {
 /**
  * Live workspace access for Staff UI.
  * Trial firms: Employees sheet column F.
- * Production GL: ADMIN / SECRETARY_NAV / TASKS_ONLY env lists, then sheet when set.
+ * Production: ADMIN / SECRETARY_NAV / TASKS_ONLY env lists, then sheet when set.
  */
 export function resolveDisplayedStaffAccess(input: {
   email?: string | null;

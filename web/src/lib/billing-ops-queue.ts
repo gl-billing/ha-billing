@@ -1,5 +1,5 @@
-import type { HomeDashboard, NotarizationEntry, WalkInClient } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { HomeDashboard, NotarizationEntry, WalkInClient } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { buildMyWorkBillingSummary } from "@/lib/my-work-billing";
 import { isAndreaOperationsItem } from "@/lib/office-tasks/firm-task-groups";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";

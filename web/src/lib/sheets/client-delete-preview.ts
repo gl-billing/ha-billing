@@ -1,4 +1,4 @@
-import type { ClientDetail } from "@/lib/gl-config";
+import type { ClientDetail } from "@/lib/ha-config";
 import {
   groupItemsByClientCode,
   matterClientContextFromDetail,

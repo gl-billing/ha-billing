@@ -6,7 +6,7 @@ import { AmountDisplay } from "@/components/AmountDisplay";
 import { resolveClientGreeting, formatClientSalutation } from "@/lib/client-greeting";
 import { FIRM_CONTACT } from "@/lib/firm-email-signature";
 import { firmLogoPublicUrl } from "@/lib/firm-logo-url";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import type { ClientPortalDocument, ClientPortalSnapshot } from "@/lib/client-portal-token";
 import type { ClientPortalLiveData, ClientPortalMessage, ClientPortalPayment } from "@/app/api/client-portal/live/route";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
@@ -114,7 +114,7 @@ export function ClientPortalView({ token, snapshot, expiresLabel, payUrl, paymen
 
   useEffect(() => {
     if (!token) return;
-    const key = `gl-portal-welcome-${view.clientCode}`;
+    const key = `ha-portal-welcome-${view.clientCode}`;
     if (!sessionStorage.getItem(key)) {
       setWelcomeVisible(true);
       sessionStorage.setItem(key, "1");
@@ -168,7 +168,7 @@ export function ClientPortalView({ token, snapshot, expiresLabel, payUrl, paymen
       {welcomeVisible ? (
         <section className="client-portal__welcome" role="status">
           <div className="client-portal__welcome-monogram" aria-hidden>
-            GL
+            HA
           </div>
           <div className="client-portal__welcome-body">
             <p className="client-portal__welcome-eyebrow">Secure client portal</p>

@@ -17,6 +17,9 @@ import { WorkspaceBreadcrumb } from "@/components/WorkspaceBreadcrumb";
 import { WorkspaceBootstrap } from "@/components/WorkspaceBootstrap";
 import { OfflineStatusBanner } from "@/components/OfflineStatusBanner";
 import { MobileSpaceDeskNav } from "@/components/MobileSpaceDeskNav";
+import { MobileOfficeHeader } from "@/components/MobileOfficeHeader";
+import { MobileBottomNav } from "@/components/mobile-app/MobileBottomNav";
+import { LayoutModeSwitcher } from "@/components/LayoutModeSwitcher";
 import { BitrixSpaceToolbar } from "@/components/BitrixSpaceToolbar";
 import { BitrixSpaceTopNav } from "@/components/BitrixSpaceTopNav";
 import { spaceInviteHref } from "@/lib/space-nav";
@@ -107,6 +110,13 @@ export function FirmWorkspaceShell({
   return (
     <TodayBirthdaysProvider billingAccess={billingAccess}>
       <div className={shellClass}>
+        <MobileOfficeHeader
+          billingAccess={billingAccess}
+          isAdmin={isAdmin}
+          navProfile={navProfile}
+          signOutCallbackUrl={signOutUrl}
+        />
+        <LayoutModeSwitcher variant="banner" />
         <FirmBrandHeader
           workspace={workspace}
           name={name}
@@ -264,6 +274,7 @@ export function FirmWorkspaceShell({
         )}
 
         <MobileSpaceDeskNav billingAccess={billingAccess} isAdmin={isAdmin} />
+        <MobileBottomNav billingAccess={billingAccess} />
 
         <FirmCommandPalette workspace={workspace} billingAccess={billingAccess} />
       </div>

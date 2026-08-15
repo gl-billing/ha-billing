@@ -262,6 +262,83 @@ export function spaceNavItemsForUser(v: Visibility): {
   };
 }
 
+export type MobileOfficeMenuLink = { href: string; label: string };
+export type MobileOfficeMenuGroup = { label: string; links: MobileOfficeMenuLink[] };
+
+function withQueryParam(href: string, key: string, value: string): string {
+  const join = href.includes("?") ? "&" : "?";
+  return `${href}${join}${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+}
+
+/** Native phone home — Today’s Office on the tasks desk. */
+export function mobileOfficeHomeHref(): string {
+  return tasksHref({ tab: "desk-checklist" });
+}
+
+/** True when the phone header should hide Back (Today’s Office is already showing). */
+export function isMobileOfficeHomePath(pathname: string, search = ""): boolean {
+  const path = pathname.replace(/\/$/, "") || "/";
+  if (path === "/office-hub" || path.endsWith("/office-hub")) return true;
+  const onTasksApp = path === "/app" || path.endsWith("/app");
+  if (!onTasksApp) return false;
+  const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+  const tab = (params.get("tab") || "desk-checklist").trim().toLowerCase();
+  if (params.get("mo") || params.get("moItem")) return false;
+  if ((params.get("space") || "").trim().toLowerCase() === "notifications") return false;
+  if (tab === "add-task" || tab === "add-event") return false;
+  return tab === "desk-checklist" || tab === "today" || tab === "";
+}
+
+/** Hamburger destinations on the dedicated phone home — filtered by role. */
+export function mobileHomeMenuLinks(v: Visibility): MobileOfficeMenuLink[] {
+  const home = mobileOfficeHomeHref();
+  const calendar = withQueryParam(tasksHref({ tab: "week" }), "cal", "day");
+  const billingOk = Boolean(v.billingAccess) && v.navProfile !== "tasks-only";
+  const links: MobileOfficeMenuLink[] = [
+    { href: home, label: "Home" },
+    { href: tasksHref({ tab: "add-task" }), label: "Add Task" },
+    { href: tasksHref({ tab: "add-event" }), label: "Add Event" }
+  ];
+  if (billingOk) {
+    links.push({ href: billingHref({ page: "clients" }), label: "Clients and Matters" });
+  }
+  links.push({ href: calendar, label: "Calendar" });
+  links.push({ href: tasksHref({ tab: "all-items" }), label: "Tasks" });
+  links.push({ href: notificationsHref(), label: "Notifications" });
+  if (billingOk) {
+    links.push({ href: billingHref({ page: "billing" }), label: "Billing and Ledger" });
+    links.push({ href: billingHref({ page: "documents", docTab: "soa" }), label: "Statements of Account" });
+    links.push({ href: billingHref({ page: "documents", docTab: "ar" }), label: "Accounts Receivable" });
+  }
+  if (v.isAdmin) {
+    links.push({ href: withSpaceParam(tasksHref({ tab: "tools" }), "staff"), label: "Staff" });
+  }
+  if (billingOk && v.isAdmin) {
+    links.push({ href: billingHref({ page: "reports" }), label: "Reports" });
+  }
+  links.push({ href: tasksHref({ tab: "tools" }), label: "Settings" });
+  return links;
+}
+
+/** Hamburger categories on the native phone home. */
+export function mobileOfficeMenuGroups(v: Visibility): MobileOfficeMenuGroup[] {
+  const billingOk = Boolean(v.billingAccess) && v.navProfile !== "tasks-only";
+  const groups: MobileOfficeMenuGroup[] = [];
+  if (billingOk) {
+    groups.push({
+      label: "Booking or adding",
+      links: [
+        { href: billingHref({ page: "newClient" }), label: "Add client" },
+        { href: walkInConsultationCreateHref(), label: "Add walk-in" },
+        { href: billingHref({ page: "spotBilling" }), label: "Add spot billing" },
+        { href: billingHref({ page: "notarizations" }), label: "Add notarization" }
+      ]
+    });
+  }
+  groups.push({ label: "Office", links: mobileHomeMenuLinks(v) });
+  return groups;
+}
+
 /** Primary Create action for the active Space module (Bitrix-style + Create). */
 export function spaceCreateAction(
   activeId: SpaceNavId,

@@ -1,4 +1,4 @@
-import type { LedgerEditPayload, LedgerEntryPayload } from "@/lib/gl-config";
+import type { LedgerEditPayload, LedgerEntryPayload } from "@/lib/ha-config";
 
 function compact(parts: Array<string | number | null | undefined>): string {
   return parts

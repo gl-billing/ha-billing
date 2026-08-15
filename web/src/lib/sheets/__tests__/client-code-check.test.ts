@@ -7,7 +7,7 @@ import {
   type ClientCodeCheckResult
 } from "@/lib/sheets/client-code-check";
 import { checkClientCodeForIntake } from "@/lib/sheets/client-code-check-server";
-import type { ClientSummary } from "@/lib/gl-config";
+import type { ClientSummary } from "@/lib/ha-config";
 
 vi.mock("@/lib/sheets/client", () => ({
   sheetExists: vi.fn(async ( _token: string, title: string) => title === "ORPHANTAB")

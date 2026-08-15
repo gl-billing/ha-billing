@@ -8,6 +8,9 @@ import { ItemCard, type ItemSummary } from "@/components/office-tasks/ItemCard";
 import type { ItemStatusUpdate } from "@/lib/office-tasks/status";
 import type { WorkItemFilingActionProps } from "@/lib/office-tasks/work-item-filing-actions";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
+import { MobileDayDetailPanel } from "@/components/mobile-app/MobileDayDetailPanel";
+import { OfficeItemDetailHost } from "@/components/office-tasks/OfficeItemDetailHost";
+import { useNativeMobileLayout } from "@/hooks/useNativeMobileLayout";
 import { getPhilippineRegularHoliday } from "@/lib/office-tasks/philippine-holidays";
 import { bucketItemsForDay, formatDisplayDate, officeItemKey } from "@/lib/office-tasks/schedule";
 
@@ -54,8 +57,10 @@ export function DayDetailPanel({
   formOptions,
   togglingKey
 }: Props) {
+  const nativeMobile = useNativeMobileLayout();
   const panelRef = useRef<HTMLElement>(null);
   const prevDateRef = useRef<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<OfficeItem | null>(null);
   const buckets = bucketItemsForDay(items, date, today);
   const total = items.length;
   const isToday = date === today;
@@ -68,6 +73,7 @@ export function DayDetailPanel({
     }
     if (prevDateRef.current === date) return;
     prevDateRef.current = date;
+    setSelectedItem(null);
     panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [date]);
 
@@ -76,6 +82,41 @@ export function DayDetailPanel({
     const el = panelRef.current?.querySelector(`[data-item-key="${highlightItemKey}"]`);
     el?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [highlightItemKey]);
+
+  if (nativeMobile) {
+    if (selectedItem) {
+      return (
+        <OfficeItemDetailHost
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+          allItems={items}
+          toggling={Boolean(togglingKey && togglingKey === officeItemKey(selectedItem))}
+          onToggleDone={onToggleDone}
+          onSetStatus={onSetStatus}
+          onResetWithDate={onResetWithDate}
+          onDeleteItem={onDeleteItem}
+          onUpdateNextAction={onUpdateNextAction}
+          onSaveEdit={onSaveEdit}
+          onCourtConfirmed={onCourtConfirmed}
+          onMarkSubmitted={onMarkSubmitted}
+          onConfirmParentFiled={onConfirmParentFiled}
+          formOptions={formOptions}
+        />
+      );
+    }
+    return (
+      <MobileDayDetailPanel
+        ref={panelRef}
+        date={date}
+        today={today}
+        buckets={buckets}
+        total={total}
+        holidayName={phHoliday}
+        selectedKey={highlightItemKey}
+        onSelectItem={setSelectedItem}
+      />
+    );
+  }
 
   return (
     <section ref={panelRef} className="day-detail-panel no-print">

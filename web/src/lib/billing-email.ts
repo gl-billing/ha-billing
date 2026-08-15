@@ -1,5 +1,5 @@
-import { formatPeso } from "@/lib/gl-config";
-import type { SoaStatusReportPayload } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
+import type { SoaStatusReportPayload } from "@/lib/ha-config";
 import { formatClientSalutation } from "@/lib/client-greeting";
 import { buildClientEmailHtml, buildClientEmailPlain } from "@/lib/firm-email-signature";
 import {

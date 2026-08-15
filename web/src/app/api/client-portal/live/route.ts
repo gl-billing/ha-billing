@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyClientPortalToken, type ClientPortalSnapshot } from "@/lib/client-portal-token";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import { getDocumentLog } from "@/lib/sheets/document-log";
 import { getClientLedger } from "@/lib/sheets/ledger-read";
 import { getClientDetail } from "@/lib/sheets/master";

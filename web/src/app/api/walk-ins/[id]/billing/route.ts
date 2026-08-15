@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { requireBillingAccessToken } from "@/lib/api-auth";
 import { authOptions } from "@/lib/auth";
-import type { WalkInBillingPayload } from "@/lib/gl-config";
+import type { WalkInBillingPayload } from "@/lib/ha-config";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import { invalidateBillingReadCaches, invalidateCache, isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 import { recordWalkInBilling } from "@/lib/sheets/walk-ins";

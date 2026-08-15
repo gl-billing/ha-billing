@@ -1,4 +1,4 @@
-import type { ClientSummary } from "@/lib/gl-config";
+import type { ClientSummary } from "@/lib/ha-config";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import { groupItemsByClientCode, matterClientContextFromDetail } from "@/lib/office-tasks/client-matter";
 

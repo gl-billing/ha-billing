@@ -1050,7 +1050,7 @@ textarea.field-input:focus {
   color: var(--ink) !important;
 }
 
-/* ── Navigation — horizontal rule tabs only (no fills, no GL pills) ── */
+/* ── Navigation — horizontal rule tabs only (no fills, no pill tabs) ── */
 .office-nav-wrap {
   margin-bottom: 0.75rem !important;
 }
@@ -1846,7 +1846,7 @@ a.btn-secondary,
   line-height: var(--ha-leading-tight) !important;
 }
 
-/* Beat legacy GL nav / header size rules */
+/* Beat legacy nav / header size rules */
 .firm-workspace .nav-tabs-scroll .nav-tab,
 .firm-workspace .nav-tab,
 .firm-workspace .office-nav__link,
@@ -1867,7 +1867,7 @@ a.btn-secondary,
   font-size: var(--ha-text-meta) !important;
 }
 
-/* ── Override GL dark/gold workspace theme (OS dark mode) ── */
+/* ── Override dark/gold workspace theme (OS dark mode) ── */
 @media (prefers-color-scheme: dark) {
   body:has(.firm-workspace),
   body:has(.office-hub-page) {

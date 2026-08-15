@@ -94,10 +94,10 @@ export function FirmCommandPalette({ workspace, billingAccess = true }: Props) {
       setOpen(true);
     }
     window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("gl-open-command-palette", onOpenEvent);
+    window.addEventListener("ha-open-command-palette", onOpenEvent);
     return () => {
       window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("gl-open-command-palette", onOpenEvent);
+      window.removeEventListener("ha-open-command-palette", onOpenEvent);
     };
   }, [close]);
 

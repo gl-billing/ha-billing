@@ -5,6 +5,8 @@ import { SessionProvider, signOut, useSession } from "next-auth/react";
 import { PwaInstallBanner, PwaRegister, PwaWrongHomeScreenHint } from "@/components/PwaInstall";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { ContentProtectionProvider } from "@/components/ContentProtectionProvider";
+import { LayoutModeProvider } from "@/components/LayoutModeProvider";
+import type { LayoutMode } from "@/lib/layout-mode-prefs";
 
 function SessionGuard({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
@@ -32,19 +34,23 @@ function SessionGuard({ children }: { children: React.ReactNode }) {
 
 export function Providers({
   children,
-  session
+  session,
+  serverLayoutMode
 }: {
   children: React.ReactNode;
   session?: Session | null;
+  serverLayoutMode?: LayoutMode;
 }) {
   return (
     <SessionProvider session={session}>
-      <PwaRegister />
-      <PwaWrongHomeScreenHint />
-      <OfflineBanner />
-      <SessionGuard>{children}</SessionGuard>
-      <ContentProtectionProvider />
-      <PwaInstallBanner />
+      <LayoutModeProvider serverLayoutMode={serverLayoutMode}>
+        <PwaRegister />
+        <PwaWrongHomeScreenHint />
+        <OfflineBanner />
+        <SessionGuard>{children}</SessionGuard>
+        <ContentProtectionProvider />
+        <PwaInstallBanner />
+      </LayoutModeProvider>
     </SessionProvider>
   );
 }

@@ -9,6 +9,7 @@ import { DocumentsPanel } from "@/components/DocumentsPanel";
 import { DocumentVaultPanel } from "@/components/DocumentVaultPanel";
 import { PaymentRequestPanel } from "@/components/PaymentRequestPanel";
 import { SameWindowLink } from "@/components/SameWindowLink";
+import { useNativeMobileLayout } from "@/hooks/useNativeMobileLayout";
 import { FirmPrintLetterhead } from "@/components/FirmPrintLetterhead";
 import { FirmWorkspaceShell } from "@/components/FirmWorkspaceShell";
 import { BitrixSpaceRail } from "@/components/BitrixSpaceRail";
@@ -18,8 +19,8 @@ import { ItemCard, type ItemSummary } from "@/components/office-tasks/ItemCard";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { DashboardSkeleton } from "@/components/Skeleton";
 import { formatClientAssignedLawyers } from "@/lib/assigned-lawyers";
-import type { ClientDetail, ActivityItem, LedgerEntry } from "@/lib/gl-config";
-import { formatPeso, GL } from "@/lib/gl-config";
+import type { ClientDetail, ActivityItem, LedgerEntry } from "@/lib/ha-config";
+import { formatPeso, HA } from "@/lib/ha-config";
 import {
   groupItemsByClientCode,
   matterItemAnchorId,
@@ -215,6 +216,7 @@ function billingClientToDetail(client: BillingClient): ClientDetail {
 export function MatterPage({ matterCode, user }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const nativeMobile = useNativeMobileLayout();
   const billingAccess = user?.billingAccess !== false;
   const email = user?.email?.trim() || "";
   const billingPath = HA_BILLING_PATH;
@@ -249,7 +251,7 @@ export function MatterPage({ matterCode, user }: Props) {
   const [ledgerEntries, setLedgerEntries] = useState<LedgerEntry[]>([]);
   const [timeline, setTimeline] = useState<ActivityItem[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
-  const [chargeCategories, setChargeCategories] = useState<string[]>([...GL.chargeCategories]);
+  const [chargeCategories, setChargeCategories] = useState<string[]>([...HA.chargeCategories]);
   const [intakeDismissed, setIntakeDismissed] = useState(false);
   const [chargeDraft, setChargeDraft] = useState<MatterChargeDraft | null>(null);
   const showIntakeChecklist = searchParams.get("intake") === "1" && !intakeDismissed;
@@ -1010,7 +1012,7 @@ export function MatterPage({ matterCode, user }: Props) {
 
     if (birthdayGreetingSentThisYear) return;
 
-    const key = `gl-birthday-popup-${clientDetail.code}-${todayYmd()}`;
+    const key = `ha-birthday-popup-${clientDetail.code}-${todayYmd()}`;
     if (!sessionStorage.getItem(key)) {
       setBirthdayDialogOpen(true);
       sessionStorage.setItem(key, "1");
@@ -1058,7 +1060,7 @@ export function MatterPage({ matterCode, user }: Props) {
 
   function printMatterSummary() {
     openPrintPreview({
-      title: `GL Matter Summary — ${billingCode || matterCode}`,
+      title: `HA Matter Summary — ${billingCode || matterCode}`,
       sourceId: "matter-print-root"
     });
   }
@@ -1145,7 +1147,7 @@ export function MatterPage({ matterCode, user }: Props) {
           />
         }
       >
-      <div className="matter-page">
+      <div className={`matter-page${nativeMobile ? " matter-page--native-mobile" : ""}`}>
         <MatterStickyBar
           code={billingCode || matterCode}
           name={profileTitle}

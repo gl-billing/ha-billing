@@ -7,7 +7,7 @@ import path from "path";
 import { getCronGoogleAccessToken } from "../src/lib/cron-google-auth";
 import { spreadsheetEditUrl } from "../src/lib/spreadsheet-setup/drive";
 import { getSheetValues, getSheetsClient } from "../src/lib/sheets/client";
-import { GL } from "../src/lib/gl-config";
+import { HA } from "../src/lib/ha-config";
 import { BILLING_SYSTEM_TABS } from "../src/lib/spreadsheet-setup/scrub-workbook";
 
 function loadEnvLocal(): void {
@@ -47,7 +47,7 @@ async function main() {
   const allTitles = meta.data.sheets?.map((s) => s.properties?.title?.trim() || "") ?? [];
   const clientTabs = allTitles.filter((title) => title && !BILLING_SYSTEM_TABS.has(title.toLowerCase()));
 
-  const master = await getSheetValues(token, `'${GL.sheets.master}'!A2:A5000`);
+  const master = await getSheetValues(token, `'${HA.sheets.master}'!A2:A5000`);
   const masterRows = master.filter((row) => String(row[0] ?? "").trim()).length;
 
   const pending = await getSheetValues(token, `'Pending AR'!A2:J5000`);
@@ -64,7 +64,7 @@ async function main() {
       console.log(`  ${row[0]} | ${row[1]} | ${row[3]}`);
     }
     console.log(
-      "\nThe app reads Pending AR directly from this tab — it is not copied from GL at runtime."
+      "\nThe app reads Pending AR directly from this tab — it is not copied from HA at runtime."
     );
     console.log("Clear the Pending AR tab (rows 2+) in Google Sheets, or run:");
     console.log("  npx tsx scripts/scrub-live-workbooks.ts --yes");

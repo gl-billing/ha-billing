@@ -1,5 +1,5 @@
-import type { DocumentLogEntry } from "@/lib/gl-config";
-import { GL } from "@/lib/gl-config";
+import type { DocumentLogEntry } from "@/lib/ha-config";
+import { HA } from "@/lib/ha-config";
 import { getHyperlinksByRow, resolvePdfUrl } from "@/lib/sheets/hyperlinks";
 import { getSheetValues, sheetExists, updateSheetValues } from "@/lib/sheets/client";
 
@@ -37,18 +37,18 @@ export async function getDocumentLog(
   accessToken: string,
   options?: { clientCode?: string; limit?: number }
 ): Promise<DocumentLogEntry[]> {
-  if (!(await sheetExists(accessToken, GL.sheets.documentLog))) {
+  if (!(await sheetExists(accessToken, HA.sheets.documentLog))) {
     return [];
   }
 
-  const values = await getSheetValues(accessToken, `'${GL.sheets.documentLog}'!A2:J`);
+  const values = await getSheetValues(accessToken, `'${HA.sheets.documentLog}'!A2:J`);
   if (!values.length) return [];
 
   const startRow = 2;
   const endRow = startRow + values.length - 1;
   const hyperlinks = await getHyperlinksByRow(
     accessToken,
-    `'${GL.sheets.documentLog}'!H${startRow}:H${endRow}`,
+    `'${HA.sheets.documentLog}'!H${startRow}:H${endRow}`,
     startRow
   );
 
@@ -91,14 +91,14 @@ export async function appendDocumentLogEntry(
     user?: string;
   }
 ): Promise<void> {
-  if (!(await sheetExists(accessToken, GL.sheets.documentLog))) {
+  if (!(await sheetExists(accessToken, HA.sheets.documentLog))) {
     return;
   }
 
-  const values = await getSheetValues(accessToken, `'${GL.sheets.documentLog}'!A2:A`);
+  const values = await getSheetValues(accessToken, `'${HA.sheets.documentLog}'!A2:A`);
   const nextRow = values.length ? 2 + values.length : 2;
 
-  await updateSheetValues(accessToken, `'${GL.sheets.documentLog}'!A${nextRow}:J${nextRow}`, [
+  await updateSheetValues(accessToken, `'${HA.sheets.documentLog}'!A${nextRow}:J${nextRow}`, [
     [
       formatLogTimestamp(new Date()),
       entry.clientCode,

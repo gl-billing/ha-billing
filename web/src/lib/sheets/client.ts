@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 
 export function getSpreadsheetId(): string {
@@ -134,4 +134,4 @@ export async function sheetExists(accessToken: string, title: string): Promise<b
   return id !== null;
 }
 
-export { GL };
+export { HA };

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { formatClientCaseLabel, formatPeso } from "@/lib/gl-config";
+import { formatClientCaseLabel, formatPeso } from "@/lib/ha-config";
 import { matterTypeCaseLabel, resolveClientMatterType } from "@/lib/client-matter-type";
 import { triggerTaskOnCharge } from "@/lib/billing-task-triggers";
 import { issueSoaHeadlessForClient } from "@/lib/issue-soa-headless";
@@ -19,7 +19,7 @@ import { todayYmd } from "@/lib/office-tasks/schedule";
 import { addLedgerEntry } from "@/lib/sheets/ledger";
 import { getClientLedger } from "@/lib/sheets/ledger-read";
 import { getClients } from "@/lib/sheets/master";
-import type { ClientSummary } from "@/lib/gl-config";
+import type { ClientSummary } from "@/lib/ha-config";
 import { getLastSentSoa } from "@/lib/soa-follow-up";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import {

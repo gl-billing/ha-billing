@@ -1,5 +1,5 @@
 /**
- * Copy blank billing + tasks templates into HA-owned workbooks (no GL client data).
+ * Copy blank billing + tasks templates into HA-owned workbooks.
  *
  * Prerequisites in web/.env.local:
  *   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
@@ -36,19 +36,26 @@ function loadEnvLocal(): void {
 
 loadEnvLocal();
 
-const DEFAULT_BILLING_TEMPLATE_ID = "1MFrcLDnLrmL7jmjcGU934-sd-udAZFzoKIYZ7NvKvf8";
-const DEFAULT_TASKS_TEMPLATE_ID = "1EeezyqT0AeimXz21iJyskXgUtibXzZ7qwoboPCC1at0";
 const FIRM_NAME = "Hernandez & Associates";
 
 function getBillingTemplateId(): string {
-  const id =
-    process.env.GOOGLE_BILLING_TEMPLATE_SPREADSHEET_ID?.trim() || DEFAULT_BILLING_TEMPLATE_ID;
+  const id = process.env.GOOGLE_BILLING_TEMPLATE_SPREADSHEET_ID?.trim() || "";
+  if (!id) {
+    throw new Error(
+      "Set GOOGLE_BILLING_TEMPLATE_SPREADSHEET_ID in web/.env.local to an HA-owned blank billing template."
+    );
+  }
   assertSafeSpreadsheetTemplate(id, "GOOGLE_BILLING_TEMPLATE_SPREADSHEET_ID");
   return id;
 }
 
 function getTasksTemplateId(): string {
-  const id = process.env.GOOGLE_TASKS_TEMPLATE_SPREADSHEET_ID?.trim() || DEFAULT_TASKS_TEMPLATE_ID;
+  const id = process.env.GOOGLE_TASKS_TEMPLATE_SPREADSHEET_ID?.trim() || "";
+  if (!id) {
+    throw new Error(
+      "Set GOOGLE_TASKS_TEMPLATE_SPREADSHEET_ID in web/.env.local to an HA-owned blank tasks template."
+    );
+  }
   assertSafeSpreadsheetTemplate(id, "GOOGLE_TASKS_TEMPLATE_SPREADSHEET_ID");
   return id;
 }

@@ -1,5 +1,5 @@
 import { isGenericPaymentLabel } from "@/lib/payment-income";
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 import { getSheetsClient, getSpreadsheetId, sheetExists } from "@/lib/sheets/client";
 import { getAllMasterRows } from "@/lib/sheets/master";
 import { getSheetTitles } from "@/lib/sheets/sheet-meta";
@@ -19,7 +19,7 @@ export async function runLedgerIncomeHealthChecks(accessToken: string): Promise<
 
   for (let i = 0; i < clients.length; i += chunkSize) {
     const chunk = clients.slice(i, i + chunkSize);
-    const ranges = chunk.map((code) => `'${code.replace(/'/g, "''")}'!A${GL.ledgerStartRow}:F`);
+    const ranges = chunk.map((code) => `'${code.replace(/'/g, "''")}'!A${HA.ledgerStartRow}:F`);
 
     const response = await sheets.spreadsheets.values.batchGet({
       spreadsheetId: getSpreadsheetId(),

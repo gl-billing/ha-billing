@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { SoaStatusReportPayload } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { SoaStatusReportPayload } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { buildArEmailPreview, buildSoaEmailPreview } from "@/lib/email-preview";
 import { whatsAppShareUrl, viberShareUrl, soaShareMessage } from "@/lib/messenger-share";
 import { resolveClientGreeting } from "@/lib/client-greeting";

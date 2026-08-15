@@ -4,8 +4,21 @@
  * Redeploy Web App after changes.
  */
 
-/** Preferred Greeting column on Master List (1-based). Keep in sync with gl-config.ts masterHeaders. */
+/** Preferred Greeting column on Master List (1-based). Keep in sync with ha-config.ts masterHeaders. */
 var MASTER_PREFERRED_GREETING_COL = 20;
+
+/** Sheet and Drive folder names for this workbook — keep in sync with ha-config.ts */
+var HA = HA || {
+  sheets: {
+    master: "Master List",
+    invoice: "Invoice",
+    receipt: "Acknowledgment Receipt"
+  },
+  folders: {
+    soa: "SOA",
+    ar: "AR"
+  }
+};
 
 /** Web app only — never treat API action names (e.g. generateSOAHeadless) as delivery mode. */
 function resolveDeliveryAction_(options) {
@@ -21,7 +34,7 @@ function resolveClientGreeting_(ctx, options) {
   try {
     if (ctx && ctx.sheetRow) {
       var ss = SpreadsheetApp.getActiveSpreadsheet();
-      var master = ss.getSheetByName(GL.sheets.master);
+      var master = ss.getSheetByName(HA.sheets.master);
       if (master) {
         var stored = String(master.getRange(ctx.sheetRow, MASTER_PREFERRED_GREETING_COL).getValue() || "").trim();
         if (stored) return stored;
@@ -48,87 +61,13 @@ function withPreferredGreetingEmailBody_(plainBody, ctx, options) {
   return plainBody;
 }
 
-/** Official firm outbound address — override via Settings "Firm Email" if needed. */
-function getFirmSenderEmail_() {
-  var keys = ["Firm Email", "Sender Email", "Billing From Email"];
-  for (var i = 0; i < keys.length; i++) {
-    var value = String(getSettingValue(keys[i], "") || "").trim();
-    if (value && value.indexOf("@") > 0) return value;
-  }
-  return "legal@hernandezlaw.info";
-}
-
-function normalizeEmailForSendAs_(raw) {
-  var value = String(raw || "").trim().toLowerCase();
-  var match = value.match(/<([^>]+)>/);
-  return match ? match[1].trim() : value;
-}
-
-function getGmailSendAsAddresses_() {
-  var seen = {};
-  var list = [];
-
-  function add_(raw) {
-    var email = normalizeEmailForSendAs_(raw);
-    if (!email || email.indexOf("@") < 1 || seen[email]) return;
-    seen[email] = true;
-    list.push(email);
-  }
-
-  try {
-    add_(Session.getActiveUser().getEmail());
-  } catch (e) {}
-
-  try {
-    var aliases = GmailApp.getAliases();
-    for (var i = 0; i < aliases.length; i++) {
-      add_(aliases[i]);
-    }
-  } catch (e) {}
-
-  return list;
-}
-
-function firmSendAsSetupMessage_(firmEmail, activeEmail, allowed) {
-  var allowedText = allowed.length ? allowed.join(", ") : "(none)";
-  return (
-    "Gmail cannot send as " +
-    firmEmail +
-    " from " +
-    (activeEmail || "the Apps Script deployer account") +
-    ". In Gmail for that account, go to Settings → Accounts → Send mail as and add " +
-    firmEmail +
-    " (or redeploy the Web App while signed in as a Google account that already has Send mail as for " +
-    firmEmail +
-    "). Current send-as addresses: " +
-    allowedText +
-    "."
-  );
-}
-
+/**
+ * Outbound Apps Script mail: send as the Web App deployer account.
+ * Do NOT set `from` to legal@ — that redirected Sent into the firm inbox.
+ */
 function getFirmFromOptions_() {
-  var firmEmail = normalizeEmailForSendAs_(getFirmSenderEmail_());
-  var allowed = getGmailSendAsAddresses_();
-  var canSendAs = false;
-
-  for (var i = 0; i < allowed.length; i++) {
-    if (allowed[i] === firmEmail) {
-      canSendAs = true;
-      break;
-    }
-  }
-
-  if (!canSendAs) {
-    var activeEmail = "";
-    try {
-      activeEmail = Session.getActiveUser().getEmail();
-    } catch (e) {}
-    throw new Error(firmSendAsSetupMessage_(firmEmail, activeEmail, allowed));
-  }
-
   return {
-    name: getFirmSenderName_(),
-    from: firmEmail
+    name: getFirmSenderName_()
   };
 }
 
@@ -142,7 +81,7 @@ function sendBillingEmailHeadless_(recipient, subject, plainBody, htmlBody, pdfB
 
 function generateSOAHeadless_(clientCode, options) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const masterSheet = ss.getSheetByName(GL.sheets.master);
+  const masterSheet = ss.getSheetByName(HA.sheets.master);
   const settings = getSettingsMap_();
   let tempSheet = null;
   const targetClient = sanitizeSheetName_(clientCode);
@@ -155,7 +94,7 @@ function generateSOAHeadless_(clientCode, options) {
     if (!ctx) throw new Error("Client not found. Please check the client code and Master List.");
 
     const clientSheet = ss.getSheetByName(targetClient);
-    const templateSheet = ss.getSheetByName(GL.sheets.invoice);
+    const templateSheet = ss.getSheetByName(HA.sheets.invoice);
 
     if (!clientSheet) throw new Error("Client tab not found.");
     if (!templateSheet) throw new Error("Could not find the Invoice tab.");
@@ -213,7 +152,7 @@ function generateSOAHeadless_(clientCode, options) {
     const emailBody = buildBillingSoaEmailPlain_(ctx, invoiceNum, totalDue, statusReport, options);
     const htmlBody = buildBillingSoaEmailHtml_(ctx, invoiceNum, totalDue, statusReport, options);
     const subject = "Statement of Account: " + invoiceNum + " - " + targetClient;
-    const savedFile = getOrCreateBillingFolder(GL.folders.soa).createFile(pdfBlob);
+    const savedFile = getOrCreateBillingFolder(HA.folders.soa).createFile(pdfBlob);
 
     if (action === "Send Now") {
       sendBillingEmailHeadless_(ctx.email, subject, emailBody, htmlBody, pdfBlob);
@@ -252,7 +191,7 @@ function generateSOAHeadless_(clientCode, options) {
       invoiceNumber: invoiceNum
     };
   } finally {
-    if (tempSheet) safeDeleteSheet_(tempSheet, GL.sheets.master);
+    if (tempSheet) safeDeleteSheet_(tempSheet, HA.sheets.master);
   }
 }
 
@@ -270,7 +209,7 @@ function generateARHeadless_(clientCode, options) {
     if (!ctx) throw new Error("Client not found in Master List.");
 
     const clientSheet = ss.getSheetByName(targetClient);
-    const templateSheet = ss.getSheetByName(GL.sheets.receipt);
+    const templateSheet = ss.getSheetByName(HA.sheets.receipt);
     if (!clientSheet) throw new Error("Client tab not found.");
     if (!templateSheet) throw new Error("Could not find the Acknowledgment Receipt tab.");
 
@@ -324,7 +263,7 @@ function generateARHeadless_(clientCode, options) {
       balanceAfter: paymentChoice.data.balance,
       method: paymentChoice.data.method,
       paymentDetails: paymentChoice.data.details,
-      receivedBy: getSettingValue("Firm Name", "HERNANDEZ & LUMANAG")
+      receivedBy: getSettingValue("Firm Name", "Hernandez & Associates")
     }));
 
     SpreadsheetApp.flush();
@@ -356,7 +295,7 @@ function generateARHeadless_(clientCode, options) {
       options
     );
     const subject = "Acknowledgment Receipt: " + receiptNum + " - " + targetClient;
-    const savedFile = getOrCreateBillingFolder(GL.folders.ar).createFile(pdfBlob);
+    const savedFile = getOrCreateBillingFolder(HA.folders.ar).createFile(pdfBlob);
 
     clientSheet.getRange(sheetRow, 10).setValue(receiptNum);
 
@@ -394,7 +333,7 @@ function generateARHeadless_(clientCode, options) {
       receiptNumber: receiptNum
     };
   } finally {
-    if (tempSheet) safeDeleteSheet_(tempSheet, targetClient || GL.sheets.master);
+    if (tempSheet) safeDeleteSheet_(tempSheet, targetClient || HA.sheets.master);
   }
 }
 
@@ -417,7 +356,7 @@ function generateNotarialReceiptHeadless_(options) {
   if (amount <= 0) throw new Error("A valid amount is required.");
 
   try {
-    const templateSheet = ss.getSheetByName(GL.sheets.receipt);
+    const templateSheet = ss.getSheetByName(HA.sheets.receipt);
     if (!templateSheet) throw new Error("Could not find the Acknowledgment Receipt tab.");
 
     tempSheet = templateSheet.copyTo(ss).setName(makeTempSheetName_("TEMP_NR", "NOTARIAL"));
@@ -454,7 +393,7 @@ function generateNotarialReceiptHeadless_(options) {
       balanceAfter: 0,
       method: String(options.paymentMethod || ""),
       paymentDetails: notarialDetails,
-      receivedBy: getSettingValue("Firm Name", "HERNANDEZ & LUMANAG")
+      receivedBy: getSettingValue("Firm Name", "Hernandez & Associates")
     }));
 
     SpreadsheetApp.flush();
@@ -486,7 +425,7 @@ function generateNotarialReceiptHeadless_(options) {
       pdfUrl: savedFile.getUrl()
     };
   } finally {
-    if (tempSheet) safeDeleteSheet_(tempSheet, GL.sheets.master);
+    if (tempSheet) safeDeleteSheet_(tempSheet, HA.sheets.master);
   }
 }
 
@@ -533,7 +472,7 @@ function getOrCreateNrFolder_() {
 
 /** Return the Drive folder where client acknowledgment receipt PDFs are stored (monthly via code.gs). */
 function getArFolderHeadless_() {
-  const folder = getOrCreateBillingFolder(GL.folders.ar);
+  const folder = getOrCreateBillingFolder(HA.folders.ar);
   return {
     ok: true,
     folderId: folder.getId(),

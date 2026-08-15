@@ -1,0 +1,883 @@
+/**
+ * Shared native-mobile typography, contrast, and layout primitives.
+ * Scoped to HA Space when layout-mode is not desktop.
+ * Desktop HA Space, Heritage, Atelier, and trial desk chrome are unchanged.
+ */
+
+:is(
+  html[data-layout-mode="mobile"]
+) {
+  /* —— Layout primitives —— */
+  & .firm-workspace,
+  & .firm-workspace-body,
+  & .trial-firm-layout__main,
+  & .app-shell,
+  & .mobile-office-home-slot,
+  & .ha-mobile-app {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  & .firm-workspace-body,
+  & .firm-workspace-body > *,
+  & .mobile-office-home-slot > *,
+  & .ha-mobile-app > * {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  & .firm-workspace .firm-workspace-body,
+  & .mobile-office-home-slot {
+    padding-left: var(--ha-m-gutter) !important;
+    padding-right: var(--ha-m-gutter) !important;
+    color-scheme: dark !important;
+  }
+
+  & .firm-workspace-body,
+  & .mobile-office-home-slot,
+  & .ha-mobile-app,
+  & [role="dialog"],
+  & .modal-panel,
+  & .reset-dialog,
+  & .item-details-dialog {
+    overflow-wrap: break-word;
+  }
+
+  & .firm-workspace a,
+  & .firm-workspace p,
+  & .firm-workspace li,
+  & .firm-workspace td,
+  & .firm-workspace dd,
+  & .firm-workspace h1,
+  & .firm-workspace h2,
+  & .firm-workspace h3,
+  & .firm-workspace h4 {
+    overflow-wrap: anywhere;
+  }
+
+  /* —— Page / section / card type scale —— */
+  & .page-header__title,
+  & .mobile-office__title,
+  & .view-hero__title,
+  & .tab-page-header__title,
+  & .entry-form__title,
+  & .entry-form__hero-title,
+  & .search-page__title,
+  & .matter-page__title,
+  & .documents-page__title,
+  & .space-staff-ledger__title,
+  & .modal-panel h2,
+  & .reset-dialog h2,
+  & .item-details-dialog__heading,
+  & [role="dialog"] > h2,
+  & [role="alertdialog"] > h2 {
+    font-size: var(--ha-m-fs-title) !important;
+    font-weight: var(--ha-m-fw-title) !important;
+    line-height: var(--ha-m-lh-title) !important;
+    letter-spacing: -0.02em !important;
+    text-transform: none !important;
+    color: var(--ha-m-heading) !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+    margin-bottom: var(--ha-m-gap-heading);
+  }
+
+  & .ha-mobile-page-title {
+    font-size: var(--ha-m-fs-title) !important;
+    font-weight: var(--ha-m-fw-title) !important;
+    line-height: var(--ha-m-lh-title) !important;
+    letter-spacing: -0.02em !important;
+    text-transform: none !important;
+    color: var(--ha-m-heading) !important;
+    font-family: var(--font-display), Georgia, "Times New Roman", serif !important;
+    margin-bottom: var(--ha-m-gap-heading);
+  }
+
+  & .ha-mobile-page-subtitle,
+  & .view-hero__subtitle,
+  & .mobile-office__greeting,
+  & .page-header__subtitle,
+  & .entry-form__subtitle,
+  & .tab-page-header__subtitle {
+    font-size: var(--ha-m-fs-secondary) !important;
+    font-weight: var(--ha-m-fw-secondary) !important;
+    line-height: var(--ha-m-lh-secondary) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: var(--ha-m-text-secondary) !important;
+    margin-top: 0;
+    margin-bottom: var(--ha-m-gap-section);
+  }
+
+  & .section-heading,
+  & .panel-title,
+  & .card-section__title,
+  & .item-list-section__title,
+  & .client-group-title,
+  & .search-page__group-title,
+  & .matter-page__section-title,
+  & .filing-workspace__section-title,
+  & .templates-library__title,
+  & .space-notifications-desk__title,
+  & .user-profile-desk__title,
+  & .walk-in-panel__card-title,
+  & .spot-billing-panel__title,
+  & .office-drive-panel__title,
+  & .firm-finances__title,
+  & .staff-salary__title,
+  & .schedule-agenda-view__title,
+  & .entry-form__section-title,
+  & .firm-settings-panel h3,
+  & .firm-settings-panel__group,
+  & .firm-staff-roster__title,
+  & .tools-panel__section-head,
+  & .empty-state__title,
+  & .page-loading__title,
+  & .space-empty-state__title,
+  & .premium-empty__title,
+  & .firm-workspace h2:not(.page-header__title):not(.view-hero__title):not(.entry-form__title) {
+    font-size: var(--ha-m-fs-section) !important;
+    font-weight: var(--ha-m-fw-section) !important;
+    line-height: var(--ha-m-lh-section) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: var(--ha-m-heading) !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+    margin-bottom: var(--ha-m-gap-heading);
+  }
+
+  /* Uppercase eyebrows stay short labels — not section headings. */
+  & .section-label,
+  & .view-eyebrow,
+  & .tone-legend__heading,
+  & .walk-in-panel__step,
+  & .schedule-agenda-view__eyebrow,
+  & .user-profile-desk__eyebrow,
+  & .matter-ph-stages__eyebrow,
+  & .practice-setup-score__eyebrow,
+  & .matter-ph-stages__eyebrow {
+    font-size: var(--ha-m-fs-eyebrow) !important;
+    font-weight: var(--ha-m-fw-eyebrow) !important;
+    line-height: var(--ha-m-lh-caption) !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ha-m-accent) !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+  }
+
+  & .ha-mobile-record-title,
+  & .desk-checklist-row__case,
+  & .desk-checklist-row__case--muted,
+  & .desk-checklist-row__case--done,
+  & .my-work-list__title,
+  & .space-notifications-desk__row-title,
+  & .space-messenger__row-title,
+  & .client-directory__name,
+  & .ar-row__name,
+  & .soa-row__title,
+  & .office-drive-panel__tile-title,
+  & .filing-workspace__case-title,
+  & .templates-library__card-title,
+  & .weekly-day-column__head,
+  & .item-details-dialog__title,
+  & .firm-workspace h3:not(.entry-form__section-title),
+  & .firm-workspace h4 {
+    font-size: var(--ha-m-fs-card) !important;
+    font-weight: var(--ha-m-fw-card) !important;
+    line-height: var(--ha-m-lh-card) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: var(--ha-m-heading) !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+  }
+
+  & .firm-workspace,
+  & .firm-workspace p,
+  & .firm-workspace .field,
+  & .firm-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+  & .firm-workspace select,
+  & .firm-workspace textarea,
+  & .item-details-dialog__text,
+  & .walk-in-panel,
+  & .spot-billing-panel,
+  & .user-profile-desk__field,
+  & .user-profile-desk__system-item,
+  & .ha-mobile-app {
+    font-size: var(--ha-m-fs-body);
+    font-weight: var(--ha-m-fw-body);
+    line-height: var(--ha-m-lh-body);
+    color: var(--ha-m-text);
+  }
+
+  & .desk-checklist-row__client,
+  & .desk-checklist-row__client--muted,
+  & .desk-checklist-row__detail,
+  & .desk-checklist-row__detail--muted,
+  & .desk-checklist-row__detail--done,
+  & .ha-mobile-record-subtitle,
+  & .space-messenger__row-preview,
+  & .space-notifications-desk__row-copy,
+  & .walk-in-panel__card-lede,
+  & .empty-state__message,
+  & .page-loading__copy,
+  & .premium-empty__copy,
+  & .entry-form__section-hint,
+  & .field-help,
+  & .form-hint,
+  & .tools-panel__section-desc,
+  & .firm-settings-panel__hint,
+  & .firm-staff-roster__lede,
+  & .space-settings-lede {
+    font-size: var(--ha-m-fs-secondary) !important;
+    font-weight: var(--ha-m-fw-secondary) !important;
+    line-height: var(--ha-m-lh-secondary) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: var(--ha-m-text-secondary) !important;
+  }
+
+  & .field-label,
+  & .refine-field__label,
+  & .item-details-dialog__label,
+  & .firm-staff-roster__field > span,
+  & .user-profile-desk__legend,
+  & .entry-form label,
+  & .entry-form .field > span,
+  & .mobile-form label,
+  & .firm-settings-panel label,
+  & .firm-staff-roster label {
+    font-size: var(--ha-m-fs-field) !important;
+    font-weight: var(--ha-m-fw-field) !important;
+    line-height: var(--ha-m-lh-field) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: var(--ha-m-heading) !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+  }
+
+  & .desk-checklist-meta__label,
+  & .space-staff-ledger__sub,
+  & .space-messenger__row-time,
+  & .stat-tile__sub,
+  & .stat-tile__label,
+  & small,
+  & .meta,
+  & .timestamp,
+  & .caption {
+    font-size: var(--ha-m-fs-caption) !important;
+    font-weight: var(--ha-m-fw-caption) !important;
+    line-height: var(--ha-m-lh-caption) !important;
+    letter-spacing: 0 !important;
+    color: var(--ha-m-text-muted) !important;
+  }
+
+  & .badge,
+  & .status-pill,
+  & .desk-checklist-status-pill,
+  & .item-details-dialog__badge,
+  & .space-staff-ledger__pill,
+  & .space-notifications-desk__badge,
+  & .filter-chip,
+  & .space-tasks-ledger__chip,
+  & .event-segmented__pill {
+    font-size: var(--ha-m-fs-badge) !important;
+    font-weight: var(--ha-m-fw-badge) !important;
+    line-height: var(--ha-m-lh-badge) !important;
+    letter-spacing: 0.02em;
+  }
+
+  & .btn,
+  & .btn-primary,
+  & .btn-secondary,
+  & .btn-ghost,
+  & .ha-mobile-primary-btn,
+  & .item-details-dialog__action-btn--primary,
+  & .item-details-dialog__action-btn--secondary,
+  & .nav-tab,
+  & .home-dashboard-tabs__btn {
+    font-size: var(--ha-m-fs-button) !important;
+    font-weight: var(--ha-m-fw-button) !important;
+    line-height: var(--ha-m-lh-button) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+  }
+
+  & .stat-tile__value,
+  & .amount-serif--hero,
+  & .practice-setup-score__meter strong,
+  & .matter-page__balance-amount,
+  & .ar-row__amount {
+    font-size: var(--ha-m-fs-stat) !important;
+    font-weight: var(--ha-m-fw-stat) !important;
+    line-height: var(--ha-m-lh-stat) !important;
+  }
+
+  & .ha-mobile-record-meta,
+  & .ha-mobile-record-meta-alert {
+    font-size: var(--ha-m-fs-caption) !important;
+    font-weight: var(--ha-m-fw-caption) !important;
+    line-height: var(--ha-m-lh-caption) !important;
+  }
+
+  & .ha-mobile-item-title {
+    font-size: var(--ha-m-fs-card) !important;
+    font-weight: var(--ha-m-fw-card) !important;
+    line-height: var(--ha-m-lh-card) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: var(--ha-m-heading) !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+  }
+
+  & .ha-mobile-item-subtitle {
+    font-size: var(--ha-m-fs-secondary) !important;
+    font-weight: var(--ha-m-fw-secondary) !important;
+    line-height: var(--ha-m-lh-secondary) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: var(--ha-m-text-secondary) !important;
+  }
+
+  & .ha-mobile-item-detail {
+    font-size: var(--ha-m-fs-body) !important;
+    font-weight: var(--ha-m-fw-body) !important;
+    line-height: var(--ha-m-lh-body) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: var(--ha-m-text) !important;
+  }
+
+  & .ha-mobile-item-meta {
+    font-size: var(--ha-m-fs-caption) !important;
+    font-weight: var(--ha-m-fw-caption) !important;
+    line-height: var(--ha-m-lh-caption) !important;
+    letter-spacing: 0 !important;
+    color: var(--ha-m-text-muted) !important;
+  }
+
+  & .ha-mobile-item-status {
+    font-size: var(--ha-m-fs-caption) !important;
+    font-weight: 600 !important;
+    line-height: var(--ha-m-lh-caption) !important;
+    color: var(--ha-m-accent) !important;
+  }
+
+  & .ha-mobile-item-status-overdue {
+    color: var(--ha-m-error) !important;
+  }
+
+  & .btn,
+  & .btn-primary,
+  & .btn-secondary,
+  & .btn-ghost,
+  & .ha-mobile-primary-btn,
+  & a.btn,
+  & .filter-chip,
+  & .nav-tab,
+  & .space-tasks-ledger__chip,
+  & .event-segmented__pill,
+  & .item-details-dialog__action-btn--primary,
+  & .item-details-dialog__action-btn--secondary {
+    min-height: 2.75rem;
+  }
+
+  /* —— Contrast: compiled Tailwind / hardcoded desk ink —— */
+  & .text-ink,
+  & [class*="text-ink"],
+  & .text-\[\#1a1612\],
+  & .font-display {
+    color: var(--ha-m-text) !important;
+  }
+
+  & .text-muted,
+  & [class*="text-muted"],
+  & .text-ink\/75,
+  & .text-ink\/80 {
+    color: var(--ha-m-text-secondary) !important;
+  }
+
+  & .bg-white,
+  & .bg-white\/80,
+  & .bg-white\/90,
+  & .bg-white\/95,
+  & .bg-cream,
+  & .bg-cream\/40,
+  & .bg-cream\/50,
+  & .bg-\[\#faf9f7\],
+  & .bg-\[\#fff\],
+  & .from-white,
+  & .to-cream\/40 {
+    background-color: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+  }
+
+  & .empty-state__title,
+  & .page-loading__title,
+  & .space-empty-state__title,
+  & .premium-empty__title {
+    font-size: var(--ha-m-fs-section) !important;
+    font-weight: var(--ha-m-fw-section) !important;
+    line-height: var(--ha-m-lh-section) !important;
+    color: var(--ha-m-heading) !important;
+  }
+
+  & .empty-state__message,
+  & .premium-empty__copy {
+    font-size: var(--ha-m-fs-secondary) !important;
+    font-weight: var(--ha-m-fw-secondary) !important;
+    color: var(--ha-m-text-secondary) !important;
+  }
+
+  & .item-details-dialog a,
+  & .empty-state a,
+  & .field-help a,
+  & a.link,
+  & .prose a {
+    color: var(--ha-m-link);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  & [disabled],
+  & [aria-disabled="true"],
+  & .btn:disabled,
+  & .btn-primary:disabled,
+  & .btn-secondary:disabled,
+  & input:disabled,
+  & select:disabled,
+  & textarea:disabled {
+    color: var(--ha-m-disabled) !important;
+    -webkit-text-fill-color: var(--ha-m-disabled) !important;
+    opacity: 1;
+  }
+
+  & input::placeholder,
+  & textarea::placeholder {
+    color: var(--ha-m-text-muted) !important;
+    -webkit-text-fill-color: var(--ha-m-text-muted) !important;
+    opacity: 1;
+  }
+
+  & .nav-tab.active,
+  & .filter-chip--on,
+  & .filter-chip.is-active,
+  & .space-tasks-ledger__chip--on,
+  & .event-segmented__pill[aria-pressed="true"],
+  & .space-messenger__tab--active {
+    color: var(--ha-m-accent-ink) !important;
+    background: var(--ha-m-accent-action) !important;
+    border-color: var(--ha-m-accent) !important;
+  }
+
+  & .nav-tab:not(.active),
+  & .filter-chip:not(.filter-chip--on):not(.is-active),
+  & .space-messenger__tab:not(.space-messenger__tab--active) {
+    color: var(--ha-m-text-secondary) !important;
+  }
+
+  /* Tabs wrap instead of forcing a 14rem chip that overflows the page. */
+  & .firm-workspace .nav-tabs:not(.nav-tabs-scroll),
+  & .firm-workspace .home-dashboard-tabs {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 0.4rem !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.3rem;
+    border-radius: 1rem;
+    border: 1px solid var(--ha-m-divider);
+    background: var(--ha-m-card) !important;
+  }
+
+  & .firm-workspace .nav-tabs:not(.nav-tabs-scroll) .nav-tab,
+  & .firm-workspace .home-dashboard-tabs__btn {
+    flex: 1 0 auto !important;
+    min-width: 5.75rem !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+  }
+
+  /* Gold action buttons keep inverse ink. Story-now is restyled in mobile-walkins. */
+  & .btn-primary,
+  & .ha-mobile-primary-btn,
+  & .item-details-dialog__action-btn--primary,
+  & .item-details-dialog__done {
+    color: var(--ha-m-text-inverse) !important;
+    -webkit-text-fill-color: var(--ha-m-text-inverse) !important;
+  }
+
+  /* —— Checklist / work rows (Home, Calendar, Tasks, Team) —— */
+  & .desk-checklist-row,
+  & .desk-checklist-row__panel,
+  & .my-work-list__row,
+  & .my-work-row {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .desk-checklist-row__case,
+  & .desk-checklist-row__case--muted,
+  & .desk-checklist-row__case--done {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    text-decoration: none;
+  }
+
+  & .desk-checklist-row--muted .desk-checklist-row__case,
+  & .desk-checklist-row--done .desk-checklist-row__case,
+  & .desk-checklist-row__case--done {
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in srgb, var(--ha-m-muted) 70%, transparent);
+    color: color-mix(in srgb, var(--ha-m-ink) 78%, var(--ha-m-muted)) !important;
+  }
+
+  & .desk-checklist-row__detail,
+  & .desk-checklist-row__detail--muted,
+  & .desk-checklist-row__detail--done,
+  & .desk-checklist-row__client,
+  & .desk-checklist-row__client--muted {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    text-decoration: none !important;
+  }
+
+  & .desk-checklist-row__check-hit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    min-width: 2.75rem;
+  }
+
+  /* —— Walk-ins / spot billing / notarization —— */
+  /* Do not inherit ink onto cream chips, badges, or next-step strips.
+     Muted colors belong on the elements themselves. */
+
+  & .walk-in-panel,
+  & .spot-billing-panel,
+  & .notarization-panel,
+  & .walk-in-panel__card-head,
+  & .walk-in-panel__register,
+  & .walk-in-panel__add-form,
+  & .spot-billing-panel__card {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+    box-shadow: none !important;
+  }
+
+  & .walk-in-panel__card-lede,
+  & .walk-in-panel [class*="lede"],
+  & .walk-in-panel [class*="hint"] {
+    color: var(--ha-m-text-secondary) !important;
+  }
+
+  /* —— Messenger —— */
+  & .space-messenger,
+  & .space-messenger__sidebar,
+  & .space-messenger__pane,
+  & .space-messenger__thread,
+  & .space-messenger__list-wrap {
+    background: var(--ha-m-bg) !important;
+    color: var(--ha-m-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .space-messenger__row,
+  & .space-messenger__row--active {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .space-messenger__row-time,
+  & .space-messenger__row-preview {
+    color: var(--ha-m-text-secondary) !important;
+  }
+
+  & .space-messenger__find-input {
+    background: var(--ha-m-card-elevated) !important;
+    color: var(--ha-m-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  /* —— Calendar —— */
+  & .calendar-shell,
+  & .calendar-day-cell,
+  & .weekly-board,
+  & .weekly-day-column,
+  & .schedule-agenda-view {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+    box-shadow: none !important;
+  }
+
+  & .firm-workspace .calendar-day-num,
+  & .firm-workspace .calendar-day-item,
+  & .firm-workspace .weekly-day-mini-card {
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .firm-workspace .calendar-day-item,
+  & .firm-workspace .calendar-day-stat {
+    font-size: var(--ha-m-fs-caption) !important;
+    font-weight: var(--ha-m-fw-caption) !important;
+    line-height: var(--ha-m-lh-caption) !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    white-space: nowrap !important;
+  }
+
+  & .firm-workspace .calendar-day-num {
+    font-size: var(--ha-m-fs-card) !important;
+    font-weight: var(--ha-m-fw-card) !important;
+    line-height: var(--ha-m-lh-card) !important;
+  }
+
+  & .weekly-board,
+  & .weekly-board__grid {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  & .weekly-board__grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  & .weekly-day-column {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* —— Filing / templates / notifications / drive / finances —— */
+  & .filing-workspace,
+  & .templates-library,
+  & .space-notifications-desk,
+  & .office-drive-panel,
+  & .firm-finances,
+  & .staff-salary,
+  & .billing-history-panel,
+  & .retainers-panel,
+  & .clients-directory,
+  & .desk-clients-directory,
+  & .new-client-form,
+  & .matter-intake-wizard {
+    color: var(--ha-m-ink);
+  }
+
+  & .templates-library__card,
+  & .office-drive-panel__tile,
+  & .filing-workspace__row,
+  & .space-notifications-desk__row,
+  & .space-notifications-desk__link,
+  & .client-directory__row,
+  & .ar-row,
+  & .soa-row {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  /* —— Profile / settings —— */
+  & .user-profile-desk__hero,
+  & .user-profile-desk__panel,
+  & .user-profile-page__main,
+  & .user-profile-page__stage,
+  & .firm-settings,
+  & .firm-settings-panel,
+  & .workspace-settings {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .user-profile-desk__title,
+  & .user-profile-desk__system-item,
+  & .firm-settings h2,
+  & .firm-settings h3,
+  & .firm-settings dt,
+  & .firm-settings dd,
+  & .firm-settings p,
+  & .firm-settings label {
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .user-profile-desk__photo-btn {
+    background: var(--ha-m-card-elevated) !important;
+    color: var(--ha-m-accent) !important;
+    border-color: var(--ha-m-accent-border) !important;
+  }
+
+  /* —— Status colors —— */
+  & .text-red-700,
+  & .text-red-600,
+  & .balanceDue,
+  & [data-status="overdue"],
+  & .is-overdue,
+  & .desk-checklist-meta__value--overdue {
+    color: var(--ha-m-error) !important;
+  }
+
+  & .text-amber-800,
+  & .text-amber-700,
+  & [data-status="waiting"] {
+    color: var(--ha-m-warning) !important;
+  }
+
+  & .text-emerald-800,
+  & .text-green-700,
+  & [data-status="done"],
+  & [data-status="paid"] {
+    color: var(--ha-m-success) !important;
+  }
+
+  /* Contain table overflow inside the wrapper — do not expand the page. */
+  & .overflow-x-auto,
+  & .firm-ledger-table-wrap,
+  & .client-list-table-wrap,
+  & .walk-in-panel__table-wrap,
+  & .notarization-panel__table-wrap,
+  & .scroll-panel-hint {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+  }
+}
+
+/* Beat HA Space !important desk rules (those sheets load with precedence=high). */
+html[data-layout-mode="mobile"] .firm-workspace .firm-workspace-body,
+html[data-layout-mode="mobile"] .firm-workspace .firm-workspace-body {
+  color-scheme: dark !important;
+  padding-left: var(--ha-m-gutter, 1rem) !important;
+  padding-right: var(--ha-m-gutter, 1rem) !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .my-work-list__row,
+html[data-layout-mode="mobile"] .firm-workspace .my-work-list__row,
+html[data-layout-mode="mobile"] .firm-workspace .desk-checklist-row,
+html[data-layout-mode="mobile"] .firm-workspace .desk-checklist-row,
+html[data-layout-mode="mobile"] .firm-workspace .item-card,
+html[data-layout-mode="mobile"] .firm-workspace .item-card {
+  background: var(--ha-m-card) !important;
+  color: var(--ha-m-card-ink) !important;
+  border-radius: 1rem !important;
+  border: 1px solid var(--ha-m-divider) !important;
+  box-shadow: none !important;
+  padding: 0.85rem 0.95rem !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger,
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger,
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger__pane,
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger__pane,
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger__sidebar,
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger__sidebar {
+  background: var(--ha-m-bg) !important;
+  color: var(--ha-m-ink) !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger__row-title,
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger__row-title {
+  color: var(--ha-m-heading) !important;
+  font-size: var(--ha-m-fs-card) !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger__row-time,
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger__row-time,
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger__row-preview,
+html[data-layout-mode="mobile"] .firm-workspace .space-messenger__row-preview {
+  color: var(--ha-m-text-secondary) !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .desk-checklist-row__case,
+html[data-layout-mode="mobile"] .firm-workspace .desk-checklist-row__case {
+  color: var(--ha-m-heading) !important;
+  font-size: var(--ha-m-fs-card) !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .weekly-board,
+html[data-layout-mode="mobile"] .firm-workspace .weekly-board,
+html[data-layout-mode="mobile"] .firm-workspace .weekly-board__grid,
+html[data-layout-mode="mobile"] .firm-workspace .weekly-board__grid {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  background: var(--ha-m-card) !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .weekly-day-column,
+html[data-layout-mode="mobile"] .firm-workspace .weekly-day-column {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__hero,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__hero,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__hero--task,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__hero--task,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__hero--event,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__hero--event,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__section,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__section,
+html[data-layout-mode="mobile"] .firm-workspace .firm-setup-callout,
+html[data-layout-mode="mobile"] .firm-workspace .firm-setup-callout {
+  background: var(--ha-m-card) !important;
+  color: var(--ha-m-card-ink) !important;
+  border-color: var(--ha-m-divider) !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__title,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__title {
+  font-size: var(--ha-m-fs-title) !important;
+  font-weight: var(--ha-m-fw-title) !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+  color: var(--ha-m-heading) !important;
+  font-family: var(--font-ui), system-ui, sans-serif !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__section-title,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__section-title {
+  font-size: var(--ha-m-fs-section) !important;
+  font-weight: var(--ha-m-fw-section) !important;
+  color: var(--ha-m-heading) !important;
+  text-transform: none !important;
+}
+
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__subtitle,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__subtitle,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__section-hint,
+html[data-layout-mode="mobile"] .firm-workspace .entry-form__section-hint {
+  font-size: var(--ha-m-fs-secondary) !important;
+  font-weight: var(--ha-m-fw-secondary) !important;
+  color: var(--ha-m-text-secondary) !important;
+  letter-spacing: 0 !important;
+}
+
+@media (max-width: 768px) {
+  html[data-layout-mode="mobile"] .reset-dialog,
+  html[data-layout-mode="mobile"] .reset-dialog,
+  html[data-layout-mode="mobile"] .item-details-dialog,
+  html[data-layout-mode="mobile"] .item-details-dialog,
+  html[data-layout-mode="mobile"] [role="dialog"] .card,
+  html[data-layout-mode="mobile"] [role="dialog"] .card {
+    left: 0.75rem;
+    right: 0.75rem;
+    width: auto !important;
+    max-width: none !important;
+  }
+}

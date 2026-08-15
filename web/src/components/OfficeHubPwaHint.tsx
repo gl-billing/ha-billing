@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { readBrowserStorage, writeBrowserStorage } from "@/lib/ha-browser-storage";
 
-const DISMISS_KEY = "gl-office-hub-pwa-dismissed";
+const DISMISS_KEY = "ha-office-hub-pwa-dismissed";
+const LEGACY_DISMISS_KEY = "gl-office-hub-pwa-dismissed";
 
 function isIos(): boolean {
   if (typeof navigator === "undefined") return false;
@@ -31,13 +33,13 @@ export function OfficeHubPwaHint() {
 
   useEffect(() => {
     if (!isIos() || isStandalone()) return;
-    if (localStorage.getItem(DISMISS_KEY) === "1") return;
+    if (readBrowserStorage(DISMISS_KEY, LEGACY_DISMISS_KEY) === "1") return;
     setSafariMode(isIosSafari());
     setVisible(true);
   }, []);
 
   const dismiss = useCallback(() => {
-    localStorage.setItem(DISMISS_KEY, "1");
+    writeBrowserStorage(DISMISS_KEY, "1", LEGACY_DISMISS_KEY);
     setVisible(false);
   }, []);
 

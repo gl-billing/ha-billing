@@ -11,7 +11,7 @@ import {
 } from "react";
 import type { TodayBirthdaySummary } from "@/lib/sheets/birthday-greetings";
 
-export const BIRTHDAYS_REFRESH_EVENT = "gl-birthdays-refresh";
+export const BIRTHDAYS_REFRESH_EVENT = "ha-birthdays-refresh";
 
 type TodayBirthdaysContextValue = {
   clients: TodayBirthdaySummary[];

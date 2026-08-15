@@ -1,5 +1,5 @@
 import { formatBillingDate, formatBillingPeso } from "@/lib/billing-document-design";
-import type { LedgerEntry } from "@/lib/gl-config";
+import type { LedgerEntry } from "@/lib/ha-config";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import {
   isConsultationEventCategory,

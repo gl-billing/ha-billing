@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 import { FirmAuthShell } from "@/components/FirmAuthShell";
 import { FirmPublicContactDetails } from "@/components/FirmPublicContactDetails";
 import { GoogleMark } from "@/components/login/GoogleMark";
+import { MobileLoginPage } from "@/components/login/MobileLoginPage";
+import { useLoginMobileLayout } from "@/hooks/useLoginMobileLayout";
 import { STAFF_GOOGLE_PROVIDER_ID } from "@/lib/guest-oauth";
 import {
   clearLastSignInHint,
@@ -34,6 +36,7 @@ export function LoginPageContent({ defaultChooseAccount = false, oauthConfigured
   const callbackUrl = searchParams.get("callbackUrl") || "/auth/continue";
   const [lastHint, setLastHint] = useState<LastSignInHint | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const loginLayout = useLoginMobileLayout();
 
   useEffect(() => {
     setLastHint(readLastSignInHint());
@@ -72,6 +75,20 @@ export function LoginPageContent({ defaultChooseAccount = false, oauthConfigured
     : lastHint
       ? "Continue"
       : "Continue with Google";
+
+  if (loginLayout === "mobile") {
+    return (
+      <MobileLoginPage
+        errorMessage={errorMessage}
+        oauthConfigured={oauthConfigured}
+        submitting={submitting}
+        lastHint={lastHint}
+        callbackUrl={callbackUrl}
+        onHintClear={() => setLastHint(null)}
+        onSubmitting={setSubmitting}
+      />
+    );
+  }
 
   return (
     <FirmAuthShell variant="login">

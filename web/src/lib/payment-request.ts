@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import { buildClientEmailHtml, buildClientEmailPlain } from "@/lib/firm-email-signature";
 import { formatClientSalutation, formatClientSalutationHtml } from "@/lib/client-greeting";
 import {

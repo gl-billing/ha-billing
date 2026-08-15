@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireSessionAccessToken } from "@/lib/api-auth";
-import { formatPeso, toCsvRow } from "@/lib/gl-config";
+import { formatPeso, toCsvRow } from "@/lib/ha-config";
 import { isQuotaError, quotaErrorMessage, withCache } from "@/lib/sheets/cache";
 import { getClients } from "@/lib/sheets/master";
 
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
     );
 
     const csv = [header, ...rows].join("\n");
-    const filename = `gl-clients-${new Date().toISOString().slice(0, 10)}.csv`;
+    const filename = `ha-clients-${new Date().toISOString().slice(0, 10)}.csv`;
 
     return new NextResponse(csv, {
       headers: {

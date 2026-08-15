@@ -1,5 +1,5 @@
-import type { ClientSummary } from "@/lib/gl-config";
-import { filterClientsByQuery } from "@/lib/gl-config";
+import type { ClientSummary } from "@/lib/ha-config";
+import { filterClientsByQuery } from "@/lib/ha-config";
 import { matterHref } from "@/lib/matter-routes";
 import { FIRM_MATTERS } from "@/lib/office-tasks/firm-matters";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";

@@ -1,0 +1,749 @@
+/**
+ * Mobile polish — safe areas, touch targets, scroll padding, iPhone Safari.
+ * Does not add, remove, or rename nav tabs or action buttons.
+ */
+
+:root {
+  --touch-min: 44px;
+  --mobile-bottom-nav-height: 3.25rem;
+  --mobile-bottom-nav-offset: calc(
+    var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px)
+  );
+}
+
+@media (max-width: 767px) {
+  html {
+    scroll-padding-bottom: var(--mobile-bottom-nav-offset);
+    /* iOS rubber-band / toolbar resize */
+    min-height: -webkit-fill-available;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
+  }
+
+  .firm-workspace,
+  .firm-workspace-body,
+  .matter-page,
+  .office-hub {
+    overflow-x: clip;
+    max-width: 100%;
+  }
+
+  .firm-workspace-body {
+    padding-bottom: calc(var(--mobile-bottom-nav-offset) + 0.75rem);
+    overscroll-behavior-y: contain;
+  }
+
+  /* Bottom workspace nav (Hub / Tasks / Billing) — same links, better thumb targets */
+  .mobile-workspace-nav {
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
+    padding-left: max(0.5rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.5rem, env(safe-area-inset-right, 0px));
+    box-shadow:
+      0 -1px 0 rgba(26, 22, 18, 0.08),
+      0 -4px 24px rgba(26, 22, 18, 0.06);
+  }
+
+  .mobile-workspace-nav__link,
+  .mobile-clio-desk-nav__link,
+  .mobile-clio-desk-nav__search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--touch-min);
+    font-size: 0.75rem;
+    letter-spacing: 0.01em;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    transition: transform 0.12s ease, opacity 0.12s ease;
+  }
+
+  .mobile-workspace-nav__link:active,
+  .mobile-clio-desk-nav__link:active {
+    transform: scale(0.97);
+    opacity: 0.88;
+  }
+
+  /* iOS Safari: 16px inputs avoid focus zoom — !important beats theme density */
+  .firm-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="file"]),
+  .firm-workspace select,
+  .firm-workspace textarea,
+  .firm-workspace .field,
+  .firm-workspace .field-input,
+  .matter-page input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="file"]),
+  .matter-page select,
+  .matter-page textarea,
+  .office-hub input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="file"]),
+  .office-hub select,
+  .office-hub textarea {
+    font-size: 16px !important;
+  }
+
+  .firm-workspace .btn-primary,
+  .firm-workspace .btn-secondary,
+  .firm-workspace .btn-gold,
+  .firm-workspace .btn-ghost,
+  .matter-page .btn-primary,
+  .matter-page .btn-secondary,
+  .office-hub .btn-primary,
+  .office-hub .btn-secondary {
+    min-height: var(--touch-min);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Filing selection bar — clear bottom desk nav + home indicator */
+  .filing-workspace__selection-bar {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--mobile-bottom-nav-offset) !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: none !important;
+    border-radius: 0.85rem 0.85rem 0 0 !important;
+    z-index: 55 !important;
+    /* bottom offset already includes home-indicator — don't pad safe-area again */
+    padding: 0.65rem 0.85rem 0.55rem !important;
+    justify-content: center;
+  }
+
+  .filing-workspace__selection-bar .btn-secondary,
+  .filing-workspace__selection-bar .btn-primary {
+    min-height: var(--touch-min);
+  }
+
+  .filing-workspace__tab,
+  .filing-workspace__microstat,
+  .filing-workspace__filter-control,
+  .filing-workspace__proof-upload-btn,
+  .filing-workspace__actions .btn-primary,
+  .filing-workspace__actions .btn-secondary {
+    min-height: var(--touch-min) !important;
+    touch-action: manipulation;
+  }
+
+  .filing-workspace__table-wrap {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .filing-workspace__filters {
+    gap: 0.5rem;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .reset-dialog.card,
+  .filing-checklist.reset-dialog {
+    max-height: min(92dvh, 100%) !important;
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .matter-staff-actions__card,
+  .office-nav__link,
+  .home-dashboard-tabs__btn,
+  .nav-tabs-scroll:not(.nav-tabs-scroll--inline) .nav-tab,
+  .firm-workspace .nav-tabs:not(.nav-tabs-scroll) .nav-tab {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .matter-staff-actions__card {
+    min-height: 48px;
+  }
+
+  /* Horizontal tab rows — snap while scrolling, same tabs */
+  .nav-tabs-scroll:not(.nav-tabs-scroll--inline),
+  .firm-workspace .nav-tabs:not(.nav-tabs-scroll),
+  .home-dashboard-tabs,
+  .matter-page__nav,
+  .matter-page__tabs {
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0.5rem;
+  }
+
+  .nav-tabs-scroll:not(.nav-tabs-scroll--inline) .nav-tab,
+  .firm-workspace .nav-tabs:not(.nav-tabs-scroll) .nav-tab,
+  .home-dashboard-tabs__btn,
+  .matter-page__tab,
+  .matter-page__nav-link {
+    scroll-snap-align: start;
+  }
+
+  .matter-page__header,
+  .matter-page__block {
+    scroll-margin-top: calc(3.5rem + env(safe-area-inset-top, 0px));
+  }
+
+  /* Matter header — stack identity + actions; avoid 1-letter-per-line title squeeze */
+  .matter-page__header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .matter-page__header-row .client-matter-panel__identity {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.35rem;
+  }
+
+  .matter-page__header-row .client-matter-panel__title-block {
+    width: 100%;
+  }
+
+  .matter-page__header-row > .no-print {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .matter-page .client-matter-panel__name,
+  .matter-page .matter-page__client-name {
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: auto;
+  }
+
+  .matter-page__client-contact dd {
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  /* Matter header actions — readable 2-up grid on iPhone */
+  .matter-page__header-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .matter-page__header-actions .btn-primary,
+  .matter-page__header-actions .btn-secondary,
+  .matter-page__header-actions .matter-page__header-action {
+    min-height: 2.85rem;
+    width: 100%;
+    flex: none;
+    padding-inline: 0.65rem;
+    font-size: 0.78rem;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .matter-page__code-row {
+    width: 100%;
+  }
+
+  .matter-page__code-rename {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .matter-code-rename-form {
+    width: 100%;
+    max-width: none;
+  }
+
+  .matter-code-rename-trigger {
+    min-height: 2.25rem;
+    padding-inline: 0.85rem;
+    font-size: 0.68rem;
+  }
+
+  .matter-page__case-details-embed {
+    margin-top: 0.75rem;
+  }
+
+  .matter-case-details-fold.matter-admin-details {
+    padding: 0.85rem 0.95rem;
+  }
+
+  .matter-case-details-fold__summary {
+    min-height: var(--touch-min, 44px);
+    justify-content: center;
+  }
+
+  .matter-case-details-panel {
+    gap: 0.65rem;
+  }
+
+  .matter-case-details-panel .matter-case-details {
+    padding: 1rem 0.95rem 1.05rem;
+    border-radius: 0.9rem;
+  }
+
+  .matter-case-details__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .matter-case-details__actions .btn-primary,
+  .matter-case-details__actions .btn-secondary {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+
+  .matter-case-details-panel .matter-client-admin__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .matter-case-details__fields {
+    margin-top: 0.9rem;
+  }
+
+  .matter-case-details__fields > .matter-info-row {
+    padding: 0.65rem 0;
+  }
+
+  .matter-case-details-panel .matter-birthday-greeting__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .matter-case-details-panel .matter-birthday-greeting__action-btn {
+    min-height: 2.75rem;
+    width: 100%;
+  }
+
+  .matter-ledger-entry__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .matter-ledger-entry__action-btn {
+    min-height: 2.75rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .matter-ledger-entry__locked {
+    text-align: left;
+    grid-column: 1 / -1;
+  }
+
+  /* Client matter popup — iPhone sheet polish */
+  .client-matter-panel__header {
+    padding-right: max(4.25rem, calc(3.5rem + env(safe-area-inset-right, 0px)));
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  }
+
+  /* Stack code + name. A full-width code row in a horizontal flex
+     squeezes the title into a 1-character column. */
+  .client-matter-overlay .client-matter-panel__identity {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    gap: 0.4rem;
+  }
+
+  .client-matter-overlay .client-matter-panel__title-block,
+  .client-matter-overlay .client-matter-panel__name,
+  .client-matter-overlay .matter-case-identity {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .client-matter-overlay .client-matter-panel__name,
+  .client-matter-overlay .matter-case-identity__caption,
+  .client-matter-overlay .matter-case-identity__role,
+  .client-matter-overlay .matter-case-identity__role-muted,
+  .client-matter-overlay .matter-case-identity__role-tag {
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  .client-matter-panel__header-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+    align-items: stretch;
+  }
+
+  .client-matter-panel__header-actions .client-matter-panel__billing-link,
+  .client-matter-panel__header-actions .client-matter-panel__details-toggle,
+  .client-matter-panel__header-actions .matter-page__header-action,
+  .client-matter-panel__header-actions .btn-primary,
+  .client-matter-panel__header-actions .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    width: 100%;
+    margin: 0;
+    padding: 0.55rem 0.85rem;
+    border-radius: 0.65rem;
+    border: 1px solid rgba(26, 22, 18, 0.12);
+    background: #fff;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .client-matter-panel__header-actions .btn-primary {
+    border-color: transparent;
+  }
+
+  .client-matter-panel__more--open {
+    margin-top: 0.75rem;
+  }
+
+  .client-matter-panel__timeline {
+    max-height: min(42dvh, 22rem);
+  }
+
+  .client-matter-panel__section--timeline {
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
+  }
+
+  .reset-dialog-backdrop,
+  .modal-backdrop {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Matter quick-add — iPhone bottom sheet */
+  .modal-backdrop--matter-quick-add {
+    align-items: flex-end;
+    padding: 0;
+    background: rgba(26, 22, 18, 0.52);
+  }
+
+  .modal-backdrop--matter-quick-add .matter-quick-add-dialog.modal-panel {
+    width: 100%;
+    max-width: none;
+    max-height: min(94dvh, 100%);
+    border-radius: 1.25rem 1.25rem 0 0;
+    border-bottom: 0;
+    box-shadow: 0 -12px 40px rgba(26, 22, 18, 0.18);
+  }
+
+  .modal-backdrop--matter-quick-add .matter-quick-add-dialog__head::before {
+    content: "";
+    display: block;
+    width: 2.5rem;
+    height: 0.25rem;
+    margin: 0.35rem auto 0.65rem;
+    border-radius: 999px;
+    background: rgba(26, 22, 18, 0.14);
+  }
+
+  .modal-backdrop--matter-quick-add .matter-quick-add-dialog__head {
+    padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
+  }
+
+  .modal-backdrop--matter-quick-add .matter-quick-add-dialog__close {
+    top: max(0.65rem, calc(env(safe-area-inset-top, 0px) + 0.35rem));
+    right: max(0.65rem, env(safe-area-inset-right, 0px));
+  }
+
+  .modal-backdrop--matter-quick-add .matter-quick-add-dialog__body {
+    padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+    padding-bottom: calc(1.15rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .matter-quick-add-dialog input.field-input,
+  .matter-quick-add-dialog select.field-input,
+  .matter-quick-add-dialog textarea.field-input {
+    font-size: 16px;
+  }
+
+  .matter-quick-add-dialog .entry-form--compact .event-segmented--hero .event-segmented__pill {
+    min-height: 2.75rem;
+  }
+
+  .matter-quick-add-dialog .entry-form--compact .entry-form__submit {
+    min-height: 44px;
+    width: 100%;
+  }
+
+  .billing-ops-queue__row .btn-primary,
+  .billing-ops-queue__row .btn-secondary {
+    min-height: 44px;
+    width: 100%;
+  }
+
+  /* Drive / Booking chips — thumb-friendly, scroll without page drag */
+  .office-drive-panel__kind-filters,
+  .walk-in-panel__filters {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    padding-bottom: 0.15rem;
+    margin-inline: -0.15rem;
+    padding-inline: 0.15rem;
+  }
+
+  .office-drive-panel__kind-chip,
+  .walk-in-panel__filter-btn {
+    flex: 0 0 auto;
+    min-height: var(--touch-min);
+    scroll-snap-align: start;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .office-drive-panel__grid,
+  .office-drive-panel__grid--create {
+    grid-template-columns: 1fr !important;
+  }
+
+  .office-drive-panel__tile {
+    min-height: 7.5rem;
+  }
+
+  .office-drive-panel__cta,
+  .office-drive-panel__recent-link,
+  .office-drive-panel__section-link {
+    min-height: var(--touch-min);
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Space Hub / Profile: clear fixed bottom desk nav */
+  .office-hub-space-shell .office-hub,
+  .office-hub-space-shell .office-hub__main,
+  .user-profile-page--space .user-profile-page__main,
+  .user-profile-page--space .user-profile-page__stage {
+    padding-bottom: calc(var(--mobile-bottom-nav-offset) + 0.85rem);
+  }
+
+  .office-hub-space-shell .office-hub__launchers,
+  .office-hub-space-shell .office-hub__launchers--clio,
+  .office-hub-space-shell .office-hub__launchers--unified {
+    grid-template-columns: 1fr !important;
+  }
+
+  .office-hub-space-shell .office-hub__launcher {
+    min-height: 7.25rem;
+  }
+
+  .office-hub-space-shell .office-hub__cover-wrap {
+    height: 11.5rem;
+  }
+
+  .profile-page__tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+
+  .profile-page__tab {
+    min-height: var(--touch-min);
+    scroll-snap-align: start;
+    touch-action: manipulation;
+  }
+
+  .profile-page__side-cta,
+  .profile-page__empty-cta,
+  .profile-page__side-link {
+    min-height: var(--touch-min);
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Sticky bars clear home indicator + bottom nav.
+   * matter-sticky-bar is top-fixed (top: 0). Setting bottom without
+   * unsetting top stretches it across the viewport and vertically
+   * centers the code/name/balance row. Keep it pinned to the top. */
+  .matter-sticky-bar {
+    top: 0 !important;
+    bottom: auto !important;
+    padding-bottom: 0.35rem;
+  }
+
+  /* Status toast — sit above bottom desk nav (nav can be z-50 on Space) */
+  .firm-status-toast-wrap {
+    bottom: calc(var(--mobile-bottom-nav-offset, 4.75rem) + 0.55rem) !important;
+    right: max(0.75rem, env(safe-area-inset-right, 0px)) !important;
+    left: auto !important;
+    z-index: 70 !important;
+    /* offset already includes home-indicator — don't double-pad */
+    padding-bottom: 0 !important;
+    padding-left: 0.65rem;
+    padding-right: 0;
+  }
+
+  .firm-status-toast {
+    max-width: min(22rem, calc(100% - 1.5rem));
+  }
+
+  /*
+   * Desk checklist rows: desktop puts chips/Assigned/Due in a right column.
+   * On phones long chips (FILING AND SERVICE) overflow over the case text —
+   * stack primary → actions → meta instead.
+   */
+  .desk-checklist-row__grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.55rem !important;
+  }
+
+  .desk-checklist-row__secondary {
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .desk-checklist-row__actions,
+  .desk-checklist-row__secondary .desk-checklist-row__actions {
+    max-width: none !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+    margin-top: 0.1rem;
+  }
+
+  .desk-checklist-meta--aside {
+    align-items: flex-start !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .desk-checklist-meta--aside .desk-checklist-meta__chips {
+    justify-content: flex-start !important;
+  }
+
+  .desk-checklist-meta--aside .desk-checklist-meta__lines {
+    align-items: flex-start !important;
+  }
+
+  .desk-checklist-meta--aside .desk-checklist-meta__line {
+    justify-content: flex-start !important;
+    max-width: 100% !important;
+  }
+
+  .desk-checklist-meta--aside .desk-checklist-meta__value {
+    text-align: left !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
+
+  .desk-checklist-meta__chip,
+  .desk-checklist-meta--aside .desk-checklist-meta__chip {
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    text-align: left !important;
+    line-height: 1.25;
+  }
+}
+
+/* Space phone band (bottom nav shows ≤900px on Space) */
+@media (max-width: 900px) {
+  html[data-layout-mode="mobile"] {
+    --mobile-bottom-nav-height: 3.35rem;
+    --mobile-bottom-nav-offset: calc(
+      var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  html[data-layout-mode="mobile"] body {
+    overscroll-behavior-y: none;
+  }
+
+  html[data-layout-mode="mobile"] .firm-space-shell,
+  html[data-layout-mode="mobile"] .office-hub-space-shell {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  html[data-layout-mode="mobile"] .mobile-space-desk-nav.mobile-clio-desk-nav {
+    display: grid !important;
+  }
+
+  /* Space shows bottom nav through 900px — keep toast clear of it */
+  html[data-layout-mode="mobile"] .firm-status-toast-wrap {
+    bottom: calc(var(--mobile-bottom-nav-offset, 4.75rem) + 0.55rem) !important;
+    right: max(0.75rem, env(safe-area-inset-right, 0px)) !important;
+    left: auto !important;
+    z-index: 70 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Space top search — full-width second row through the phone band (not a tiny icon pill) */
+  html[data-layout-mode="mobile"] .bitrix-space-topnav,
+  html[data-layout-mode="mobile"] .bitrix-space-topnav:has(.bitrix-space-topnav__modules--empty) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center;
+    gap: 0.35rem;
+    overflow: visible;
+  }
+
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__brand,
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__brand--text-only {
+    flex: 1 1 auto;
+    min-width: 0;
+    order: 1;
+  }
+
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__modules,
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__modules--empty {
+    display: none !important;
+  }
+
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__actions {
+    flex: 0 0 auto;
+    order: 2;
+    margin-left: auto;
+  }
+
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__search {
+    flex: 1 1 100% !important;
+    order: 3 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__search .search-hero,
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__search .tasks-search-bar,
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__search .card,
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__search .search-bar-wrap {
+    width: 100% !important;
+  }
+
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__search .search-bar-wrap {
+    height: auto !important;
+    min-height: var(--touch-min, 44px) !important;
+    overflow: visible !important;
+  }
+
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__search input[type="search"],
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__search .search-hero-input {
+    width: 100% !important;
+    min-height: var(--touch-min, 44px) !important;
+    font-size: 16px !important;
+  }
+
+  html[data-layout-mode="mobile"] .bitrix-space-topnav__search .unified-search-dropdown {
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+    max-height: min(50dvh, 20rem);
+    z-index: 80;
+  }
+}

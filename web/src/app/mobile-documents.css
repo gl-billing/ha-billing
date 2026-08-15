@@ -1,0 +1,413 @@
+/**
+ * Native-phone Accounts Receivable / SOA & receipts layout.
+ * Applied when .documents-page--native-mobile is set (phone + mobile layout
+ * + HA Space). Desktop / Heritage / desk layout are unchanged.
+ */
+
+:is(
+  html[data-layout-mode="mobile"]
+) {
+.documents-page--native-mobile {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  color: var(--ha-m-ink, #f5f1e8);
+}
+
+.documents-page--ar-shell {
+  padding: 0 0 0.25rem;
+}
+
+.documents-page--native-mobile,
+.documents-page--native-mobile * {
+  box-sizing: border-box;
+}
+
+.documents-page--native-mobile > * {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.documents-page--native-mobile .documents-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0;
+}
+
+/* Nested DocumentsPanel should not double the page gutter. */
+.documents-page--native-mobile .documents-page--native-mobile {
+  padding: 0;
+}
+
+.documents-page__mobile-chrome {
+  position: static;
+  z-index: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  min-height: 2.75rem;
+  background: transparent;
+  border-bottom: 0;
+}
+
+.documents-page__mobile-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d);
+  background: var(--ha-m-card, #181818);
+  color: var(--ha-m-accent, #ffffff) !important;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.documents-page__mobile-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-ui), system-ui, sans-serif;
+  font-size: var(--ha-m-fs-card, 18px);
+  font-weight: var(--ha-m-fw-card, 650);
+  letter-spacing: 0;
+  color: var(--ha-m-ink, #f5f1e8);
+}
+
+.documents-page--native-mobile .documents-page__select,
+.documents-page--native-mobile .ui-card,
+.documents-page--native-mobile .card,
+.documents-page--native-mobile .documents-page__client,
+.documents-page--native-mobile .documents-page__panel,
+.documents-page--native-mobile .document-review-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.documents-page--native-mobile .ui-card.card,
+.documents-page--native-mobile .documents-page__client,
+.documents-page--native-mobile .documents-page__panel,
+.documents-page--native-mobile .document-review-card {
+  margin: 0;
+  padding: 0.9rem 1rem !important;
+  border-radius: 1rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d) !important;
+  background: var(--ha-m-card, #181818) !important;
+  background-image: none !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
+.documents-page--native-mobile .field-label,
+.documents-page--native-mobile label,
+.documents-page--native-mobile .text-muted,
+.documents-page--native-mobile .text-ink,
+.documents-page--native-mobile p,
+.documents-page--native-mobile strong,
+.documents-page--native-mobile .documents-page__client {
+  color: var(--ha-m-ink, #f5f1e8);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.documents-page--native-mobile .field-label {
+  margin: 0 0 0.45rem;
+  color: var(--ha-m-heading, #f5f1e8) !important;
+  font-size: var(--ha-m-fs-field, 15px);
+  font-weight: var(--ha-m-fw-field, 600);
+  line-height: var(--ha-m-lh-field, 1.35);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.documents-page--native-mobile .documents-page__select {
+  width: 100%;
+}
+
+.documents-page--native-mobile .documents-page__client {
+  font-size: var(--ha-m-fs-body, 16px);
+  font-weight: var(--ha-m-fw-body, 400);
+  line-height: var(--ha-m-lh-body, 1.45);
+}
+
+.documents-page--native-mobile .documents-page__client-email {
+  display: inline-block;
+  margin-top: 0.2rem;
+  color: var(--ha-m-accent, #ffffff) !important;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  overflow-wrap: anywhere;
+}
+
+/* Segmented SOA / AR tabs — override desk nowrap + max-width: 14rem. */
+.documents-page--native-mobile .matter-doc-tabs.nav-tabs,
+.documents-page--native-mobile .nav-tabs.matter-doc-tabs {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  flex-wrap: unset !important;
+  overflow: visible !important;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0.3rem;
+  gap: 0.3rem;
+  border-radius: 1rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d);
+  background: var(--ha-m-card, #181818) !important;
+  box-shadow: none;
+}
+
+.documents-page--native-mobile .matter-doc-tabs .nav-tab,
+.documents-page--native-mobile .matter-doc-tabs .nav-tab-idle,
+.documents-page--native-mobile .matter-doc-tabs .nav-tab-active {
+  flex: unset !important;
+  flex-shrink: 1 !important;
+  width: 100%;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.45rem;
+  border-radius: 0.75rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ha-m-muted, #c4bdb3) !important;
+  font-size: var(--ha-m-fs-button, 16px);
+  font-weight: var(--ha-m-fw-button, 600);
+  line-height: 1.2;
+  white-space: normal;
+  text-wrap: balance;
+}
+
+.documents-page--native-mobile .matter-doc-tabs .nav-tab-active {
+  border-color: var(--ha-m-accent, #ffffff);
+  background: var(--ha-m-accent-action, #f0f0f0) !important;
+  color: var(--ha-m-accent-ink, #0a0a0a) !important;
+  -webkit-text-fill-color: var(--ha-m-accent-ink, #0a0a0a) !important;
+}
+
+.documents-page--native-mobile .matter-doc-tabs .nav-tab-idle {
+  background: var(--ha-m-card-elevated, #202020) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  -webkit-text-fill-color: var(--ha-m-ink, #f5f1e8) !important;
+  border-color: var(--ha-m-divider, #2d2d2d);
+}
+
+.documents-page--native-mobile .documents-page__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 2.75rem;
+  margin: 0 0 0.55rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d);
+  background: var(--ha-m-card-elevated, #202020);
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  cursor: pointer;
+}
+
+.documents-page--native-mobile .documents-page__option input {
+  flex: 0 0 auto;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0.2rem 0 0;
+  accent-color: var(--ha-m-accent, #ffffff);
+}
+
+.documents-page--native-mobile .documents-page__option-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.documents-page--native-mobile .documents-page__option-title {
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  font-size: var(--ha-m-fs-card, 18px);
+  font-weight: var(--ha-m-fw-card, 650);
+  line-height: var(--ha-m-lh-card, 1.3);
+  overflow-wrap: anywhere;
+}
+
+.documents-page--native-mobile .documents-page__option-hint {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+  font-size: var(--ha-m-fs-secondary, 13px);
+  font-weight: var(--ha-m-fw-secondary, 400);
+  line-height: var(--ha-m-lh-secondary, 1.45);
+  overflow-wrap: anywhere;
+}
+
+.documents-page--native-mobile .empty-state,
+.documents-page--native-mobile .empty-state--compact {
+  min-height: 0 !important;
+  margin: 0.35rem 0 0.75rem;
+  padding: 0.75rem 0.7rem !important;
+  border-radius: 0.85rem;
+  border: 1px dashed var(--ha-m-divider, #2d2d2d);
+  background: var(--ha-m-card-elevated, #202020) !important;
+}
+
+.documents-page--native-mobile .empty-state__mark,
+.documents-page--native-mobile .empty-state--compact .empty-state__mark {
+  width: 2rem !important;
+  height: 2rem !important;
+  margin: 0 auto 0.4rem !important;
+}
+
+.documents-page--native-mobile .empty-state__title {
+  color: var(--ha-m-heading, #f5f1e8) !important;
+  font-size: var(--ha-m-fs-section, 21px);
+  font-weight: var(--ha-m-fw-section, 650);
+}
+
+.documents-page--native-mobile .empty-state__message {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+  font-size: var(--ha-m-fs-secondary, 13px);
+  font-weight: var(--ha-m-fw-secondary, 400);
+}
+
+.documents-page--native-mobile .documents-page__panel > p,
+.documents-page--native-mobile .documents-page__panel [class*="bg-[#faf8f4]"],
+.documents-page--native-mobile .documents-page__panel [class*="bg-[#fffef9]"] {
+  background: var(--ha-m-card-elevated, #202020) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+.documents-page--native-mobile .documents-page__panel li label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.45rem;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  overflow-wrap: anywhere;
+}
+.documents-page--native-mobile .documents-page__panel .btn-primary,
+.documents-page--native-mobile .document-review-card .btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.75rem;
+  margin-top: 0.75rem;
+  border-radius: 0.85rem;
+  background: var(--ha-m-accent-action, #f0f0f0) !important;
+  color: var(--ha-m-accent-ink, #0a0a0a) !important;
+  -webkit-text-fill-color: var(--ha-m-accent-ink, #0a0a0a) !important;
+}
+
+.documents-page--native-mobile .documents-page__panel .btn-primary:disabled,
+.documents-page--native-mobile .document-review-card .btn-primary:disabled {
+  background: color-mix(in srgb, var(--ha-m-accent-action, #f0f0f0) 55%, var(--ha-m-card, #181818)) !important;
+  color: var(--ha-m-accent-ink, #0a0a0a) !important;
+  -webkit-text-fill-color: var(--ha-m-accent-ink, #0a0a0a) !important;
+  opacity: 0.72;
+}
+
+.documents-page--native-mobile .messenger-share-row {
+  margin-top: 0.85rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d);
+  background: var(--ha-m-card, #181818);
+}
+
+.documents-page--native-mobile .messenger-share-row__label {
+  margin: 0 0 0.55rem;
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+.documents-page--native-mobile .messenger-share-row__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.documents-page--native-mobile .messenger-share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 0.85rem;
+  font-size: var(--ha-m-fs-button, 16px);
+  font-weight: var(--ha-m-fw-button, 600);
+}
+
+.documents-page--native-mobile .messenger-share-btn--wa {
+  border-color: color-mix(in srgb, #34c759 55%, var(--ha-m-divider, #2d2d2d));
+  background: color-mix(in srgb, #34c759 14%, var(--ha-m-card, #181818));
+  color: #d8f5de !important;
+}
+
+.documents-page--native-mobile .messenger-share-btn--viber {
+  border-color: color-mix(in srgb, #7360f2 55%, var(--ha-m-divider, #2d2d2d));
+  background: color-mix(in srgb, #7360f2 14%, var(--ha-m-card, #181818));
+  color: #e4e0ff !important;
+}
+
+.documents-page--native-mobile .field,
+.documents-page--native-mobile input:not([type="checkbox"]):not([type="radio"]),
+.documents-page--native-mobile select,
+.documents-page--native-mobile textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  background: var(--ha-m-card-elevated, #202020) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+}
+
+.documents-page--native-mobile ul {
+  max-width: 100%;
+  min-width: 0;
+  background: var(--ha-m-card-elevated, #202020) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
+.documents-page--native-mobile .document-review-card,
+.documents-page--native-mobile .document-review-letterhead,
+.documents-page--native-mobile .document-review-card dt,
+.documents-page--native-mobile .document-review-card dd {
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  overflow-wrap: anywhere;
+}
+
+.documents-page--native-mobile .document-review-card .btn-primary + button,
+.documents-page--native-mobile .document-review-card button[type="button"] {
+  width: 100%;
+  min-height: 2.75rem;
+  color: var(--ha-m-ink, #f5f1e8);
+}
+
+@media (max-width: 359px) {
+  .documents-page--native-mobile .messenger-share-row__actions {
+    grid-template-columns: 1fr;
+  }
+}
+}

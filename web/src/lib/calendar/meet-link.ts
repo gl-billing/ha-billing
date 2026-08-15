@@ -45,10 +45,10 @@ export async function createGoogleMeetLinkForItem(
   const calendar = getCalendarClient(accessToken);
   const calId = calendarId();
   const { start, end } = buildCalendarEventStartEnd(item.date, item.startTime, item.endTime);
-  const requestId = `gl-meet-${item.id.replace(/[^a-zA-Z0-9_-]/g, "")}-${Date.now()}`;
+  const requestId = `ha-meet-${item.id.replace(/[^a-zA-Z0-9_-]/g, "")}-${Date.now()}`;
 
   const body = {
-    summary: `[GL] ${item.category}: ${item.clientCase || item.id}`.slice(0, 200),
+    summary: `[HA] ${item.category}: ${item.clientCase || item.id}`.slice(0, 200),
     description: [item.details, item.nextAction ? `Next: ${item.nextAction}` : "", `Sheet ID: ${item.id}`]
       .filter(Boolean)
       .join("\n"),

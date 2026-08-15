@@ -1,15 +1,15 @@
-import { GL, formatPeso, sanitizeSheetName } from "@/lib/gl-config";
+import { HA, formatPeso, sanitizeSheetName } from "@/lib/ha-config";
 import { getSheetsClient, getSpreadsheetId } from "@/lib/sheets/client";
 import { findMasterRow } from "@/lib/sheets/master";
 import { getSheetIdByTitle, sheetTitleExists } from "@/lib/sheets/sheet-meta";
 
 const PROTECTED_TABS = new Set(
   [
-    GL.sheets.settings,
-    GL.sheets.master,
-    GL.sheets.dashboard,
-    GL.sheets.documentLog,
-    GL.sheets.auditLog,
+    HA.sheets.settings,
+    HA.sheets.master,
+    HA.sheets.dashboard,
+    HA.sheets.documentLog,
+    HA.sheets.auditLog,
     "Template",
     "Invoice",
     "Acknowledgment Receipt",
@@ -67,7 +67,7 @@ export async function deleteClientPermanently(
     }
   }
 
-  const masterSheetId = await getSheetIdByTitle(accessToken, GL.sheets.master);
+  const masterSheetId = await getSheetIdByTitle(accessToken, HA.sheets.master);
   if (masterSheetId === null) {
     throw new Error("Master List sheet not found.");
   }

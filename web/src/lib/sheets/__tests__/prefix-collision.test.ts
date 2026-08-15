@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { findPrefixCollisions } from "@/lib/sheets/prefix-collision";
-import type { ClientSummary } from "@/lib/gl-config";
+import type { ClientSummary } from "@/lib/ha-config";
 
 function client(partial: Partial<ClientSummary> & Pick<ClientSummary, "code" | "name">): ClientSummary {
   return {

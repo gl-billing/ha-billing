@@ -1,11 +1,11 @@
 import {
-  GL,
+  HA,
   normalizePaymentMethod,
   parseMoney,
   type SpotBillingEntry,
   type SpotBillingPayload,
   type SpotBillingTransactionPayload
-} from "@/lib/gl-config";
+} from "@/lib/ha-config";
 import {
   appendSheetValues,
   getSheetValues,
@@ -15,7 +15,7 @@ import {
 import { walkInBillingStatus } from "@/lib/sheets/walk-ins";
 import { ensureSheetTitle } from "@/lib/sheets/sheet-meta";
 
-const SPOT_HEADERS = [...GL.spotBillingHeaders];
+const SPOT_HEADERS = [...HA.spotBillingHeaders];
 const SPOT_COLS = SPOT_HEADERS.length;
 const SPOT_HEADER_RANGE = `A1:P1`;
 
@@ -64,7 +64,7 @@ function rowToSpotBilling(row: unknown[], rowNumber: number): SpotBillingEntry {
 }
 
 async function ensureSpotBillingSheetReady(accessToken: string): Promise<void> {
-  const sheetName = GL.sheets.spotBilling;
+  const sheetName = HA.sheets.spotBilling;
   await ensureSheetTitle(accessToken, sheetName);
 
   const headerRow = await getSheetValues(accessToken, toA1Range(sheetName, SPOT_HEADER_RANGE));
@@ -82,7 +82,7 @@ async function ensureSpotBillingSheetReady(accessToken: string): Promise<void> {
 }
 
 async function nextSpotId(accessToken: string): Promise<string> {
-  const sheetName = GL.sheets.spotBilling;
+  const sheetName = HA.sheets.spotBilling;
   const values = await getSheetValues(accessToken, toA1Range(sheetName, "A2:A"));
   let max = 0;
   for (const row of values) {
@@ -102,7 +102,7 @@ function findSpotEntry(entries: SpotBillingEntry[], spotId: string): SpotBilling
 
 function resolveTransactionKind(
   billing: SpotBillingTransactionPayload
-): import("@/lib/gl-config").SpotBillingTransactionKind {
+): import("@/lib/ha-config").SpotBillingTransactionKind {
   if (billing.transactionKind === "payment") return "payment";
   if (billing.transactionKind === "retainer" || billing.billingKind === "retainer") return "retainer";
   return "charge";
@@ -122,7 +122,7 @@ function parseTransactionAmounts(billing: SpotBillingTransactionPayload): {
   billingDate: string;
   serviceType: string;
   isRetainer: boolean;
-  transactionKind: import("@/lib/gl-config").SpotBillingTransactionKind;
+  transactionKind: import("@/lib/ha-config").SpotBillingTransactionKind;
 } {
   const transactionKind = resolveTransactionKind(billing);
   const isRetainer = transactionKind === "retainer";
@@ -185,7 +185,7 @@ function appendTransactionNote(
   serviceType: string,
   charge: number,
   payment: number,
-  transactionKind: import("@/lib/gl-config").SpotBillingTransactionKind
+  transactionKind: import("@/lib/ha-config").SpotBillingTransactionKind
 ): string {
   const parts = [`[${billingDate}] ${serviceType}`];
   if (billing.description?.trim()) parts.push(billing.description.trim());
@@ -211,7 +211,7 @@ async function writeSpotBillingRow(
     linkedClientCode?: string;
   }
 ): Promise<SpotBillingEntry> {
-  await updateSheetValues(accessToken, toA1Range(GL.sheets.spotBilling, `G${entry.rowNumber}:O${entry.rowNumber}`), [
+  await updateSheetValues(accessToken, toA1Range(HA.sheets.spotBilling, `G${entry.rowNumber}:O${entry.rowNumber}`), [
     [
       updates.notes,
       updates.status ?? entry.status,
@@ -241,7 +241,7 @@ async function writeSpotBillingRow(
 
 export async function listSpotBillingEntries(accessToken: string): Promise<SpotBillingEntry[]> {
   await ensureSpotBillingSheetReady(accessToken);
-  const values = await getSheetValues(accessToken, toA1Range(GL.sheets.spotBilling, "A2:P"));
+  const values = await getSheetValues(accessToken, toA1Range(HA.sheets.spotBilling, "A2:P"));
   return values
     .map((row, index) => rowToSpotBilling(row, index + 2))
     .filter((entry) => entry.spotId);
@@ -280,7 +280,7 @@ export async function createSpotBillingEntry(
     assignedAttorney
   ]);
 
-  await appendSheetValues(accessToken, toA1Range(GL.sheets.spotBilling, "A:P"), [row]);
+  await appendSheetValues(accessToken, toA1Range(HA.sheets.spotBilling, "A:P"), [row]);
 
   if (payload.billing) {
     return addSpotBillingTransaction(accessToken, spotId, payload.billing);
@@ -331,6 +331,6 @@ export async function closeSpotBillingEntry(accessToken: string, spotId: string)
   const entry = findSpotEntry(entries, spotId);
   if (entry.status === "Closed") return entry;
 
-  await updateSheetValues(accessToken, toA1Range(GL.sheets.spotBilling, `H${entry.rowNumber}`), [["Closed"]]);
+  await updateSheetValues(accessToken, toA1Range(HA.sheets.spotBilling, `H${entry.rowNumber}`), [["Closed"]]);
   return { ...entry, status: "Closed" };
 }

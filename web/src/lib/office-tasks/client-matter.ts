@@ -1,5 +1,5 @@
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
-import { formatClientCaseLabel } from "@/lib/gl-config";
+import { formatClientCaseLabel } from "@/lib/ha-config";
 import {
   caseNumbersAlign,
   clientCaseIdentityMatchesBilling,

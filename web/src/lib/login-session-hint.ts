@@ -1,5 +1,9 @@
-const EMAIL_KEY = "gl-office-last-email";
-const PROVIDER_KEY = "gl-office-last-provider";
+import { readBrowserStorage, removeBrowserStorage, writeBrowserStorage } from "@/lib/ha-browser-storage";
+
+const EMAIL_KEY = "ha-office-last-email";
+const LEGACY_EMAIL_KEY = "gl-office-last-email";
+const PROVIDER_KEY = "ha-office-last-provider";
+const LEGACY_PROVIDER_KEY = "gl-office-last-provider";
 
 export type LastSignInHint = {
   email: string;
@@ -7,38 +11,20 @@ export type LastSignInHint = {
 };
 
 export function readLastSignInHint(): LastSignInHint | null {
-  if (typeof window === "undefined") return null;
-
-  try {
-    const email = window.localStorage.getItem(EMAIL_KEY)?.trim();
-    const provider = window.localStorage.getItem(PROVIDER_KEY)?.trim();
-    if (!email || !provider) return null;
-    return { email, provider };
-  } catch {
-    return null;
-  }
+  const email = readBrowserStorage(EMAIL_KEY, LEGACY_EMAIL_KEY)?.trim();
+  const provider = readBrowserStorage(PROVIDER_KEY, LEGACY_PROVIDER_KEY)?.trim();
+  if (!email || !provider) return null;
+  return { email, provider };
 }
 
 export function saveLastSignInHint(hint: LastSignInHint): void {
-  if (typeof window === "undefined") return;
-
-  try {
-    window.localStorage.setItem(EMAIL_KEY, hint.email.trim());
-    window.localStorage.setItem(PROVIDER_KEY, hint.provider.trim());
-  } catch {
-    /* private browsing / storage full */
-  }
+  writeBrowserStorage(EMAIL_KEY, hint.email.trim(), LEGACY_EMAIL_KEY);
+  writeBrowserStorage(PROVIDER_KEY, hint.provider.trim(), LEGACY_PROVIDER_KEY);
 }
 
 export function clearLastSignInHint(): void {
-  if (typeof window === "undefined") return;
-
-  try {
-    window.localStorage.removeItem(EMAIL_KEY);
-    window.localStorage.removeItem(PROVIDER_KEY);
-  } catch {
-    /* private browsing */
-  }
+  removeBrowserStorage(EMAIL_KEY, LEGACY_EMAIL_KEY);
+  removeBrowserStorage(PROVIDER_KEY, LEGACY_PROVIDER_KEY);
 }
 
 export function maskEmail(email: string): string {

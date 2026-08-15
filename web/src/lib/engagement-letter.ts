@@ -10,7 +10,7 @@ import {
 } from "@/lib/firm-email-shell";
 import { buildFirmLetterBodyCss, buildFirmLetterheadCss, buildFirmLetterheadFontLinkHtml, buildFirmLetterheadHtml, buildFirmPageFooterHtml, buildFirmStationeryCss, drawFirmLetterheadPdf, drawFirmPageFooterPdf, firmPageFooterReservePt, FIRM_LETTER_BODY_LINE_GAP_PT, FIRM_LETTER_BODY_SIZE_PT, type FirmPageSize } from "@/lib/firm-letterhead";
 import { getFirmPageSpec, type FirmPageSpec } from "@/lib/firm-page-sizes";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import { FIRM_NAME, FIRM_SUBTITLE } from "@/lib/billing-document-design";
 import { embedFirmLetterheadLogo } from "@/lib/billing-document-pdf/common";
 import {

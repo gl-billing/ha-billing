@@ -4,8 +4,8 @@ import { useSession } from "next-auth/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFocusOnMount } from "@/hooks/useFocusOnMount";
-import type { ClientSummary, NewClientPayload } from "@/lib/gl-config";
-import { GL, formatPeso } from "@/lib/gl-config";
+import type { ClientSummary, NewClientPayload } from "@/lib/ha-config";
+import { HA, formatPeso } from "@/lib/ha-config";
 import { FirmWorkspaceShell } from "@/components/FirmWorkspaceShell";
 import { BitrixSpaceRail } from "@/components/BitrixSpaceRail";
 import { BitrixSpaceSectionTabs } from "@/components/BitrixSpaceSectionTabs";
@@ -495,12 +495,12 @@ export function BillingApp() {
 
   const [chargeDate, setChargeDate] = useState(todayLocal());
   const [chargeAmount, setChargeAmount] = useState("");
-  const [chargeCategory, setChargeCategory] = useState<string>(GL.chargeCategories[1]);
+  const [chargeCategory, setChargeCategory] = useState<string>(HA.chargeCategories[1]);
   const [chargeDescription, setChargeDescription] = useState("");
 
   const [paymentDate, setPaymentDate] = useState(todayLocal());
   const [paymentAmount, setPaymentAmount] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<string>(GL.paymentMethods[0]);
+  const [paymentMethod, setPaymentMethod] = useState<string>(HA.paymentMethods[0]);
   const [paymentDetails, setPaymentDetails] = useState("");
   const [paymentDescription, setPaymentDescription] = useState("");
   const [paymentIncomeType, setPaymentIncomeType] = useState<PaymentIncomeType>("Professional Fee");

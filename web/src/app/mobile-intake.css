@@ -1,0 +1,223 @@
+/**
+ * Native-phone New matter intake.
+ * HA Space when layout-mode is not desktop. Desktop is unchanged.
+ */
+
+:is(
+  html[data-layout-mode="mobile"]
+) {
+.matter-intake-wizard,
+.matter-intake-wizard * {
+  box-sizing: border-box;
+}
+
+.matter-intake-wizard {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0.95rem !important;
+  border-radius: 1rem !important;
+  border: 1px solid var(--ha-m-divider, #2d2d2d) !important;
+  background: var(--ha-m-card, #181818) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  box-shadow: none !important;
+}
+
+.matter-intake-wizard .section-label {
+  margin: 0 0 0.2rem;
+  color: var(--ha-m-accent, #ffffff) !important;
+  font-size: var(--ha-m-fs-eyebrow, 12px) !important;
+  font-weight: var(--ha-m-fw-eyebrow, 600) !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.matter-intake-wizard > .mb-3.text-xs,
+.matter-intake-wizard > p.text-muted {
+  margin: 0 0 0.75rem !important;
+  color: var(--ha-m-muted, #c4bdb3) !important;
+  font-size: var(--ha-m-fs-secondary, 13px) !important;
+  font-weight: 400 !important;
+  line-height: var(--ha-m-lh-secondary, 1.45) !important;
+}
+
+.matter-intake-wizard__steps {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.3rem;
+  width: 100%;
+  margin: 0 0 0.85rem;
+}
+
+.matter-intake-wizard__step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 2.5rem;
+  margin: 0;
+  padding: 0.35rem 0.1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d) !important;
+  background: var(--ha-m-card-elevated, #202020) !important;
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+.matter-intake-wizard__step--active {
+  border-color: var(--ha-m-accent, #ffffff) !important;
+  background: var(--ha-m-accent-action, #f0f0f0) !important;
+  color: var(--ha-m-accent-ink, #0a0a0a) !important;
+}
+
+.matter-intake-wizard__step--done {
+  border-color: var(--ha-m-accent-border, #6b6b6b) !important;
+  background: color-mix(in srgb, var(--ha-m-accent, #ffffff) 18%, var(--ha-m-card, #181818)) !important;
+  color: var(--ha-m-accent, #ffffff) !important;
+}
+
+.matter-intake-wizard__step-mark {
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 0;
+  font-size: 11px;
+}
+
+.matter-intake-wizard__step-label {
+  display: none;
+}
+
+.intake-choice-heading {
+  margin: 0 0 0.45rem !important;
+  color: var(--ha-m-heading, #f5f1e8) !important;
+  font-size: var(--ha-m-fs-field, 15px) !important;
+  font-weight: var(--ha-m-fw-field, 600) !important;
+  line-height: var(--ha-m-lh-field, 1.35) !important;
+}
+
+.matter-intake-wizard .intake-choice-card,
+.intake-choice-card {
+  width: 100%;
+  min-width: 0;
+  padding: 0.75rem 0.85rem !important;
+  border-radius: 0.85rem !important;
+  border: 1px solid var(--ha-m-divider, #2d2d2d) !important;
+  background: var(--ha-m-card-elevated, #202020) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  box-shadow: none !important;
+}
+
+.matter-intake-wizard .intake-choice-card--on,
+.intake-choice-card--on {
+  border-color: var(--ha-m-accent, #ffffff) !important;
+  background: color-mix(in srgb, var(--ha-m-accent, #ffffff) 16%, var(--ha-m-card, #181818)) !important;
+}
+
+.intake-choice-card__label {
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  font-size: var(--ha-m-fs-card, 18px) !important;
+  font-weight: 650 !important;
+  line-height: 1.3 !important;
+}
+
+.intake-choice-card__hint {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 0.2rem !important;
+  color: var(--ha-m-muted, #c4bdb3) !important;
+  font-size: var(--ha-m-fs-secondary, 13px) !important;
+  line-height: 1.4 !important;
+}
+
+.matter-intake-wizard__panel,
+.matter-intake-wizard__panel--gold {
+  border-radius: 0.85rem !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+  background: var(--ha-m-card-elevated, #202020) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
+.matter-intake-wizard__panel-title,
+.matter-intake-wizard__panel-hint,
+.matter-intake-wizard .text-ink,
+.matter-intake-wizard .text-muted {
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
+.matter-intake-wizard__panel-hint,
+.matter-intake-wizard .text-muted {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+.matter-intake-wizard .field,
+.matter-intake-wizard select.field,
+.matter-intake-wizard textarea.field {
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 0.85rem;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+  background: var(--ha-m-card-elevated, #202020) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  font-size: 16px !important;
+}
+
+.matter-intake-wizard__nav {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+  width: 100%;
+  margin-top: 0.85rem;
+}
+
+.matter-intake-wizard__nav:has(.btn-secondary) {
+  grid-template-columns: 1fr 1fr;
+}
+
+.matter-intake-wizard__nav .btn-primary,
+.matter-intake-wizard__nav .btn-secondary {
+  width: 100%;
+  min-width: 0 !important;
+  min-height: 2.75rem !important;
+  margin: 0;
+  border-radius: 0.85rem !important;
+  font-size: var(--ha-m-fs-button, 16px) !important;
+  font-weight: var(--ha-m-fw-button, 600) !important;
+}
+
+.matter-intake-wizard__nav .btn-primary {
+  background: var(--ha-m-accent-action, #f0f0f0) !important;
+  color: var(--ha-m-accent-ink, #0a0a0a) !important;
+  border-color: transparent !important;
+}
+
+.matter-intake-wizard__nav .btn-secondary {
+  background: var(--ha-m-card-elevated, #202020) !important;
+  color: var(--ha-m-accent, #ffffff) !important;
+  border: 1px solid var(--ha-m-accent-border, #6b6b6b) !important;
+}
+
+.intake-quick-register {
+  margin-top: 0.75rem !important;
+  padding: 0.85rem 0.95rem !important;
+  border-radius: 1rem !important;
+  border: 1px solid var(--ha-m-divider, #2d2d2d) !important;
+  background: var(--ha-m-card, #181818) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  box-shadow: none !important;
+}
+
+.intake-quick-register > summary {
+  color: var(--ha-m-accent, #ffffff) !important;
+  font-size: var(--ha-m-fs-field, 15px) !important;
+  font-weight: 600 !important;
+}
+
+.intake-quick-register .field,
+.intake-quick-register select.field,
+.intake-quick-register textarea.field {
+  background: var(--ha-m-card-elevated, #202020) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+}
+}

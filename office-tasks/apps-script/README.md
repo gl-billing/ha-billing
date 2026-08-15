@@ -39,7 +39,7 @@ Redeploy the Web App after adding `StaffReminders.gs`.
 
 ## Waiting / Started status
 
-The web app stores a hidden marker `GL_FOLLOW_UP:Waiting` or `GL_FOLLOW_UP:Started` in the **Remarks** column so follow-up tasks stay out of Overdue even if sheet scripts reset Status.
+The web app stores a hidden marker `HA_FOLLOW_UP:Waiting` or `HA_FOLLOW_UP:Started` in the **Remarks** column so follow-up tasks stay out of Overdue even if sheet scripts reset Status.
 
 **Recommended:** merge **StatusMaintenancePatch.gs** into **Code.gs** so `refreshAllOverviews` skips Waiting/Started rows (see comments in that file).
 

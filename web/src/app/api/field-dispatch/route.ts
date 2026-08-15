@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { requireBillingAccessToken } from "@/lib/api-auth";
 import { authOptions } from "@/lib/auth";
 import { isAdminEmail, requireAdminEmail } from "@/lib/admin";
-import type { FieldDispatchPayload } from "@/lib/gl-config";
+import type { FieldDispatchPayload } from "@/lib/ha-config";
 import { isQuotaError, quotaErrorMessage, invalidateCache, withCache } from "@/lib/sheets/cache";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import {

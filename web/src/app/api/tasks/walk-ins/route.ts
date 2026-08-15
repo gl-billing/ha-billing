@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireBillingAccessToken } from "@/lib/api-auth";
-import type { WalkInClientPayload } from "@/lib/gl-config";
+import type { WalkInClientPayload } from "@/lib/ha-config";
 import { invalidateCache, isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 import { createWalkInClient, listWalkInClients } from "@/lib/sheets/walk-ins";
 

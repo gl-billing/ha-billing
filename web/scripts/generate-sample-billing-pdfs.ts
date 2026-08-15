@@ -87,7 +87,7 @@ async function main() {
     balanceAfter: 41000,
     paymentMethod: "GCash",
     paymentDetails: "Ref. 0429183756 · Received via firm GCash account",
-    receivedBy: "HERNANDEZ & LUMANAG"
+    receivedBy: "Hernandez & Associates"
   };
 
   const [soaBytes, arBytes] = await Promise.all([buildSoaPdf(soaInput), buildArPdf(arInput)]);

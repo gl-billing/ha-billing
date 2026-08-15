@@ -9,7 +9,6 @@ import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import { getSheetValues, toA1Range, updateSheetValues } from "@/lib/office-tasks/sheets/client";
 import { appendTaskActivity } from "@/lib/office-tasks/sheets/activity-log";
 import {
-  getGmailAccountEmail,
   isValidEmailAddress,
   sendClientEmailViaGmail,
   sentMailHint
@@ -223,16 +222,16 @@ export async function POST(request: Request) {
       }
     }
 
-    const bccEmail = await getGmailAccountEmail(token, session?.user?.email || undefined);
+    let lastSender = session?.user?.email || "Gmail";
     for (const to of validRecipients) {
-      await sendClientEmailViaGmail({
+      const delivery = await sendClientEmailViaGmail({
         accessToken: token,
         to,
         subject: email.subject,
         html: email.html,
-        plain: email.body,
-        bcc: bccEmail
+        plain: email.body
       });
+      if (delivery.senderEmail) lastSender = delivery.senderEmail;
     }
 
     const remarksRange = toA1Range(SHEETS.events, `R${savedItem.rowNumber}`);
@@ -252,7 +251,7 @@ export async function POST(request: Request) {
 
     const message =
       validRecipients.length === 1
-        ? sentMailHint(bccEmail || "Gmail", validRecipients[0], "sent", true)
+        ? sentMailHint(lastSender, validRecipients[0], "sent")
         : `Schedule confirmation sent to ${validRecipients.length} recipients (${validRecipients.join(", ")}).`;
 
     return NextResponse.json({

@@ -20,9 +20,9 @@ import {
   resolveClientMatterType,
   type ClientMatterType
 } from "@/lib/client-matter-type";
-import type { ActivityItem, AuditLogEntry, ClientDetail, ClientLedgerSummary, ClientSummary, LedgerEntry } from "@/lib/gl-config";
+import type { ActivityItem, AuditLogEntry, ClientDetail, ClientLedgerSummary, ClientSummary, LedgerEntry } from "@/lib/ha-config";
 import { ClientMatterTypeSelect } from "@/components/ClientMatterTypeSelect";
-import { formatClientCaseLabel, formatPeso } from "@/lib/gl-config";
+import { formatClientCaseLabel, formatPeso } from "@/lib/ha-config";
 import { ClientActivityTimeline } from "@/components/ClientActivityTimeline";
 import { ClientCodeButton } from "@/components/ClientCodeButton";
 import { TasksMatterLink } from "@/components/CrossSystemLinks";

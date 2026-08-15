@@ -9,7 +9,7 @@ import {
   formatPortalExpiry,
   type ClientPortalSnapshot
 } from "@/lib/client-portal-token";
-import { sanitizeSheetName } from "@/lib/gl-config";
+import { sanitizeSheetName } from "@/lib/ha-config";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import { getDocumentLog } from "@/lib/sheets/document-log";
 import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";

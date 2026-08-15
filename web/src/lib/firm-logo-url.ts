@@ -4,7 +4,7 @@ export const FIRM_LOGO_STATIC_PATH = "/brand/logo.png";
 /** White mark on transparent — for dark Space top banner only. */
 export const FIRM_LOGO_ON_DARK_STATIC_PATH = "/brand/logo-on-dark.png";
 
-/** Bump when replacing `public/brand/logo.png` so browsers drop stale GL cache. */
+/** Bump when replacing `public/brand/logo.png` so browsers drop a stale cache. */
 export const FIRM_LOGO_VERSION = "ha-hernandez-v4-bw";
 
 /** Bump when replacing `public/brand/logo-on-dark.png`. */
@@ -12,7 +12,7 @@ export const FIRM_LOGO_ON_DARK_VERSION = "ha-on-dark-v1";
 
 /** Client-safe hosted logo URL (no Node fs).
  * Prefer a same-origin relative path so a mis-set NEXT_PUBLIC_APP_URL
- * (e.g. GL on :3000 while HA runs on :3001) cannot pull the wrong firm logo.
+ * cannot pull a logo from a different origin.
  */
 export function firmLogoPublicUrl(): string {
   return `${FIRM_LOGO_STATIC_PATH}?v=${FIRM_LOGO_VERSION}`;

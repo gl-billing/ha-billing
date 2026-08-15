@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fieldDispatchSalaryCredit, fieldDispatchSalaryCreditForEntry } from "@/lib/gl-config";
+import { fieldDispatchSalaryCredit, fieldDispatchSalaryCreditForEntry } from "@/lib/ha-config";
 import {
   buildStaffPayRuns,
   buildStaffSalaryComputation,
@@ -14,7 +14,7 @@ import {
   STAFF_SALARY_PROFILES,
   toYmdLocal
 } from "@/lib/staff-salary";
-import type { FieldDispatchEntry } from "@/lib/gl-config";
+import type { FieldDispatchEntry } from "@/lib/ha-config";
 import { findStaffSalaryProfileInRoster } from "@/lib/staff-payroll-roster";
 import { TEST_PAYROLL_ROSTER } from "@/lib/__tests__/fixtures/staff-payroll-roster";
 

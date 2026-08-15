@@ -9,7 +9,7 @@ export type EmailSignatureBanner = {
   content: Buffer;
 };
 
-/** HA billing — Hernandez logo bar on Drive (`cover.png`). Not the GL "email signature" file. */
+/** HA billing — Hernandez logo bar on Drive (`cover.png`). */
 const HA_DRIVE_BANNER_FILE_NAME = "cover.png";
 
 function configuredFileId(): string | null {

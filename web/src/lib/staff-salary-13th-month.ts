@@ -1,4 +1,4 @@
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import {
   formatStaffPayrollAccount,
   staffSalaryPayslipReference,

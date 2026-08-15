@@ -21,6 +21,9 @@ import { SpaceNotificationsDesk } from "@/components/office-tasks/SpaceNotificat
 import { SpaceStaffLedgerView } from "@/components/office-tasks/SpaceStaffLedgerView";
 import { ToolsPanel } from "@/components/office-tasks/ToolsPanel";
 import { TasksWeekTabView } from "@/components/office-tasks/tabs/TasksWeekTabView";
+import { MobileHome } from "@/components/mobile-home/MobileHome";
+import { MobileCalendarViewSwitch } from "@/components/mobile-app/MobileCalendarViewSwitch";
+import { useNativeMobileLayout } from "@/hooks/useNativeMobileLayout";
 import type { TasksHomeData } from "@/lib/office-tasks/home-data";
 import { useTasksHomeData } from "@/hooks/useTasksHomeData";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
@@ -130,7 +133,7 @@ import { canViewPresenceTab as canViewPresenceTabForEmail } from "@/lib/admin";
 import { filterItemsForMyWork } from "@/lib/office-tasks/my-work-filter";
 import { applyEventJoinLinkPatch, type EventScheduleEmailSentPatch } from "@/lib/office-tasks/event-join-link";
 import { getSavedMyWorkScope, saveMyWorkScope, type MyWorkScope } from "@/lib/my-work-scope";
-import type { ClientSummary, WalkInClient } from "@/lib/gl-config";
+import type { ClientSummary, WalkInClient } from "@/lib/ha-config";
 import { resolveSessionStaffName } from "@/lib/staff-session";
 import { resolvePrepRoleFromSession } from "@/lib/office-tasks/prep-workload-view";
 import { DuplicateEntryWarningDialog } from "@/components/office-tasks/DuplicateEntryWarningDialog";
@@ -187,6 +190,7 @@ export function TasksApp() {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const nativeMobile = useNativeMobileLayout();
   const billingPath = HA_BILLING_PATH;
   const tasksPath = firmAppHref("/app", getTasksAppUrl()) || "/app";
   const [introState, setIntroState] = useState<IntroState>("pending");
@@ -1819,6 +1823,36 @@ export function TasksApp() {
         />
       ) : null}
       {!spaceDeskOnly && !spaceNotificationsDesk && tab === "desk-checklist" && data ? (
+        <>
+          <div className="mobile-office-home-slot">
+            <MobileHome
+              items={items}
+              itemsReady
+              handlers={{
+                toggling: Boolean(togglingKey),
+                prepChecklistCreating: Boolean(prepChecklistCreatingKey),
+                onToggleDone: toggleItemDone,
+                onSetStatus: updateItemStatus,
+                onResetWithDate: resetItemWithDate,
+                onDeleteItem: deleteItem,
+                onUpdateNextAction: updateItemNextAction,
+                onLogAppearanceOutcome: logAppearanceOutcome,
+                onTogglePrepChecklistItem: togglePrepChecklistItem,
+                onMutatePrepChecklistItem: mutatePrepChecklistItem,
+                onCreatePrepChecklist: createEventPrepChecklist,
+                onInitializePrepChecklist: initializePrepChecklist,
+                onSaveEdit: saveItemEdit,
+                onCourtConfirmed: markCourtConfirmed,
+                onMarkSubmitted: markEventSubmitted,
+                onConfirmParentFiled: confirmParentFiled,
+                formOptions: opts,
+                viewerStaffName: sessionStaffName || "",
+                viewerPrepRole,
+                onItemStatus: showStatus
+              }}
+            />
+          </div>
+          <div className="desktop-office-hub-slot">
         <TasksDeskChecklistTab
           data={data}
           deskChecklistItems={deskChecklistItems}
@@ -1849,6 +1883,8 @@ export function TasksApp() {
           deskChecklistScope={deskChecklistScope}
           isAdmin={isAdmin}
         />
+          </div>
+        </>
       ) : null}
       {!spaceDeskOnly && !spaceNotificationsDesk && tab === "today" && counts && data && (
         <div className="page-stagger">
@@ -2139,6 +2175,16 @@ export function TasksApp() {
         </div>
         </div>
       )}
+
+      {!spaceDeskOnly && !spaceNotificationsDesk && nativeMobile && (tab === "week" || tab === "calendar") ? (
+        <MobileCalendarViewSwitch
+          value={calendarMode === "month" || tab === "calendar" ? "month" : "day"}
+          onChange={(view) => {
+            if (view === "month") selectSpaceCalendarView("month");
+            else selectSpaceCalendarView("day");
+          }}
+        />
+      ) : null}
 
       {!spaceDeskOnly && !spaceNotificationsDesk && tab === "calendar" && data && (
         <>
@@ -2434,6 +2480,7 @@ export function TasksApp() {
             </BillingTabGuide>
           </TabPageHeader>
           <TabPageBody>
+          <div className={nativeMobile ? "tasks-page--native-mobile" : undefined}>
           <SearchView
           items={scheduleItems}
           employees={data.employees}
@@ -2461,6 +2508,7 @@ export function TasksApp() {
       onConfirmParentFiled={confirmParentFiled}
           formOptions={opts}
         />
+          </div>
           </TabPageBody>
         </>
       )}

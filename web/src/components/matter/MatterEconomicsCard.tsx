@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { FieldDispatchEntry, LedgerEntry } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { FieldDispatchEntry, LedgerEntry } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { buildMatterEconomics, topIncomeMixLines } from "@/lib/matter-economics";
 
 type Props = {

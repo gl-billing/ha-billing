@@ -9,7 +9,7 @@ import { enqueueBillingOpsAlert } from "@/lib/billing-ops-alerts";
 import { appendAuditLog, getAuditLog } from "@/lib/sheets/audit-log";
 import { sendHtmlEmailViaGmail } from "@/lib/office-tasks/gmail-send";
 import { todayYmd } from "@/lib/office-tasks/schedule";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 
 const SENT_PREFIX = "RETAINER_DIGEST_SENT";
 

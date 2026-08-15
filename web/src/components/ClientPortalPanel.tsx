@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ClientPortalView, type ClientPortalPaymentInstructions } from "@/components/ClientPortalView";
 import type { ClientPortalSnapshot } from "@/lib/client-portal-token";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import { truncateLinkForDisplay } from "@/lib/link-display";
 
 type Props = {

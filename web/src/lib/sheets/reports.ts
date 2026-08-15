@@ -1,5 +1,5 @@
-import type { ArAgingEntry, ArAgingReport, MonthlyCollectionsReport } from "@/lib/gl-config";
-import { GL } from "@/lib/gl-config";
+import type { ArAgingEntry, ArAgingReport, MonthlyCollectionsReport } from "@/lib/ha-config";
+import { HA } from "@/lib/ha-config";
 import { getSheetsClient, getSpreadsheetId } from "@/lib/sheets/client";
 import { getAllMasterRows } from "@/lib/sheets/master";
 import { getSheetTitles } from "@/lib/sheets/sheet-meta";
@@ -110,7 +110,7 @@ async function batchGetClientLedgers(
   for (let i = 0; i < eligible.length; i += chunkSize) {
     const chunk = eligible.slice(i, i + chunkSize);
     const ranges = chunk.map(
-      (c) => `'${c.code.replace(/'/g, "''")}'!A${GL.ledgerStartRow}:F`
+      (c) => `'${c.code.replace(/'/g, "''")}'!A${HA.ledgerStartRow}:F`
     );
 
     const response = await sheets.spreadsheets.values.batchGet({

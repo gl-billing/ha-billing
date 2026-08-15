@@ -1,6 +1,6 @@
 import "server-only";
 
-import { DEFAULT_FIELD_DISPATCH_STAFF } from "@/lib/gl-config";
+import { DEFAULT_FIELD_DISPATCH_STAFF } from "@/lib/ha-config";
 import { clientCodeFromCase } from "@/lib/office-tasks/client-matter";
 import { appendRemarkMarkers } from "@/lib/office-tasks/event-item-links";
 import { applyFollowUpMarker } from "@/lib/office-tasks/follow-up-marker";

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { triggerTaskOnArSent, triggerTaskOnSoaSent } from "@/lib/billing-task-triggers";
 import { callAppsScriptWebApp } from "@/lib/apps-script";
 import { requireSessionAccessToken } from "@/lib/api-auth";
-import { sanitizeSheetName, type BatchSoaPayload, type GenerateArPayload, type GenerateSoaPayload } from "@/lib/gl-config";
+import { sanitizeSheetName, type BatchSoaPayload, type GenerateArPayload, type GenerateSoaPayload } from "@/lib/ha-config";
 import { generateClientArReceiptNative } from "@/lib/sheets/client-ar-receipt";
 import { generateClientSoaNative } from "@/lib/sheets/client-soa-receipt";
 import { getClientDetail } from "@/lib/sheets/master";

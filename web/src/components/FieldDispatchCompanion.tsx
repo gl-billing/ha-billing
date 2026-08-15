@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { FieldDispatchEntry } from "@/lib/gl-config";
+import type { FieldDispatchEntry } from "@/lib/ha-config";
 import {
   fieldDispatchBillableTotal,
   fieldDispatchHasReturnedInput,
@@ -9,7 +9,7 @@ import {
   fieldDispatchSalaryCredit,
   fieldDispatchSpentAmount,
   formatPeso
-} from "@/lib/gl-config";
+} from "@/lib/ha-config";
 import { matterHref } from "@/lib/matter-routes";
 
 type Props = {

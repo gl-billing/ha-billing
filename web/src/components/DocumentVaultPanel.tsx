@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { DocumentLogEntry } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { DocumentLogEntry } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { truncateForDisplay } from "@/lib/link-display";
 import {
   DRIVE_VAULT_FOLDERS,

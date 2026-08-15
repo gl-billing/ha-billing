@@ -1,4 +1,4 @@
-import { formatClientCaseLabel } from "@/lib/gl-config";
+import { formatClientCaseLabel } from "@/lib/ha-config";
 import { parseContactEmails } from "@/lib/contact-emails";
 import { isValidEmailAddress } from "@/lib/office-tasks/gmail-send";
 import { clientCaseMatchesBillingClient, parseClientCaseDisplay, resolveClientCode } from "@/lib/office-tasks/client-matter";

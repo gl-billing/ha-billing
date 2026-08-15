@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ClientDetail, LedgerEntry } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { ClientDetail, LedgerEntry } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import type { AppearanceFeeOption } from "@/lib/sheets/ledger-read";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import {

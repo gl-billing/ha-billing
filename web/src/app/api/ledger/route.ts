@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import type { LedgerEditPayload, LedgerEntryPayload } from "@/lib/gl-config";
+import type { LedgerEditPayload, LedgerEntryPayload } from "@/lib/ha-config";
 import { requireAdminEmail } from "@/lib/admin";
 import { requireSessionAccessToken } from "@/lib/api-auth";
 import { authOptions } from "@/lib/auth";

@@ -1,5 +1,5 @@
-import { parseMoney, type LedgerEntry } from "@/lib/gl-config";
-import type { CaseOption } from "@/lib/gl-config";
+import { parseMoney, type LedgerEntry } from "@/lib/ha-config";
+import type { CaseOption } from "@/lib/ha-config";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import {
   isConsultationEventCategory,

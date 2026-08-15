@@ -2,7 +2,7 @@
 
 export type FollowUpMarker = "Waiting" | "Started";
 
-const MARKER_RE = /GL_FOLLOW_UP:(Waiting|Started)/i;
+const MARKER_RE = /(?:HA|GL)_FOLLOW_UP:(Waiting|Started)/i;
 
 export function getFollowUpFromRemarks(remarks: string): FollowUpMarker | null {
   const match = String(remarks || "").match(MARKER_RE);
@@ -13,12 +13,12 @@ export function getFollowUpFromRemarks(remarks: string): FollowUpMarker | null {
 
 export function applyFollowUpMarker(remarks: string, status: FollowUpMarker): string {
   const base = clearFollowUpMarker(remarks).trimEnd();
-  const marker = `GL_FOLLOW_UP:${status}`;
+  const marker = `HA_FOLLOW_UP:${status}`;
   return base ? `${base}\n${marker}` : marker;
 }
 
 const INTERNAL_REMARK_LINE_RES = [
-  /^GL_FOLLOW_UP:/i,
+  /^(?:HA|GL)_FOLLOW_UP:/i,
   /^EVENT_FOLLOWUP:/i,
   /^EVENT_REMINDER:/i,
   /^LINKED_FOLLOWUP_TASK:/i,
@@ -64,7 +64,7 @@ export function applyFollowUpWithNote(
 
 export function clearFollowUpMarker(remarks: string): string {
   return String(remarks || "")
-    .replace(/\n?GL_FOLLOW_UP:(Waiting|Started)/gi, "")
+    .replace(/\n?(?:HA|GL)_FOLLOW_UP:(Waiting|Started)/gi, "")
     .trim();
 }
 

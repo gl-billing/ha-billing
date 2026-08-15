@@ -1,7 +1,7 @@
 import "server-only";
 
 import { validateLedgerBillingClientAlignment } from "@/lib/ledger-billing-client-match";
-import { normalizePaymentMethod } from "@/lib/gl-config";
+import { normalizePaymentMethod } from "@/lib/ha-config";
 import { resolveEventLedgerBillingCode } from "@/lib/event-ledger-charge-server";
 import { triggerTaskOnCharge, triggerTaskOnPayment } from "@/lib/billing-task-triggers";
 import { letterBillingMarker } from "@/lib/office-tasks/letter-billing";

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminBillingAccessToken } from "@/lib/api-auth";
-import { sanitizeSheetName } from "@/lib/gl-config";
+import { sanitizeSheetName } from "@/lib/ha-config";
 import { renameTaskSourceIdsForClientCode } from "@/lib/office-tasks/sheets/rename-client-code";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import { invalidateCache, isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";

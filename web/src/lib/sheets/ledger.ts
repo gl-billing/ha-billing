@@ -1,11 +1,11 @@
 import {
-  GL,
+  HA,
   normalizePaymentMethod,
   parseMoney,
   sanitizeSheetName,
   type LedgerEditPayload,
   type LedgerEntryPayload
-} from "@/lib/gl-config";
+} from "@/lib/ha-config";
 import {
   getSheetValues,
   sheetExists,
@@ -17,12 +17,12 @@ import { isLedgerDateInClosedMonth, parseLedgerMonthToken } from "@/lib/firm-all
 import { readSettingsMap } from "@/lib/sheets/settings";
 
 async function getNextLedgerRow(accessToken: string, clientCode: string): Promise<number> {
-  const range = `'${clientCode}'!A${GL.ledgerStartRow}:A`;
+  const range = `'${clientCode}'!A${HA.ledgerStartRow}:A`;
   const values = await getSheetValues(accessToken, range);
-  let nextRow = GL.ledgerStartRow;
+  let nextRow = HA.ledgerStartRow;
 
   values.forEach((row, index) => {
-    if (row[0]) nextRow = GL.ledgerStartRow + index + 1;
+    if (row[0]) nextRow = HA.ledgerStartRow + index + 1;
   });
 
   return nextRow;
@@ -32,7 +32,7 @@ async function getPendingArCountForClient(
   accessToken: string,
   clientCode: string
 ): Promise<number> {
-  const ledger = await getSheetValues(accessToken, `'${clientCode}'!A${GL.ledgerStartRow}:L`);
+  const ledger = await getSheetValues(accessToken, `'${clientCode}'!A${HA.ledgerStartRow}:L`);
   let count = 0;
 
   ledger.forEach((row) => {
@@ -157,7 +157,7 @@ async function getLedgerRow(
   clientCode: string,
   sheetRow: number
 ): Promise<unknown[] | null> {
-  if (sheetRow < GL.ledgerStartRow) return null;
+  if (sheetRow < HA.ledgerStartRow) return null;
   const values = await getSheetValues(accessToken, `'${clientCode}'!A${sheetRow}:L${sheetRow}`);
   return values[0] || null;
 }

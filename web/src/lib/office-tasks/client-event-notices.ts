@@ -2,7 +2,7 @@ import "server-only";
 
 import { findEventLedgerCharge } from "@/lib/event-ledger-charge";
 import { readFirmAutomationSettings } from "@/lib/firm-automation-settings";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import { isHearingItem } from "@/lib/hearing-escalation";
 import { splitEventCategory } from "@/lib/office-tasks/event-form-utils";
 import { sendClientEmailViaGmail } from "@/lib/office-tasks/gmail-send";

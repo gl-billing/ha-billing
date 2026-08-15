@@ -3,7 +3,7 @@
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { TableSkeleton } from "@/components/Skeleton";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ClientSummary, FieldDispatchEntry } from "@/lib/gl-config";
+import type { ClientSummary, FieldDispatchEntry } from "@/lib/ha-config";
 import {
   computeFieldDispatchAdvanceBreakdown,
   DEFAULT_FIELD_DISPATCH_STAFF,
@@ -20,7 +20,7 @@ import {
   fieldDispatchSpentAmount,
   formatFieldDispatchTravelHours,
   formatPeso
-} from "@/lib/gl-config";
+} from "@/lib/ha-config";
 import { FieldDispatchCompanion } from "@/components/FieldDispatchCompanion";
 
 type LocationStat = {

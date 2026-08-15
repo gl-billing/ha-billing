@@ -6,7 +6,7 @@ import { normalizeIntakeChecklistInput, type IntakeChecklistInput } from "@/lib/
 import { assertIntakeConflictClear } from "@/lib/intake-conflict-gate";
 import { createIntakeSeedTasks } from "@/lib/intake-seed-tasks";
 import type { ConflictReviewChoice } from "@/lib/sheets/client-code-check";
-import type { NewClientPayload } from "@/lib/gl-config";
+import type { NewClientPayload } from "@/lib/ha-config";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import { invalidateBillingReadCaches, invalidateCache, isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 import {

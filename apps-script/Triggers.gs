@@ -114,37 +114,18 @@ function installHourlyDashboardRefresh() {
 /**
  * Run once from the Apps Script editor to grant Gmail access for SOA/AR email.
  * Use the same Google account as Web app deploy (Execute as: Me).
+ * Mail sends as that account — Sent stays there (not redirected to legal@).
  */
 function authorizeGmailForWebApp() {
   var activeEmail = Session.getActiveUser().getEmail();
-  var aliases = GmailApp.getAliases();
-  var firmEmail = typeof getFirmSenderEmail_ === "function" ? getFirmSenderEmail_() : "legal@hernandezlaw.info";
-  var allowed = typeof getGmailSendAsAddresses_ === "function" ? getGmailSendAsAddresses_() : [activeEmail].concat(aliases || []);
-  var normalizedFirm = String(firmEmail || "").trim().toLowerCase();
-  var canSendAs = false;
-
-  for (var i = 0; i < allowed.length; i++) {
-    if (String(allowed[i] || "").trim().toLowerCase() === normalizedFirm) {
-      canSendAs = true;
-      break;
-    }
-  }
-
-  if (!canSendAs) {
-    throw new Error(
-      typeof firmSendAsSetupMessage_ === "function"
-        ? firmSendAsSetupMessage_(firmEmail, activeEmail, allowed)
-        : "Add Send mail as for " + firmEmail + " in Gmail for " + activeEmail + ", then redeploy the Web App."
-    );
-  }
+  // Touch Gmail so the OAuth consent includes send permission.
+  GmailApp.getAliases();
 
   return {
     ok: true,
     message:
       "Gmail authorized for " +
       activeEmail +
-      " (can send as " +
-      firmEmail +
-      "). Deploy → Manage deployments → New version → Deploy, then retry SOA/AR."
+      ". Outbound Apps Script mail will send From / Sent in this mailbox (not legal@). Deploy → Manage deployments → New version → Deploy, then retry SOA/AR."
   };
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import type { LedgerEntry } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { LedgerEntry } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 
 type LedgerFilter = "all" | "charge" | "payment";

@@ -1,4 +1,4 @@
-import type { ClientSummary } from "@/lib/gl-config";
+import type { ClientSummary } from "@/lib/ha-config";
 import { findSimilarClients } from "@/lib/sheets/client-similarity";
 import { findPrefixCollisions, type PrefixCollisionMatch } from "@/lib/sheets/prefix-collision";
 import { sheetExists } from "@/lib/sheets/client";

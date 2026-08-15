@@ -1,4 +1,4 @@
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 import { appendSheetValues, updateSheetValues } from "@/lib/sheets/client";
 import { invalidateSettingsCache, readSettingsMap, readSettingsRowIndex } from "@/lib/sheets/settings";
 import {
@@ -46,7 +46,7 @@ export async function saveFirmAlertRulesToSettings(
 ): Promise<FirmAlertRules> {
   const rules = mergeFirmAlertRules(partial, getFirmAlertRules());
   const rowIndex = await readSettingsRowIndex(accessToken);
-  const sheet = GL.sheets.settings;
+  const sheet = HA.sheets.settings;
   const row = rowIndex.get(SETTINGS_KEY);
   const value = JSON.stringify(rules);
   if (row) {

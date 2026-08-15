@@ -1,5 +1,5 @@
 import { matterHasSoleAssignedLawyer } from "@/lib/assigned-lawyers";
-import { parseMoney } from "@/lib/gl-config";
+import { parseMoney } from "@/lib/ha-config";
 import { resolveClientCode } from "@/lib/office-tasks/client-matter";
 import {
   appendRemarkMarkers,

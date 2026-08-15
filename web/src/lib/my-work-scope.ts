@@ -1,22 +1,15 @@
+import { readBrowserStorage, writeBrowserStorage } from "@/lib/ha-browser-storage";
+
 export type MyWorkScope = "mine" | "firm";
 
-const STORAGE_KEY = "gl-office-my-work-scope";
+const STORAGE_KEY = "ha-office-my-work-scope";
+const LEGACY_STORAGE_KEY = "gl-office-my-work-scope";
 
 export function getSavedMyWorkScope(): MyWorkScope | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const value = localStorage.getItem(STORAGE_KEY);
-    return value === "mine" || value === "firm" ? value : null;
-  } catch {
-    return null;
-  }
+  const value = readBrowserStorage(STORAGE_KEY, LEGACY_STORAGE_KEY);
+  return value === "mine" || value === "firm" ? value : null;
 }
 
 export function saveMyWorkScope(scope: MyWorkScope): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY, scope);
-  } catch {
-    // ignore
-  }
+  writeBrowserStorage(STORAGE_KEY, scope, LEGACY_STORAGE_KEY);
 }

@@ -1,5 +1,5 @@
 import { verifyPaymentRequestToken, getPaymentInstructions } from "@/lib/payment-request";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 
 type PageProps = { params: Promise<{ token: string }> };
 

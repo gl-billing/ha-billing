@@ -1,6 +1,6 @@
 import {
   formatClientCaseLabel,
-  GL,
+  HA,
   normalizePaymentMethod,
   parseMoney,
   type CaseOption,
@@ -8,8 +8,8 @@ import {
   type WalkInBillingPayload,
   type WalkInClient,
   type WalkInClientPayload
-} from "@/lib/gl-config";
-import type { ClientSummary } from "@/lib/gl-config";
+} from "@/lib/ha-config";
+import type { ClientSummary } from "@/lib/ha-config";
 import {
   appendSheetValues,
   getSheetValues,
@@ -22,7 +22,7 @@ import { getClientLedger } from "@/lib/sheets/ledger-read";
 import { buildPaymentLedgerFields } from "@/lib/payment-income";
 import { ensureSheetTitle } from "@/lib/sheets/sheet-meta";
 
-const WALK_IN_HEADERS = [...GL.walkInHeaders];
+const WALK_IN_HEADERS = [...HA.walkInHeaders];
 const WALK_IN_COLS = WALK_IN_HEADERS.length;
 const WALK_IN_HEADER_RANGE = `A1:O1`;
 
@@ -82,7 +82,7 @@ function padWalkInRow(values: unknown[]): unknown[] {
 }
 
 async function ensureWalkInSheetReady(accessToken: string): Promise<void> {
-  const sheetName = GL.sheets.walkIn;
+  const sheetName = HA.sheets.walkIn;
   await ensureSheetTitle(accessToken, sheetName);
 
   const headerRow = await getSheetValues(accessToken, toA1Range(sheetName, WALK_IN_HEADER_RANGE));
@@ -100,7 +100,7 @@ async function ensureWalkInSheetReady(accessToken: string): Promise<void> {
 }
 
 async function nextWalkInId(accessToken: string): Promise<string> {
-  const sheetName = GL.sheets.walkIn;
+  const sheetName = HA.sheets.walkIn;
   const values = await getSheetValues(accessToken, toA1Range(sheetName, "A2:A"));
   let max = 0;
   for (const row of values) {
@@ -167,7 +167,7 @@ export function buildCaseOptions(
 
 export async function listWalkInClients(accessToken: string): Promise<WalkInClient[]> {
   await ensureWalkInSheetReady(accessToken);
-  const sheetName = GL.sheets.walkIn;
+  const sheetName = HA.sheets.walkIn;
   const values = await getSheetValues(accessToken, toA1Range(sheetName, `A2:O`));
   return values
     .map((row, index) => rowToWalkIn(row, index + 2))
@@ -207,7 +207,7 @@ export async function recordWalkInBilling(
 
   const status = walkInBillingStatus(charge, payment, billing.billingKind);
 
-  await updateSheetValues(accessToken, toA1Range(GL.sheets.walkIn, `G${entry.rowNumber}:O${entry.rowNumber}`), [
+  await updateSheetValues(accessToken, toA1Range(HA.sheets.walkIn, `G${entry.rowNumber}:O${entry.rowNumber}`), [
     [
       notes,
       entry.status,
@@ -305,7 +305,7 @@ export async function createWalkInClient(
   if (!matter) throw new Error("Consultation or matter title is required.");
 
   await ensureWalkInSheetReady(accessToken);
-  const sheetName = GL.sheets.walkIn;
+  const sheetName = HA.sheets.walkIn;
   const walkInId = await nextWalkInId(accessToken);
   const dateAdded = todayYmd();
 
@@ -353,7 +353,7 @@ export async function updateWalkInContact(
   const nextEmail = contact.email !== undefined ? contact.email.trim() : entry.email;
   const nextPhone = contact.phone !== undefined ? contact.phone.trim() : entry.phone;
 
-  await updateSheetValues(accessToken, toA1Range(GL.sheets.walkIn, `E${entry.rowNumber}:F${entry.rowNumber}`), [
+  await updateSheetValues(accessToken, toA1Range(HA.sheets.walkIn, `E${entry.rowNumber}:F${entry.rowNumber}`), [
     [nextPhone, nextEmail]
   ]);
 
@@ -445,7 +445,7 @@ export async function promoteWalkInClient(
 
   const result = await createClient(accessToken, payload);
 
-  await updateSheetValues(accessToken, toA1Range(GL.sheets.walkIn, `H${entry.rowNumber}:I${entry.rowNumber}`), [
+  await updateSheetValues(accessToken, toA1Range(HA.sheets.walkIn, `H${entry.rowNumber}:I${entry.rowNumber}`), [
     ["Promoted", result.clientCode]
   ]);
 
@@ -455,5 +455,5 @@ export async function promoteWalkInClient(
 
 export async function closeWalkInClient(accessToken: string, walkInId: string): Promise<void> {
   const entry = findWalkInEntry(await listWalkInClients(accessToken), walkInId);
-  await updateSheetValues(accessToken, toA1Range(GL.sheets.walkIn, `H${entry.rowNumber}`), [["Closed"]]);
+  await updateSheetValues(accessToken, toA1Range(HA.sheets.walkIn, `H${entry.rowNumber}`), [["Closed"]]);
 }

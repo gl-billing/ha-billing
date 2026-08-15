@@ -1,11 +1,11 @@
 import { clientCodeFromCase, parseExplicitLabelCode } from "@/lib/office-tasks/client-matter";
-import { formatClientCaseLabel, formatPeso } from "@/lib/gl-config";
+import { formatClientCaseLabel, formatPeso } from "@/lib/ha-config";
 import { invalidateCache } from "@/lib/sheets/cache";
 import { setItemDone } from "@/lib/office-tasks/sheets/complete";
 import { collectAllItems } from "@/lib/office-tasks/sheets/items";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import { isItemOpen } from "@/lib/office-tasks/schedule";
-import type { DocumentLogEntry } from "@/lib/gl-config";
+import type { DocumentLogEntry } from "@/lib/ha-config";
 import { getDocumentLog } from "@/lib/sheets/document-log";
 import { findMasterRow, getAllMasterRows } from "@/lib/sheets/master";
 

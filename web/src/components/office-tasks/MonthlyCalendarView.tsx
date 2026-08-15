@@ -5,6 +5,8 @@ import { FirmPrintLetterhead } from "@/components/FirmPrintLetterhead";
 import { ClientBirthdayCake } from "@/components/ClientBirthdayCake";
 import { useTodayBirthdays } from "@/components/TodayBirthdaysProvider";
 import { DayDetailPanel } from "@/components/office-tasks/DayDetailPanel";
+import { MobileMonthCalendar } from "@/components/mobile-app/MobileMonthCalendar";
+import { useNativeMobileLayout } from "@/hooks/useNativeMobileLayout";
 import { clientCodeFromCase, parseClientCaseDisplay } from "@/lib/office-tasks/client-matter";
 import { HintBar, StatTile, ToneLegend, ViewHero } from "@/components/office-tasks/PremiumUI";
 import { openPrintPreview } from "@/lib/print-preview";
@@ -65,6 +67,7 @@ export function MonthlyCalendarView({
   formOptions,
   togglingKey
 }: Props) {
+  const nativeMobile = useNativeMobileLayout();
   const { todayCodes } = useTodayBirthdays();
   const initial = parseYmdParts(today);
   const [year, setYear] = useState(initial.year);
@@ -89,6 +92,41 @@ export function MonthlyCalendarView({
     setYear(t.year);
     setMonth(t.month);
     setSelectedDate(today);
+  }
+
+  if (nativeMobile) {
+    return (
+      <div className="ha-mobile-app">
+        <MobileMonthCalendar
+          year={year}
+          month={month}
+          today={today}
+          selectedDate={selectedDate}
+          grid={grid}
+          holidayMap={holidayMap}
+          dayLookup={(date) => byDate[date] || []}
+          onShiftMonth={shiftMonth}
+          onGoToday={goToday}
+          onOpenDay={setSelectedDate}
+        />
+        <DayDetailPanel
+          date={selectedDate}
+          items={selectedItems}
+          today={today}
+          onToggleDone={onToggleDone}
+          onSetStatus={onSetStatus}
+          onResetWithDate={onResetWithDate}
+          onDeleteItem={onDeleteItem}
+          onUpdateNextAction={onUpdateNextAction}
+          onSaveEdit={onSaveEdit}
+          onCourtConfirmed={onCourtConfirmed}
+          onMarkSubmitted={onMarkSubmitted}
+          onConfirmParentFiled={onConfirmParentFiled}
+          formOptions={formOptions}
+          togglingKey={togglingKey}
+        />
+      </div>
+    );
   }
 
   const nav = (

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireSessionAccessToken } from "@/lib/api-auth";
-import { sanitizeSheetName } from "@/lib/gl-config";
+import { sanitizeSheetName } from "@/lib/ha-config";
 import { getDocumentLog } from "@/lib/sheets/document-log";
 
 export async function GET(request: Request) {

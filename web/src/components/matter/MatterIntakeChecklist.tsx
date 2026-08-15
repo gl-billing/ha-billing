@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { SameWindowLink } from "@/components/SameWindowLink";
-import type { ActivityItem, ClientDetail } from "@/lib/gl-config";
+import type { ActivityItem, ClientDetail } from "@/lib/ha-config";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import { matterHref } from "@/lib/matter-routes";
 

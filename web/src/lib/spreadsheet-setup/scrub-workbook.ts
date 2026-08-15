@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import { GL } from "@/lib/gl-config";
+import { HA } from "@/lib/ha-config";
 import { SHEETS as TASK_SHEETS } from "@/lib/tasks-config";
 
 type SheetRef = { title: string; sheetId: number };
@@ -48,7 +48,7 @@ export async function removeWorkbookProtection(
   const sheets = getSheetsClient(accessToken);
   let ids: number[] = [];
   try {
-    // Some GL workbooks return 400 when protectedRanges is in the fields mask — fetch full metadata instead.
+    // Some HA workbooks return 400 when protectedRanges is in the fields mask — fetch full metadata instead.
     const meta = await sheets.spreadsheets.get({ spreadsheetId });
     ids =
       meta.data.sheets
@@ -72,7 +72,7 @@ export async function removeWorkbookProtection(
       });
       removed += 1;
     } catch {
-      // Owner-only protection on GL copies — skip and try clearing anyway.
+      // Owner-only protection on HA copies — skip and try clearing anyway.
     }
   }
 
@@ -121,15 +121,15 @@ async function deleteSheetsById(
 /** System tabs kept when scrubbing a copied billing workbook — structure + automation only. */
 export const BILLING_SYSTEM_TABS = new Set(
   [
-    GL.sheets.settings,
-    GL.sheets.master,
-    GL.sheets.walkIn,
-    GL.sheets.spotBilling,
-    GL.sheets.notarization,
-    GL.sheets.fieldDispatch,
-    GL.sheets.dashboard,
-    GL.sheets.documentLog,
-    GL.sheets.auditLog,
+    HA.sheets.settings,
+    HA.sheets.master,
+    HA.sheets.walkIn,
+    HA.sheets.spotBilling,
+    HA.sheets.notarization,
+    HA.sheets.fieldDispatch,
+    HA.sheets.dashboard,
+    HA.sheets.documentLog,
+    HA.sheets.auditLog,
     "Template",
     "Invoice",
     "Acknowledgment Receipt",
@@ -175,13 +175,13 @@ export async function scrubBillingWorkbook(
   );
 
   const dataTabs = [
-    GL.sheets.master,
-    GL.sheets.walkIn,
-    GL.sheets.spotBilling,
-    GL.sheets.notarization,
-    GL.sheets.fieldDispatch,
-    GL.sheets.documentLog,
-    GL.sheets.auditLog,
+    HA.sheets.master,
+    HA.sheets.walkIn,
+    HA.sheets.spotBilling,
+    HA.sheets.notarization,
+    HA.sheets.fieldDispatch,
+    HA.sheets.documentLog,
+    HA.sheets.auditLog,
     "Pending AR"
   ];
 
@@ -204,10 +204,10 @@ export async function scrubBillingWorkbook(
     }
   }
 
-  if (titles.has(GL.sheets.dashboard)) {
+  if (titles.has(HA.sheets.dashboard)) {
     try {
-      await clearDataRows(accessToken, spreadsheetId, GL.sheets.dashboard);
-      clearedTabs.push(GL.sheets.dashboard);
+      await clearDataRows(accessToken, spreadsheetId, HA.sheets.dashboard);
+      clearedTabs.push(HA.sheets.dashboard);
     } catch (error) {
       const message = apiErrorMessage(error);
       if (/protected/i.test(message)) {
@@ -226,7 +226,7 @@ async function countMasterListClients(accessToken: string, spreadsheetId: string
   const sheets = getSheetsClient(accessToken);
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: `${quoteSheetTitle(GL.sheets.master)}!A2:A5000`
+    range: `${quoteSheetTitle(HA.sheets.master)}!A2:A5000`
   });
   return (response.data.values || []).filter((row) => String(row[0] ?? "").trim()).length;
 }
@@ -242,7 +242,7 @@ export async function assertBillingWorkbookIsBlank(
 
   if (extraTabs.length) {
     throw new Error(
-      `Billing workbook still has client ledger tabs (${extraTabs.slice(0, 5).join(", ")}${extraTabs.length > 5 ? "…" : ""}). Copy from a blank template — not the live GL billing file.`
+      `Billing workbook still has client ledger tabs (${extraTabs.slice(0, 5).join(", ")}${extraTabs.length > 5 ? "…" : ""}). Copy from a blank template — not the live HA billing file.`
     );
   }
 

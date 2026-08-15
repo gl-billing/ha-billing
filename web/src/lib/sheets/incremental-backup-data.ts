@@ -1,4 +1,4 @@
-import type { AuditLogEntry, DocumentLogEntry } from "@/lib/gl-config";
+import type { AuditLogEntry, DocumentLogEntry } from "@/lib/ha-config";
 import { getAuditLog } from "@/lib/sheets/audit-log";
 import { getDocumentLog } from "@/lib/sheets/document-log";
 

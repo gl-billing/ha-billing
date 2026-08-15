@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { ClientDetail, LedgerEntry } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { ClientDetail, LedgerEntry } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { ClientCodeRenameForm } from "@/components/ClientCodeRenameForm";
 import { AssignedLawyerFields } from "@/components/AssignedLawyerFields";
 import { formatClientAssignedLawyers } from "@/lib/assigned-lawyers";

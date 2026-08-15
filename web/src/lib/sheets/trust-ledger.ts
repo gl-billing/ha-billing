@@ -1,4 +1,4 @@
-import { GL, type TrustLedgerEntry, type TrustLedgerEntryType, type TrustLedgerSummary } from "@/lib/gl-config";
+import { HA, type TrustLedgerEntry, type TrustLedgerEntryType, type TrustLedgerSummary } from "@/lib/ha-config";
 import {
   appendSheetValues,
   getSheetValues,
@@ -26,7 +26,7 @@ function normalizeType(value: string): TrustLedgerEntryType {
 }
 
 async function ensureTrustLogReady(accessToken: string): Promise<void> {
-  const sheetName = GL.sheets.trustLog;
+  const sheetName = HA.sheets.trustLog;
   await ensureSheetTitle(accessToken, sheetName);
   const headerRow = await getSheetValues(accessToken, toA1Range(sheetName, "A1:H1"));
   if (!headerRow[0]?.[0]) {
@@ -53,7 +53,7 @@ export async function getTrustLedger(
   accessToken: string,
   options?: { clientCode?: string; limit?: number }
 ): Promise<{ entries: TrustLedgerEntry[]; summary: TrustLedgerSummary }> {
-  const sheetName = GL.sheets.trustLog;
+  const sheetName = HA.sheets.trustLog;
   if (!(await sheetTitleExists(accessToken, sheetName))) {
     return { entries: [], summary: { totalHeld: 0, entryCount: 0, clientCount: 0 } };
   }
@@ -101,7 +101,7 @@ export async function addTrustLedgerEntry(
   }
 ): Promise<TrustLedgerEntry> {
   await ensureTrustLogReady(accessToken);
-  const sheetName = GL.sheets.trustLog;
+  const sheetName = HA.sheets.trustLog;
   const existing = await getTrustLedger(accessToken, { clientCode: input.clientCode, limit: 500 });
   const priorBalance = existing.entries[0]?.balance ?? 0;
   const signed =

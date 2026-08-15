@@ -8,8 +8,8 @@ import { RetainerBillingStrip } from "@/components/RetainerBillingStrip";
 import { SmartLoadEmptyState } from "@/components/SmartLoadEmptyState";
 import { DashboardSkeleton } from "@/components/Skeleton";
 import { useCallback, useEffect, useState } from "react";
-import type { HomeDashboard } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { HomeDashboard } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { cachedFetchJson, invalidateCachedFetch } from "@/lib/client-fetch-cache";
 
 export type HomeNavigate = {

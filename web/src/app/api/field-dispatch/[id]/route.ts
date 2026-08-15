@@ -3,11 +3,11 @@ import { getServerSession } from "next-auth";
 import { requireBillingAccessToken } from "@/lib/api-auth";
 import { authOptions } from "@/lib/auth";
 import { requireAdminEmail } from "@/lib/admin";
-import { parseMoney } from "@/lib/gl-config";
+import { parseMoney } from "@/lib/ha-config";
 import { isQuotaError, quotaErrorMessage, invalidateBillingReadCaches, invalidateCache } from "@/lib/sheets/cache";
 import { appendAuditLog } from "@/lib/sheets/audit-log";
 import { addLedgerEntry } from "@/lib/sheets/ledger";
-import type { FieldDispatchEditPayload } from "@/lib/gl-config";
+import type { FieldDispatchEditPayload } from "@/lib/ha-config";
 import {
   markFieldDispatchBilled,
   reconcileFieldDispatch,

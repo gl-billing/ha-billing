@@ -1,5 +1,5 @@
 import { PDFDocument, StandardFonts, type PDFPage, rgb } from "pdf-lib";
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import { pdfColor, wrapText } from "@/lib/billing-document-pdf/common";
 import { drawFirmPageFooterPdf, firmPageFooterReservePt } from "@/lib/firm-letterhead";
 import { getFirmPageSpec } from "@/lib/firm-page-sizes";

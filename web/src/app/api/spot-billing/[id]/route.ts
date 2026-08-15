@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { requireBillingAccessToken } from "@/lib/api-auth";
 import { authOptions } from "@/lib/auth";
-import type { SpotBillingTransactionPayload } from "@/lib/gl-config";
+import type { SpotBillingTransactionPayload } from "@/lib/ha-config";
 import { isQuotaError, quotaErrorMessage, invalidateCache } from "@/lib/sheets/cache";
 import { addSpotBillingTransaction, closeSpotBillingEntry } from "@/lib/sheets/spot-billing";
 import { appendAuditLog } from "@/lib/sheets/audit-log";

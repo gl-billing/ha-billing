@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { OfficeHubLauncher } from "@/components/OfficeHubLauncher";
 import { isAdminEmail } from "@/lib/admin";
@@ -6,6 +7,8 @@ import { canAccessOfficeHub } from "@/lib/app-access";
 import { getSafeServerSession } from "@/lib/safe-server-session";
 import { emptyOfficeHubSummary } from "@/lib/office-hub/summary";
 import { formatStaffDisplayName } from "@/lib/user-display";
+import { LAYOUT_MODE_COOKIE, LAYOUT_MODE_QUERY, LEGACY_LAYOUT_MODE_COOKIE, shouldOpenNativeMobileHome } from "@/lib/layout-mode-prefs";
+import { mobileOfficeHomeHref } from "@/lib/space-nav";
 
 export default async function OfficeHubPage({
   searchParams
@@ -28,6 +31,22 @@ export default async function OfficeHubPage({
   const params = searchParams ? await searchParams : undefined;
   const noticeRaw = params?.notice;
   const notice = Array.isArray(noticeRaw) ? noticeRaw[0] : noticeRaw;
+  const layoutQueryRaw = params?.[LAYOUT_MODE_QUERY];
+  const layoutQuery = Array.isArray(layoutQueryRaw) ? layoutQueryRaw[0] : layoutQueryRaw;
+  const cookieStore = await cookies();
+  const headerList = await headers();
+  if (
+    shouldOpenNativeMobileHome({
+      layoutCookie: cookieStore.get(LAYOUT_MODE_COOKIE)?.value || cookieStore.get(LEGACY_LAYOUT_MODE_COOKIE)?.value,
+      userAgent: headerList.get("user-agent"),
+      layoutQuery: typeof layoutQuery === "string" ? layoutQuery : null
+    })
+  ) {
+    const home = mobileOfficeHomeHref();
+    const suffix =
+      layoutQuery === "mobile" || layoutQuery === "desktop" ? `&${LAYOUT_MODE_QUERY}=${layoutQuery}` : "";
+    redirect(`${home}${suffix}`);
+  }
 
   const initialSummary = {
     ...emptyOfficeHubSummary(email),

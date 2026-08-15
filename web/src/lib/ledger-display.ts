@@ -1,4 +1,4 @@
-import type { LedgerEntry } from "@/lib/gl-config";
+import type { LedgerEntry } from "@/lib/ha-config";
 import { EVENT_LEDGER_CHARGE_MARKER } from "@/lib/event-ledger-charge";
 import { INTAKE_ACCEPTANCE_FEE_LEDGER_MARKER } from "@/lib/intake-acceptance-fee";
 import {

@@ -9,7 +9,7 @@ import {
   formatPostedLedgerChargeNotice
 } from "@/lib/ledger-charge-notices";
 import { validateLedgerBillingClientAlignment } from "@/lib/ledger-billing-client-match";
-import { normalizePaymentMethod } from "@/lib/gl-config";
+import { normalizePaymentMethod } from "@/lib/ha-config";
 import { triggerTaskOnCharge, triggerTaskOnPayment } from "@/lib/billing-task-triggers";
 import {
   clientCodeFromCase,

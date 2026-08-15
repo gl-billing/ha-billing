@@ -1,4 +1,4 @@
-import type { LedgerEntry } from "@/lib/gl-config";
+import type { LedgerEntry } from "@/lib/ha-config";
 import {
   formatLedgerEntryDetails,
   formatLedgerEntryLabel,

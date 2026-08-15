@@ -1,5 +1,5 @@
-import type { PendingArEntry } from "@/lib/gl-config";
-import { GL } from "@/lib/gl-config";
+import type { PendingArEntry } from "@/lib/ha-config";
+import { HA } from "@/lib/ha-config";
 import { getSheetValues } from "@/lib/sheets/client";
 import { sheetTitleExists } from "@/lib/sheets/sheet-meta";
 import { getClientPayments } from "@/lib/sheets/ledger-read";
@@ -99,7 +99,7 @@ export async function getPendingArEntries(
     });
   }
 
-  const rows = master ?? (await getSheetValues(accessToken, `'${GL.sheets.master}'!A2:Z`));
+  const rows = master ?? (await getSheetValues(accessToken, `'${HA.sheets.master}'!A2:Z`));
   const entries = await scanClientsForPendingAr(accessToken, rows);
   return entries.sort((a, b) => {
     const da = new Date(a.date).getTime() || 0;

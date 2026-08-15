@@ -49,15 +49,20 @@ function findSecretaryInDirectory(
   return byName || null;
 }
 
-const COURT_CONFIRMED_MARKER = "GL_COURT_CONFIRMED";
+const COURT_CONFIRMED_MARKER = "HA_COURT_CONFIRMED";
+/** Earlier HA sheet rows may still carry this token; read it, never write it. */
+const LEGACY_COURT_CONFIRMED_MARKER = "GL_COURT_CONFIRMED";
 
 export function markCourtConfirmed(remarks: string): string {
-  const base = String(remarks || "").replace(/GL_COURT_CONFIRMED/g, "").trim();
+  const base = String(remarks || "")
+    .replace(new RegExp(`${COURT_CONFIRMED_MARKER}|${LEGACY_COURT_CONFIRMED_MARKER}`, "g"), "")
+    .trim();
   return base ? `${base} ${COURT_CONFIRMED_MARKER}` : COURT_CONFIRMED_MARKER;
 }
 
 export function isCourtConfirmed(remarks: string): boolean {
-  return String(remarks || "").includes(COURT_CONFIRMED_MARKER);
+  const value = String(remarks || "");
+  return value.includes(COURT_CONFIRMED_MARKER) || value.includes(LEGACY_COURT_CONFIRMED_MARKER);
 }
 
 export function isHearingItem(item: OfficeItem): boolean {

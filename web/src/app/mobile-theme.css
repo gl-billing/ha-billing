@@ -1,0 +1,1061 @@
+/**
+ * Native mobile black-and-white theme.
+ * Scoped to HA Space when layout-mode is not desktop.
+ * Desktop HA Space tokens and layout are unchanged.
+ */
+
+html[data-layout-mode="mobile"] {
+  color-scheme: dark;
+  --ha-m-bg: #0b0b0b;
+  --ha-m-chrome: #0f0f0f;
+  --ha-m-card: #181818;
+  --ha-m-card-elevated: #202020;
+  --ha-m-accent: #ffffff;
+  --ha-m-accent-action: #f0f0f0;
+  --ha-m-accent-border: #6b6b6b;
+  --ha-m-accent-ink: #0a0a0a;
+  --ha-m-ink: #f5f1e8;
+  --ha-m-muted: #c4bdb3;
+  --ha-m-muted-2: #9a948c;
+  --ha-m-chrome-ink: #f5f1e8;
+  --ha-m-card-ink: #f5f1e8;
+  --ha-m-card-muted: #c4bdb3;
+  --ha-m-divider: #2d2d2d;
+  --ha-m-error: #d86a63;
+  --ha-m-success: #78a985;
+  --ha-m-warning: #f0f0f0;
+  --ha-m-gutter: 1rem;
+  --mobile-nav-height: 5.25rem;
+  --mobile-header-height: 6.75rem;
+
+  /* Semantic text roles — reuse these instead of one-off page colors. */
+  --ha-m-text: var(--ha-m-ink);
+  --ha-m-text-secondary: var(--ha-m-muted);
+  --ha-m-text-muted: var(--ha-m-muted-2);
+  --ha-m-text-inverse: var(--ha-m-accent-ink);
+  --ha-m-heading: var(--ha-m-ink);
+  --ha-m-link: var(--ha-m-accent);
+  --ha-m-disabled: color-mix(in srgb, var(--ha-m-muted-2) 72%, var(--ha-m-card));
+
+  /*
+   * Semantic mobile type scale (rendered px, independent of --app-ui-scale).
+   * 1 page title → 2 section → 3 card → 4 field label → 5 body → 6 helper → 7 caption/badge.
+   */
+  --ha-m-fs-title: 28px;
+  --ha-m-fw-title: 700;
+  --ha-m-lh-title: 1.2;
+
+  --ha-m-fs-section: 21px;
+  --ha-m-fw-section: 650;
+  --ha-m-lh-section: 1.25;
+
+  --ha-m-fs-card: 18px;
+  --ha-m-fw-card: 650;
+  --ha-m-lh-card: 1.3;
+
+  --ha-m-fs-field: 15px;
+  --ha-m-fw-field: 600;
+  --ha-m-lh-field: 1.35;
+
+  --ha-m-fs-body: 16px;
+  --ha-m-fw-body: 400;
+  --ha-m-lh-body: 1.45;
+
+  --ha-m-fs-secondary: 13px;
+  --ha-m-fw-secondary: 400;
+  --ha-m-lh-secondary: 1.45;
+
+  --ha-m-fs-caption: 12px;
+  --ha-m-fw-caption: 500;
+  --ha-m-lh-caption: 1.35;
+
+  --ha-m-fs-eyebrow: 12px;
+  --ha-m-fw-eyebrow: 600;
+  --ha-m-lh-eyebrow: 1.35;
+
+  --ha-m-fs-badge: 11px;
+  --ha-m-fw-badge: 600;
+  --ha-m-lh-badge: 1.35;
+
+  --ha-m-fs-button: 16px;
+  --ha-m-fw-button: 600;
+  --ha-m-lh-button: 1.35;
+
+  --ha-m-fs-stat: 28px;
+  --ha-m-fw-stat: 700;
+  --ha-m-lh-stat: 1.1;
+
+  --ha-m-fs-label: var(--ha-m-fs-caption);
+  --ha-m-lh: var(--ha-m-lh-body);
+  --ha-m-lh-tight: var(--ha-m-lh-title);
+  --ha-m-gap-heading: 0.35rem;
+  --ha-m-gap-section: 1.15rem;
+  --mo-bg: var(--ha-m-bg);
+  --mo-card: var(--ha-m-card);
+  --mo-panel: var(--ha-m-card-elevated);
+  --mo-ink: var(--ha-m-ink);
+  --mo-muted: var(--ha-m-muted);
+  --mo-accent: var(--ha-m-accent);
+  --mo-accent-ink: var(--ha-m-accent-ink);
+
+  /* Remap shared desktop tokens so variable-based theme CSS turns dark on mobile only. */
+  --cream: var(--ha-m-card);
+  --ink: var(--ha-m-ink);
+  --muted: var(--ha-m-muted);
+  --gold: var(--ha-m-accent);
+  --gold-light: var(--ha-m-accent-action);
+  --gold-dark: var(--ha-m-accent);
+  --line: var(--ha-m-divider);
+  --paper: var(--ha-m-card);
+  --soft: var(--ha-m-bg);
+
+  --space-glass: var(--ha-m-card);
+  --space-glass-solid: var(--ha-m-card);
+  --space-ink: var(--ha-m-ink);
+  --space-muted: var(--ha-m-muted);
+  --space-gold: var(--ha-m-accent);
+  --space-gold-light: var(--ha-m-accent-action);
+  --space-gold-deep: var(--ha-m-accent);
+  --space-line: color-mix(in srgb, var(--ha-m-accent) 28%, transparent);
+  --space-line-soft: var(--ha-m-divider);
+  --space-card-border: var(--ha-m-divider);
+  --space-status-overdue: var(--ha-m-error);
+  --space-status-overdue-bg: color-mix(in srgb, var(--ha-m-error) 18%, var(--ha-m-card));
+  --space-status-today: var(--ha-m-accent);
+  --space-status-today-bg: color-mix(in srgb, var(--ha-m-accent) 18%, var(--ha-m-card));
+  --space-status-waiting: var(--ha-m-muted);
+  --space-status-waiting-bg: var(--ha-m-card-elevated);
+  --space-status-done: var(--ha-m-success);
+  --space-status-done-bg: color-mix(in srgb, var(--ha-m-success) 18%, var(--ha-m-card));
+
+  --trial-surface: var(--ha-m-bg);
+  --trial-powder: var(--ha-m-card);
+  --trial-blush: var(--ha-m-card);
+  --trial-sand: var(--ha-m-card-elevated);
+  --trial-text: var(--ha-m-ink);
+  --trial-muted: var(--ha-m-muted);
+  --trial-primary: var(--ha-m-accent);
+  --trial-accent: var(--ha-m-accent-action);
+  --trial-on-primary: var(--ha-m-accent-ink);
+  --ws-bg: var(--ha-m-bg);
+  --ws-panel: var(--ha-m-card);
+  --ws-panel-2: var(--ha-m-card-elevated);
+  --ws-raised: var(--ha-m-card-elevated);
+  --ws-line: var(--ha-m-divider);
+  --ws-line-strong: var(--ha-m-accent-border);
+  --ws-text: var(--ha-m-ink);
+  --ws-text-soft: var(--ha-m-muted);
+  --ws-text-muted: var(--ha-m-muted-2);
+  --ws-gold: var(--ha-m-accent);
+  --ws-gold-soft: var(--ha-m-card-elevated);
+  --ws-accent-border: var(--ha-m-accent-border);
+  --ws-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --ws-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.4);
+
+  & body,
+  & .firm-workspace,
+  & .firm-workspace-body,
+  & .trial-firm-layout,
+  & .trial-firm-layout__main,
+  & .app-shell,
+  & .office-hub-page,
+  & .office-hub-space-shell,
+  & .office-hub-clio-shell,
+  & .mobile-office-home-slot,
+  & .ha-mobile-app {
+    background: var(--ha-m-bg) !important;
+    color: var(--ha-m-ink);
+    color-scheme: dark;
+  }
+
+  & .mobile-office-header,
+  & .mobile-office-bottom-nav {
+    background: var(--ha-m-chrome) !important;
+    color: var(--ha-m-chrome-ink);
+    border-color: var(--ha-m-divider);
+  }
+
+  & .mobile-office-header__logo-ring,
+  & .mobile-office-header__name,
+  & .mobile-office-header__menu-btn {
+    color: var(--ha-m-accent);
+  }
+
+  & .mobile-office-header__logo-ring {
+    background: var(--ha-m-card);
+    border-color: var(--ha-m-accent);
+  }
+
+  & .mobile-office-menu {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+  }
+
+  & .mobile-office-menu__backdrop {
+    background: rgba(0, 0, 0, 0.62);
+  }
+
+  & .layout-mode-switcher__option {
+    color: var(--ha-m-ink) !important;
+    border-color: var(--ha-m-accent-border) !important;
+    background: var(--ha-m-card-elevated) !important;
+  }
+
+  & .layout-mode-switcher__option-label,
+  & .layout-mode-switcher__option-hint {
+    color: inherit !important;
+  }
+
+  & .layout-mode-switcher__option--active {
+    background: var(--ha-m-accent-action) !important;
+    color: var(--ha-m-accent-ink) !important;
+    border-color: var(--ha-m-accent) !important;
+  }
+
+  & .layout-mode-switcher__label {
+    color: var(--ha-m-muted) !important;
+  }
+
+  & .ha-mobile-page-title,
+  & .page-header__title {
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .ha-mobile-page-subtitle,
+  & .page-header__subtitle {
+    color: var(--ha-m-muted) !important;
+  }
+
+  & .firm-workspace .card:not(.matter-case-details),
+  & .firm-workspace .ui-card,
+  & .firm-workspace .card-elevated,
+  & .firm-workspace .view-hero,
+  & .firm-workspace .empty-state,
+  & .firm-workspace .form-panel,
+  & .firm-workspace .my-work-panel__block,
+  & .firm-workspace .my-work-feed,
+  & .firm-workspace .bucket-section,
+  & .firm-workspace .my-work-sidecard,
+  & .firm-workspace .stat-tile,
+  & .firm-workspace .today-work-stats,
+  & .firm-workspace .day-detail-panel,
+  & .firm-workspace .mobile-office__card,
+  & .firm-workspace .mobile-office__event,
+  & .firm-workspace .mobile-office__evening,
+  & .ha-mobile-app .card:not(.reset-dialog):not(.item-details-dialog) {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  & .ha-mobile-primary-btn,
+  & .firm-workspace .btn-primary,
+  & .firm-workspace .entry-form .btn-primary,
+  & .firm-workspace .entry-form__footer .btn-primary,
+  & .firm-workspace .tool-action-btn--primary,
+  & [role="dialog"] .btn-primary,
+  & .modal-panel .btn-primary,
+  & .reset-dialog .btn-primary {
+    background: var(--ha-m-accent-action) !important;
+    color: var(--ha-m-accent-ink) !important;
+    border-color: transparent !important;
+  }
+
+  & .firm-workspace .btn-secondary,
+  & .firm-workspace .entry-form .btn-secondary,
+  & [role="dialog"] .btn-secondary,
+  & .modal-panel .btn-secondary,
+  & .reset-dialog .btn-secondary {
+    background: var(--ha-m-card-elevated) !important;
+    color: var(--ha-m-accent) !important;
+    border: 1px solid var(--ha-m-accent-border) !important;
+  }
+
+  & .firm-workspace .field,
+  & .firm-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+  & .firm-workspace select,
+  & .firm-workspace textarea,
+  & [role="dialog"] .field,
+  & [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+  & [role="dialog"] select,
+  & [role="dialog"] textarea,
+  & .modal-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
+  & .modal-panel textarea,
+  & .modal-panel select,
+  & .reset-dialog input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
+  & .reset-dialog textarea,
+  & .item-details-dialog input:not([type="checkbox"]):not([type="radio"]),
+  & .item-details-dialog textarea {
+    background: var(--ha-m-card-elevated) !important;
+    background-color: var(--ha-m-card-elevated) !important;
+    color: var(--ha-m-ink) !important;
+    -webkit-text-fill-color: var(--ha-m-ink) !important;
+    caret-color: var(--ha-m-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+    color-scheme: dark !important;
+  }
+
+  & input::placeholder,
+  & textarea::placeholder {
+    color: var(--ha-m-muted-2) !important;
+    -webkit-text-fill-color: var(--ha-m-muted-2) !important;
+    opacity: 1;
+  }
+
+  & .firm-workspace .field:focus,
+  & .firm-workspace input:not([type="checkbox"]):not([type="radio"]):focus,
+  & .firm-workspace select:focus,
+  & .firm-workspace textarea:focus,
+  & [role="dialog"] .field:focus,
+  & [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):focus,
+  & [role="dialog"] select:focus,
+  & [role="dialog"] textarea:focus {
+    border-color: var(--ha-m-accent) !important;
+    outline: 1px solid color-mix(in srgb, var(--ha-m-accent) 55%, transparent);
+    outline-offset: 0;
+    box-shadow: none !important;
+  }
+
+  & .field-label,
+  & .firm-workspace label,
+  & .refine-field__label {
+    color: var(--ha-m-muted);
+  }
+
+  & .filing-prep-tasks-dialog,
+  & .civil-efiling-dialog,
+  & [role="dialog"] {
+    color-scheme: dark !important;
+  }
+
+  & .reset-dialog,
+  & .item-details-dialog,
+  & [role="dialog"] .card,
+  & .ha-dialog,
+  & .modal-panel,
+  & .matter-quick-add-dialog,
+  & .theme-confirm-dialog,
+  & .workspace-intro-modal,
+  & .keyboard-shortcuts-modal,
+  & .birthday-greeting-dialog,
+  & .client-profile-modal,
+  & .schedule-email-modal,
+  & .walk-in-done-dialog,
+  & .profile-edit-dialog__panel,
+  & .profile-photo-crop__panel,
+  & .user-profile-saved-dialog__panel,
+  & .filing-prep-tasks-dialog,
+  & .civil-efiling-dialog,
+  & .appearance-bill-handoff {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .item-details-dialog__head,
+  & .item-details-dialog__foot,
+  & .item-details-dialog__section,
+  & .item-details-dialog__doc-request {
+    background: var(--ha-m-card-elevated) !important;
+    color: var(--ha-m-card-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .item-details-dialog,
+  & .item-details-dialog__title,
+  & .item-details-dialog__text,
+  & .item-details-dialog__meta,
+  & .item-details-dialog__client,
+  & .item-details-dialog__kind,
+  & .item-details-dialog__waiting-chip,
+  & .item-details-dialog p,
+  & .item-details-dialog li,
+  & .item-details-dialog label,
+  & .desk-checklist-meta__value,
+  & .desk-checklist-meta--dialog-head .desk-checklist-meta__value,
+  & .modal-panel p,
+  & .modal-panel li,
+  & .modal-panel label,
+  & [role="dialog"] p,
+  & [role="dialog"] li,
+  & [role="dialog"] label {
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .item-details-dialog__label,
+  & .item-details-dialog__action-group-label,
+  & .item-details-dialog__prep-label,
+  & .item-details-dialog__doc-request__label,
+  & .desk-checklist-meta__label,
+  & .desk-checklist-meta--dialog-head .desk-checklist-meta__label {
+    color: var(--ha-m-muted) !important;
+  }
+
+  & .desk-checklist-meta__value--overdue {
+    color: var(--ha-m-error) !important;
+  }
+
+  & .desk-checklist-status-pill,
+  & .item-details-dialog__badge {
+    background: color-mix(in srgb, var(--ha-m-accent) 22%, var(--ha-m-card)) !important;
+    color: var(--ha-m-ink) !important;
+    border-color: var(--ha-m-accent-border) !important;
+  }
+
+  & .item-details-dialog__action-btn--chip,
+  & .item-details-dialog__action-btn--secondary,
+  & .item-details-dialog__action-btn--link,
+  & .item-details-dialog__prep-btn,
+  & .item-details-dialog__matter,
+  & .item-details-dialog__matter-link {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .item-details-dialog__action-btn--primary,
+  & .item-details-dialog__done {
+    background: var(--ha-m-accent-action) !important;
+    color: var(--ha-m-accent-ink) !important;
+    border-color: var(--ha-m-accent) !important;
+  }
+
+  & .item-details-dialog__action-btn--danger,
+  & .item-details-dialog__action-btn--warning {
+    color: var(--ha-m-error) !important;
+    border-color: color-mix(in srgb, var(--ha-m-error) 45%, var(--ha-m-divider)) !important;
+    background: color-mix(in srgb, var(--ha-m-error) 12%, var(--ha-m-card)) !important;
+  }
+
+  & .item-details-dialog__action-primaries,
+  & .item-details-dialog__action-secondaries {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  & .item-details-dialog__action-btn--primary,
+  & .item-details-dialog__action-btn--secondary {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+
+  & .reset-dialog-backdrop,
+  & .modal-backdrop,
+  & .dialog-backdrop {
+    background: rgba(0, 0, 0, 0.72) !important;
+  }
+
+  & .text-ink,
+  & .firm-workspace [class*="text-ink"] {
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .text-muted,
+  & .view-eyebrow {
+    color: var(--ha-m-muted) !important;
+  }
+
+  & .text-gold,
+  & .text-gold-dark {
+    color: var(--ha-m-accent) !important;
+  }
+
+  & .font-display,
+  & h1,
+  & h2,
+  & h3 {
+    color: var(--ha-m-ink);
+  }
+
+  & .text-red-700,
+  & .balanceDue,
+  & [role="alert"],
+  & .field-error,
+  & .form-error {
+    color: var(--ha-m-error) !important;
+  }
+
+  & .firm-workspace-body table tr,
+  & .desk-checklist-row,
+  & .desk-checklist-row__panel,
+  & .my-work-list__row,
+  & .space-notifications-desk__row,
+  & .space-notifications-desk__link,
+  & .space-tasks-ledger__row,
+  & .space-staff-ledger__card,
+  & .space-staff-ledger__card--active,
+  & .space-staff-ledger__invite,
+  & .space-staff-ledger__search,
+  & .space-staff-ledger__filters,
+  & .space-notifications-desk__panel,
+  & .matter-page__header-more-menu,
+  & .client-directory__row,
+  & .ar-row,
+  & .soa-row,
+  & .firm-staff-roster,
+  & .user-profile-desk__hero,
+  & .user-profile-desk__panel,
+  & .user-profile-page__main,
+  & .user-profile-page__stage {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+    box-shadow: none !important;
+  }
+
+  & .space-notifications-desk__row--urgent {
+    background: color-mix(in srgb, var(--ha-m-error) 14%, var(--ha-m-card)) !important;
+    border-left-color: var(--ha-m-error) !important;
+  }
+
+  & .space-notifications-desk__row--birthday {
+    background: var(--ha-m-card) !important;
+    border-left-color: var(--ha-m-accent) !important;
+  }
+
+  & .space-tasks-ledger__chip,
+  & .filter-chip,
+  & .nav-tab,
+  & .event-segmented__pill,
+  & .form-option-card {
+    background: var(--ha-m-card-elevated);
+    color: var(--ha-m-muted);
+    border-color: var(--ha-m-divider);
+  }
+
+  & .space-tasks-ledger__chip--on,
+  & .filter-chip--on,
+  & .filter-chip.is-active,
+  & .nav-tab.active,
+  & .nav-tab-active,
+  & .event-segmented__pill--active,
+  & .form-option-card--selected {
+    background: var(--ha-m-accent) !important;
+    color: var(--ha-m-accent-ink) !important;
+    border-color: var(--ha-m-accent) !important;
+  }
+
+  & .weekly-board,
+  & .day-schedule,
+  & .day-schedule-view,
+  & .schedule-agenda,
+  & .schedule-agenda-view,
+  & .calendar-shell,
+  & .search-page,
+  & .client-directory,
+  & .space-notifications-desk,
+  & .space-staff-ledger,
+  & .firm-ledger,
+  & .documents-workspace {
+    background: transparent !important;
+    color: var(--ha-m-ink);
+  }
+
+  & .firm-workspace .calendar-shell,
+  & .firm-clio-shell .calendar-shell {
+    background: var(--ha-m-bg) !important;
+    border-color: var(--ha-m-divider) !important;
+    overflow-x: auto !important;
+    max-width: 100% !important;
+  }
+
+  /* Desktop “scroll more” cream fade — looks like a light on the right. */
+  & .scroll-panel-hint::after,
+  & .calendar-shell::after,
+  & .firm-workspace .scroll-panel-hint::after,
+  & .firm-clio-shell .scroll-panel-hint::after {
+    display: none !important;
+    content: none !important;
+    background: none !important;
+  }
+
+  & .firm-workspace .calendar-shell__weekday-row,
+  & .firm-workspace .calendar-shell__week-row,
+  & .firm-clio-shell .calendar-shell__weekday-row,
+  & .firm-clio-shell .calendar-shell__week-row {
+    display: grid !important;
+    grid-template-columns: repeat(7, minmax(6.25rem, 6.5rem)) !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    gap: 0.4rem !important;
+  }
+
+  & .ha-mobile-month-board {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-width: 100% !important;
+    background: transparent;
+  }
+
+  & .ha-mobile-day-detail {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  & .firm-workspace .calendar-weekday,
+  & .firm-clio-shell .calendar-weekday {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-muted) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .firm-workspace .calendar-day-cell,
+  & .firm-workspace .weekly-day-column,
+  & .firm-clio-shell .calendar-day-cell {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .firm-workspace .calendar-day-cell--muted,
+  & .firm-clio-shell .calendar-day-cell--muted {
+    background: var(--ha-m-bg) !important;
+    color: var(--ha-m-muted-2) !important;
+  }
+
+  & .firm-workspace .calendar-day-cell--selected,
+  & .firm-workspace .calendar-day-cell--today,
+  & .firm-clio-shell .calendar-day-cell--selected,
+  & .firm-clio-shell .calendar-day-cell--today {
+    background: var(--ha-m-accent) !important;
+    color: var(--ha-m-accent-ink) !important;
+    box-shadow: none !important;
+  }
+
+  & .firm-workspace .calendar-day-cell--today .calendar-day-head,
+  & .firm-workspace .calendar-day-cell--selected .calendar-day-num,
+  & .firm-clio-shell .calendar-day-cell--today .calendar-day-head {
+    background: transparent !important;
+    color: var(--ha-m-accent-ink) !important;
+  }
+
+  & .empty-state,
+  & .premium-empty,
+  & .page-loading,
+  & .space-desk-loading {
+    background: transparent !important;
+  }
+
+  & .empty-state__title,
+  & .page-loading__title,
+  & .space-empty-state__title {
+    color: var(--ha-m-heading, var(--ha-m-ink)) !important;
+  }
+
+  & .empty-state__message,
+  & .page-loading__copy,
+  & .space-empty-state__copy {
+    color: var(--ha-m-text-secondary, var(--ha-m-muted)) !important;
+  }
+
+  & .client-matter-panel,
+  & .client-matter-panel__header,
+  & .client-matter-panel__body,
+  & .matter-page,
+  & .matter-case-details {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+  }
+
+  & .client-matter-panel__header-actions .btn-secondary,
+  & .client-matter-panel__header-actions .client-matter-panel__billing-link,
+  & .client-matter-panel__header-actions .client-matter-panel__details-toggle,
+  & .client-matter-panel__header-actions .matter-page__header-action {
+    background: var(--ha-m-card-elevated) !important;
+    color: var(--ha-m-accent) !important;
+    border-color: var(--ha-m-accent-border) !important;
+  }
+
+  & .client-matter-panel__header-actions .btn-primary {
+    background: var(--ha-m-accent-action) !important;
+    color: var(--ha-m-accent-ink) !important;
+    border-color: transparent !important;
+  }
+
+  & .mobile-office-bottom-nav [aria-current="page"] {
+    color: var(--ha-m-accent) !important;
+    background: transparent !important;
+  }
+
+  & .firm-workspace table thead th,
+  & .firm-workspace .filing-workspace__ledger-caption,
+  & .firm-workspace .filing-workspace__table--ledger thead th {
+    background: var(--ha-m-card-elevated) !important;
+    color: var(--ha-m-muted) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .firm-workspace .filing-workspace__table-wrap--ledger {
+    background: var(--ha-m-card) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .space-staff-ledger__card--active {
+    background: var(--ha-m-card-elevated) !important;
+    border-color: var(--ha-m-accent-border) !important;
+  }
+
+  & .space-staff-ledger__pill,
+  & .space-notifications-desk__badge {
+    background: var(--ha-m-card-elevated);
+    color: var(--ha-m-accent);
+    border-color: var(--ha-m-accent-border);
+  }
+
+  & .matter-ph-stages__eyebrow {
+    color: var(--ha-m-accent) !important;
+  }
+
+  & .matter-ph-stages__item {
+    border-left-color: var(--ha-m-divider) !important;
+    background: transparent !important;
+  }
+
+  & .matter-ph-stages__label,
+  & .matter-ph-stages__detail {
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .matter-ph-stages__detail {
+    color: var(--ha-m-muted) !important;
+  }
+
+  & .matter-ph-stages__item--current {
+    background: var(--ha-m-accent-action) !important;
+    border-left-color: var(--ha-m-accent) !important;
+  }
+
+  & .matter-ph-stages__item--current .matter-ph-stages__label,
+  & .matter-ph-stages__item--current .matter-ph-stages__detail {
+    color: var(--ha-m-accent-ink) !important;
+  }
+
+  & .matter-ph-stages__item--done .matter-ph-stages__label {
+    color: var(--ha-m-muted) !important;
+  }
+
+  & .ha-mobile-record-card,
+  & .ha-mobile-app a.ha-mobile-record-card,
+  & .ha-mobile-app button.ha-mobile-record-card {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-card-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .ha-mobile-record-title {
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .ha-mobile-record-subtitle {
+    color: var(--ha-m-muted) !important;
+  }
+
+  & .ha-mobile-record-meta {
+    color: var(--ha-m-muted) !important;
+  }
+
+  & .ha-mobile-record-meta-alert {
+    color: var(--ha-m-error) !important;
+  }
+
+  /* Daily schedule cards: cream mix + light text is unreadable. */
+  & .firm-workspace .day-schedule-view__toolbar,
+  & .firm-clio-shell .day-schedule-view__toolbar,
+  & .firm-workspace .day-schedule-view__grid,
+  & .firm-clio-shell .day-schedule-view__grid,
+  & .firm-workspace .day-schedule-view__row,
+  & .firm-clio-shell .day-schedule-view__row,
+  & .firm-workspace .day-schedule-view__slot,
+  & .firm-clio-shell .day-schedule-view__slot {
+    background: var(--ha-m-bg) !important;
+    color: var(--ha-m-ink) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .firm-workspace .day-schedule-view__hour,
+  & .firm-clio-shell .day-schedule-view__hour {
+    background: var(--ha-m-chrome) !important;
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .firm-workspace .day-schedule-view__card,
+  & .firm-clio-shell .day-schedule-view__card,
+  & .firm-workspace .day-schedule-view__untimed-btn,
+  & .firm-clio-shell .day-schedule-view__untimed-btn {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-ink) !important;
+    border-color: var(--ha-m-accent-border) !important;
+  }
+
+  & .firm-workspace .day-schedule-view__card-title,
+  & .firm-clio-shell .day-schedule-view__card-title {
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .firm-workspace .day-schedule-view__card-meta,
+  & .firm-clio-shell .day-schedule-view__card-meta {
+    color: var(--ha-m-muted) !important;
+  }
+
+  /* Due first list: hardcoded brown text on dark rows. */
+  & .firm-workspace .my-work-feed,
+  & .firm-workspace .my-work-feed__body,
+  & .firm-workspace .my-work-panel--elegant .my-work-feed__body,
+  & .firm-workspace .day-detail-panel {
+    background: var(--ha-m-card) !important;
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .firm-workspace .my-work-feed__group-title,
+  & .firm-workspace .my-work-enum__name,
+  & .firm-workspace .my-work-enum__label {
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .firm-workspace .my-work-enum__index,
+  & .firm-workspace .my-work-enum__case,
+  & .firm-workspace .my-work-enum__detail,
+  & .firm-workspace .my-work-enum__meta,
+  & .firm-workspace .my-work-enum__code,
+  & .firm-workspace .my-work-enum__sep,
+  & .firm-workspace .my-work-enum__empty {
+    color: var(--ha-m-muted) !important;
+  }
+
+  & .firm-workspace .my-work-feed__count {
+    background: var(--ha-m-accent) !important;
+    color: var(--ha-m-accent-ink) !important;
+  }
+
+  /* Light desktop cards keep cream fills; mobile ink is cream — force dark surfaces. */
+  & .schedule-email-cta,
+  & .firm-workspace .schedule-email-cta {
+    background: var(--ha-m-card-elevated) !important;
+    background-image: none !important;
+    border: 1px solid var(--ha-m-divider) !important;
+    color: var(--ha-m-ink) !important;
+    box-shadow: none !important;
+  }
+
+  & .schedule-email-cta__eyebrow {
+    color: var(--ha-m-accent) !important;
+    font-size: var(--ha-m-fs-eyebrow) !important;
+    font-weight: var(--ha-m-fw-eyebrow) !important;
+    letter-spacing: 0.06em;
+  }
+
+  & .schedule-email-cta__title {
+    color: var(--ha-m-ink) !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+    font-size: var(--ha-m-fs-card) !important;
+    font-weight: var(--ha-m-fw-card) !important;
+    line-height: var(--ha-m-lh-card) !important;
+  }
+
+  & .schedule-email-cta__text,
+  & .schedule-email-cta .form-check__text {
+    color: var(--ha-m-muted) !important;
+    font-size: var(--ha-m-fs-secondary) !important;
+    font-weight: var(--ha-m-fw-secondary) !important;
+    line-height: var(--ha-m-lh-secondary) !important;
+  }
+
+  & .tools-panel__stat-box,
+  & .tools-panel__stat-box--warn,
+  & .tools-panel__stat-box--info {
+    background: var(--ha-m-card-elevated) !important;
+    color: var(--ha-m-ink) !important;
+    border: 1px solid var(--ha-m-divider) !important;
+  }
+
+  & .tools-panel__stat-box--warn {
+    border-color: color-mix(in srgb, var(--ha-m-warning) 55%, var(--ha-m-divider)) !important;
+  }
+
+  & .tools-panel__stat-box--info {
+    border-color: color-mix(in srgb, #6a8caf 55%, var(--ha-m-divider)) !important;
+  }
+
+  & .tools-panel__stat-label {
+    color: var(--ha-m-muted) !important;
+    font-size: var(--ha-m-fs-caption) !important;
+    font-weight: var(--ha-m-fw-caption) !important;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  & .tools-panel__stat-value {
+    color: var(--ha-m-ink) !important;
+    font-size: var(--ha-m-fs-stat) !important;
+    font-weight: var(--ha-m-fw-stat) !important;
+    line-height: var(--ha-m-lh-stat) !important;
+  }
+
+  & .owner-reminder-nudge {
+    background: var(--ha-m-card-elevated) !important;
+    background-image: none !important;
+    border-color: var(--ha-m-divider) !important;
+    color: var(--ha-m-ink) !important;
+    box-shadow: none !important;
+  }
+
+  & .owner-reminder-nudge__eyebrow {
+    background: color-mix(in srgb, var(--ha-m-accent) 16%, var(--ha-m-card)) !important;
+    border-color: var(--ha-m-accent-border) !important;
+    color: var(--ha-m-accent) !important;
+  }
+
+  & .owner-reminder-nudge__title {
+    color: var(--ha-m-ink) !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+    font-size: var(--ha-m-fs-card) !important;
+    font-weight: var(--ha-m-fw-card) !important;
+    line-height: var(--ha-m-lh-card) !important;
+  }
+
+  & .owner-reminder-nudge__desc {
+    color: var(--ha-m-muted) !important;
+    font-size: var(--ha-m-fs-secondary) !important;
+    line-height: var(--ha-m-lh-secondary) !important;
+  }
+
+  & .owner-reminder-nudge__row,
+  & .owner-reminder-nudge__row:hover,
+  & .owner-reminder-nudge__row--overdue {
+    background: var(--ha-m-card) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .owner-reminder-nudge__name {
+    color: var(--ha-m-ink) !important;
+    font-size: 16px !important;
+    font-weight: 650 !important;
+  }
+
+  & .owner-reminder-nudge__count {
+    color: var(--ha-m-muted) !important;
+    font-size: var(--ha-m-fs-caption) !important;
+  }
+
+  & .owner-reminder-nudge__count--overdue {
+    color: var(--ha-m-error) !important;
+  }
+
+  & .owner-reminder-mini-btn--wa,
+  & .owner-reminder-mini-btn--sms {
+    background: var(--ha-m-card-elevated) !important;
+    border-color: var(--ha-m-accent-border) !important;
+    color: var(--ha-m-accent) !important;
+  }
+
+  & .tools-panel__template-card {
+    background: var(--ha-m-card-elevated) !important;
+    background-image: none !important;
+    border-color: var(--ha-m-divider) !important;
+    color: var(--ha-m-ink) !important;
+    box-shadow: none !important;
+  }
+
+  & .tools-panel__template-card h3 {
+    color: var(--ha-m-ink) !important;
+    font-size: var(--ha-m-fs-card) !important;
+    font-weight: var(--ha-m-fw-card) !important;
+    line-height: var(--ha-m-lh-card) !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+
+  & .tools-panel__template-card p,
+  & .tools-panel__template-card label {
+    color: var(--ha-m-muted) !important;
+    font-size: var(--ha-m-fs-secondary) !important;
+    line-height: var(--ha-m-lh-secondary) !important;
+  }
+
+  & .tools-panel__template-card .field-input {
+    color: var(--ha-m-ink) !important;
+    background: var(--ha-m-card) !important;
+    border-color: var(--ha-m-divider) !important;
+  }
+
+  & .compliance-desk-links {
+    background: var(--ha-m-card) !important;
+    border: 1px solid var(--ha-m-divider) !important;
+    border-radius: 1rem;
+    color: var(--ha-m-ink) !important;
+    padding: 1rem !important;
+  }
+
+  & .compliance-desk-links__eyebrow {
+    color: var(--ha-m-accent) !important;
+    font-size: var(--ha-m-fs-eyebrow) !important;
+    letter-spacing: 0.06em;
+  }
+
+  & .compliance-desk-links__title {
+    color: var(--ha-m-ink) !important;
+    font-size: var(--ha-m-fs-card) !important;
+    font-weight: var(--ha-m-fw-card) !important;
+    line-height: var(--ha-m-lh-card) !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+  }
+
+  & .compliance-desk-links__lede {
+    color: var(--ha-m-muted) !important;
+    font-size: var(--ha-m-fs-secondary) !important;
+    line-height: var(--ha-m-lh-secondary) !important;
+  }
+
+  & .compliance-desk-links__list a {
+    color: var(--ha-m-accent) !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+  }
+
+  & .firm-settings-panel__brand-asset {
+    background: var(--ha-m-card-elevated) !important;
+    border-color: var(--ha-m-divider) !important;
+    color: var(--ha-m-ink) !important;
+  }
+
+  & .firm-settings-panel__brand-missing,
+  & .firm-settings-panel__brand-asset .firm-staff-roster__field > span,
+  & .firm-settings-panel__brand-asset input[type="file"] {
+    color: var(--ha-m-muted) !important;
+    font-size: var(--ha-m-fs-secondary) !important;
+  }
+
+  & .firm-settings-panel__jump a {
+    background: var(--ha-m-card-elevated) !important;
+    border-color: var(--ha-m-divider) !important;
+    color: var(--ha-m-ink) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+  }
+
+  & .tools-panel__section-desc,
+  & .tools-panel__section .text-muted,
+  & .tools-panel__section .text-xs {
+    color: var(--ha-m-muted) !important;
+    font-size: var(--ha-m-fs-secondary) !important;
+    line-height: var(--ha-m-lh-secondary) !important;
+  }
+
+  & .tools-panel__section .section-label,
+  & .tools-panel__section h2 {
+    color: var(--ha-m-ink) !important;
+    font-size: var(--ha-m-fs-section) !important;
+    font-weight: var(--ha-m-fw-section) !important;
+    line-height: var(--ha-m-lh-section) !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-family: var(--font-ui), system-ui, sans-serif !important;
+  }
+}

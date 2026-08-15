@@ -4,7 +4,7 @@ import {
   fieldDispatchSalaryCreditForEntry,
   formatPeso,
   type FieldDispatchEntry
-} from "@/lib/gl-config";
+} from "@/lib/ha-config";
 
 export const DEFAULT_STAFF_MONTHLY_ALLOWANCE = 500;
 export const STAFF_PAYROLL_BANK = "BPI";

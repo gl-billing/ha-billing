@@ -1,4 +1,4 @@
-import type { ClientDetail, NewClientPayload } from "@/lib/gl-config";
+import type { ClientDetail, NewClientPayload } from "@/lib/ha-config";
 import { resolveClientMatterType } from "@/lib/client-matter-type";
 import { resolveContractAcceptanceFee } from "@/lib/litigation-venue-fees";
 import {

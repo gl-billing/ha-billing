@@ -16,7 +16,7 @@ import {
   assessLedgerBillingClientMatch,
   formatLedgerBillingMismatchPrompt
 } from "@/lib/ledger-billing-client-match";
-import type { CaseOption } from "@/lib/gl-config";
+import type { CaseOption } from "@/lib/ha-config";
 import { todayYmd } from "@/lib/office-tasks/schedule";
 import { EntryFormFooter } from "@/components/office-tasks/EntryFormFooter";
 import { EventSegmentedControl } from "@/components/office-tasks/EventSegmentedControl";

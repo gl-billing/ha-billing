@@ -1,16 +1,22 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ClientDirectoryPopup } from "@/components/ClientDirectoryPopup";
 import { ClientListTable } from "@/components/ClientListTable";
+import { MobileClientsList } from "@/components/mobile-app/MobileClientsList";
 import { TableSkeleton } from "@/components/Skeleton";
-import type { ClientSummary } from "@/lib/gl-config";
+import { useNativeMobileLayout } from "@/hooks/useNativeMobileLayout";
+import { billingHref } from "@/lib/billing-routes";
+import type { ClientSummary } from "@/lib/ha-config";
 
 type Props = {
   busy?: boolean;
 };
 
 export function ClientsDirectory({ busy }: Props) {
+  const router = useRouter();
+  const nativeMobile = useNativeMobileLayout();
   const [query, setQuery] = useState("");
   const [includeClosed, setIncludeClosed] = useState(false);
   const [clients, setClients] = useState<ClientSummary[]>([]);
@@ -22,7 +28,7 @@ export function ClientsDirectory({ busy }: Props) {
     try {
       const params = new URLSearchParams();
       if (query.trim()) params.set("q", query.trim());
-      if (includeClosed) params.set("includeClosed", "1");
+      if (includeClosed || nativeMobile) params.set("includeClosed", "1");
 
       const response = await fetch(`/api/clients?${params.toString()}`);
       const data = await response.json();
@@ -33,7 +39,7 @@ export function ClientsDirectory({ busy }: Props) {
     } finally {
       setLoading(false);
     }
-  }, [query, includeClosed]);
+  }, [query, includeClosed, nativeMobile]);
 
   useEffect(() => {
     const delay = query.trim() ? 250 : 0;
@@ -43,6 +49,19 @@ export function ClientsDirectory({ busy }: Props) {
 
   function openClient(code: string) {
     setPopupCode(code.trim().toUpperCase());
+  }
+
+  if (nativeMobile) {
+    return (
+      <MobileClientsList
+        clients={clients}
+        query={query}
+        onQueryChange={setQuery}
+        busy={busy}
+        refreshing={loading}
+        onOpenIntake={() => router.push(billingHref({ page: "newClient" }))}
+      />
+    );
   }
 
   return (

@@ -1,5 +1,5 @@
-import type { GenerateNotarialReceiptPayload } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import type { GenerateNotarialReceiptPayload } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 import { callAppsScriptWebApp, isAppsScriptConfigured } from "@/lib/apps-script";
 import { notarizationReceiptPaymentFor } from "@/lib/notarization-utils";
 import { getOrCreateNrFolderId } from "@/lib/sheets/drive-nr-folder";

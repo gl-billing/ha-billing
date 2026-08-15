@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { NotarizationEntry, WalkInBillingKind } from "@/lib/gl-config";
-import { formatPeso, GL } from "@/lib/gl-config";
+import type { NotarizationEntry, WalkInBillingKind } from "@/lib/ha-config";
+import { formatPeso, HA } from "@/lib/ha-config";
 import { formatNotarizationReceiptIssuedDate, isNotarizationRetainer } from "@/lib/notarization-utils";
 import { ReceiptCeremony, parseReceiptNumberFromMessage } from "@/components/ReceiptCeremony";
 import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { NotarizationEditDialog } from "@/components/NotarizationEditDialog";
-import type { NotarizationUpdatePayload } from "@/lib/gl-config";
+import type { NotarizationUpdatePayload } from "@/lib/ha-config";
 
 const UNDO_WINDOW_MS = 30_000;
 
@@ -67,7 +67,7 @@ function RegisterRefCell({
 }
 
 export function NotarizationPanel({ busy, onBusy, onStatus, paymentMethods }: Props) {
-  const methods = paymentMethods && paymentMethods.length ? paymentMethods : [...GL.paymentMethods];
+  const methods = paymentMethods && paymentMethods.length ? paymentMethods : [...HA.paymentMethods];
 
   const [entries, setEntries] = useState<NotarizationEntry[]>([]);
   const [loading, setLoading] = useState(true);

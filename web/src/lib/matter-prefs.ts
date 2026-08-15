@@ -15,16 +15,26 @@ export type OfflineMatterSnapshot = {
   savedAt: number;
 };
 
-const RECENT_KEY = "gl-office-recent-matters";
-const PINNED_KEY = "gl-office-pinned-matters";
-const OFFLINE_PREFIX = "gl-office-offline-matter:";
+const RECENT_KEY = "ha-office-recent-matters";
+const LEGACY_RECENT_KEY = "gl-office-recent-matters";
+const PINNED_KEY = "ha-office-pinned-matters";
+const LEGACY_PINNED_KEY = "gl-office-pinned-matters";
+const OFFLINE_PREFIX = "ha-office-offline-matter:";
+const LEGACY_OFFLINE_PREFIX = "gl-office-offline-matter:";
 const MAX_RECENT = 8;
 
-function readJson<T>(key: string, fallback: T): T {
+function readJson<T>(key: string, fallback: T, legacyKey?: string): T {
   if (typeof window === "undefined") return fallback;
   try {
-    const raw = localStorage.getItem(key);
+    const raw = localStorage.getItem(key) || (legacyKey ? localStorage.getItem(legacyKey) : null);
     if (!raw) return fallback;
+    if (legacyKey && !localStorage.getItem(key) && localStorage.getItem(legacyKey)) {
+      try {
+        localStorage.setItem(key, raw);
+      } catch {
+        /* ignore */
+      }
+    }
     return JSON.parse(raw) as T;
   } catch {
     return fallback;
@@ -58,11 +68,11 @@ export function recordMatterVisit(code: string, label?: string): void {
 }
 
 export function getRecentMatters(): MatterPrefEntry[] {
-  return readJson<MatterPrefEntry[]>(RECENT_KEY, []);
+  return readJson<MatterPrefEntry[]>(RECENT_KEY, [], LEGACY_RECENT_KEY);
 }
 
 export function getPinnedMatters(): MatterPrefEntry[] {
-  return readJson<MatterPrefEntry[]>(PINNED_KEY, []);
+  return readJson<MatterPrefEntry[]>(PINNED_KEY, [], LEGACY_PINNED_KEY);
 }
 
 export function isMatterPinned(code: string): boolean {
@@ -91,6 +101,7 @@ export function saveOfflineMatterSnapshot(snapshot: OfflineMatterSnapshot): void
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(`${OFFLINE_PREFIX}${snapshot.code}`, JSON.stringify(snapshot));
+    localStorage.removeItem(`${LEGACY_OFFLINE_PREFIX}${snapshot.code}`);
   } catch {
     // ignore
   }
@@ -99,7 +110,10 @@ export function saveOfflineMatterSnapshot(snapshot: OfflineMatterSnapshot): void
 export function getOfflineMatterSnapshot(code: string): OfflineMatterSnapshot | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem(`${OFFLINE_PREFIX}${code.trim().toUpperCase()}`);
+    const codeKey = code.trim().toUpperCase();
+    const raw =
+      localStorage.getItem(`${OFFLINE_PREFIX}${codeKey}`) ||
+      localStorage.getItem(`${LEGACY_OFFLINE_PREFIX}${codeKey}`);
     if (!raw) return null;
     return JSON.parse(raw) as OfflineMatterSnapshot;
   } catch {

@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
-    // Must match authOptions.cookies.sessionToken.name (HA vs GL share localhost).
+    // Must match authOptions.cookies.sessionToken.name.
     cookieName: "ha-billing.session-token"
   });
   const email = typeof token?.email === "string" ? token.email : null;

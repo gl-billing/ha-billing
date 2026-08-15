@@ -1,5 +1,5 @@
-import { FIELD_DISPATCH_TRAVEL_HOURS } from "@/lib/gl-config";
-import { formatPeso } from "@/lib/gl-config";
+import { FIELD_DISPATCH_TRAVEL_HOURS } from "@/lib/ha-config";
+import { formatPeso } from "@/lib/ha-config";
 
 export type LitigationVenueTier =
   | "davao_city"

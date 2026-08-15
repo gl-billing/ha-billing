@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireBillingAccessToken } from "@/lib/api-auth";
-import { sanitizeSheetName } from "@/lib/gl-config";
+import { sanitizeSheetName } from "@/lib/ha-config";
 import { getUnifiedClientTimeline } from "@/lib/sheets/unified-timeline";
 import { taskCodeForBillingClient } from "@/lib/office-tasks/client-matter";
 import { isQuotaError, quotaErrorMessage, withCache } from "@/lib/sheets/cache";

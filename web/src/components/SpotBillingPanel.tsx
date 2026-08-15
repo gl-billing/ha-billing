@@ -5,8 +5,8 @@ import { EmptyState } from "@/components/office-tasks/PremiumUI";
 import { SmartLoadEmptyState } from "@/components/SmartLoadEmptyState";
 import { TableSkeleton } from "@/components/Skeleton";
 import { fetchJson } from "@/lib/fetch-json";
-import type { SpotBillingEntry, SpotBillingTransactionKind, SpotBillingTransactionPayload } from "@/lib/gl-config";
-import { formatPeso, GL } from "@/lib/gl-config";
+import type { SpotBillingEntry, SpotBillingTransactionKind, SpotBillingTransactionPayload } from "@/lib/ha-config";
+import { formatPeso, HA } from "@/lib/ha-config";
 import type { SpotBillingLetterKind } from "@/lib/spot-billing-letter";
 
 type Props = {
@@ -92,7 +92,7 @@ function buildTransactionPayload(
 }
 
 export function SpotBillingPanel({ busy, onBusy, onStatus, paymentMethods }: Props) {
-  const methods = paymentMethods && paymentMethods.length ? paymentMethods : [...GL.paymentMethods];
+  const methods = paymentMethods && paymentMethods.length ? paymentMethods : [...HA.paymentMethods];
   const [entries, setEntries] = useState<SpotBillingEntry[]>([]);
   const [filter, setFilter] = useState<Filter>("active");
   const [loading, setLoading] = useState(true);

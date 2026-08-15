@@ -1,4 +1,4 @@
-import type { ActivityItem, ClientDetail, LedgerEntry } from "@/lib/gl-config";
+import type { ActivityItem, ClientDetail, LedgerEntry } from "@/lib/ha-config";
 import { getDocumentLog } from "@/lib/sheets/document-log";
 
 function toSortKey(value: string): number {

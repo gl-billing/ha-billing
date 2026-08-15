@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { ClientSummary } from "@/lib/gl-config";
-import { GL } from "@/lib/gl-config";
+import type { ClientSummary } from "@/lib/ha-config";
+import { HA } from "@/lib/ha-config";
 import { parseBillingDeepLink } from "@/lib/billing-routes";
 import { matterHref } from "@/lib/matter-routes";
 import { formatSheetsAccessHint, type SheetsAccessHint } from "@/lib/sheets-access-help";
@@ -28,8 +28,8 @@ export function useBillingClients(
 ) {
   const router = useRouter();
   const [clients, setClients] = useState<ClientSummary[]>([]);
-  const [chargeCategories, setChargeCategories] = useState<string[]>([...GL.chargeCategories]);
-  const [paymentMethods, setPaymentMethods] = useState<string[]>([...GL.paymentMethods]);
+  const [chargeCategories, setChargeCategories] = useState<string[]>([...HA.chargeCategories]);
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([...HA.paymentMethods]);
   const [clientCode, setClientCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);

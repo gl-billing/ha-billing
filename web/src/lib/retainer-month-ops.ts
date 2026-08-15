@@ -1,4 +1,4 @@
-import { formatPeso } from "@/lib/gl-config";
+import { formatPeso } from "@/lib/ha-config";
 import { parseLedgerDateToIso } from "@/lib/ledger/parse-ledger-date";
 import {
   buildRetainerHomeReadiness,

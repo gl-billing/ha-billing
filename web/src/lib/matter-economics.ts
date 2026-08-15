@@ -1,5 +1,5 @@
-import type { FieldDispatchEntry, LedgerEntry } from "@/lib/gl-config";
-import { fieldDispatchBillableTotal, fieldDispatchIsReconciled } from "@/lib/gl-config";
+import type { FieldDispatchEntry, LedgerEntry } from "@/lib/ha-config";
+import { fieldDispatchBillableTotal, fieldDispatchIsReconciled } from "@/lib/ha-config";
 import { normalizePaymentIncomeType, type PaymentIncomeType } from "@/lib/payment-income";
 
 export type MatterEconomics = {

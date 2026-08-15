@@ -3,7 +3,7 @@ import {
   walkInBillingLedgerDescription,
   walkInHasTransferableBilling
 } from "@/lib/sheets/walk-ins";
-import type { WalkInClient } from "@/lib/gl-config";
+import type { WalkInClient } from "@/lib/ha-config";
 
 function walkIn(partial: Partial<WalkInClient>): WalkInClient {
   return {

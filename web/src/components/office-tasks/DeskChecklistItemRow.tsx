@@ -58,7 +58,7 @@ export type DeskChecklistItemRowProps = {
   viewerPrepRole?: PrepWorkloadViewRole;
   roster?: string[];
   billingAccess?: boolean;
-  ledgerEntries?: import("@/lib/gl-config").LedgerEntry[];
+  ledgerEntries?: import("@/lib/ha-config").LedgerEntry[];
 } & WorkItemFilingActionProps;
 
 export function DeskChecklistItemRow({
