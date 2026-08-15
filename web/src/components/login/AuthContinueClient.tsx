@@ -2,15 +2,22 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { LoginAuthStatus } from "@/components/login/MobileLoginPage";
 import { saveLastSignInHint } from "@/lib/login-session-hint";
 
 type Props = {
   email: string;
   authProvider: string;
   destination: string;
+  initialIsPhone?: boolean;
 };
 
-export function AuthContinueClient({ email, authProvider, destination }: Props) {
+export function AuthContinueClient({
+  email,
+  authProvider,
+  destination,
+  initialIsPhone = false
+}: Props) {
   const router = useRouter();
 
   useEffect(() => {
@@ -18,9 +25,5 @@ export function AuthContinueClient({ email, authProvider, destination }: Props) 
     router.replace(destination);
   }, [authProvider, destination, email, router]);
 
-  return (
-    <div className="page-loading">
-      <p className="page-loading__title">Welcome back…</p>
-    </div>
-  );
+  return <LoginAuthStatus message="Welcome back…" layout={initialIsPhone ? "mobile" : "desktop"} />;
 }

@@ -18,6 +18,8 @@
     max(1.4rem, env(safe-area-inset-bottom, 0px))
     max(1.65rem, env(safe-area-inset-left, 0px));
   overflow-x: clip;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   color: var(--ha-m-ink, #f5f1e8);
   background-color: #080808;
   background-image: url("/brand/login-leather.png");
@@ -166,7 +168,7 @@
 .card {
   display: grid;
   gap: 1.05rem;
-  width: min(100%, 78vw);
+  width: 100%;
   min-width: 0;
   margin-top: 0.9rem;
   padding: 1.45rem 1.15rem 1.35rem;
@@ -518,7 +520,7 @@
   }
 
   .card {
-    width: min(19.5rem, 82vw);
+    width: 100%;
   }
 
   .accountEmail {

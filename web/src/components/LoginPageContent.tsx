@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FirmAuthShell } from "@/components/FirmAuthShell";
 import { FirmPublicContactDetails } from "@/components/FirmPublicContactDetails";
 import { GoogleMark } from "@/components/login/GoogleMark";
-import { MobileLoginPage } from "@/components/login/MobileLoginPage";
+import { LoginAuthStatus, MobileLoginPage } from "@/components/login/MobileLoginPage";
 import { useLoginMobileLayout } from "@/hooks/useLoginMobileLayout";
 import { STAFF_GOOGLE_PROVIDER_ID } from "@/lib/guest-oauth";
 import {
@@ -28,15 +28,20 @@ const AUTH_ERRORS: Record<string, string> = {
 type Props = {
   defaultChooseAccount?: boolean;
   oauthConfigured?: boolean;
+  initialIsPhone?: boolean;
 };
 
-export function LoginPageContent({ defaultChooseAccount = false, oauthConfigured = true }: Props) {
+export function LoginPageContent({
+  defaultChooseAccount = false,
+  oauthConfigured = true,
+  initialIsPhone = false
+}: Props) {
   const searchParams = useSearchParams();
   const errorCode = searchParams.get("error");
   const callbackUrl = searchParams.get("callbackUrl") || "/auth/continue";
   const [lastHint, setLastHint] = useState<LastSignInHint | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const loginLayout = useLoginMobileLayout();
+  const loginLayout = useLoginMobileLayout(initialIsPhone);
 
   useEffect(() => {
     setLastHint(readLastSignInHint());
@@ -75,6 +80,10 @@ export function LoginPageContent({ defaultChooseAccount = false, oauthConfigured
     : lastHint
       ? "Continue"
       : "Continue with Google";
+
+  if (loginLayout === "pending") {
+    return <LoginAuthStatus message="Loading…" layout="pending" />;
+  }
 
   if (loginLayout === "mobile") {
     return (

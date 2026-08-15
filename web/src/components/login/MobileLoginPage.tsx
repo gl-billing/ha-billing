@@ -121,3 +121,43 @@ export function MobileLoginPage({
     </div>
   );
 }
+
+export function MobileLoginStatus({ message }: { message: string }) {
+  return (
+    <div className={styles.page} data-ha-login="mobile">
+      <div className={styles.stage}>
+        <div className={styles.brand}>
+          <span className={styles.logoWrap}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/logo.png" alt="" width={240} height={90} className={styles.logo} />
+          </span>
+          <p className={styles.firmName}>{APP_SHORT_NAME}</p>
+          <p className={styles.practice}>{FIRM_COPYRIGHT_HOLDER}</p>
+        </div>
+        <section className={styles.card} aria-live="polite" aria-busy="true">
+          <div className={styles.status}>
+            <span className={styles.spinner} aria-hidden />
+            <p className={styles.lede}>{message}</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+export function LoginAuthStatus({
+  message,
+  layout
+}: {
+  message: string;
+  layout: "pending" | "mobile" | "desktop";
+}) {
+  if (layout === "desktop") {
+    return (
+      <div className="page-loading">
+        <p className="page-loading__title">{message}</p>
+      </div>
+    );
+  }
+  return <MobileLoginStatus message={message} />;
+}

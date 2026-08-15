@@ -8,7 +8,8 @@ import {
   filterSpaceBillingSectionTabs,
   spaceCalendarViewTabs,
   spaceCalendarViewTarget,
-  spaceTasksExtraHref
+  spaceTasksExtraHref,
+  mobileOfficeMenuGroups
 } from "@/lib/space-nav";
 
 describe("space-nav (HA)", () => {
@@ -237,5 +238,27 @@ describe("space-nav (HA)", () => {
     expect(spaceCalendarViewTabs().map((t) => t.id)).toEqual(["day", "week", "month", "schedule"]);
     expect(spaceCalendarViewTarget("month")).toEqual({ tab: "calendar", cal: "month" });
     expect(spaceCalendarViewTarget("day")).toEqual({ tab: "week", cal: "day" });
+  });
+
+  it("keeps Add task/event in Booking, not duplicated under Office", () => {
+    const groups = mobileOfficeMenuGroups({
+      billingAccess: true,
+      isAdmin: true,
+      navProfile: "full"
+    });
+    expect(groups.map((group) => group.label)).toEqual(["Booking or adding", "Office"]);
+    expect(groups[0].links.map((link) => link.label)).toEqual([
+      "Add client",
+      "Add walk-in",
+      "Add task",
+      "Add event"
+    ]);
+    const officeLabels = groups[1].links.map((link) => link.label);
+    expect(officeLabels).toContain("Home");
+    expect(officeLabels).toContain("Billing and Ledger");
+    expect(officeLabels).not.toContain("Add Task");
+    expect(officeLabels).not.toContain("Add Event");
+    expect(officeLabels).not.toContain("Add task");
+    expect(officeLabels).not.toContain("Add event");
   });
 });

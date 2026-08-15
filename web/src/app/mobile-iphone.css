@@ -1000,6 +1000,8 @@ html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .client-list-
 
 html[data-layout-mode="mobile"] .documents-page--native-mobile,
 html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .documents-page--native-mobile,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile,
 html[data-layout-mode="mobile"] .space-staff-ledger--native-mobile,
 html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .space-staff-ledger--native-mobile,
 html[data-layout-mode="mobile"] .tools-panel--native-mobile,
@@ -1079,4 +1081,160 @@ html[data-layout-mode="mobile"] .documents-page--native-mobile .document-review-
 html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .documents-page--native-mobile .document-review-letterhead {
   background: #fff !important;
   color: #0a0a0a !important;
+}
+
+/*
+ * Public sign-in is not the office shell. Keep leather login as the scroller
+ * so html/body overflow:hidden does not clip the form or flash cream letterhead.
+ */
+html[data-layout-mode="mobile"]:has([data-ha-login="mobile"]),
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]):has([data-ha-login="mobile"]) {
+  background: #080808 !important;
+}
+
+html[data-layout-mode="mobile"]:has([data-ha-login="mobile"]) body,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]):has([data-ha-login="mobile"]) body {
+  background: #080808 !important;
+}
+
+html[data-layout-mode="mobile"] [data-ha-login="mobile"],
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) [data-ha-login="mobile"] {
+  height: 100svh !important;
+  max-height: 100svh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/*
+ * Billing and Ledger: dark stacked form. Beat letterhead cream cards, brown
+ * Field labels, and side-by-side date/amount grids.
+ */
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .card,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .tab-picker-card,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .tab-form-panel,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .card,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .tab-picker-card,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .tab-form-panel {
+  background: var(--ha-m-card, #181818) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  border: 1px solid var(--ha-m-divider, #2d2d2d) !important;
+  box-shadow: none !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile label,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .field-label,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .section-label,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .tab-picker-card__label,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .tab-picker-card__hint,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .tab-picker-card__hint p,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile label,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .field-label,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .section-label,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .tab-picker-card__label,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .tab-picker-card__hint,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .tab-picker-card__hint p {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .form-grid-pair,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .form-grid-pair {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 0.75rem !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .field,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile input:not([type="checkbox"]):not([type="radio"]),
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile select,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile textarea,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .field,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile input:not([type="checkbox"]):not([type="radio"]),
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile select,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile textarea {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 2.85rem !important;
+  font-size: 16px !important;
+  background: var(--ha-m-card-elevated, #202020) !important;
+  background-color: var(--ha-m-card-elevated, #202020) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  -webkit-text-fill-color: var(--ha-m-ink, #f5f1e8) !important;
+  caret-color: var(--ha-m-ink, #f5f1e8) !important;
+  border: 1px solid var(--ha-m-divider, #2d2d2d) !important;
+  border-radius: 0.9rem !important;
+  color-scheme: dark !important;
+  box-shadow: none !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile textarea,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile textarea {
+  min-height: 5.5rem !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .nav-tabs,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .nav-tabs {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0.4rem !important;
+  width: 100% !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .nav-tab,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .nav-tab {
+  width: 100% !important;
+  min-height: 2.75rem !important;
+  justify-content: center !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .btn-row,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .btn-row {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 0.65rem !important;
+  width: 100% !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .btn-primary,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .btn-secondary,
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .btn-gold,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .btn-primary,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .btn-secondary,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .btn-gold {
+  width: 100% !important;
+  min-height: 2.85rem !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .tab-utility-panel,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .tab-utility-panel {
+  display: grid !important;
+  gap: 0.55rem !important;
+  border: 0 !important;
+  padding: 0.35rem 0 0.75rem !important;
+  background: transparent !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .open-charge-picker,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .open-charge-picker {
+  background: var(--ha-m-card-elevated, #202020) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .open-charge-picker__label,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .open-charge-picker__label {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .open-charge-picker__chip,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .open-charge-picker__chip {
+  background: var(--ha-m-card, #181818) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+}
+
+html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .open-charge-picker__chip-amount,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .open-charge-picker__chip-amount {
+  color: var(--ha-m-ink, #f5f1e8) !important;
 }

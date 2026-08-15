@@ -14,6 +14,7 @@ import { MatterIntakeWizard } from "@/components/MatterIntakeWizard";
 import { ClientsDirectory } from "@/components/ClientsDirectory";
 import { DocumentsPanel } from "@/components/DocumentsPanel";
 import { DocumentVaultPanel } from "@/components/DocumentVaultPanel";
+import { MobilePageHeader } from "@/components/mobile-app/MobilePageHeader";
 import { MobileSelect } from "@/components/mobile-app/MobileSelect";
 import { NewClientForm } from "@/components/NewClientForm";
 import { ReportsPanel } from "@/components/ReportsPanel";
@@ -197,7 +198,7 @@ export function BillingApp() {
   const introOpen = introState === "open";
   const introGate = introState !== "closed";
 
-  useFocusOnMount(clientCodeRef, page === "billing" && !introGate);
+  useFocusOnMount(clientCodeRef, page === "billing" && !introGate && !nativeMobile);
 
   useEffect(() => {
     if (hasSeenWorkspaceIntro("billing", email)) {
@@ -1130,6 +1131,9 @@ export function BillingApp() {
 
       {page === "billing" && (
         <>
+      {nativeMobile ? (
+        <MobilePageHeader title="Billing and Ledger" />
+      ) : (
       <TabPageHeader resetKey={page}>
         <BillingTabGuide title="post charges & payments">
           <BillingTabGuideText>
@@ -1143,7 +1147,14 @@ export function BillingApp() {
           </BillingTabGuideText>
         </BillingTabGuide>
       </TabPageHeader>
-      <TabPageBody className="tab-workspace tab-workspace--billing">
+      )}
+      <TabPageBody
+        className={
+          nativeMobile
+            ? "billing-charge-page billing-charge-page--native-mobile"
+            : "tab-workspace tab-workspace--billing"
+        }
+      >
       <TabPickerCard
         label="Client"
         htmlFor="clientCode"
@@ -1155,20 +1166,20 @@ export function BillingApp() {
           ) : undefined
         }
       >
-        <select
-          ref={clientCodeRef}
+        <MobileSelect
+          selectRef={clientCodeRef}
           id="clientCode"
+          className="field"
           value={clientCode}
           disabled={ledgerSaving}
-          onChange={(e) => setClientCode(e.target.value)}
-          className="field"
-        >
-          {clients.map((client) => (
-            <option key={client.code} value={client.code}>
-              {client.code} — {client.name || "Unnamed"} ({formatPeso(client.balance)})
-            </option>
-          ))}
-        </select>
+          title="Choose client"
+          ariaLabel="Client"
+          options={clients.map((client) => ({
+            value: client.code,
+            label: `${client.code} — ${client.name || "Unnamed"} (${formatPeso(client.balance)})`
+          }))}
+          onChange={setClientCode}
+        />
       </TabPickerCard>
 
       <section className="tab-workspace__block">
@@ -1179,7 +1190,9 @@ export function BillingApp() {
           className={`nav-tab ${tab === "charge" ? "nav-tab-active" : "nav-tab-idle"}`}
           onClick={() => {
             setTab("charge");
-            window.requestAnimationFrame(() => chargeAmountRef.current?.focus());
+            if (!nativeMobile) {
+              window.requestAnimationFrame(() => chargeAmountRef.current?.focus());
+            }
           }}
           disabled={ledgerSaving}
         >
@@ -1190,7 +1203,9 @@ export function BillingApp() {
           className={`nav-tab ${tab === "payment" ? "nav-tab-active" : "nav-tab-idle"}`}
           onClick={() => {
             setTab("payment");
-            window.requestAnimationFrame(() => paymentAmountRef.current?.focus());
+            if (!nativeMobile) {
+              window.requestAnimationFrame(() => paymentAmountRef.current?.focus());
+            }
           }}
           disabled={ledgerSaving}
         >

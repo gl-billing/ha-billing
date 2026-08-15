@@ -294,11 +294,7 @@ export function mobileHomeMenuLinks(v: Visibility): MobileOfficeMenuLink[] {
   const home = mobileOfficeHomeHref();
   const calendar = withQueryParam(tasksHref({ tab: "week" }), "cal", "day");
   const billingOk = Boolean(v.billingAccess) && v.navProfile !== "tasks-only";
-  const links: MobileOfficeMenuLink[] = [
-    { href: home, label: "Home" },
-    { href: tasksHref({ tab: "add-task" }), label: "Add Task" },
-    { href: tasksHref({ tab: "add-event" }), label: "Add Event" }
-  ];
+  const links: MobileOfficeMenuLink[] = [{ href: home, label: "Home" }];
   if (billingOk) {
     links.push({ href: billingHref({ page: "clients" }), label: "Clients and Matters" });
   }
@@ -323,18 +319,21 @@ export function mobileHomeMenuLinks(v: Visibility): MobileOfficeMenuLink[] {
 /** Hamburger categories on the native phone home. */
 export function mobileOfficeMenuGroups(v: Visibility): MobileOfficeMenuGroup[] {
   const billingOk = Boolean(v.billingAccess) && v.navProfile !== "tasks-only";
-  const groups: MobileOfficeMenuGroup[] = [];
-  if (billingOk) {
-    groups.push({
+  const groups: MobileOfficeMenuGroup[] = [
+    {
       label: "Booking or adding",
       links: [
-        { href: billingHref({ page: "newClient" }), label: "Add client" },
-        { href: walkInConsultationCreateHref(), label: "Add walk-in" },
+        ...(billingOk
+          ? [
+              { href: billingHref({ page: "newClient" }), label: "Add client" },
+              { href: walkInConsultationCreateHref(), label: "Add walk-in" }
+            ]
+          : []),
         { href: tasksHref({ tab: "add-task" }), label: "Add task" },
         { href: tasksHref({ tab: "add-event" }), label: "Add event" }
       ]
-    });
-  }
+    }
+  ];
   groups.push({ label: "Office", links: mobileHomeMenuLinks(v) });
   return groups;
 }
