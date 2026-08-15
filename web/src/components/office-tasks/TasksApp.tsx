@@ -2335,6 +2335,26 @@ export function TasksApp() {
       )}
 
       {!spaceDeskOnly && !spaceNotificationsDesk && tab === "tools" && (
+        nativeMobile ? (
+          <ToolsPanel
+            busy={busy}
+            isAdmin={isAdmin}
+            spreadsheetId={data?.spreadsheetId}
+            tasksAppsScriptConfigured={data?.tasksAppsScriptConfigured === true}
+            employees={data?.employees || []}
+            items={scheduleItems}
+            today={today}
+            weekDates={weekDates}
+            employeeDirectory={data?.employeeDirectory || []}
+            onAction={runMaintenance}
+            onReload={() => load(searchQ || undefined, true)}
+            onStatus={onStatus}
+            onPrintToday={() => {
+              selectTab("today");
+              setTimeout(() => openPrintPreview({ title: `HA Office Today ${today}`, sourceId: "print-today" }), 300);
+            }}
+          />
+        ) : (
         <>
           <TabPageHeader resetKey={tab}>
             <BillingTabGuide title="tools">
@@ -2365,6 +2385,7 @@ export function TasksApp() {
         />
           </TabPageBody>
         </>
+        )
       )}
 
       {!spaceDeskOnly && !spaceNotificationsDesk && tab === "liaison" && data && opts && canViewLiaisonConfidential ? (

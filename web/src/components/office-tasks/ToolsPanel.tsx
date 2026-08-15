@@ -15,6 +15,8 @@ import { LaunchAnnouncementPanel } from "@/components/office-tasks/LaunchAnnounc
 import { ViewHero } from "@/components/office-tasks/PremiumUI";
 import { CronDigestStatus } from "@/components/CronDigestStatus";
 import { CalendarSyncStatus } from "@/components/CalendarSyncStatus";
+import { MobilePageHeader } from "@/components/mobile-app/MobilePageHeader";
+import { useNativeMobileLayout } from "@/hooks/useNativeMobileLayout";
 import type { EmployeeRecord } from "@/lib/office-tasks/sheets/employees";
 import type { OfficeItem } from "@/lib/office-tasks/item-types";
 import {
@@ -54,6 +56,7 @@ export function ToolsPanel({
   onReload,
   onStatus
 }: Props) {
+  const nativeMobile = useNativeMobileLayout();
   const searchParams = useSearchParams();
   const [diagLoading, setDiagLoading] = useState(false);
   const [diagData, setDiagData] = useState<EventsDiagnostics | null>(null);
@@ -88,13 +91,117 @@ export function ToolsPanel({
   }
 
   return (
-    <div className="tools-panel">
-      <ViewHero
-        eyebrow="Office tools"
-        title="Maintenance & exports"
-        subtitle="Refresh sheet views, sync calendar, print lists, and manage BIR tax deadlines."
-      />
+    <div className={`tools-panel${nativeMobile ? " tools-panel--native-mobile" : ""}`}>
+      {nativeMobile ? (
+        <MobilePageHeader
+          title="Settings"
+          subtitle="Integrations, automations, and office maintenance."
+        />
+      ) : (
+        <ViewHero
+          eyebrow="Office tools"
+          title="Maintenance & exports"
+          subtitle="Refresh sheet views, sync calendar, print lists, and manage BIR tax deadlines."
+        />
+      )}
 
+      {nativeMobile && isAdmin ? (
+        <>
+          <section id="tools-integrations" className="card tools-panel__section">
+            <h2 className="section-label">Integrations</h2>
+            <IntegrationsSetupChecklist />
+          </section>
+          <FirmAutomationSettingsPanel />
+          <details className="tools-panel__maintenance">
+            <summary>Maintenance &amp; exports</summary>
+            <MaintenanceBody
+              busy={busy}
+              isAdmin={isAdmin}
+              spreadsheetId={spreadsheetId}
+              tasksAppsScriptConfigured={tasksAppsScriptConfigured}
+              employees={employees}
+              items={items}
+              today={today}
+              weekDates={weekDates}
+              employeeDirectory={employeeDirectory}
+              diagLoading={diagLoading}
+              diagData={diagData}
+              sheetUrl={sheetUrl}
+              onRunEventsCheck={() => void runEventsCheck()}
+              onAction={onAction}
+              onPrintToday={onPrintToday}
+              onReload={onReload}
+              onStatus={onStatus}
+              hideSettingsBlocks
+            />
+          </details>
+        </>
+      ) : (
+        <MaintenanceBody
+          busy={busy}
+          isAdmin={isAdmin}
+          spreadsheetId={spreadsheetId}
+          tasksAppsScriptConfigured={tasksAppsScriptConfigured}
+          employees={employees}
+          items={items}
+          today={today}
+          weekDates={weekDates}
+          employeeDirectory={employeeDirectory}
+          diagLoading={diagLoading}
+          diagData={diagData}
+          sheetUrl={sheetUrl}
+          onRunEventsCheck={() => void runEventsCheck()}
+          onAction={onAction}
+          onPrintToday={onPrintToday}
+          onReload={onReload}
+          onStatus={onStatus}
+        />
+      )}
+    </div>
+  );
+}
+
+function MaintenanceBody({
+  busy,
+  isAdmin,
+  spreadsheetId: _spreadsheetId,
+  tasksAppsScriptConfigured,
+  employees,
+  items,
+  today,
+  weekDates,
+  employeeDirectory,
+  diagLoading,
+  diagData,
+  sheetUrl,
+  onRunEventsCheck,
+  onAction,
+  onPrintToday,
+  onReload,
+  onStatus,
+  hideSettingsBlocks = false
+}: {
+  busy: boolean;
+  isAdmin: boolean;
+  spreadsheetId?: string;
+  tasksAppsScriptConfigured: boolean;
+  employees: string[];
+  items: OfficeItem[];
+  today: string;
+  weekDates: string[];
+  employeeDirectory: EmployeeRecord[];
+  diagLoading: boolean;
+  diagData: EventsDiagnostics | null;
+  sheetUrl: string | null;
+  onRunEventsCheck: () => void;
+  onAction: (action: string) => void;
+  onPrintToday: () => void;
+  onReload: () => void;
+  onStatus: (msg: string) => void;
+  hideSettingsBlocks?: boolean;
+}) {
+  return (
+    <>
       <section className="card tools-panel__section">
         <h2 className="section-label">Sheet &amp; calendar</h2>
         <CalendarSyncStatus items={items} className="mb-3" />
@@ -109,7 +216,7 @@ export function ToolsPanel({
             label="Check events sheet"
             sub="Rows, parsing & today"
             disabled={busy || diagLoading}
-            onClick={() => void runEventsCheck()}
+            onClick={onRunEventsCheck}
             variant="primary"
           />
           <ToolButton
@@ -149,17 +256,15 @@ export function ToolsPanel({
             />
           )}
         </div>
-        {sheetUrl  ? (
+        {sheetUrl ? (
           <a href={sheetUrl} target="_blank" rel="noreferrer" className="tool-sheet-link">
             Open Office Tasks spreadsheet →
           </a>
         ) : null}
-        <EventsDiagnosticsResults data={diagData}  />
+        <EventsDiagnosticsResults data={diagData} />
       </section>
 
-      {isAdmin ? (
-        <LaunchAnnouncementPanel busy={busy} onStatus={onStatus} />
-      ) : null}
+      {isAdmin ? <LaunchAnnouncementPanel busy={busy} onStatus={onStatus} /> : null}
 
       {isAdmin ? <CronDigestStatus /> : null}
 
@@ -191,18 +296,16 @@ export function ToolsPanel({
 
       {isAdmin ? <CronAutomationHealthPanel variant="desk" /> : null}
 
-      {isAdmin ? (
+      {isAdmin && !hideSettingsBlocks ? (
         <section id="tools-integrations" className="card tools-panel__section">
           <h2 className="section-label">Integrations</h2>
           <IntegrationsSetupChecklist />
         </section>
       ) : null}
 
-      {isAdmin ? <FirmAutomationSettingsPanel /> : null}
+      {isAdmin && !hideSettingsBlocks ? <FirmAutomationSettingsPanel /> : null}
 
-      {isAdmin ? (
-        <OrphanTasksPanel busy={busy} onStatus={(msg, isError) => onStatus(isError ? `⚠ ${msg}` : msg)} />
-      ) : null}
+      {isAdmin ? <OrphanTasksPanel busy={busy} onStatus={(msg, isError) => onStatus(isError ? `⚠ ${msg}` : msg)} /> : null}
 
       <section className="card tools-panel__section">
         <h2 className="section-label">Print &amp; export</h2>
@@ -222,7 +325,7 @@ export function ToolsPanel({
       </section>
 
       <TaxDeadlinesPanel employees={employees} busy={busy} isAdmin={isAdmin} onAdded={onReload} onStatus={onStatus} />
-    </div>
+    </>
   );
 }
 

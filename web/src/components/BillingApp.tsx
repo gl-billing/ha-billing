@@ -14,6 +14,7 @@ import { MatterIntakeWizard } from "@/components/MatterIntakeWizard";
 import { ClientsDirectory } from "@/components/ClientsDirectory";
 import { DocumentsPanel } from "@/components/DocumentsPanel";
 import { DocumentVaultPanel } from "@/components/DocumentVaultPanel";
+import { MobileSelect } from "@/components/mobile-app/MobileSelect";
 import { NewClientForm } from "@/components/NewClientForm";
 import { ReportsPanel } from "@/components/ReportsPanel";
 import { FirmFinancesPanel } from "@/components/FirmFinancesPanel";
@@ -57,7 +58,8 @@ import {
   isSpaceTasksExtraTab,
   resolveActiveSpaceNav,
   spaceNavItemsForUser,
-  spaceTasksExtraHref
+  spaceTasksExtraHref,
+  mobileOfficeHomeHref
 } from "@/lib/space-nav";
 import { tasksHref } from "@/lib/tasks-routes";
 import { matterHref } from "@/lib/matter-routes";
@@ -86,6 +88,7 @@ import { bindWorkspaceTabShortcuts, buildTabShortcutHelp } from "@/lib/workspace
 import { canViewLiaisonTab } from "@/lib/app-access";
 import { canViewPresenceTab as canViewPresenceTabForEmail } from "@/lib/admin";
 import { useBillingClients } from "@/hooks/useBillingClients";
+import { useNativeMobileLayout } from "@/hooks/useNativeMobileLayout";
 
 type Props = Record<string, never>;
 
@@ -120,6 +123,7 @@ export function BillingApp() {
   const tasksPath = firmAppHref("/app", getTasksAppUrl()) || "/app";
   const [introState, setIntroState] = useState<IntroState>("pending");
   const { goTo } = useMatterNavigation();
+  const nativeMobile = useNativeMobileLayout();
   const [page, setPage] = useState<AppPage>("home");
   const [ledgerSaving, setLedgerSaving] = useState(false);
   const [docTab, setDocTab] = useState<"soa" | "ar">("soa");
@@ -829,21 +833,24 @@ export function BillingApp() {
         </>
       )}
 
-      {page === "clients" && (
-        <>
-          <TabPageHeader resetKey={page}>
-            <BillingTabGuide title="find a client">
-              <BillingTabGuideText>
-                Search by client code or name. Select a row to see contact details, or open the <strong>matter page</strong>{" "}
-                for their ledger, tasks, and documents.
-              </BillingTabGuideText>
-            </BillingTabGuide>
-          </TabPageHeader>
-          <TabPageBody>
+      {page === "clients" &&
+        (nativeMobile ? (
           <ClientsDirectory busy={busy} />
-          </TabPageBody>
-        </>
-      )}
+        ) : (
+          <>
+            <TabPageHeader resetKey={page}>
+              <BillingTabGuide title="find a client">
+                <BillingTabGuideText>
+                  Search by client code or name. Select a row to see contact details, or open the{" "}
+                  <strong>matter page</strong> for their ledger, tasks, and documents.
+                </BillingTabGuideText>
+              </BillingTabGuide>
+            </TabPageHeader>
+            <TabPageBody>
+              <ClientsDirectory busy={busy} />
+            </TabPageBody>
+          </>
+        ))}
 
       {page === "walkIns" && (
         <>
@@ -947,78 +954,110 @@ export function BillingApp() {
         </>
       )}
 
-      {page === "documents" && (
-        <>
-          <TabPageHeader resetKey={`${page}-${spaceActiveId}`}>
-            {spaceActiveId === "drive" ? (
-              <BillingTabGuide title="Drive">
-                <BillingTabGuideText>
-                  Browse outbound PDFs by folder — <strong>Status Reports</strong>, NR, correspondence,
-                  engagement, and spot billing. Issue a new statement or receipt below when needed.
-                </BillingTabGuideText>
-                <BillingTabGuideText>
-                  Matter status text still rides with SOA emails today; the Status Reports folder is ready for dedicated
-                  PDFs when those are saved to Drive.
-                </BillingTabGuideText>
-              </BillingTabGuide>
-            ) : (
-              <BillingTabGuide title="print SOA or receipt">
-                <BillingTabGuideText>
-                  Pick a client, then choose <strong>Statement of Account (SOA)</strong> to show what they owe, or{" "}
-                  <strong>Acknowledgment Receipt (AR)</strong> for a payment already recorded on their ledger.
-                </BillingTabGuideText>
-                <BillingTabGuideText>
-                  Record new fees and payments first on <strong>Charges &amp; payments</strong> — this tab only prints or
-                  emails documents from what is already posted.
-                </BillingTabGuideText>
-              </BillingTabGuide>
-            )}
-          </TabPageHeader>
-          <TabPageBody>
-          {spaceActiveId === "drive" ? (
-            <DocumentVaultPanel
-              clientCode={undefined}
-              busy={busy}
-              limit={50}
-              vaultMode
+      {page === "documents" &&
+        (nativeMobile ? (
+          <div className="documents-page documents-page--native-mobile documents-page--ar-shell space-y-3">
+            <header className="documents-page__mobile-chrome no-print">
+              <SameWindowLink href={mobileOfficeHomeHref()} className="documents-page__mobile-back" aria-label="Back">
+                ←
+              </SameWindowLink>
+              <p className="documents-page__mobile-title">
+                {docTab === "ar" ? "Accounts Receivable" : "Statements of Account"}
+              </p>
+            </header>
+            <section className="ui-card card mb-0">
+              <label className="field-label">Client for documents</label>
+              <div className="documents-page__select">
+                <MobileSelect
+                  className="field"
+                  value={clientCode}
+                  disabled={ledgerSaving}
+                  title="Choose client"
+                  ariaLabel="Client for documents"
+                  options={clients.map((client) => ({
+                    value: client.code,
+                    label: `${client.code} — ${client.name || "Unnamed"}`
+                  }))}
+                  onChange={setClientCode}
+                />
+              </div>
+            </section>
+            <DocumentsPanel
+              clientCode={clientCode}
+              clientName={selected?.name || ""}
+              caseTitle={selected?.caseTitle || ""}
+              clientEmail={selected?.email || ""}
+              clientBalance={selected?.balance || 0}
+              preferredGreeting={undefined}
+              initialDocTab={docTab}
+              paymentMethods={paymentMethods}
+              onBusy={setBusy}
+              onStatus={setAppStatus}
             />
-          ) : null}
-          <TabPickerCard label="Client for documents">
-            <select
-              className="field"
-              value={clientCode}
-              disabled={ledgerSaving}
-              onChange={(e) => setClientCode(e.target.value)}
-            >
-              {clients.map((client) => (
-                <option key={client.code} value={client.code}>
-                  {client.code} — {client.name || "Unnamed"}
-                </option>
-              ))}
-            </select>
-          </TabPickerCard>
-          <DocumentsPanel
-            clientCode={clientCode}
-            clientName={selected?.name || ""}
-            caseTitle={selected?.caseTitle || ""}
-            clientEmail={selected?.email || ""}
-            clientBalance={selected?.balance || 0}
-            preferredGreeting={undefined}
-            initialDocTab={docTab}
-            paymentMethods={paymentMethods}
-            onBusy={setBusy}
-            onStatus={setAppStatus}
-          />
-          {spaceActiveId !== "drive" ? (
-            <DocumentVaultPanel
-              clientCode={clientCode || undefined}
-              busy={busy}
-              limit={25}
-            />
-          ) : null}
-          </TabPageBody>
-        </>
-      )}
+          </div>
+        ) : (
+          <>
+            <TabPageHeader resetKey={`${page}-${spaceActiveId}`}>
+              {spaceActiveId === "drive" ? (
+                <BillingTabGuide title="Drive">
+                  <BillingTabGuideText>
+                    Browse outbound PDFs by folder — <strong>Status Reports</strong>, NR, correspondence,
+                    engagement, and spot billing. Issue a new statement or receipt below when needed.
+                  </BillingTabGuideText>
+                  <BillingTabGuideText>
+                    Matter status text still rides with SOA emails today; the Status Reports folder is ready for dedicated
+                    PDFs when those are saved to Drive.
+                  </BillingTabGuideText>
+                </BillingTabGuide>
+              ) : (
+                <BillingTabGuide title="print SOA or receipt">
+                  <BillingTabGuideText>
+                    Pick a client, then choose <strong>Statement of Account (SOA)</strong> to show what they owe, or{" "}
+                    <strong>Acknowledgment Receipt (AR)</strong> for a payment already recorded on their ledger.
+                  </BillingTabGuideText>
+                  <BillingTabGuideText>
+                    Record new fees and payments first on <strong>Charges &amp; payments</strong> — this tab only prints or
+                    emails documents from what is already posted.
+                  </BillingTabGuideText>
+                </BillingTabGuide>
+              )}
+            </TabPageHeader>
+            <TabPageBody>
+              {spaceActiveId === "drive" ? (
+                <DocumentVaultPanel clientCode={undefined} busy={busy} limit={50} vaultMode />
+              ) : null}
+              <TabPickerCard label="Client for documents">
+                <select
+                  className="field"
+                  value={clientCode}
+                  disabled={ledgerSaving}
+                  onChange={(e) => setClientCode(e.target.value)}
+                >
+                  {clients.map((client) => (
+                    <option key={client.code} value={client.code}>
+                      {client.code} — {client.name || "Unnamed"}
+                    </option>
+                  ))}
+                </select>
+              </TabPickerCard>
+              <DocumentsPanel
+                clientCode={clientCode}
+                clientName={selected?.name || ""}
+                caseTitle={selected?.caseTitle || ""}
+                clientEmail={selected?.email || ""}
+                clientBalance={selected?.balance || 0}
+                preferredGreeting={undefined}
+                initialDocTab={docTab}
+                paymentMethods={paymentMethods}
+                onBusy={setBusy}
+                onStatus={setAppStatus}
+              />
+              {spaceActiveId !== "drive" ? (
+                <DocumentVaultPanel clientCode={clientCode || undefined} busy={busy} limit={25} />
+              ) : null}
+            </TabPageBody>
+          </>
+        ))}
 
       {page === "reports" && (
         <>

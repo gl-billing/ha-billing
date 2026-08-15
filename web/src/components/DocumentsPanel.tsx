@@ -19,6 +19,7 @@ import {
 } from "@/lib/payment-income";
 import type { SoaDuplicateCheck } from "@/lib/soa-follow-up";
 import type { AppearanceFeeOption, LedgerPaymentOption } from "@/lib/sheets/ledger-read";
+import { useNativeMobileLayout } from "@/hooks/useNativeMobileLayout";
 
 type DeliveryAction = "Send Now" | "Create Gmail Draft";
 
@@ -47,6 +48,7 @@ export function DocumentsPanel({
   onBusy,
   onStatus
 }: Props) {
+  const nativeMobile = useNativeMobileLayout();
   const [docTab, setDocTab] = useState<"soa" | "ar">(initialDocTab);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -378,7 +380,7 @@ export function DocumentsPanel({
 
   if (reviewOpen) {
     return (
-      <div className="relative z-10 space-y-3">
+      <div className={`relative z-10 space-y-3${nativeMobile ? " documents-page documents-page--native-mobile" : ""}`}>
         <section className="card document-review-card p-4">
           <p className="mb-3 text-sm font-extrabold text-ink">
             Review before {docTab === "soa" ? "sending SOA" : "sending receipt"}
@@ -488,14 +490,21 @@ export function DocumentsPanel({
   }
 
   return (
-    <div className="space-y-3">
-      <section className="rounded-lg border border-line/90 bg-white/80 p-3 text-xs text-muted shadow-sm">
+    <div className={`documents-page space-y-3${nativeMobile ? " documents-page--native-mobile" : ""}`}>
+      <section className="documents-page__client rounded-lg border border-line/90 bg-white/80 p-3 text-xs text-muted shadow-sm">
         Client: <strong className="text-ink">{clientCode || "—"}</strong>
         {clientName ? ` · ${clientName}` : ""}
         {clientEmail ? (
           <>
             <br />
-            Email: <strong className="text-ink">{clientEmail}</strong>
+            Email:{" "}
+            {nativeMobile ? (
+              <a href={`mailto:${clientEmail}`} className="documents-page__client-email">
+                {clientEmail}
+              </a>
+            ) : (
+              <strong className="text-ink">{clientEmail}</strong>
+            )}
           </>
         ) : null}
       </section>
@@ -515,12 +524,12 @@ export function DocumentsPanel({
           onClick={() => setDocTab("ar")}
           disabled={submitting}
         >
-          Receipt
+          {nativeMobile ? "Acknowledgment receipt" : "Receipt"}
         </button>
       </div>
 
       {docTab === "soa" ? (
-        <section className="rounded-lg border border-line/90 bg-white/80 p-3 shadow-sm">
+        <section className="documents-page__panel rounded-lg border border-line/90 bg-white/80 p-3 shadow-sm">
           {soaCheck?.infoMessage ? (
             <p className="mb-3 rounded-md border border-line/70 bg-[#faf8f4] px-2.5 py-2 text-[11px] leading-relaxed text-muted">
               {soaCheck.infoMessage}
@@ -531,15 +540,29 @@ export function DocumentsPanel({
                   : null}
             </p>
           ) : null}
-          <label className="flex items-center gap-2 text-xs font-bold text-[#4a4339]">
-            <input
-              type="checkbox"
-              checked={includeStatusReport}
-              onChange={(e) => setIncludeStatusReport(e.target.checked)}
-              disabled={submitting || appearanceFees.length === 0}
-            />
-            Include appearance / hearing status report
-          </label>
+          {nativeMobile ? (
+            <label className="documents-page__option">
+              <input
+                type="checkbox"
+                checked={includeStatusReport}
+                onChange={(e) => setIncludeStatusReport(e.target.checked)}
+                disabled={submitting || appearanceFees.length === 0}
+              />
+              <span className="documents-page__option-copy">
+                <span className="documents-page__option-title">Include appearance / hearing status report</span>
+              </span>
+            </label>
+          ) : (
+            <label className="flex items-center gap-2 text-xs font-bold text-[#4a4339]">
+              <input
+                type="checkbox"
+                checked={includeStatusReport}
+                onChange={(e) => setIncludeStatusReport(e.target.checked)}
+                disabled={submitting || appearanceFees.length === 0}
+              />
+              Include appearance / hearing status report
+            </label>
+          )}
           {appearanceFees.length === 0 && (
             <p className="mt-2 text-[11px] text-muted">No appearance fee charges found for this client.</p>
           )}
@@ -626,11 +649,25 @@ export function DocumentsPanel({
           ) : null}
         </section>
       ) : (
-        <section className="rounded-lg border border-line/90 bg-white/80 p-3 shadow-sm">
-          <label className="mb-2 flex items-center gap-2 text-xs text-muted">
-            <input type="checkbox" checked={pendingOnly} onChange={(e) => setPendingOnly(e.target.checked)} disabled={submitting} />
-            Show only payments without AR
-          </label>
+        <section className="documents-page__panel rounded-lg border border-line/90 bg-white/80 p-3 shadow-sm">
+          {nativeMobile ? (
+            <label className="documents-page__option">
+              <input
+                type="checkbox"
+                checked={pendingOnly}
+                onChange={(e) => setPendingOnly(e.target.checked)}
+                disabled={submitting}
+              />
+              <span className="documents-page__option-copy">
+                <span className="documents-page__option-title">Show only payments without AR</span>
+              </span>
+            </label>
+          ) : (
+            <label className="mb-2 flex items-center gap-2 text-xs text-muted">
+              <input type="checkbox" checked={pendingOnly} onChange={(e) => setPendingOnly(e.target.checked)} disabled={submitting} />
+              Show only payments without AR
+            </label>
+          )}
 
           <Field label="Select payment">
             <select

@@ -26,6 +26,14 @@ type Props = {
   onOpenIntake?: () => void;
 };
 
+function clientStatus(client: ClientSummary): string {
+  return String(client.status || "Active");
+}
+
+function isClosedClient(client: ClientSummary): boolean {
+  return clientStatus(client).toLowerCase() === "closed";
+}
+
 export function MobileClientsList({
   clients,
   query,
@@ -41,36 +49,52 @@ export function MobileClientsList({
   const rows = useMemo(() => {
     let list = clients;
     if (statusFilter === "active") {
-      list = list.filter((client) => client.status.toLowerCase() !== "closed");
+      list = list.filter((client) => !isClosedClient(client));
     } else if (statusFilter === "closed") {
-      list = list.filter((client) => client.status.toLowerCase() === "closed");
+      list = list.filter((client) => isClosedClient(client));
     }
     return list;
   }, [clients, statusFilter]);
 
-  const intakeAction =
+  const intakeHref = billingHref({ page: "newClient" });
+  const headerIntake = onOpenIntake ? (
+    <button type="button" className="ha-mobile-header-btn" disabled={busy} onClick={onOpenIntake}>
+      + Intake
+    </button>
+  ) : (
+    <SameWindowLink href={intakeHref} className="ha-mobile-header-btn">
+      + Intake
+    </SameWindowLink>
+  );
+
+  const emptyIntake =
     !query.trim() && statusFilter !== "closed" ? (
       onOpenIntake ? (
         <button type="button" className="ha-mobile-primary-btn" disabled={busy} onClick={onOpenIntake}>
           Open Intake
         </button>
       ) : (
-        <SameWindowLink href={billingHref({ page: "newClient" })} className="ha-mobile-primary-btn">
+        <SameWindowLink href={intakeHref} className="ha-mobile-primary-btn">
           Open Intake
         </SameWindowLink>
       )
     ) : null;
 
+  const initialLoad = Boolean(refreshing && !clients.length && !loadError);
+
   return (
-    <section className={`ha-mobile-app ${styles.page}`} aria-label="Clients">
-      <MobilePageHeader title="Clients" />
+    <section className={`ha-mobile-app clients-page--native-mobile ${styles.page}`} aria-label="Clients">
+      <MobilePageHeader title="Clients" action={headerIntake} />
       <input
-        className={styles.search}
+        type="search"
+        className={`${styles.search} clients-page__search`}
         value={query}
         disabled={busy}
         onChange={(event) => onQueryChange(event.target.value)}
         placeholder="Search code, name, or matter"
         aria-label="Search clients"
+        autoComplete="off"
+        enterKeyHint="search"
       />
       <MobileFilterBar
         ariaLabel="Client status"
@@ -84,34 +108,23 @@ export function MobileClientsList({
         ]}
       />
       <p className={styles.count}>
-        {rows.length} {rows.length === 1 ? "client" : "clients"}
-        {refreshing ? " · refreshing…" : ""}
+        {initialLoad ? "Loading clients…" : `${rows.length} ${rows.length === 1 ? "client" : "clients"}`}
+        {refreshing && clients.length ? " · refreshing…" : ""}
       </p>
       {loadError ? (
         <p className={styles.status} role="alert">
           {loadError}
         </p>
       ) : null}
-      {!rows.length ? (
-        <MobileEmptyState
-          message={
-            query.trim()
-              ? "No clients match your search."
-              : statusFilter === "closed"
-                ? "No closed clients."
-                : "No clients yet."
-          }
-          action={intakeAction}
-        />
-      ) : (
+      {initialLoad ? null : rows.length ? (
         <ul className={styles.list}>
           {rows.map((client, index) => (
             <li key={`${client.code}-${index}`}>
               <MobileRecordCard
                 href={matterHref(client.code, undefined, { from })}
                 eyebrow={client.code}
-                badge={client.status || "Active"}
-                badgeMuted={client.status.toLowerCase() === "closed"}
+                badge={clientStatus(client)}
+                badgeMuted={isClosedClient(client)}
                 title={client.name || client.code}
                 subtitle={formatMatterDirectoryCaseLabel(client)}
                 meta={`Outstanding balance: ${formatPeso(client.balance)}`}
@@ -120,6 +133,17 @@ export function MobileClientsList({
             </li>
           ))}
         </ul>
+      ) : loadError ? null : (
+        <MobileEmptyState
+          message={
+            query.trim()
+              ? "No clients match your search."
+              : statusFilter === "closed"
+                ? "No closed clients."
+                : "No clients yet."
+          }
+          action={emptyIntake}
+        />
       )}
     </section>
   );

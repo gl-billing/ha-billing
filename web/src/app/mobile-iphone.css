@@ -846,3 +846,237 @@ html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .day-schedule
   background: var(--ha-m-card, #181818);
   color: var(--ha-m-ink, #f5f1e8);
 }
+
+/*
+ * Clients: dark full-bleed list. Beat letterhead/fullbleed cream, white search,
+ * and stacked desk-table cards. Body remains the only scroller.
+ */
+html[data-layout-mode="mobile"] .clients-page--native-mobile,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .clients-page--native-mobile,
+html[data-layout-mode="mobile"] .ha-mobile-app.clients-page--native-mobile,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .ha-mobile-app.clients-page--native-mobile {
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+  background: transparent !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  padding-bottom: 0.5rem !important;
+}
+
+html[data-layout-mode="mobile"] .ha-mobile-page-header__row,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .ha-mobile-page-header__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+html[data-layout-mode="mobile"] .ha-mobile-page-header__row .ha-mobile-page-title,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .ha-mobile-page-header__row .ha-mobile-page-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 !important;
+}
+
+html[data-layout-mode="mobile"] .ha-mobile-page-header__action,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .ha-mobile-page-header__action {
+  flex: 0 0 auto;
+}
+
+html[data-layout-mode="mobile"] .ha-mobile-header-btn,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .ha-mobile-header-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  min-width: 5.75rem;
+  min-height: 2.75rem;
+  margin: 0;
+  padding: 0 0.85rem;
+  border: 1px solid var(--ha-m-divider, #2d2d2d);
+  border-radius: 0.85rem;
+  background: var(--ha-m-accent-action, #f0f0f0) !important;
+  color: var(--ha-m-accent-ink, #0a0a0a) !important;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none !important;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+html[data-layout-mode="mobile"] .clients-page--native-mobile input[type="search"],
+html[data-layout-mode="mobile"] .clients-page--native-mobile input:not([type="checkbox"]):not([type="radio"]),
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .clients-page--native-mobile input[type="search"],
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .clients-page--native-mobile input:not([type="checkbox"]):not([type="radio"]) {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 2.85rem !important;
+  height: auto !important;
+  margin: 0 0 0.75rem !important;
+  padding: 0.7rem 0.9rem !important;
+  border: 1px solid var(--ha-m-divider, #2d2d2d) !important;
+  border-radius: 0.9rem !important;
+  background: var(--ha-m-card-elevated, #202020) !important;
+  background-color: var(--ha-m-card-elevated, #202020) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  -webkit-text-fill-color: var(--ha-m-ink, #f5f1e8) !important;
+  caret-color: var(--ha-m-ink, #f5f1e8) !important;
+  color-scheme: dark !important;
+  box-shadow: none !important;
+}
+
+html[data-layout-mode="mobile"] .clients-page--native-mobile input::placeholder,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .clients-page--native-mobile input::placeholder {
+  color: var(--ha-m-muted-2, #77736c) !important;
+  -webkit-text-fill-color: var(--ha-m-muted-2, #77736c) !important;
+  opacity: 1;
+}
+
+html[data-layout-mode="mobile"] .clients-page--native-mobile a.ha-mobile-record-card,
+html[data-layout-mode="mobile"] .clients-page--native-mobile .ha-mobile-record-card,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .clients-page--native-mobile a.ha-mobile-record-card,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .clients-page--native-mobile .ha-mobile-record-card {
+  background: var(--ha-m-card, #181818) !important;
+  color: var(--ha-m-card-ink, #f5f1e8) !important;
+  border: 1px solid var(--ha-m-divider, #2d2d2d) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
+  text-decoration: none !important;
+}
+
+html[data-layout-mode="mobile"] .clients-page--native-mobile .ha-mobile-record-title,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .clients-page--native-mobile .ha-mobile-record-title {
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
+html[data-layout-mode="mobile"] .clients-page--native-mobile .ha-mobile-record-subtitle,
+html[data-layout-mode="mobile"] .clients-page--native-mobile .ha-mobile-record-meta,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .clients-page--native-mobile .ha-mobile-record-subtitle,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .clients-page--native-mobile .ha-mobile-record-meta {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+html[data-layout-mode="mobile"] .clients-page--native-mobile .ha-mobile-record-meta-alert,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .clients-page--native-mobile .ha-mobile-record-meta-alert {
+  color: var(--ha-m-error, #d86a63) !important;
+}
+
+/* Fallback if the desk directory still mounts on phone */
+html[data-layout-mode="mobile"] .client-directory__find-input,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .client-directory__find-input {
+  max-width: none !important;
+  height: auto !important;
+  min-height: 2.85rem !important;
+  background: var(--ha-m-card-elevated, #202020) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+}
+
+html[data-layout-mode="mobile"] .client-directory__closed,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .client-directory__closed {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+html[data-layout-mode="mobile"] .client-list-table,
+html[data-layout-mode="mobile"] .client-list-table.firm-ledger-table--responsive-stack,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .client-list-table,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .client-list-table.firm-ledger-table--responsive-stack {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+html[data-layout-mode="mobile"] .client-list-table.firm-ledger-table--responsive-stack tbody tr,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .client-list-table.firm-ledger-table--responsive-stack tbody tr {
+  background: var(--ha-m-card, #181818) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+}
+
+html[data-layout-mode="mobile"] .documents-page--native-mobile,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .documents-page--native-mobile,
+html[data-layout-mode="mobile"] .space-staff-ledger--native-mobile,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .space-staff-ledger--native-mobile,
+html[data-layout-mode="mobile"] .tools-panel--native-mobile,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile {
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+html[data-layout-mode="mobile"] .tools-panel--native-mobile .card,
+html[data-layout-mode="mobile"] .tools-panel--native-mobile .tools-panel__section,
+html[data-layout-mode="mobile"] .tools-panel--native-mobile .firm-automation-settings,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile .card,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile .tools-panel__section,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile .firm-automation-settings {
+  background: var(--ha-m-card, #181818) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+  box-shadow: none !important;
+}
+
+html[data-layout-mode="mobile"] .tools-panel--native-mobile .firm-automation-settings li,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile .firm-automation-settings li {
+  background: var(--ha-m-card-elevated, #202020) !important;
+  border-color: var(--ha-m-divider, #2d2d2d) !important;
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
+html[data-layout-mode="mobile"] .tools-panel--native-mobile .section-label,
+html[data-layout-mode="mobile"] .tools-panel--native-mobile h2,
+html[data-layout-mode="mobile"] .tools-panel--native-mobile h3,
+html[data-layout-mode="mobile"] .tools-panel--native-mobile .text-ink,
+html[data-layout-mode="mobile"] .tools-panel--native-mobile .font-medium,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile .section-label,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile h2,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile h3,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile .text-ink,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile .font-medium {
+  color: var(--ha-m-ink, #f5f1e8) !important;
+}
+
+html[data-layout-mode="mobile"] .tools-panel--native-mobile .text-muted,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile .text-muted {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+html[data-layout-mode="mobile"] .tools-panel--native-mobile .tools-panel__maintenance > summary,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .tools-panel--native-mobile .tools-panel__maintenance > summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+html[data-layout-mode="mobile"] .space-staff-ledger--native-mobile,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .space-staff-ledger--native-mobile {
+  border: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-layout-mode="mobile"] .space-staff-ledger--native-mobile .text-muted,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .space-staff-ledger--native-mobile .text-muted {
+  color: var(--ha-m-muted, #c4bdb3) !important;
+}
+
+html[data-layout-mode="mobile"] .space-staff-ledger--native-mobile .text-red-800,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .space-staff-ledger--native-mobile .text-red-800 {
+  color: var(--ha-m-error, #d86a63) !important;
+}
+
+html[data-layout-mode="mobile"] .documents-page--native-mobile .document-review-letterhead,
+html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .documents-page--native-mobile .document-review-letterhead {
+  background: #fff !important;
+  color: #0a0a0a !important;
+}

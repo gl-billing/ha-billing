@@ -21,6 +21,7 @@ export function ClientsDirectory({ busy }: Props) {
   const [includeClosed, setIncludeClosed] = useState(false);
   const [clients, setClients] = useState<ClientSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [popupCode, setPopupCode] = useState<string | null>(null);
 
   const loadList = useCallback(async () => {
@@ -33,9 +34,11 @@ export function ClientsDirectory({ busy }: Props) {
       const response = await fetch(`/api/clients?${params.toString()}`);
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Unable to load clients.");
-      setClients(data.clients);
+      setClients(Array.isArray(data.clients) ? data.clients : []);
+      setLoadError("");
     } catch {
       setClients([]);
+      setLoadError("Unable to load clients.");
     } finally {
       setLoading(false);
     }
@@ -59,6 +62,7 @@ export function ClientsDirectory({ busy }: Props) {
         onQueryChange={setQuery}
         busy={busy}
         refreshing={loading}
+        loadError={loadError}
         onOpenIntake={() => router.push(billingHref({ page: "newClient" }))}
       />
     );

@@ -330,8 +330,8 @@ export function mobileOfficeMenuGroups(v: Visibility): MobileOfficeMenuGroup[] {
       links: [
         { href: billingHref({ page: "newClient" }), label: "Add client" },
         { href: walkInConsultationCreateHref(), label: "Add walk-in" },
-        { href: billingHref({ page: "spotBilling" }), label: "Add spot billing" },
-        { href: billingHref({ page: "notarizations" }), label: "Add notarization" }
+        { href: tasksHref({ tab: "add-task" }), label: "Add task" },
+        { href: tasksHref({ tab: "add-event" }), label: "Add event" }
       ]
     });
   }

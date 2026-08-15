@@ -116,8 +116,8 @@ export function MobileSpaceDeskNav({ billingAccess = true, isAdmin = false }: Pr
           ? [
               { href: billingHref({ page: "newClient" }), label: "Client intake" },
               { href: billingHref({ page: "walkIns" }), label: "Add walk-in" },
-              { href: billingHref({ page: "spotBilling" }), label: "Add spot billing" },
-              { href: billingHref({ page: "notarizations" }), label: "Notarizations" },
+              { href: tasksHref({ tab: "add-task" }), label: "Add task" },
+              { href: tasksHref({ tab: "add-event" }), label: "Add event" },
               { href: billingHref({ page: "billing" }), label: "Billing" },
               { href: billingHref({ page: "documents" }), label: "SOA & Receipts" },
               { href: billingHref({ page: "history" }), label: "History" },
