@@ -65,4 +65,4 @@ GOOGLE_SPREADSHEET_ID=<tasks-spreadsheet-id>
 
 ---
 
-Copyright (c) 2026 Hernandez & Associates Office
+Copyright (c) 2026 AEGYS, a product of A & S INFORMATION SOLUTIONS OPC

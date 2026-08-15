@@ -2,7 +2,7 @@
 name = "ha-billing-desktop"
 version = "1.0.0"
 description = "HA Billing desktop wrapper"
-authors = ["Hernandez & Associates"]
+authors = ["AEGYS, a product of A & S INFORMATION SOLUTIONS OPC"]
 edition = "2021"
 
 [build-dependencies]

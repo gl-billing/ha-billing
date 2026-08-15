@@ -102,10 +102,10 @@ describe("app-access", () => {
     process.env.ALLOWED_EMAILS = "staff@example.com";
     process.env.ALLOWED_EMAIL_DOMAIN = "hernandezlaw.info";
 
-    expect(isStaffEmail("janinerose1191@gmail.com")).toBe(true);
-    expect(canAccessOfficeHub("janinerose1191@gmail.com")).toBe(true);
-    expect(canAccessBilling("janinerose1191@gmail.com")).toBe(true);
-    expect(resolvePostLoginPath("janinerose1191@gmail.com")).toBe("/office-hub");
+    expect(isStaffEmail("hello@aandssolutions.com")).toBe(true);
+    expect(canAccessOfficeHub("hello@aandssolutions.com")).toBe(true);
+    expect(canAccessBilling("hello@aandssolutions.com")).toBe(true);
+    expect(resolvePostLoginPath("hello@aandssolutions.com")).toBe("/office-hub");
   });
 
   it("treats the managing partner as firm admin even when ADMIN_EMAILS is unset", () => {
@@ -120,16 +120,16 @@ describe("app-access", () => {
   it("treats the firm owner as full admin with all billing tabs", () => {
     delete process.env.ADMIN_EMAILS;
 
-    expect(isAdminEmail("janinerose1191@gmail.com")).toBe(true);
-    expect(canEditDeskBilling("janinerose1191@gmail.com")).toBe(true);
-    expect(canDeleteNotarizations("janinerose1191@gmail.com")).toBe(true);
+    expect(isAdminEmail("hello@aandssolutions.com")).toBe(true);
+    expect(canEditDeskBilling("hello@aandssolutions.com")).toBe(true);
+    expect(canDeleteNotarizations("hello@aandssolutions.com")).toBe(true);
 
     const tabs = billingNavTabsForUser(true, "full").map((tab) => tab.id);
     expect(tabs).toContain("staffSalary");
     expect(tabs).toContain("firmFinances");
     expect(tabs).toContain("reports");
-    expect(isAllowedBillingPage("staffSalary", true, "full", "janinerose1191@gmail.com")).toBe(true);
-    expect(isAllowedBillingPage("firmFinances", true, "full", "janinerose1191@gmail.com")).toBe(true);
+    expect(isAllowedBillingPage("staffSalary", true, "full", "hello@aandssolutions.com")).toBe(true);
+    expect(isAllowedBillingPage("firmFinances", true, "full", "hello@aandssolutions.com")).toBe(true);
 
     const tasksTabs = tasksNavTabsForUser(true, "full").map((tab) => tab.id);
     expect(tasksTabs).toContain("tools");
@@ -139,12 +139,12 @@ describe("app-access", () => {
     delete process.env.ADMIN_EMAILS;
     delete process.env.TEAM_ROSTER_ADMIN_EMAILS;
 
-    expect(canManageTeamRoster("janinerose1191@gmail.com")).toBe(true);
+    expect(canManageTeamRoster("hello@aandssolutions.com")).toBe(true);
 
     const rosterAdminTabs = billingNavTabsForUser(false, "full", true).map((tab) => tab.id);
     expect(rosterAdminTabs).toContain("staffSalary");
     expect(rosterAdminTabs).not.toContain("firmFinances");
-    expect(isAllowedBillingPage("staffSalary", false, "full", "janinerose1191@gmail.com", true)).toBe(true);
+    expect(isAllowedBillingPage("staffSalary", false, "full", "hello@aandssolutions.com", true)).toBe(true);
   });
 });
 
