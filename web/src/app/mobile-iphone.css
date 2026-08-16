@@ -1238,3 +1238,9 @@ html[data-layout-mode="mobile"] .billing-charge-page--native-mobile .open-charge
 html[data-phone-viewport="true"]:not([data-layout-mode="desktop"]) .billing-charge-page--native-mobile .open-charge-picker__chip-amount {
   color: var(--ha-m-ink, #f5f1e8) !important;
 }
+
+/* Last-loaded: keep the phone logo + hamburger off desk chrome. */
+html[data-layout-mode="desktop"] .mobile-office-header,
+html[data-phone-viewport="false"] .mobile-office-header {
+  display: none !important;
+}

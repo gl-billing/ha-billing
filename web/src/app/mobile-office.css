@@ -10,7 +10,18 @@
 .layout-mode-phone-bar,
 .mobile-office-menu,
 .mobile-office-menu__backdrop {
-  display: none;
+  display: none !important;
+}
+
+/* Desk chrome only: CSS modules on the phone header (display:flex) must not leak. */
+html[data-layout-mode="desktop"] .mobile-office-header,
+html[data-layout-mode="desktop"] .mobile-office-bottom-nav,
+html[data-layout-mode="desktop"] .mobile-office-home-slot,
+html[data-layout-mode="desktop"] .mobile-office-menu,
+html[data-layout-mode="desktop"] .mobile-office-menu__backdrop,
+html[data-phone-viewport="false"] .mobile-office-header,
+html[data-phone-viewport="false"] .mobile-office-bottom-nav {
+  display: none !important;
 }
 
 @media (max-width: 767px) {
