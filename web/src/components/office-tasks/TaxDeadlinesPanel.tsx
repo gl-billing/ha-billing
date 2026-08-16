@@ -210,7 +210,7 @@ function TaxCard({
 
   return (
     <div className="tools-panel__template-card">
-      <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-extrabold text-amber-900">
+      <span className="rounded-full bg-soft px-2.5 py-0.5 text-[10px] font-extrabold text-ink">
         {item.group} · {item.form}
       </span>
       <h3 className="mt-2 text-sm font-bold leading-snug text-ink sm:text-[15px]">{item.filing}</h3>

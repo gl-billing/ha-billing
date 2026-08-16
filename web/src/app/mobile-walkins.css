@@ -471,8 +471,8 @@
   .walk-in-panel__toolbar-link:disabled,
   .walk-in-panel__filter-btn:disabled {
     opacity: 1 !important;
-    color: var(--ha-m-disabled, #7a746c) !important;
-    -webkit-text-fill-color: var(--ha-m-disabled, #7a746c) !important;
+    color: var(--ha-m-disabled, #7a7a7a) !important;
+    -webkit-text-fill-color: var(--ha-m-disabled, #7a7a7a) !important;
     border-color: var(--ha-m-divider, #2d2d2d) !important;
     background: var(--ha-m-card, #181818) !important;
     cursor: not-allowed;
@@ -1236,19 +1236,19 @@
   }
 
   .tool-action-btn--primary .tool-action-btn__sub {
-    color: color-mix(in srgb, var(--ha-m-accent-ink, #0a0a0a) 78%, #6b5420) !important;
-    -webkit-text-fill-color: color-mix(in srgb, var(--ha-m-accent-ink, #0a0a0a) 78%, #6b5420) !important;
+    color: color-mix(in srgb, var(--ha-m-accent-ink, #0a0a0a) 78%, #333333) !important;
+    -webkit-text-fill-color: color-mix(in srgb, var(--ha-m-accent-ink, #0a0a0a) 78%, #333333) !important;
   }
 
   .tool-action-btn:disabled,
   .tool-action-btn:disabled .tool-action-btn__label,
   .tool-action-btn:disabled .tool-action-btn__sub {
-    color: var(--ha-m-disabled, #7a746c) !important;
-    -webkit-text-fill-color: var(--ha-m-disabled, #7a746c) !important;
+    color: var(--ha-m-disabled, #7a7a7a) !important;
+    -webkit-text-fill-color: var(--ha-m-disabled, #7a7a7a) !important;
     background: var(--ha-m-card, #181818) !important;
   }
 
-  .tools-panel .text-amber-900,
+  .tools-panel .text-ink,
   .tools-panel code.text-ink {
     color: var(--ha-m-accent, #ffffff) !important;
   }

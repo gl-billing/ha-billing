@@ -13,7 +13,7 @@
   --letterhead-muted: #454545;
   --letterhead-line: rgba(10, 10, 10, 0.14);
   --letterhead-paper: #ffffff;
-  --letterhead-stone: #f4f3f0;
+  --letterhead-stone: #f4f4f4;
   --letterhead-danger: #8b1e1e;
   --letterhead-warn-bg: #f3f3f3;
   --letterhead-warn-border: rgba(10, 10, 10, 0.22);
@@ -69,12 +69,12 @@
 .firm-workspace:is(.firm-clio-shell, .firm-space-shell) .bg-gradient-to-r,
 .firm-workspace:is(.firm-clio-shell, .firm-space-shell) .bg-gradient-to-t,
 .firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="from-[#faf6ee]"],
-.firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="from-[#1a1612]"],
+.firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="from-[#0a0a0a]"],
 .firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="to-[#3d3018]"],
 .firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="to-[#f4f1eb]"],
 .firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="bg-[#faf9f7]"],
-.firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="bg-[#fffef9]"],
-.firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="bg-[#faf8f4]"],
+.firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="bg-[#ffffff]"],
+.firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="bg-cream"],
 .firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="bg-[#f5f3ef]"],
 .firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="bg-amber-50"],
 .firm-workspace:is(.firm-clio-shell, .firm-space-shell) [class*="bg-red-50"] {

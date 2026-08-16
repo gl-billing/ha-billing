@@ -36,9 +36,9 @@ const OPEN_SECTION_STYLES: Record<
     title: "text-red-950"
   },
   dueToday: {
-    chip: "bg-amber-100 text-amber-950 border-amber-200",
-    panel: "border-amber-200/80 bg-amber-50/50",
-    title: "text-amber-950"
+    chip: "bg-soft text-ink border-line",
+    panel: "border-line bg-cream/50",
+    title: "text-ink"
   },
   dueThisWeek: {
     chip: "bg-sky-100 text-sky-950 border-sky-200",

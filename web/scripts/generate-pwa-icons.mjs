@@ -9,7 +9,7 @@ import sharp from "sharp";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const webRoot = path.join(__dirname, "..");
 const source = path.join(webRoot, "public/brand/logo.png");
-const background = "#faf8f4";
+const background = "#f5f5f5";
 
 async function writeSquareIcon(size, outputPath, paddingRatio = 0.06) {
   const inset = Math.round(size * paddingRatio);

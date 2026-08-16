@@ -1325,7 +1325,7 @@ export function ClientProfile({
                   disabled={busy}
                   className={`rounded px-2.5 py-1 text-[11px] font-bold ${
                     filter === id
-                      ? "bg-[#171411] text-white"
+                      ? "bg-ink text-white"
                       : "border border-line text-ink hover:bg-[#f5f3ef]"
                   }`}
                   onClick={() => setFilter(id)}
@@ -1417,7 +1417,7 @@ export function ClientProfile({
           </Section>
 
           {isAdmin && detail && (
-            <section className="card border border-[#d4c4a0]/80 bg-[#faf8f4]">
+            <section className="card border border-line/80 bg-cream">
               <p className="section-label">Client code (owner / admin)</p>
               <p className="mb-2 text-xs text-muted">
                 Current code: <strong className="text-ink">{detail.code}</strong> — used as the ledger tab name

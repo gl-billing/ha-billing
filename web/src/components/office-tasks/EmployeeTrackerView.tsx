@@ -233,7 +233,7 @@ export function EmployeeTrackerView({
                   description={`Assigned to you · ${taxGroups.open.length} open${taxGroups.overdue.length ? ` · ${taxGroups.overdue.length} overdue` : ""}`}
                   groups={taxGroups}
                   emptyText="No tax compliance items — use Tools → BIR tracker to add filing deadlines."
-                  border="border-amber-500/70"
+                  border="border-line/70"
                   accentClass="firm-task-group--tax"
                   onToggleDone={onToggleDone}
                   onSetStatus={onSetStatus}
@@ -337,7 +337,7 @@ export function EmployeeTrackerView({
               formOptions={formOptions}
               togglingKey={togglingKey}
               {...checklistSectionProps}
-              border="border-amber-400"
+              border="border-line"
             />
             <EmployeeSection
               title="Due this week"
@@ -422,7 +422,7 @@ function MiniStat({
     highlight && tone === "red"
       ? "bg-red-50 text-red-800 ring-1 ring-red-200"
       : highlight && tone === "amber"
-        ? "bg-amber-50 text-amber-900 ring-1 ring-amber-200"
+        ? "bg-cream text-ink ring-1 ring-line"
         : highlight
           ? "bg-green/10 text-green ring-1 ring-green/20"
           : "bg-soft/90 text-ink";

@@ -140,7 +140,7 @@ export function MatterLedgerHistory({
               disabled={busy}
               className={`rounded px-2.5 py-1 text-[11px] font-bold ${
                 filter === id
-                  ? "bg-[#171411] text-white"
+                  ? "bg-ink text-white"
                   : "border border-line text-ink hover:bg-[#f5f3ef]"
               }`}
               onClick={() => setFilter(id)}

@@ -390,7 +390,7 @@ export function CivilEFilingDialog({ item, open, onClose, onStatus, onSent }: Pr
           <p className="mt-1 text-sm text-muted">{item.clientCase || "Filing event"}</p>
 
           {preview?.initiatoryHint ? (
-            <p className="mt-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+            <p className="mt-3 rounded border border-line bg-cream px-3 py-2 text-sm text-ink">
               {preview.initiatoryHint}
             </p>
           ) : null}
@@ -581,7 +581,7 @@ export function CivilEFilingDialog({ item, open, onClose, onStatus, onSent }: Pr
                               Source: {row.file.name}
                             </span>
                           ) : (
-                            <span className="text-xs text-amber-800">No file yet</span>
+                            <span className="text-xs text-ink">No file yet</span>
                           )}
                         </div>
 

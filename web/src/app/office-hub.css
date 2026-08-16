@@ -139,7 +139,7 @@ body:has(.office-hub-page) {
   gap: 0.2rem;
   padding: 0.55rem 0.65rem;
   border-radius: 0.55rem;
-  border: 1px solid rgba(26, 22, 18, 0.08);
+  border: 1px solid rgba(10, 10, 10, 0.08);
   background: #fff;
   text-decoration: none;
   color: inherit;
@@ -148,7 +148,7 @@ body:has(.office-hub-page) {
 
 .next-queue-strip__primary:hover {
   border-color: rgba(138, 107, 42, 0.35);
-  box-shadow: 0 1px 0 rgba(26, 22, 18, 0.04);
+  box-shadow: 0 1px 0 rgba(10, 10, 10, 0.04);
 }
 
 .next-queue-strip__badge {
@@ -180,12 +180,12 @@ body:has(.office-hub-page) {
 .next-queue-strip__primary-label {
   font-size: 0.92rem;
   font-weight: 800;
-  color: #1a1612;
+  color: #0a0a0a;
 }
 
 .next-queue-strip__primary-detail {
   font-size: 0.72rem;
-  color: rgba(26, 22, 18, 0.62);
+  color: rgba(10, 10, 10, 0.62);
 }
 
 .next-queue-strip__list {
@@ -202,13 +202,13 @@ body:has(.office-hub-page) {
   border-radius: 0.35rem;
   font-size: 0.78rem;
   font-weight: 650;
-  color: rgba(26, 22, 18, 0.82);
+  color: rgba(10, 10, 10, 0.82);
   text-decoration: none;
 }
 
 .next-queue-strip__link:hover {
   background: rgba(138, 107, 42, 0.08);
-  color: #1a1612;
+  color: #0a0a0a;
 }
 
 .my-work-hub-summary__queue {
@@ -237,20 +237,20 @@ body:has(.office-hub-page) {
 
 .activity-timeline__filter-pill {
   border-radius: 999px;
-  border: 1px solid var(--line, rgba(26, 22, 18, 0.12));
+  border: 1px solid var(--line, rgba(10, 10, 10, 0.12));
   background: #fff;
   padding: 0.25rem 0.65rem;
   font-size: 0.62rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(26, 22, 18, 0.55);
+  color: rgba(10, 10, 10, 0.55);
 }
 
 .activity-timeline__filter-pill--active {
   border-color: rgba(138, 107, 42, 0.45);
   background: #f5f5f5;
-  color: #1a1612;
+  color: #0a0a0a;
 }
 
 .activity-timeline__entry--highlight .history-entry {
@@ -274,7 +274,7 @@ body:has(.office-hub-page) {
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #1a1612;
+    color: #0a0a0a;
   }
 
   .my-work-checklist__tap-btn:disabled {

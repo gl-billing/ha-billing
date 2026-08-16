@@ -21,16 +21,11 @@
   overflow-wrap: break-word;
 }
 
-button,
-.nav-tab,
-.my-work-list__btn,
-.event-segmented__pill,
-.item-action-btn,
-.btn-primary,
-.btn-secondary,
-.btn-gold,
-.office-nav__link {
-  overflow-wrap: normal;
+@media (min-width: 1101px) {
+  .nav-tab,
+  .office-nav__link {
+    overflow-wrap: normal;
+  }
 }
 
 /* ---- Lift cramped inline Tailwind sizes across the app ---- */
@@ -278,7 +273,7 @@ td {
 }
 
 /* ---- Mobile: stack controls, enlarge touch targets ---- */
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .app-shell {
     padding-left: max(0.875rem, env(safe-area-inset-left));
     padding-right: max(0.875rem, env(safe-area-inset-right));

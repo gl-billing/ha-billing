@@ -4,7 +4,7 @@
   margin: 0;
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--ink, #1a1612);
+  color: var(--ink, #0a0a0a);
   line-height: 1.25;
 }
 
@@ -38,7 +38,7 @@
   width: 100%;
   margin: 0;
   padding: 0.65rem 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--line, #d9d0c3) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line, #d8d8d8) 88%, transparent);
   border-radius: 0.65rem;
   background: color-mix(in srgb, var(--surface, #fff) 88%, transparent);
   color: inherit;
@@ -48,19 +48,19 @@
 }
 
 .templates-library__folder:hover {
-  border-color: color-mix(in srgb, var(--accent, #b8913d) 45%, var(--line, #d9d0c3));
+  border-color: color-mix(in srgb, var(--accent, #111111) 45%, var(--line, #d8d8d8));
 }
 
 .templates-library__folder--active {
-  border-color: color-mix(in srgb, var(--accent, #b8913d) 70%, var(--line, #d9d0c3));
-  background: color-mix(in srgb, var(--accent, #b8913d) 12%, var(--surface, #fff));
-  box-shadow: inset 3px 0 0 var(--accent, #b8913d);
+  border-color: color-mix(in srgb, var(--accent, #111111) 70%, var(--line, #d8d8d8));
+  background: color-mix(in srgb, var(--accent, #111111) 12%, var(--surface, #fff));
+  box-shadow: inset 3px 0 0 var(--accent, #111111);
 }
 
 .templates-library__folder-label {
   font-size: 0.86rem;
   font-weight: 700;
-  color: var(--ink, #1a1612);
+  color: var(--ink, #0a0a0a);
 }
 
 .templates-library__folder-desc {
@@ -120,7 +120,7 @@
 .templates-library__table-wrap {
   margin-top: 0.85rem;
   overflow-x: auto;
-  border: 1px solid color-mix(in srgb, var(--line, #d9d0c3) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line, #d8d8d8) 90%, transparent);
   border-radius: 0.65rem;
 }
 
@@ -133,7 +133,7 @@
 .templates-library__table th,
 .templates-library__table td {
   padding: 0.55rem 0.75rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--line, #d9d0c3) 70%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--line, #d8d8d8) 70%, transparent);
   text-align: left;
   font-size: 0.8rem;
   vertical-align: middle;

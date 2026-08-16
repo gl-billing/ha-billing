@@ -711,7 +711,7 @@ export function MatterAdvancedSettings({
             )}
           </section>
 
-          <section className="card matter-advanced-subsection matter-birthday-greeting border border-[#d4c4a0]/80 bg-[#faf8f4]">
+          <section className="card matter-advanced-subsection matter-birthday-greeting border border-line/80 bg-cream">
             <h3 className="matter-advanced-subsection__title">Birthday greeting</h3>
             <p className="matter-advanced-subsection__help matter-birthday-greeting__intro">
               On the client&apos;s birthday, the firm sends a warm email on behalf of everyone at Hernandez &amp;
@@ -789,7 +789,7 @@ export function MatterAdvancedSettings({
             onSaved={onSaved}
           />
 
-          <section className="card matter-advanced-subsection border border-[#d4c4a0]/80 bg-[#faf8f4]">
+          <section className="card matter-advanced-subsection border border-line/80 bg-cream">
             <h3 className="matter-advanced-subsection__title">Edit client code</h3>
             <p className="matter-advanced-subsection__help mb-2">
               Current code: <strong className="text-ink">{detail.code}</strong>

@@ -63,7 +63,7 @@ export function ClientCodeRenameForm({
         className={
           compact
             ? "btn-secondary min-h-[46px] w-full px-4 py-2.5 text-sm sm:w-auto"
-            : "rounded-md border-2 border-[#8b6914]/50 bg-white px-4 py-2.5 text-sm font-extrabold text-[#6b5210] hover:bg-[#faf8f4] disabled:cursor-not-allowed disabled:opacity-50"
+            : "btn-secondary px-4 py-2.5 text-sm font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
         }
         disabled={busy}
         onClick={() => setOpen(true)}

@@ -46,8 +46,8 @@
     padding-left: max(0.5rem, env(safe-area-inset-left, 0px));
     padding-right: max(0.5rem, env(safe-area-inset-right, 0px));
     box-shadow:
-      0 -1px 0 rgba(26, 22, 18, 0.08),
-      0 -4px 24px rgba(26, 22, 18, 0.06);
+      0 -1px 0 rgba(10, 10, 10, 0.08),
+      0 -4px 24px rgba(10, 10, 10, 0.06);
   }
 
   .mobile-workspace-nav__link,
@@ -390,7 +390,7 @@
     margin: 0;
     padding: 0.55rem 0.85rem;
     border-radius: 0.65rem;
-    border: 1px solid rgba(26, 22, 18, 0.12);
+    border: 1px solid rgba(10, 10, 10, 0.12);
     background: #fff;
     text-align: center;
     text-decoration: none;
@@ -422,7 +422,7 @@
   .modal-backdrop--matter-quick-add {
     align-items: flex-end;
     padding: 0;
-    background: rgba(26, 22, 18, 0.52);
+    background: rgba(10, 10, 10, 0.52);
   }
 
   .modal-backdrop--matter-quick-add .matter-quick-add-dialog.modal-panel {
@@ -431,7 +431,7 @@
     max-height: min(94dvh, 100%);
     border-radius: 1.25rem 1.25rem 0 0;
     border-bottom: 0;
-    box-shadow: 0 -12px 40px rgba(26, 22, 18, 0.18);
+    box-shadow: 0 -12px 40px rgba(10, 10, 10, 0.18);
   }
 
   .modal-backdrop--matter-quick-add .matter-quick-add-dialog__head::before {
@@ -441,7 +441,7 @@
     height: 0.25rem;
     margin: 0.35rem auto 0.65rem;
     border-radius: 999px;
-    background: rgba(26, 22, 18, 0.14);
+    background: rgba(10, 10, 10, 0.14);
   }
 
   .modal-backdrop--matter-quick-add .matter-quick-add-dialog__head {

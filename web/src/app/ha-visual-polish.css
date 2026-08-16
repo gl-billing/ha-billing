@@ -14,15 +14,15 @@
   --gold: #111111;
   --gold-light: #333333;
   --gold-dark: #000000;
-  --cream: #f7f4ee;
-  --soft: #efeae2;
+  --cream: #f5f5f5;
+  --soft: #f0f0f0;
 }
 
-/* ── Warm paper desk + cool ink chrome ── */
+/* ── Cool gray desk + ink chrome ── */
 body,
 body:has(.firm-workspace),
 body:has(.office-hub-page) {
-  background: #f3eee6 !important;
+  background: #f0f0f0 !important;
   color: #0a0a0a !important;
 }
 
@@ -34,8 +34,8 @@ body:has(.office-hub-page) {
   --space-gold-light: #333333;
   --space-gold-bright: #000000;
   --space-gold-deep: #111111;
-  --space-glass: #f7f4ee;
-  --space-glass-solid: #f7f4ee;
+  --space-glass: #f5f5f5;
+  --space-glass-solid: #f5f5f5;
   --space-rail: #050505;
   --space-ink: #0a0a0a;
   --space-ink-on-dark: #f5f5f5;
@@ -46,7 +46,7 @@ body:has(.office-hub-page) {
   --gold: #111111;
   --gold-light: #333333;
   --gold-dark: #000000;
-  --cream: #f7f4ee;
+  --cream: #f5f5f5;
   color: #0a0a0a;
   font-size: var(--ha-text-body) !important;
   line-height: var(--ha-leading) !important;
@@ -145,7 +145,7 @@ body:has(.office-hub-page) {
 .firm-workspace [class*="bg-[#faf6ee]"],
 .firm-workspace [class*="from-[#f5f0e6]"],
 .firm-workspace [class*="to-[#3d3018]"],
-.firm-workspace [class*="from-[#1a1612]"],
+.firm-workspace [class*="from-[#0a0a0a]"],
 .firm-workspace [class*="from-[#2b251d]"],
 .office-hub-page [class*="from-[#faf6ee]"] {
   background: #fff !important;
@@ -187,7 +187,7 @@ body:has(.office-hub-page) {
 
 .firm-workspace.firm-space-shell .trial-firm-layout__main,
 .firm-workspace.firm-space-shell .firm-workspace-body {
-  background: #f7f4ee !important;
+  background: #f5f5f5 !important;
   color: #0a0a0a !important;
 }
 

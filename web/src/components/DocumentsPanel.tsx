@@ -405,12 +405,12 @@ export function DocumentsPanel({
               <>
                 <ReviewRow label="Total due" value={formatPeso(clientBalance)} />
                 {soaCheck?.shouldWarnDuplicate ? (
-                  <div className="rounded-md border border-amber-300/80 bg-amber-50/90 p-2 text-[11px] leading-relaxed text-amber-950">
+                  <div className="rounded-md border border-line bg-cream p-2 text-[11px] leading-relaxed text-ink">
                     <strong className="block text-xs">Duplicate SOA warning</strong>
                     {soaCheck.warningMessage}
                   </div>
                 ) : soaCheck?.infoMessage ? (
-                  <div className="rounded-md border border-line/80 bg-[#faf8f4] p-2 text-[11px] leading-relaxed text-muted">
+                  <div className="rounded-md border border-line/80 bg-cream p-2 text-[11px] leading-relaxed text-muted">
                     {soaCheck.infoMessage}
                   </div>
                 ) : null}
@@ -531,7 +531,7 @@ export function DocumentsPanel({
       {docTab === "soa" ? (
         <section className="documents-page__panel rounded-lg border border-line/90 bg-white/80 p-3 shadow-sm">
           {soaCheck?.infoMessage ? (
-            <p className="mb-3 rounded-md border border-line/70 bg-[#faf8f4] px-2.5 py-2 text-[11px] leading-relaxed text-muted">
+            <p className="mb-3 rounded-md border border-line/70 bg-cream px-2.5 py-2 text-[11px] leading-relaxed text-muted">
               {soaCheck.infoMessage}
               {soaCheck.shouldWarnDuplicate
                 ? " Sending again will show a confirmation because the balance has not changed."

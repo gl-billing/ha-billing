@@ -26,7 +26,7 @@ export default async function PaymentRequestPage({ params }: PageProps) {
         <h1 className="mt-1 text-xl font-extrabold text-ink">{instructions.payee}</h1>
         <p className="mt-3 text-sm text-muted">Re: {payload.caseTitle || payload.clientName}</p>
 
-        <div className="mt-6 rounded-lg bg-[#faf8f4] p-4 text-center">
+        <div className="mt-6 rounded-lg bg-cream p-4 text-center">
           <p className="text-xs font-bold uppercase text-muted">Amount due</p>
           <p className="mt-1 text-3xl font-extrabold text-[#8b1e1e]">{formatPeso(payload.amount)}</p>
         </div>

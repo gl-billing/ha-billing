@@ -1,6 +1,6 @@
 import { PDFDocument, StandardFonts, type PDFFont, type PDFImage, type PDFPage, rgb } from "pdf-lib";
 import { amountToWords } from "@/lib/amount-to-words";
-import { formatBillingDate, formatBillingPesoPdf } from "@/lib/billing-document-design";
+import { BILLING_DOC_RGB, formatBillingDate, formatBillingPesoPdf } from "@/lib/billing-document-design";
 import { drawWrappedText, embedFirmLogo, wrapText } from "@/lib/billing-document-pdf/common";
 import {
   formatLetterheadFooterAddressLines,
@@ -36,16 +36,16 @@ const PAGE_HEIGHT = (203 / 25.4) * 72;
 
 const MARGIN = { left: 26, right: 26, top: 20, bottom: 22 };
 
-/** Logo-aligned gold palette — matches firm letterhead (#c9a227) */
+/** HA monochrome palette — matches billing document design (no gold). */
 const AR = {
-  ink: rgb(0.078, 0.067, 0.055),
-  gold: rgb(0.788, 0.635, 0.149),
-  goldLight: rgb(0.722, 0.569, 0.118),
-  goldPale: rgb(0.945, 0.918, 0.827),
-  cream: rgb(0.992, 0.988, 0.976),
-  muted: rgb(0.42, 0.38, 0.34),
-  line: rgb(0.82, 0.78, 0.72),
-  white: rgb(1, 1, 1)
+  ink: rgb(BILLING_DOC_RGB.ink.r, BILLING_DOC_RGB.ink.g, BILLING_DOC_RGB.ink.b),
+  gold: rgb(BILLING_DOC_RGB.gold.r, BILLING_DOC_RGB.gold.g, BILLING_DOC_RGB.gold.b),
+  goldLight: rgb(BILLING_DOC_RGB.goldLight.r, BILLING_DOC_RGB.goldLight.g, BILLING_DOC_RGB.goldLight.b),
+  goldPale: rgb(BILLING_DOC_RGB.goldPale.r, BILLING_DOC_RGB.goldPale.g, BILLING_DOC_RGB.goldPale.b),
+  cream: rgb(BILLING_DOC_RGB.cream.r, BILLING_DOC_RGB.cream.g, BILLING_DOC_RGB.cream.b),
+  muted: rgb(BILLING_DOC_RGB.muted.r, BILLING_DOC_RGB.muted.g, BILLING_DOC_RGB.muted.b),
+  line: rgb(BILLING_DOC_RGB.line.r, BILLING_DOC_RGB.line.g, BILLING_DOC_RGB.line.b),
+  white: rgb(BILLING_DOC_RGB.white.r, BILLING_DOC_RGB.white.g, BILLING_DOC_RGB.white.b)
 };
 
 function drawCenteredText(

@@ -288,7 +288,7 @@
       -webkit-text-fill-color: var(--form-text-secondary) !important;
     }
 
-    .entry-form .text-amber-800,
+    .entry-form .text-ink,
     .entry-form .entry-form__inline-hint--warn {
       color: var(--form-accent) !important;
       -webkit-text-fill-color: var(--form-accent) !important;

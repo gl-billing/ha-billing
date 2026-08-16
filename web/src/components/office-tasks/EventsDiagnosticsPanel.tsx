@@ -27,7 +27,7 @@ export function EventsDiagnosticsResults({
 
   
   return (
-    <div className="mt-4 rounded-lg border border-amber-200/60 bg-amber-50/40 p-4">
+    <div className="mt-4 rounded-lg border border-line/60 bg-cream/40 p-4">
       {data.sheetUrl ? (
         <p className="text-sm">
           <a href={data.sheetUrl} target="_blank" rel="noreferrer" className="font-bold text-gold underline">
@@ -64,12 +64,12 @@ export function EventsDiagnosticsResults({
           {JSON.stringify(data.matchingRawRows, null, 2)}
         </pre>
       ) : (data.rawEventRowCount ?? 0) > 0 ? (
-        <p className="mt-3 text-sm text-amber-900">
+        <p className="mt-3 text-sm text-ink">
           No events dated today and no blank dates in recent rows. If you expected a new hearing, use{" "}
           <strong>+ Event</strong> again and look for &quot;Hearing/event added&quot;.
         </p>
       ) : (
-        <p className="mt-3 text-sm text-amber-900">
+        <p className="mt-3 text-sm text-ink">
           The Hearings &amp; Events tab is empty — no events have been saved to the Office Tasks spreadsheet yet.
         </p>
       )}

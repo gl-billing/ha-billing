@@ -386,7 +386,7 @@
   /* —— Contrast: compiled Tailwind / hardcoded desk ink —— */
   & .text-ink,
   & [class*="text-ink"],
-  & .text-\[\#1a1612\],
+  & .text-\[\#0a0a0a\],
   & .font-display {
     color: var(--ha-m-text) !important;
   }
@@ -728,7 +728,6 @@
     color: var(--ha-m-error) !important;
   }
 
-  & .text-amber-800,
   & .text-amber-700,
   & [data-status="waiting"] {
     color: var(--ha-m-warning) !important;

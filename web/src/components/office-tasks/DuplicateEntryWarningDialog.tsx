@@ -39,7 +39,7 @@ export function DuplicateEntryWarningDialog({
         aria-labelledby="duplicate-entry-dialog-title"
       >
         <div className="reset-dialog card">
-          <p className="view-eyebrow text-amber-800">Possible duplicate</p>
+          <p className="view-eyebrow text-ink">Possible duplicate</p>
           <h3 id="duplicate-entry-dialog-title" className="font-display text-xl font-semibold text-ink">
             Similar {kind} already exists
           </h3>

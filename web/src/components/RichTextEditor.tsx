@@ -175,11 +175,11 @@ export function RichTextEditor({
       id: "color",
       label: "Color",
       buttons: [
-        { id: "black", title: "Black text", variant: "swatch", swatch: "#1a1612", onClick: () => exec("foreColor", "#1a1612") },
+        { id: "black", title: "Black text", variant: "swatch", swatch: "#0a0a0a", onClick: () => exec("foreColor", "#0a0a0a") },
         { id: "navy", title: "Navy text", variant: "swatch", swatch: "#1e3a5f", onClick: () => exec("foreColor", "#1e3a5f") },
         { id: "red", title: "Red text", variant: "swatch", swatch: "#8b1e1e", onClick: () => exec("foreColor", "#8b1e1e") },
-        { id: "gold", title: "Gold text", variant: "swatch", swatch: "#8a6b2d", onClick: () => exec("foreColor", "#8a6b2d") },
-        { id: "highlight", title: "Highlight selection", variant: "icon", icon: <IconHighlight />, onClick: () => exec("hiliteColor", "#fff3cd") },
+        { id: "charcoal", title: "Charcoal text", variant: "swatch", swatch: "#333333", onClick: () => exec("foreColor", "#333333") },
+        { id: "highlight", title: "Highlight selection", variant: "icon", icon: <IconHighlight />, onClick: () => exec("hiliteColor", "#e8e8e8") },
         { id: "clear-highlight", title: "Clear highlight", variant: "icon", icon: <IconClearHighlight />, onClick: () => exec("hiliteColor", "transparent") }
       ]
     },
@@ -298,10 +298,10 @@ function richTextHasContent(html: string): boolean {
 }
 
 const SWATCH_COLORS: Record<string, string> = {
-  black: "#1a1612",
+  black: "#0a0a0a",
   navy: "#1e3a5f",
   red: "#8b1e1e",
-  gold: "#8a6b2d"
+  charcoal: "#333333"
 };
 
 const FONT_SIZE_BUTTONS: Record<string, string> = {

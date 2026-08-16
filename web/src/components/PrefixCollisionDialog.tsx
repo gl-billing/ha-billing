@@ -45,7 +45,7 @@ export function PrefixCollisionDialog({
           {matches.slice(0, 4).map((match) => (
             <li
               key={match.code}
-              className="rounded-lg border border-amber-200/80 bg-amber-50/80 px-3 py-2 dark:border-amber-900/40 dark:bg-amber-950/30"
+              className="rounded-lg border border-line bg-cream px-3 py-2 dark:border-line dark:bg-ink/10"
             >
               <p className="font-semibold">{formatCollisionSummary(match)}</p>
               <p className="mt-1 text-xs text-muted">

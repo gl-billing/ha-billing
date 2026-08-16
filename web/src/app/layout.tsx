@@ -38,6 +38,8 @@ import "./mobile-walkins.css";
 import "./mobile-intake.css";
 /* Last CSS wins for phone/iPhone overrides — keep after fullbleed */
 import "./mobile-iphone.css";
+/* Last-loaded HA responsive + brand isolation — must win over phone and theme layers */
+import "./ha-responsive.css";
 
 const uiSans = Inter({
   subsets: ["latin"],

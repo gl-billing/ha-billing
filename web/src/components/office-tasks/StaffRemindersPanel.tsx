@@ -205,7 +205,7 @@ export function StaffRemindersPanel({
           <p className="status-bar status-bar-error mb-3 text-xs">Add staff on the Employees sheet (name + email in column B).</p>
         )}
         {noEmails && (
-          <p className="mb-3 text-xs text-amber-900">Add emails in column B on the Employees sheet.</p>
+          <p className="mb-3 text-xs text-ink">Add emails in column B on the Employees sheet.</p>
         )}
         {gmailReady === false && (
           <p className="status-bar status-bar-error mb-3 text-xs">
@@ -261,7 +261,7 @@ export function StaffRemindersPanel({
       )}
 
       {noEmails && (
-        <p className="mb-3 text-xs leading-relaxed text-amber-900">
+        <p className="mb-3 text-xs leading-relaxed text-ink">
           Add staff emails in column <strong>B</strong> on the Employees sheet so reminders can be sent.
         </p>
       )}

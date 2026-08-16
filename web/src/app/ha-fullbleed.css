@@ -383,9 +383,9 @@
 [class*="text-[#c9a227]"],
 [class*="border-[#c9a227]"],
 [class*="bg-[#c9a227]"],
-.text-\[\#c9a227\],
-.border-\[\#c9a227\],
-.bg-\[\#c9a227\] {
+.text-\[\#111111\],
+.border-\[\#111111\],
+.bg-\[\#111111\] {
   color: #0a0a0a !important;
   border-color: #0a0a0a !important;
   background-color: #0a0a0a !important;
@@ -450,12 +450,12 @@ a.btn-gold:hover {
   color: #0a0a0a !important;
 }
 
-/* Warm cream canvases → cool gray */
+/* Cream canvases → cool gray */
 body,
 body:has(.firm-workspace),
 body:has(.office-hub-page),
 body:has(.firm-auth) {
-  background: #f3eee6 !important;
+  background: #f0f0f0 !important;
   background-image: none !important;
 }
 
@@ -478,7 +478,7 @@ body:has(.firm-auth) {
 [class*="from-[#f7f4ee]"],
 [class*="to-[#fffdf7]"],
 [class*="ring-offset-[#f7f4ee]"],
-.bg-\[\#f7f4ee\],
+.bg-\[\#f5f5f5\],
 .bg-\[\#f4f1eb\] {
   background-color: #f0f0f0 !important;
   background-image: none !important;
@@ -676,7 +676,7 @@ body {
   box-shadow: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  background: #f7f4ee !important;
+  background: #f5f5f5 !important;
   overflow: auto !important;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -717,7 +717,7 @@ body {
   overflow: auto !important;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  background: #f7f4ee !important;
+  background: #f5f5f5 !important;
   padding: var(--space-main-pad-top) var(--space-main-pad-x) var(--space-main-pad-bottom)
     var(--space-main-pad-left) !important;
   box-sizing: border-box !important;

@@ -86,7 +86,7 @@ export function ClientPortalPanel({ clientCode, clientName, balance, email, busy
           Email portal link to {email}
         </label>
       ) : (
-        <p className="mb-3 text-xs text-amber-900">Add a contact email on the client record to email the link directly.</p>
+        <p className="mb-3 text-xs text-ink">Add a contact email on the client record to email the link directly.</p>
       )}
       <button type="button" className="btn-gold text-xs" disabled={busy || working} onClick={() => void createLink()}>
         Create client portal link

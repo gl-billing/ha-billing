@@ -439,7 +439,7 @@ export function SpotBillingPanel({ busy, onBusy, onStatus, paymentMethods }: Pro
         </label>
 
         {billNow ? (
-          <div className="rounded-lg border border-line/70 bg-[#faf8f4] p-3 space-y-3">
+          <div className="rounded-lg border border-line/70 bg-cream p-3 space-y-3">
             <TransactionKindToggle value={billingKind} disabled={saving} onChange={setBillingKind} />
 
             <label className="block">

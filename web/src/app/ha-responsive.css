@@ -1,0 +1,472 @@
+/**
+ * HA Billing — last-loaded responsive + brand isolation layer.
+ * Loaded after mobile-iphone.css so these primitives win without page hacks.
+ *
+ * Goals:
+ * - Text stays inside its box at every desktop width, not only at 640px.
+ * - Tables scroll inside their region; stacked cards from tablet widths.
+ * - Forms, toolbars, and modals reflow before the phone breakpoint.
+ * - Gold / warm-cream fallbacks cannot leak through var() defaults.
+ */
+
+:root,
+html,
+.firm-workspace,
+.office-hub-page,
+.firm-auth,
+.client-portal {
+  --gold: #111111;
+  --gold-light: #333333;
+  --gold-dark: #000000;
+  --cream: #f5f5f5;
+  --soft: #f0f0f0;
+  --paper: #ffffff;
+  --ink: #0a0a0a;
+  --muted: #454545;
+  --line: #d8d8d8;
+  --space-gold: #0a0a0a;
+  --space-gold-light: #333333;
+  --space-gold-bright: #000000;
+  --space-gold-deep: #111111;
+  --space-glass: #f5f5f5;
+  --space-glass-solid: #f5f5f5;
+  --mo-accent: #111111;
+  --mo-bg: #f5f5f5;
+  --mo-panel: #f7f7f7;
+  --mo-ink: #0a0a0a;
+  --mo-muted: #5c5c5c;
+  --mo-accent-ink: #ffffff;
+  --accent: #111111;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+.app-shell,
+.app-shell-wide,
+.firm-workspace,
+.tasks-app,
+.matter-page,
+.office-hub-page,
+.firm-auth-main,
+.client-portal,
+.card,
+.panel,
+.modal-panel,
+.stat-tile,
+.item-card,
+.empty-state,
+.form-field,
+.form-grid,
+.btn-row,
+.table-wrap,
+.firm-ledger-table-wrap,
+.data-table-wrap {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.app-shell *,
+.firm-workspace *,
+.tasks-app *,
+.matter-page *,
+.office-hub-page *,
+.client-portal * {
+  overflow-wrap: break-word;
+}
+
+.card,
+.stat-tile,
+.item-card,
+.empty-state,
+.panel-card,
+.view-hero,
+.hint-bar,
+.alert,
+.badge,
+.pill,
+.status-badge,
+.form-field__label,
+.form-field__hint,
+.form-field__error,
+.btn-primary,
+.btn-secondary,
+.btn-gold,
+.item-action-btn {
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.card,
+.stat-tile,
+.item-card,
+.empty-state,
+.modal-panel,
+.form-panel {
+  box-sizing: border-box;
+}
+
+.stat-tile__value,
+.stat-tile__label,
+.stat-tile__sub,
+.stat-tile__text {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+/* Flex/grid children must be allowed to shrink so labels wrap instead of overflow. */
+.app-shell :is(div, section, article, header, footer, main, aside, li, td, th, p, h1, h2, h3, h4, h5, h6, label, button, a),
+.firm-workspace :is(div, section, article, header, footer, main, aside, li, td, th, p, h1, h2, h3, h4, h5, h6, label, button, a),
+.tasks-app :is(div, section, article, header, footer, main, aside, li, td, th, p, h1, h2, h3, h4, h5, h6, label, button, a) {
+  min-width: 0;
+}
+
+input,
+select,
+textarea,
+.field,
+.field-input {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-gold,
+.item-action-btn,
+.my-work-list__btn,
+.bitrix-space-btn,
+.tool-action-btn {
+  max-width: 100%;
+  height: auto;
+  min-height: var(--touch-min, 44px);
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.btn-row,
+.item-actions,
+.view-hero__actions,
+.toolbar,
+.page-toolbar,
+.bitrix-space-toolbar,
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.65rem;
+  min-width: 0;
+}
+
+.form-grid,
+.form-grid--2,
+.form-grid--3,
+.form-grid-pair {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.form-grid--2,
+.form-grid-pair {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16.5rem), 1fr));
+}
+
+.form-grid--3 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.5rem), 1fr));
+}
+
+.event-type-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr));
+}
+
+.form-field__error,
+.form-field__hint,
+.field-error {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* Tables: page never scrolls sideways; the table region does. */
+.table-wrap,
+.data-table-wrap,
+.firm-ledger-table-wrap,
+.staff-salary__annex-ledger-wrap,
+.staff-salary__annex-table-wrap,
+.filing-workspace__scroll,
+.overflow-x-auto {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-backdrop {
+  padding: max(0.75rem, env(safe-area-inset-top, 0px))
+    max(0.75rem, env(safe-area-inset-right, 0px))
+    max(0.75rem, env(safe-area-inset-bottom, 0px))
+    max(0.75rem, env(safe-area-inset-left, 0px));
+  box-sizing: border-box;
+}
+
+.modal-panel,
+.reset-dialog,
+.item-details-dialog.modal-panel {
+  width: min(100%, 42rem);
+  max-width: calc(100vw - 1.5rem);
+  max-height: min(92dvh, calc(100dvh - 1.5rem));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.templates-library {
+  grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+}
+
+/* Narrow desktop / tablet — reflow before the phone layout. */
+@media (max-width: 1100px) {
+  .btn-primary,
+  .btn-secondary,
+  .btn-gold,
+  .item-action-btn,
+  .my-work-list__btn,
+  .office-hub__desk-enter-cta,
+  .event-segmented__pill {
+    white-space: normal !important;
+    overflow-wrap: break-word;
+    text-wrap: wrap;
+  }
+
+  .nav-tabs,
+  .home-dashboard-tabs,
+  .bitrix-space-section-tabs,
+  .firm-shell-subnav {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 1024px) {
+  .templates-library {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .templates-library__folders {
+    position: static;
+  }
+
+  .item-actions,
+  .btn-row {
+    align-items: stretch;
+  }
+
+  .btn-row > .btn-primary,
+  .btn-row > .btn-secondary,
+  .btn-row > .btn-gold,
+  .item-actions > .item-action-btn,
+  .item-actions > .btn-primary,
+  .item-actions > .btn-secondary {
+    flex: 1 1 12rem;
+    min-width: 0;
+  }
+
+  .grid.grid-cols-4,
+  .grid.sm\:grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .form-grid--2,
+  .form-grid--3,
+  .form-grid-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .item-actions,
+  .btn-row,
+  .view-hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-row > .btn-primary,
+  .btn-row > .btn-secondary,
+  .btn-row > .btn-gold,
+  .item-actions > .item-action-btn,
+  .item-actions > .btn-primary,
+  .item-actions > .btn-secondary {
+    width: 100%;
+    flex: none;
+  }
+
+  .firm-ledger-table-wrap:has(.firm-ledger-table--responsive-stack) {
+    overflow: visible;
+  }
+
+  .firm-ledger-table--responsive-stack {
+    min-width: 0 !important;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .firm-ledger-table--responsive-stack thead {
+    display: none;
+  }
+
+  .firm-ledger-table--responsive-stack tbody tr {
+    display: block;
+    margin-bottom: 0.65rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--line);
+    background: var(--paper);
+  }
+
+  .firm-ledger-table--responsive-stack tbody td {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    border: none;
+    text-align: right;
+    white-space: normal;
+  }
+
+  .firm-ledger-table--responsive-stack tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 38%;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    overflow-wrap: break-word;
+  }
+
+  .firm-ledger-table--responsive-stack tbody td[data-label=""]::before,
+  .firm-ledger-table--responsive-stack tbody td:not([data-label])::before {
+    content: none;
+  }
+
+  .client-matter-panel__items .my-work-list__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid.lg\:grid-cols-3,
+  .grid.lg\:grid-cols-4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .event-segmented__pill,
+  .event-assignee-toggle {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: 0;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 430px) {
+  .event-segmented__pill,
+  .event-assignee-toggle {
+    flex-basis: 100%;
+  }
+
+  .modal-panel,
+  .reset-dialog {
+    max-width: calc(100vw - 1rem);
+    padding: 1rem;
+  }
+}
+
+/* Readability: muted text stays ink-dark enough on paper. */
+.firm-workspace .text-muted,
+.tasks-app .text-muted,
+.matter-page .text-muted,
+.form-field__hint,
+.placeholder,
+.empty-state__message {
+  color: #454545;
+}
+
+.firm-workspace .bitrix-space-rail__item-label,
+.firm-workspace .bitrix-space-rail__item,
+.office-nav__link {
+  color: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #5c5c5c;
+  opacity: 1;
+}
+
+/* Gold / warm-cream values must not paint even if a fallback hex remains. */
+.btn-gold,
+a.btn-gold,
+.stat-tile--gold {
+  background: #0a0a0a;
+  background-image: none;
+  color: #fff;
+  border-color: #0a0a0a;
+}
+
+.text-gold,
+.text-gold-dark,
+.text-gold-light {
+  color: #0a0a0a;
+}
+
+/* Tailwind amber is yellow-gold — remap leftover HTML classes to HA ink/paper. */
+[class*="bg-amber"] {
+  background-color: #f5f5f5 !important;
+  background-image: none !important;
+}
+
+[class*="text-amber"] {
+  color: #0a0a0a !important;
+}
+
+[class*="border-amber"] {
+  border-color: #d8d8d8 !important;
+}
+
+[class*="ring-amber"] {
+  --tw-ring-color: #d8d8d8 !important;
+}
+
+.legal-doc a,
+.legal-doc a:visited,
+.legal-doc a:hover,
+.legal-doc a:active {
+  color: var(--ink, #0a0a0a);
+  -webkit-text-fill-color: var(--ink, #0a0a0a);
+}
+
+.legal-doc__back:hover,
+.legal-doc__back:focus-visible {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+

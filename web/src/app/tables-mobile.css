@@ -2,7 +2,7 @@
  * Responsive ledger tables — stack rows as labeled cards on phone.
  * Apply firm-ledger-table--responsive-stack and data-label on each <td>.
  */
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .firm-ledger-table-wrap:has(.firm-ledger-table--responsive-stack) {
     overflow: visible;
   }
