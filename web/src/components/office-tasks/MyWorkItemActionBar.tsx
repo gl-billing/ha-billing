@@ -24,8 +24,13 @@ import {
 import { IntakeAdminTaskDialog } from "@/components/office-tasks/IntakeAdminTaskDialog";
 import { BillingAdminTaskDialog } from "@/components/office-tasks/BillingAdminTaskDialog";
 import { PrepChecklistBlock } from "@/components/office-tasks/PrepChecklistBlock";
+import { FilingWorkflowSetupDialog } from "@/components/office-tasks/FilingWorkflowSetupDialog";
 import { billingAdminTaskActionLabel } from "@/lib/billing-admin-tasks";
 import { needsFilingConfirmation } from "@/lib/office-tasks/filing-confirmation";
+import {
+  canOfferFilingWorkflowSetup,
+  filingWorkflowSetupActionLabel
+} from "@/lib/office-tasks/filing-workflow-presence";
 import { isEventFollowUpTask, resolveFollowUpParentEvent } from "@/lib/office-tasks/follow-up-event-actions";
 import type { EventScheduleEmailSentPatch } from "@/lib/office-tasks/event-join-link";
 import { isCancelledStatus, todayYmd } from "@/lib/office-tasks/schedule";
@@ -119,6 +124,7 @@ export function MyWorkItemActionBar({
   const [scheduleSending, setScheduleSending] = useState(false);
   const [intakeAdminOpen, setIntakeAdminOpen] = useState(false);
   const [billingAdminOpen, setBillingAdminOpen] = useState(false);
+  const [workflowSetupOpen, setWorkflowSetupOpen] = useState(false);
 
   const taskDescription = item.details?.trim() || "";
   const taskRemarks = item.remarks?.trim() || "";
@@ -161,8 +167,10 @@ export function MyWorkItemActionBar({
   const showConfirmParentFiled =
     isAdmin && followUpParent && onConfirmParentFiled && !isDone && !isCancelled;
   const canToggleDone = Boolean(onToggleDone) && (item.source !== "Event" || isAdmin) && !hideDoneToggle;
+  const showSetupWorkflow = canOfferFilingWorkflowSetup(item as OfficeItem, allItems) && !isDone && !isCancelled;
+  const setupWorkflowLabel = filingWorkflowSetupActionLabel(item as OfficeItem, allItems);
 
-  const hasToolbarExtras = Boolean(onCreatePrepChecklist || onInitializePrepChecklist);
+  const hasToolbarExtras = Boolean(showSetupWorkflow || onCreatePrepChecklist || onInitializePrepChecklist);
   const hasActionButtons =
     showEdit ||
     ((intakeEngagementTask || intakeConflictTask || intakeConferenceTask) && intakeAdminAction && !isDone && !isCancelled) ||
@@ -216,6 +224,16 @@ export function MyWorkItemActionBar({
       <div className={`my-work-item-actions no-print ${className}`.trim()}>
         <div className="my-work-item-actions__row">
           {hasToolbarExtras ? (
+            showSetupWorkflow ? (
+              <button
+                type="button"
+                className={checklistActions ? "my-work-cmd my-work-cmd--emphasis" : "my-work-list__btn my-work-list__btn--ghost my-work-list__btn--accent"}
+                disabled={toggling}
+                onClick={() => setWorkflowSetupOpen(true)}
+              >
+                {setupWorkflowLabel}
+              </button>
+            ) : (
             <PrepChecklistBlock
               item={item}
               allItems={allItems}
@@ -229,6 +247,7 @@ export function MyWorkItemActionBar({
             onInitializePrepChecklist={onInitializePrepChecklist}
             compact={checklistActions}
           />
+            )
           ) : null}
 
           {hasActionButtons ? (
@@ -475,6 +494,30 @@ export function MyWorkItemActionBar({
           onClose={() => setBillingAdminOpen(false)}
           onStatus={onItemStatus}
           onComplete={onToggleDone ? () => onToggleDone(item, true) : undefined}
+        />
+      ) : null}
+      {showSetupWorkflow ? (
+        <FilingWorkflowSetupDialog
+          item={item}
+          allItems={allItems}
+          open={workflowSetupOpen}
+          busy={toggling}
+          roster={roster}
+          caseType={item.pleadingCaseNature}
+          onClose={() => setWorkflowSetupOpen(false)}
+          onStatus={onItemStatus}
+          onSaved={async () => {
+            setWorkflowSetupOpen(false);
+            onScheduleEmailSent?.();
+          }}
+          onViewWorkflow={() => {
+            setWorkflowSetupOpen(false);
+            onScheduleEmailSent?.();
+          }}
+          onGoToNextAction={() => {
+            setWorkflowSetupOpen(false);
+            onScheduleEmailSent?.();
+          }}
         />
       ) : null}
     </>

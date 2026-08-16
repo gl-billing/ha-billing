@@ -34,9 +34,14 @@ import { EventPrepLinkNote } from "@/components/office-tasks/EventPrepLinkNote";
 import { IntakeAdminTaskDialog } from "@/components/office-tasks/IntakeAdminTaskDialog";
 import { BillingAdminTaskDialog } from "@/components/office-tasks/BillingAdminTaskDialog";
 import { PrepChecklistBlock } from "@/components/office-tasks/PrepChecklistBlock";
+import { FilingWorkflowSetupDialog } from "@/components/office-tasks/FilingWorkflowSetupDialog";
 import { matterItemAnchorId } from "@/lib/office-tasks/client-matter";
 import { billingAdminTaskActionLabel, billingAdminTaskHint } from "@/lib/billing-admin-tasks";
 import { needsFilingConfirmation } from "@/lib/office-tasks/filing-confirmation";
+import {
+  canOfferFilingWorkflowSetup,
+  filingWorkflowSetupActionLabel
+} from "@/lib/office-tasks/filing-workflow-presence";
 import { isEventFollowUpTask, resolveFollowUpParentEvent } from "@/lib/office-tasks/follow-up-event-actions";
 import { displayRemarks } from "@/lib/office-tasks/follow-up-marker";
 import {
@@ -140,6 +145,7 @@ export function MyWorkListRow({
   const [scheduleSending, setScheduleSending] = useState(false);
   const [intakeAdminOpen, setIntakeAdminOpen] = useState(false);
   const [billingAdminOpen, setBillingAdminOpen] = useState(false);
+  const [workflowSetupOpen, setWorkflowSetupOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const taskDescription = item.details?.trim() || "";
@@ -194,6 +200,8 @@ export function MyWorkListRow({
     onConfirmParentFiled &&
     !isDone &&
     !isCancelled;
+  const showSetupWorkflow = canOfferFilingWorkflowSetup(item as OfficeItem, allItems) && !isDone && !isCancelled;
+  const setupWorkflowLabel = filingWorkflowSetupActionLabel(item as OfficeItem, allItems);
   const canToggleDone = Boolean(onToggleDone) && (item.source !== "Event" || isAdmin);
 
   const followUpNote = isStarted || isWaiting ? displayRemarks(taskRemarks) : "";
@@ -317,20 +325,31 @@ export function MyWorkListRow({
         </div>
 
         <div className="my-work-list__bottom">
-          {onCreatePrepChecklist || onInitializePrepChecklist ? (
+          {showSetupWorkflow || onCreatePrepChecklist || onInitializePrepChecklist ? (
             <div className="my-work-list__extras no-print">
-              <PrepChecklistBlock
-                item={item}
-                allItems={allItems}
-                viewerStaffName={viewerStaffName}
-                viewerPrepRole={viewerPrepRole}
-                roster={roster}
-                disabled={toggling || isDone || isCancelled}
-                creating={prepChecklistCreating}
-                surface="toolbar"
-                onCreatePrepChecklist={onCreatePrepChecklist}
-                onInitializePrepChecklist={onInitializePrepChecklist}
-              />
+              {showSetupWorkflow ? (
+                <button
+                  type="button"
+                  className="my-work-list__btn my-work-list__btn--ghost my-work-list__btn--accent"
+                  disabled={toggling}
+                  onClick={() => setWorkflowSetupOpen(true)}
+                >
+                  {setupWorkflowLabel}
+                </button>
+              ) : (
+                <PrepChecklistBlock
+                  item={item}
+                  allItems={allItems}
+                  viewerStaffName={viewerStaffName}
+                  viewerPrepRole={viewerPrepRole}
+                  roster={roster}
+                  disabled={toggling || isDone || isCancelled}
+                  creating={prepChecklistCreating}
+                  surface="toolbar"
+                  onCreatePrepChecklist={onCreatePrepChecklist}
+                  onInitializePrepChecklist={onInitializePrepChecklist}
+                />
+              )}
             </div>
           ) : null}
 
@@ -597,6 +616,30 @@ export function MyWorkListRow({
           onClose={() => setBillingAdminOpen(false)}
           onStatus={onItemStatus}
           onComplete={onToggleDone ? () => onToggleDone(item, true) : undefined}
+        />
+      ) : null}
+      {showSetupWorkflow ? (
+        <FilingWorkflowSetupDialog
+          item={item}
+          allItems={allItems}
+          open={workflowSetupOpen}
+          busy={toggling}
+          roster={roster}
+          caseType={item.pleadingCaseNature}
+          onClose={() => setWorkflowSetupOpen(false)}
+          onStatus={onItemStatus}
+          onSaved={async () => {
+            setWorkflowSetupOpen(false);
+            onScheduleEmailSent?.();
+          }}
+          onViewWorkflow={() => {
+            setWorkflowSetupOpen(false);
+            onScheduleEmailSent?.();
+          }}
+          onGoToNextAction={() => {
+            setWorkflowSetupOpen(false);
+            onScheduleEmailSent?.();
+          }}
         />
       ) : null}
       <ItemDetailsDialog

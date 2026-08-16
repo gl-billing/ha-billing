@@ -90,7 +90,7 @@ import { formatSuccessReport } from "@/lib/firm-status-report";
 import { BillingTabGuide, BillingTabGuideText, TabPageHeader } from "@/components/BillingTabGuide";
 import { TabPageBody, TabPickerCard } from "@/components/TabPageLayout";
 import type { EventFormInput } from "@/lib/office-tasks/sheets/tasks";
-import { buildEventFormInputFromFormData, validateEventFormInput, type EventAddKind, EVENT_ADD_KIND_LABELS } from "@/lib/office-tasks/event-form-utils";
+import { buildEventFormInputFromFormData, validateEventFormInput, type EventAddKind, EVENT_ADD_KIND_LABELS, isPleadingCategory } from "@/lib/office-tasks/event-form-utils";
 import { EventSegmentedControl } from "@/components/office-tasks/EventSegmentedControl";
 import {
   fetchEventsDiagnostics,
@@ -137,6 +137,12 @@ import type { ClientSummary, WalkInClient } from "@/lib/ha-config";
 import { resolveSessionStaffName } from "@/lib/staff-session";
 import { resolvePrepRoleFromSession } from "@/lib/office-tasks/prep-workload-view";
 import { DuplicateEntryWarningDialog } from "@/components/office-tasks/DuplicateEntryWarningDialog";
+import { EventCreatedSuccessDialog } from "@/components/office-tasks/EventCreatedSuccessDialog";
+import { FilingWorkflowSetupDialog } from "@/components/office-tasks/FilingWorkflowSetupDialog";
+import {
+  buildEventCreatedSuccessView,
+  type EventCreatedSuccessView
+} from "@/lib/office-tasks/filing-workflow-success-view";
 import {
   findDuplicateEvent,
   findDuplicateTask,
@@ -239,6 +245,8 @@ export function TasksApp() {
     match: DuplicateEntryMatch;
     pending: PendingDuplicateEntry;
   } | null>(null);
+  const [eventCreatedSuccess, setEventCreatedSuccess] = useState<EventCreatedSuccessView | null>(null);
+  const [workflowSetupEventId, setWorkflowSetupEventId] = useState<string | null>(null);
   const addTabRef = useRef<Tab | null>(null);
 
   useEffect(() => {
@@ -1314,6 +1322,21 @@ export function TasksApp() {
       const refreshed = await load(undefined, true, { keepStatus: true });
       reportSuccess(savedMessage);
       warnIfSavedItemMissing(saved.eventId, refreshed?.data, refreshed?.data?.spreadsheetId || data?.spreadsheetId);
+      if (isPleadingCategory(payload.category)) {
+        setEventCreatedSuccess(
+          buildEventCreatedSuccessView({
+            eventId: saved.eventId,
+            category: payload.category,
+            clientCase: payload.clientCase,
+            filingDeadline: payload.filingDeadline,
+            eventDate: payload.eventDate,
+            responsible: payload.responsible,
+            calendarSync: payload.calendarSync,
+            prepTasksRequested: Boolean(payload.createReminderTask || payload.createPrepChecklist),
+            allItems: refreshed?.data?.items
+          })
+        );
+      }
     } catch (e) {
       showStatus(e instanceof Error ? e.message : "Save failed.", true);
     } finally {
@@ -1347,6 +1370,11 @@ export function TasksApp() {
   const counts = data?.counts;
   const opts = data?.options;
   const items = data?.items || [];
+  const workflowSetupItem = useMemo(() => {
+    if (!workflowSetupEventId) return null;
+    const target = workflowSetupEventId.trim().toUpperCase();
+    return items.find((row) => row.source === "Event" && row.id.toUpperCase() === target) || null;
+  }, [items, workflowSetupEventId]);
   const scheduleItems = useMemo(() => excludeLiaisonConfidentialItems(items), [items]);
   const today = data?.today || todayYmd();
   const wide = true;
@@ -2627,6 +2655,46 @@ export function TasksApp() {
 
       </FirmWorkspaceShell>
     </ClientMatterProvider>
+      <EventCreatedSuccessDialog
+        open={Boolean(eventCreatedSuccess)}
+        view={eventCreatedSuccess}
+        onClose={() => setEventCreatedSuccess(null)}
+        onSetUpWorkflow={() => {
+          const eventId = eventCreatedSuccess?.eventId;
+          setEventCreatedSuccess(null);
+          if (eventId) setWorkflowSetupEventId(eventId);
+        }}
+        onViewEvent={() => {
+          const eventId = eventCreatedSuccess?.eventId;
+          setEventCreatedSuccess(null);
+          if (eventId) setSearchQ(eventId);
+        }}
+      />
+      {workflowSetupItem ? (
+        <FilingWorkflowSetupDialog
+          item={workflowSetupItem}
+          allItems={items}
+          open={Boolean(workflowSetupEventId)}
+          busy={busy}
+          roster={data?.employees || []}
+          caseType={workflowSetupItem.pleadingCaseNature}
+          onClose={() => setWorkflowSetupEventId(null)}
+          onStatus={(message, isError) => (isError ? reportError(message) : reportSuccess(message))}
+          onSaved={async () => {
+            await load(workflowSetupEventId || undefined, true, { keepStatus: true });
+          }}
+          onViewWorkflow={() => {
+            const id = workflowSetupEventId;
+            setWorkflowSetupEventId(null);
+            if (id) setSearchQ(id);
+          }}
+          onGoToNextAction={() => {
+            const id = workflowSetupEventId;
+            setWorkflowSetupEventId(null);
+            if (id) setSearchQ(id);
+          }}
+        />
+      ) : null}
     </>
   );
 }
