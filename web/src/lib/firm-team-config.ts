@@ -6,7 +6,11 @@ import { DEFAULT_STAFF_MONTHLY_ALLOWANCE, STAFF_PAYROLL_BANK } from "@/lib/staff
 export const FIRM_INBOX_EMAIL = "legal@hernandezlaw.info";
 
 /** Firm owner / developer — always allowed to sign in regardless of ALLOWED_EMAIL_DOMAIN. */
-export const FIRM_OWNER_EMAILS = ["hello@aandssolutions.com"] as const;
+export const FIRM_OWNER_EMAILS = [
+  "hello@aandssolutions.com",
+  "janinerose1191@gmail.com",
+  "janinerose@gutierrezlumanaglaw.com"
+] as const;
 
 export function isFirmOwnerEmail(email: string | null | undefined): boolean {
   if (!email) return false;

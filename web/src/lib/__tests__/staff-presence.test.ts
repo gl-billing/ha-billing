@@ -145,6 +145,8 @@ describe("staff presence", () => {
 describe("presence tab gating", () => {
   it("shows Staff attendance for firm admins (owner + managing partner)", () => {
     expect(isFirmOwnerEmail("hello@aandssolutions.com")).toBe(true);
+    expect(isFirmOwnerEmail("janinerose1191@gmail.com")).toBe(true);
+    expect(isFirmOwnerEmail("janinerose@gutierrezlumanaglaw.com")).toBe(true);
     expect(isFirmOwnerEmail("atty.hernandez@hernandezlaw.info")).toBe(false);
 
     const ownerTabs = tasksNavTabsForUser(true, "full", { canViewPresenceTab: true });

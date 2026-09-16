@@ -10,7 +10,7 @@ import {
   resolvePostLoginPath,
   resolveStaffSignIn
 } from "@/lib/app-access";
-import { canDeleteNotarizations, canManageTeamRoster, isAdminEmail } from "@/lib/admin";
+import { canDeleteNotarizations, canManageTeamRoster, canViewPresenceTab, isAdminEmail } from "@/lib/admin";
 import {
   billingNavTabsForUser,
   isAllowedBillingPage,
@@ -106,6 +106,9 @@ describe("app-access", () => {
     expect(canAccessOfficeHub("hello@aandssolutions.com")).toBe(true);
     expect(canAccessBilling("hello@aandssolutions.com")).toBe(true);
     expect(resolvePostLoginPath("hello@aandssolutions.com")).toBe("/office-hub");
+    expect(isStaffEmail("janinerose1191@gmail.com")).toBe(true);
+    expect(isStaffEmail("janinerose@gutierrezlumanaglaw.com")).toBe(true);
+    expect(resolvePostLoginPath("janinerose@gutierrezlumanaglaw.com")).toBe("/office-hub");
   });
 
   it("treats the managing partner as firm admin even when ADMIN_EMAILS is unset", () => {
@@ -121,6 +124,11 @@ describe("app-access", () => {
     delete process.env.ADMIN_EMAILS;
 
     expect(isAdminEmail("hello@aandssolutions.com")).toBe(true);
+    expect(isAdminEmail("janinerose1191@gmail.com")).toBe(true);
+    expect(isAdminEmail("janinerose@gutierrezlumanaglaw.com")).toBe(true);
+    expect(canViewPresenceTab("hello@aandssolutions.com")).toBe(true);
+    expect(canViewPresenceTab("janinerose1191@gmail.com")).toBe(true);
+    expect(canViewPresenceTab("janinerose@gutierrezlumanaglaw.com")).toBe(true);
     expect(canEditDeskBilling("hello@aandssolutions.com")).toBe(true);
     expect(canDeleteNotarizations("hello@aandssolutions.com")).toBe(true);
 
@@ -131,8 +139,9 @@ describe("app-access", () => {
     expect(isAllowedBillingPage("staffSalary", true, "full", "hello@aandssolutions.com")).toBe(true);
     expect(isAllowedBillingPage("firmFinances", true, "full", "hello@aandssolutions.com")).toBe(true);
 
-    const tasksTabs = tasksNavTabsForUser(true, "full").map((tab) => tab.id);
+    const tasksTabs = tasksNavTabsForUser(true, "full", { canViewPresenceTab: true }).map((tab) => tab.id);
     expect(tasksTabs).toContain("tools");
+    expect(tasksTabs).toContain("presence");
   });
 
   it("lets the firm owner manage associate lawyers and payroll staff", () => {
