@@ -31,7 +31,7 @@ import {
 import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
 import { isTasksAppsScriptConfigured } from "@/lib/office-tasks/apps-script";
 import { isUsingBillingSpreadsheetFallback } from "@/lib/office-tasks/sheets/client";
-import { canViewLiaisonTab } from "@/lib/app-access";
+import { canAccessBilling, canViewLiaisonTab } from "@/lib/app-access";
 import { excludeLiaisonConfidentialItems, filterVisibleOfficeItems } from "@/lib/office-tasks/liaison-confidential";
 import { resolveSessionStaffName } from "@/lib/staff-session";
 
@@ -46,17 +46,24 @@ export async function GET(request: Request) {
     const q = searchParams.get("q") || "";
     const fresh = searchParams.get("fresh") === "1";
 
-    await warmWorkspaceSheetCaches(token, fresh);
+    const session = await getServerSession(authOptions);
+    await warmWorkspaceSheetCaches(token, {
+      fresh,
+      includeBilling: canAccessBilling(session?.user?.email)
+    });
 
     const payload = await withCachedTasksHome(token, q, async () => {
       await assertTasksWorkbookSheetsCached(token);
-      await runThrottledAutoRepairs(token);
+      try {
+        await runThrottledAutoRepairs(token);
+      } catch (repairError) {
+        console.error("[tasks/home] auto-repair", repairError);
+      }
 
       const [rawItems, employeeDirectory] = await Promise.all([
         getCachedAllItems(token, fresh),
         getCachedEmployeeDirectory(token)
       ]);
-      const session = await getServerSession(authOptions);
       const isAdmin = isAdminEmail(session?.user?.email);
       const staffName = resolveSessionStaffName(session?.user, employeeDirectory);
       const canViewLiaisonConfidential = canViewLiaisonTab({

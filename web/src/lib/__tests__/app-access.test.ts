@@ -174,6 +174,11 @@ describe("tasks nav for tasks-only staff", () => {
 });
 
 describe("associate counsel desk nav", () => {
+  it("does not require billing workbook access for Atty. Jeff", () => {
+    expect(isStaffEmail("jlppasagui@gmail.com")).toBe(true);
+    expect(canAccessBilling("jlppasagui@gmail.com")).toBe(false);
+  });
+
   it("includes counsel desk essentials", () => {
     const tabs = tasksNavTabsForUser(false, "associate").map((tab) => tab.id);
     expect(tabs).toEqual([

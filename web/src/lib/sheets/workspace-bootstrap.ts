@@ -4,26 +4,48 @@ import { getCachedAllItems, getCachedEmployeeDirectory } from "@/lib/office-task
 
 const BOOTSTRAP_TTL_MS = 30_000;
 
+export type WarmWorkspaceSheetCachesOptions = {
+  fresh?: boolean;
+  /** Associates and tasks-only staff must not need the billing workbook to open Feed. */
+  includeBilling?: boolean;
+};
+
 /** Warm shared sheet caches in one parallel burst to reduce quota spikes on workspace load. */
-export async function warmWorkspaceSheetCaches(accessToken: string, fresh = false): Promise<{
+export async function warmWorkspaceSheetCaches(
+  accessToken: string,
+  freshOrOptions: boolean | WarmWorkspaceSheetCachesOptions = false,
+  maybeOptions?: WarmWorkspaceSheetCachesOptions
+): Promise<{
   warmedAt: number;
   keys: string[];
 }> {
-  if (fresh) {
-    await Promise.all([
-      getCachedAllItems(accessToken, true),
-      getCachedEmployeeDirectory(accessToken),
-      getAllMasterRows(accessToken)
-    ]);
-    return { warmedAt: Date.now(), keys: ["tasks-items", "tasks-employees", "master-rows"] };
-  }
+  const options: WarmWorkspaceSheetCachesOptions =
+    typeof freshOrOptions === "boolean" ? { fresh: freshOrOptions, ...maybeOptions } : freshOrOptions;
+  const fresh = Boolean(options.fresh);
+  const includeBilling = options.includeBilling !== false;
 
-  return withCache(accessToken, "workspace-bootstrap", BOOTSTRAP_TTL_MS, async () => {
-    await Promise.all([
-      getCachedAllItems(accessToken),
-      getCachedEmployeeDirectory(accessToken),
-      getAllMasterRows(accessToken)
-    ]);
-    return { warmedAt: Date.now(), keys: ["tasks-items", "tasks-employees", "master-rows"] };
-  });
+  const warm = async () => {
+    const keys = ["tasks-items", "tasks-employees"];
+    const tasks: Array<Promise<unknown>> = [
+      getCachedAllItems(accessToken, fresh),
+      getCachedEmployeeDirectory(accessToken)
+    ];
+
+    if (includeBilling) {
+      keys.push("master-rows");
+      tasks.push(
+        getAllMasterRows(accessToken).catch((error) => {
+          console.error("[workspace-bootstrap] billing master", error);
+          return null;
+        })
+      );
+    }
+
+    await Promise.all(tasks);
+    return { warmedAt: Date.now(), keys };
+  };
+
+  if (fresh) return warm();
+
+  return withCache(accessToken, includeBilling ? "workspace-bootstrap" : "workspace-bootstrap:tasks", BOOTSTRAP_TTL_MS, warm);
 }
