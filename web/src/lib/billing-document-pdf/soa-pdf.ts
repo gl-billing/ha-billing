@@ -309,7 +309,8 @@ function drawAccountSummary(
   return y - 18;
 }
 
-function drawLedgerHeader(page: PDFPage, y: number, sansBold: PDFFont) {
+/** Draw DETAILED LEDGER title + column labels; returns y for the first data row. */
+function drawLedgerHeader(page: PDFPage, y: number, sansBold: PDFFont): number {
   const heading = letterSpaceWords("DETAILED LEDGER");
   page.drawText(heading, { x: LEFT, y, size: 9.8, font: sansBold, color: INK });
   y -= 12;
@@ -328,6 +329,7 @@ function drawLedgerHeader(page: PDFPage, y: number, sansBold: PDFFont) {
     page.drawText(label.text, { x: label.x, y, size: 7.5, font: sansBold, color: MUTED });
   }
   page.drawLine({ start: { x: LEFT, y: y - 6 }, end: { x: RIGHT, y: y - 6 }, thickness: 0.35, color: LINE });
+  return y - 18;
 }
 
 function ledgerRowLineCount(row: SoaLedgerRow, serif: PDFFont): number {
@@ -496,13 +498,11 @@ export async function buildSoaPdf(input: SoaPdfInput): Promise<Uint8Array> {
     if (y - needed < FOOTER_RESERVE) {
       page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
       y = PAGE_HEIGHT - 72;
-      drawLedgerHeader(page, y, sansBold);
-      y -= 24;
+      y = drawLedgerHeader(page, y, sansBold);
     }
   };
 
-  drawLedgerHeader(page, y, sansBold);
-  y -= 24;
+  y = drawLedgerHeader(page, y, sansBold);
 
   for (const row of input.ledger) {
     const needed = ledgerRowHeight(ledgerRowLineCount(row, serif));
