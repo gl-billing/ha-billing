@@ -10606,6 +10606,10 @@ html {
     @apply flex max-w-full flex-col rounded-lg border border-line/70 bg-white px-3 py-2 text-left transition hover:border-gold/40 hover:bg-cream disabled:opacity-50;
   }
 
+  .open-charge-picker__chip--selected {
+    @apply border-gold/60 bg-cream ring-1 ring-gold/30;
+  }
+
   .open-charge-picker__chip-amount {
     @apply text-sm font-extrabold text-ink;
   }

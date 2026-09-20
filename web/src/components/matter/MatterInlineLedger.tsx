@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { HA } from "@/lib/ha-config";
 import { OpenChargePicker } from "@/components/OpenChargePicker";
 import { listOpenChargesFromLedger, type OpenChargeOption } from "@/lib/open-charges";
+import { formatPaymentDetailsWithChargeRow } from "@/lib/ledger-display";
 import { PaymentIncomeFields } from "@/components/PaymentIncomeFields";
 import {
   buildPaymentLedgerFields,
@@ -56,6 +57,8 @@ export function MatterInlineLedger({
   const [paymentIncomeType, setPaymentIncomeType] = useState<PaymentIncomeType>("Professional Fee");
   const [paymentDefaultHint, setPaymentDefaultHint] = useState("");
   const [openCharges, setOpenCharges] = useState<OpenChargeOption[]>([]);
+  const [selectedChargeRow, setSelectedChargeRow] = useState<number | null>(null);
+  const [openChargesRefreshKey, setOpenChargesRefreshKey] = useState(0);
 
   useEffect(() => {
     if (mode !== "payment" || !clientCode) return;
@@ -73,7 +76,7 @@ export function MatterInlineLedger({
     return () => {
       cancelled = true;
     };
-  }, [clientCode, mode]);
+  }, [clientCode, mode, openChargesRefreshKey]);
 
   async function submit(payload: Record<string, unknown>, successMessage: string) {
     setSubmitting(true);
@@ -91,6 +94,8 @@ export function MatterInlineLedger({
       setPaymentAmount("");
       setPaymentDetails("");
       setPaymentDescription("");
+      setSelectedChargeRow(null);
+      if (mode === "payment") setOpenChargesRefreshKey((key) => key + 1);
       onSaved();
     } catch (error) {
       onStatus(error instanceof Error ? error.message : "Failed to save entry.", true);
@@ -225,13 +230,18 @@ export function MatterInlineLedger({
           </label>
           <OpenChargePicker
             charges={openCharges}
+            selectedSheetRow={selectedChargeRow}
             disabled={disabled}
             onPick={(charge) => {
+              setSelectedChargeRow(charge.sheetRow);
               setPaymentAmount(String(charge.amount));
               setPaymentIncomeType(charge.incomeType);
               setPaymentDescription(charge.description || charge.category);
-              if (charge.details?.trim()) setPaymentDetails(charge.details.trim());
-              setPaymentDefaultHint(`Matched open charge · ${charge.incomeType}`);
+              setPaymentDefaultHint(
+                charge.amount + 0.005 < charge.originalAmount
+                  ? `Partial balance · ${charge.incomeType}`
+                  : `Matched open charge · ${charge.incomeType}`
+              );
             }}
           />
           <PaymentIncomeFields
@@ -248,13 +258,16 @@ export function MatterInlineLedger({
             disabled={disabled || !paymentAmount}
             onClick={() => {
               const paymentFields = buildPaymentLedgerFields(paymentIncomeType, paymentDescription);
+              const details = selectedChargeRow
+                ? formatPaymentDetailsWithChargeRow(paymentDetails, selectedChargeRow)
+                : paymentDetails;
               void submit(
                 {
                   clientCode,
                   type: "payment",
                   date: paymentDate,
                   method: paymentMethod,
-                  details: paymentDetails,
+                  details,
                   category: paymentFields.category,
                   description: paymentFields.description,
                   payment: Number(paymentAmount)

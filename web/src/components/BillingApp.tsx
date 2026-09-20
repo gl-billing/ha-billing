@@ -72,6 +72,7 @@ import { formatSuccessReport } from "@/lib/firm-status-report";
 import { PaymentIncomeFields } from "@/components/PaymentIncomeFields";
 import { OpenChargePicker } from "@/components/OpenChargePicker";
 import { listOpenChargesFromLedger, type OpenChargeOption } from "@/lib/open-charges";
+import { formatPaymentDetailsWithChargeRow } from "@/lib/ledger-display";
 import {
   buildPaymentLedgerFields,
   inferPaymentIncomeTypeFromLedger,
@@ -480,6 +481,22 @@ export function BillingApp() {
     syncBillingClioUrl
   ]);
 
+  const [chargeDate, setChargeDate] = useState(todayLocal());
+  const [chargeAmount, setChargeAmount] = useState("");
+  const [chargeCategory, setChargeCategory] = useState<string>(HA.chargeCategories[1]);
+  const [chargeDescription, setChargeDescription] = useState("");
+
+  const [paymentDate, setPaymentDate] = useState(todayLocal());
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<string>(HA.paymentMethods[0]);
+  const [paymentDetails, setPaymentDetails] = useState("");
+  const [paymentDescription, setPaymentDescription] = useState("");
+  const [paymentIncomeType, setPaymentIncomeType] = useState<PaymentIncomeType>("Professional Fee");
+  const [paymentDefaultHint, setPaymentDefaultHint] = useState("");
+  const [openCharges, setOpenCharges] = useState<OpenChargeOption[]>([]);
+  const [selectedChargeRow, setSelectedChargeRow] = useState<number | null>(null);
+  const [openChargesRefreshKey, setOpenChargesRefreshKey] = useState(0);
+
   useEffect(() => {
     if (tab !== "payment" || !clientCode) return;
     let cancelled = false;
@@ -496,21 +513,7 @@ export function BillingApp() {
     return () => {
       cancelled = true;
     };
-  }, [clientCode, tab]);
-
-  const [chargeDate, setChargeDate] = useState(todayLocal());
-  const [chargeAmount, setChargeAmount] = useState("");
-  const [chargeCategory, setChargeCategory] = useState<string>(HA.chargeCategories[1]);
-  const [chargeDescription, setChargeDescription] = useState("");
-
-  const [paymentDate, setPaymentDate] = useState(todayLocal());
-  const [paymentAmount, setPaymentAmount] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<string>(HA.paymentMethods[0]);
-  const [paymentDetails, setPaymentDetails] = useState("");
-  const [paymentDescription, setPaymentDescription] = useState("");
-  const [paymentIncomeType, setPaymentIncomeType] = useState<PaymentIncomeType>("Professional Fee");
-  const [paymentDefaultHint, setPaymentDefaultHint] = useState("");
-  const [openCharges, setOpenCharges] = useState<OpenChargeOption[]>([]);
+  }, [clientCode, tab, openChargesRefreshKey]);
 
   useEffect(() => {
     if (introOpen) return;
@@ -579,6 +582,7 @@ export function BillingApp() {
           setPaymentAmount("");
           setPaymentDetails("");
           setPaymentDescription("");
+          setSelectedChargeRow(null);
           reportSuccess(`${formatSuccessReport(result.data.message || successMessage, clientCode)} Add another below.`);
           window.requestAnimationFrame(() => paymentAmountRef.current?.focus());
         }
@@ -588,8 +592,10 @@ export function BillingApp() {
         setPaymentAmount("");
         setPaymentDetails("");
         setPaymentDescription("");
+        setSelectedChargeRow(null);
         reportSuccess(formatSuccessReport(result.data.message || successMessage, clientCode));
       }
+      if (tab === "payment") setOpenChargesRefreshKey((key) => key + 1);
       await loadData({ quiet: true });
     } catch (error) {
       reportError(error instanceof Error ? error.message : "Failed to save entry.");
@@ -1361,13 +1367,18 @@ export function BillingApp() {
             </Field>
             <OpenChargePicker
               charges={openCharges}
+              selectedSheetRow={selectedChargeRow}
               disabled={ledgerSaving}
               onPick={(charge) => {
+                setSelectedChargeRow(charge.sheetRow);
                 setPaymentAmount(String(charge.amount));
                 setPaymentIncomeType(charge.incomeType);
                 setPaymentDescription(charge.description || charge.category);
-                if (charge.details?.trim()) setPaymentDetails(charge.details.trim());
-                setPaymentDefaultHint(`Matched open charge · ${charge.incomeType}`);
+                setPaymentDefaultHint(
+                  charge.amount + 0.005 < charge.originalAmount
+                    ? `Partial balance · ${charge.incomeType}`
+                    : `Matched open charge · ${charge.incomeType}`
+                );
               }}
             />
             <PaymentIncomeFields
@@ -1385,6 +1396,9 @@ export function BillingApp() {
                 disabled={ledgerSaving}
                 onClick={() => {
                   const paymentFields = buildPaymentLedgerFields(paymentIncomeType, paymentDescription);
+                  const details = selectedChargeRow
+                    ? formatPaymentDetailsWithChargeRow(paymentDetails, selectedChargeRow)
+                    : paymentDetails;
                   void submitLedger(
                     {
                       clientCode,
@@ -1394,7 +1408,7 @@ export function BillingApp() {
                       category: paymentFields.category,
                       description: paymentFields.description,
                       method: paymentMethod,
-                      details: paymentDetails
+                      details
                     },
                     "Payment added."
                   );
@@ -1408,6 +1422,9 @@ export function BillingApp() {
                 disabled={ledgerSaving}
                 onClick={() => {
                   const paymentFields = buildPaymentLedgerFields(paymentIncomeType, paymentDescription);
+                  const details = selectedChargeRow
+                    ? formatPaymentDetailsWithChargeRow(paymentDetails, selectedChargeRow)
+                    : paymentDetails;
                   void submitLedger(
                     {
                       clientCode,
@@ -1417,7 +1434,7 @@ export function BillingApp() {
                       category: paymentFields.category,
                       description: paymentFields.description,
                       method: paymentMethod,
-                      details: paymentDetails
+                      details
                     },
                     "Payment added.",
                     true
