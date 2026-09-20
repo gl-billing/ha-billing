@@ -108,7 +108,7 @@ function formatPeriod(startDate: string, endDate: Date): string {
 export async function generateClientSoaNative(
   accessToken: string,
   payload: GenerateSoaPayload
-): Promise<{ ok: true; message: string; invoiceNumber: string }> {
+): Promise<{ ok: true; message: string; invoiceNumber: string; totalDue: number }> {
   const clientCode = payload.clientCode.trim();
   if (!clientCode) throw new Error("Client code is required.");
 
