@@ -18,6 +18,7 @@ import { getOrCreateArFolderId } from "@/lib/sheets/drive-ar-folder";
 import { buildHyperlinkFormula } from "@/lib/sheets/hyperlinks";
 import { updateSingleClientStatus } from "@/lib/sheets/ledger";
 import { getClientDetail } from "@/lib/sheets/master";
+import { runPostSendSheetStep, withPostSendSheetWarning } from "@/lib/sheets/post-send-sheet";
 import { readSettingsMap } from "@/lib/sheets/settings";
 
 async function getNextArReceiptNumber(accessToken: string, clientCode: string): Promise<string> {
@@ -184,29 +185,47 @@ export async function generateClientArReceiptNative(
       ? new Date().toISOString().slice(0, 10)
       : String(rowValues[10] || "");
 
-  await updateSheetValues(accessToken, `'${clientCode}'!J${sheetRow}:L${sheetRow}`, [
-    [receiptNumber, sentAt, buildHyperlinkFormula(pdfUrl, "View AR")]
-  ]);
+  const sheetWarnings: string[] = [];
 
-  await appendDocumentLogEntry(accessToken, {
-    clientCode,
-    clientName: client.name,
-    documentType: "AR",
-    documentNumber: receiptNumber,
-    amount,
-    email,
-    pdfUrl,
-    status: deliveryAction === "Send Now" ? "Sent" : "Draft Created"
-  });
+  await runPostSendSheetStep(
+    "ledger receipt fields",
+    () =>
+      updateSheetValues(accessToken, `'${clientCode}'!J${sheetRow}:L${sheetRow}`, [
+        [receiptNumber, sentAt, buildHyperlinkFormula(pdfUrl, "View AR")]
+      ]),
+    sheetWarnings
+  );
 
-  await updateSingleClientStatus(accessToken, clientCode);
+  await runPostSendSheetStep(
+    "Document Log",
+    () =>
+      appendDocumentLogEntry(accessToken, {
+        clientCode,
+        clientName: client.name,
+        documentType: "AR",
+        documentNumber: receiptNumber,
+        amount,
+        email,
+        pdfUrl,
+        status: deliveryAction === "Send Now" ? "Sent" : "Draft Created"
+      }),
+    sheetWarnings
+  );
+
+  await runPostSendSheetStep(
+    "client status",
+    () => updateSingleClientStatus(accessToken, clientCode),
+    sheetWarnings
+  );
+
+  const baseMessage =
+    deliveryAction === "Send Now"
+      ? `Acknowledgment Receipt ${receiptNumber} sent to ${email}.`
+      : `AR Gmail draft created for ${email}.`;
 
   return {
     ok: true,
-    message:
-      deliveryAction === "Send Now"
-        ? `Acknowledgment Receipt ${receiptNumber} sent to ${email}.`
-        : `AR Gmail draft created for ${email}.`,
+    message: withPostSendSheetWarning(baseMessage, sheetWarnings),
     receiptNumber
   };
 }

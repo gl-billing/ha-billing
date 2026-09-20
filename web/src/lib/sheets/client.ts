@@ -33,7 +33,7 @@ function wrapSheetsApiError(error: unknown): Error {
 
   if (/protected cell|protected range|protected sheet/i.test(message)) {
     return new Error(
-      "Google Sheets blocked this save because that tab or cell is protected. Open your billing spreadsheet → Data → Protect sheets and ranges → edit or remove protection on the Settings tab (columns A–B) and Field Dispatch if needed, or add your billing login Google account as someone who can edit protected ranges. Staff salary, overtime/adjustments, and firm finances all save to Settings."
+      "Google Sheets blocked a spreadsheet update because that tab or cell is protected. Email may still have been sent. Open the billing spreadsheet → Data → Protect sheets and ranges, then allow your signed-in Google account to edit Master List, Document Log, client ledger tabs, and Settings — or remove protection on those ranges."
     );
   }
 

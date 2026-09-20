@@ -16,6 +16,7 @@ import { buildHyperlinkFormula } from "@/lib/sheets/hyperlinks";
 import { getClientLedger } from "@/lib/sheets/ledger-read";
 import { updateSingleClientStatus } from "@/lib/sheets/ledger";
 import { findMasterRow, getClientDetail } from "@/lib/sheets/master";
+import { runPostSendSheetStep, withPostSendSheetWarning } from "@/lib/sheets/post-send-sheet";
 import { readSettingsMap } from "@/lib/sheets/settings";
 
 async function getNextInvoiceNumber(accessToken: string, clientCode: string): Promise<string> {
@@ -210,39 +211,58 @@ export async function generateClientSoaNative(
     });
   }
 
-  const found = await findMasterRow(accessToken, clientCode);
-  if (!found) throw new Error("Client not found in Master List.");
-
+  const sheetWarnings: string[] = [];
   const billingDate = today.toISOString().slice(0, 10);
-  const soaSentValue = deliveryAction === "Send Now" ? billingDate : String(found.values[12] || "");
 
-  await updateSheetValues(accessToken, `'${HA.sheets.master}'!H${found.row}:H${found.row}`, [[billingDate]]);
-  await updateSheetValues(accessToken, `'${HA.sheets.master}'!M${found.row}:O${found.row}`, [
-    [soaSentValue, invoiceNumber, buildHyperlinkFormula(pdfUrl, "View SOA")]
-  ]);
-  await updateSheetValues(accessToken, `'${HA.sheets.master}'!S${found.row}:S${found.row}`, [
-    [dueDate.toISOString().slice(0, 10)]
-  ]);
+  await runPostSendSheetStep(
+    "Master List billing fields",
+    async () => {
+      const found = await findMasterRow(accessToken, clientCode);
+      if (!found) throw new Error("Client not found in Master List.");
+      const soaSentValue = deliveryAction === "Send Now" ? billingDate : String(found.values[12] || "");
+      await updateSheetValues(accessToken, `'${HA.sheets.master}'!H${found.row}:H${found.row}`, [
+        [billingDate]
+      ]);
+      await updateSheetValues(accessToken, `'${HA.sheets.master}'!M${found.row}:O${found.row}`, [
+        [soaSentValue, invoiceNumber, buildHyperlinkFormula(pdfUrl, "View SOA")]
+      ]);
+      await updateSheetValues(accessToken, `'${HA.sheets.master}'!S${found.row}:S${found.row}`, [
+        [dueDate.toISOString().slice(0, 10)]
+      ]);
+    },
+    sheetWarnings
+  );
 
-  await appendDocumentLogEntry(accessToken, {
-    clientCode,
-    clientName: client.name,
-    documentType: "SOA",
-    documentNumber: invoiceNumber,
-    amount: summary.totalDue,
-    email,
-    pdfUrl,
-    status: deliveryAction === "Send Now" ? "Sent" : "Draft Created"
-  });
+  await runPostSendSheetStep(
+    "Document Log",
+    () =>
+      appendDocumentLogEntry(accessToken, {
+        clientCode,
+        clientName: client.name,
+        documentType: "SOA",
+        documentNumber: invoiceNumber,
+        amount: summary.totalDue,
+        email,
+        pdfUrl,
+        status: deliveryAction === "Send Now" ? "Sent" : "Draft Created"
+      }),
+    sheetWarnings
+  );
 
-  await updateSingleClientStatus(accessToken, clientCode);
+  await runPostSendSheetStep(
+    "client status",
+    () => updateSingleClientStatus(accessToken, clientCode),
+    sheetWarnings
+  );
+
+  const baseMessage =
+    deliveryAction === "Send Now"
+      ? `SOA sent to ${email}.`
+      : `SOA Gmail draft created for ${email}.`;
 
   return {
     ok: true,
-    message:
-      deliveryAction === "Send Now"
-        ? `SOA sent to ${email}.`
-        : `SOA Gmail draft created for ${email}.`,
+    message: withPostSendSheetWarning(baseMessage, sheetWarnings),
     invoiceNumber
   };
 }
