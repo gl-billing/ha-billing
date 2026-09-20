@@ -67,7 +67,12 @@ export function useBillingClients(
         if (legacyClient && !deepLink?.page && !params.get("doc")) {
           router.replace(matterHref(legacyClient, undefined));
         } else {
-          setClientCode((prev) => prev || deepLink?.clientCode || clientsData.clients[0]?.code || "");
+          // Only default the first client when nothing is selected yet.
+          // Never overwrite a staff pick — URL/deep-link sync owns that separately.
+          setClientCode((prev) => {
+            if (prev) return prev;
+            return deepLink?.clientCode || clientsData.clients[0]?.code || "";
+          });
         }
 
         if (!options?.quiet) {

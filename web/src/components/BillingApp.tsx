@@ -229,6 +229,27 @@ export function BillingApp() {
     [billingPath, clientCode, router, searchParams, tasksPath]
   );
 
+  /** Keep client selection and ?client= in sync — never let a stale URL snap the dropdown back. */
+  const selectBillingClient = useCallback(
+    (code: string) => {
+      const nextCode = code.trim().toUpperCase();
+      setClientCode(nextCode);
+      const nextParams = new URLSearchParams(searchParams.toString());
+      if (nextCode) nextParams.set("client", nextCode);
+      else nextParams.delete("client");
+      const nextSearch = nextParams.toString();
+      if (nextSearch === searchParams.toString()) return;
+      router.replace(nextSearch ? `${billingPath}?${nextSearch}` : billingPath, { scroll: false });
+    },
+    [billingPath, router, searchParams, setClientCode]
+  );
+
+  const urlClientCode = searchParams.get("client")?.trim().toUpperCase() || "";
+  useEffect(() => {
+    if (!urlClientCode) return;
+    setClientCode((prev) => (prev === urlClientCode ? prev : urlClientCode));
+  }, [urlClientCode, setClientCode]);
+
   const goToPage = useCallback(
     (next: AppPage) => {
       if (
@@ -384,7 +405,6 @@ export function BillingApp() {
       syncBillingClioUrl(resolvedPage);
     }
 
-    if (deepLink?.clientCode) setClientCode(deepLink.clientCode);
     if (deepLink?.docTab) setDocTab(deepLink.docTab);
     if (deepLink?.billingTab) setTab(deepLink.billingTab);
   }, [
@@ -622,7 +642,7 @@ export function BillingApp() {
       }
 
       const code = result.clientCode || payload.clientCode;
-      setClientCode(code);
+      selectBillingClient(code);
       goToPage("billing");
       reportSuccess(formatSuccessReport(result.message || "Client created.", code));
       await loadData({ quiet: true });
@@ -671,7 +691,7 @@ export function BillingApp() {
       goTo(options.clientCode);
       return;
     }
-    if (options.clientCode) setClientCode(options.clientCode);
+    if (options.clientCode) selectBillingClient(options.clientCode);
     if (options.billingTab) setTab(options.billingTab);
     if (options.docTab) setDocTab(options.docTab);
     goToPage(options.page);
@@ -985,7 +1005,7 @@ export function BillingApp() {
                     value: client.code,
                     label: `${client.code} — ${client.name || "Unnamed"}`
                   }))}
-                  onChange={setClientCode}
+                  onChange={selectBillingClient}
                 />
               </div>
             </section>
@@ -1038,7 +1058,7 @@ export function BillingApp() {
                   className="field"
                   value={clientCode}
                   disabled={ledgerSaving}
-                  onChange={(e) => setClientCode(e.target.value)}
+                  onChange={(e) => selectBillingClient(e.target.value)}
                 >
                   {clients.map((client) => (
                     <option key={client.code} value={client.code}>
@@ -1184,7 +1204,7 @@ export function BillingApp() {
             value: client.code,
             label: `${client.code} — ${client.name || "Unnamed"} (${formatPeso(client.balance)})`
           }))}
-          onChange={setClientCode}
+          onChange={selectBillingClient}
         />
       </TabPickerCard>
 
