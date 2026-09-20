@@ -264,6 +264,7 @@ export async function generateClientSoaNative(
   return {
     ok: true,
     message: withPostSendSheetWarning(baseMessage, sheetWarnings),
-    invoiceNumber
+    invoiceNumber,
+    totalDue: summary.totalDue
   };
 }

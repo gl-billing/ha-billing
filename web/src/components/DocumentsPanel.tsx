@@ -8,7 +8,7 @@ import { whatsAppShareUrl, viberShareUrl, soaShareMessage } from "@/lib/messenge
 import { resolveClientGreeting } from "@/lib/client-greeting";
 import { parseApiJson } from "@/lib/parse-api-response";
 import { FirmPrintLetterhead } from "@/components/FirmPrintLetterhead";
-import { ReceiptCeremony, parseReceiptNumberFromMessage } from "@/components/ReceiptCeremony";
+import { ReceiptCeremony, parseInvoiceNumberFromMessage, parseReceiptNumberFromMessage } from "@/components/ReceiptCeremony";
 import { PaymentIncomeFields } from "@/components/PaymentIncomeFields";
 import {
   buildPaymentLedgerFields,
@@ -76,6 +76,11 @@ export function DocumentsPanel({
   const [greeting, setGreeting] = useState(preferredGreeting);
   const [soaCheck, setSoaCheck] = useState<SoaDuplicateCheck | null>(null);
   const [arCeremony, setArCeremony] = useState<{ receiptNumber: string; amount: number } | null>(null);
+  const [soaCeremony, setSoaCeremony] = useState<{
+    invoiceNumber: string;
+    amount: number;
+    deliveryAction: DeliveryAction;
+  } | null>(null);
     
   useEffect(() => {
     setGreeting(preferredGreeting);
@@ -114,6 +119,7 @@ export function DocumentsPanel({
   useEffect(() => {
     setReviewOpen(false);
     setArCeremony(null);
+    setSoaCeremony(null);
   }, [clientCode, docTab]);
 
   useEffect(() => {
@@ -237,8 +243,18 @@ export function DocumentsPanel({
       const { ok, data: result, errorMessage } = await parseApiJson<{
         message?: string;
         error?: string;
+        invoiceNumber?: string;
+        totalDue?: number;
       }>(response);
       if (!ok) throw new Error(errorMessage || "SOA failed.");
+      setSoaCeremony({
+        invoiceNumber: parseInvoiceNumberFromMessage(
+          result.invoiceNumber || result.message || "",
+          "SOA issued"
+        ),
+        amount: typeof result.totalDue === "number" ? result.totalDue : clientBalance,
+        deliveryAction
+      });
       onStatus(result.message || "SOA completed.");
       void fetch(`/api/clients/${encodeURIComponent(clientCode)}/soa-check`)
         .then((r) => parseApiJson<SoaDuplicateCheck>(r))
@@ -368,9 +384,28 @@ export function DocumentsPanel({
     arNote
   ]);
 
+  if (soaCeremony) {
+    const isDraft = soaCeremony.deliveryAction === "Create Gmail Draft";
+    return (
+      <ReceiptCeremony
+        kind="soa"
+        receiptNumber={soaCeremony.invoiceNumber}
+        amount={soaCeremony.amount}
+        eyebrow={isDraft ? "Statement of account draft ready" : "Statement of account sent"}
+        subtitle={
+          isDraft
+            ? "PDF saved to the client folder. Open Gmail to finish and send the draft."
+            : undefined
+        }
+        onDismiss={() => setSoaCeremony(null)}
+      />
+    );
+  }
+
   if (arCeremony) {
     return (
       <ReceiptCeremony
+        kind="ar"
         receiptNumber={arCeremony.receiptNumber}
         amount={arCeremony.amount}
         onDismiss={() => setArCeremony(null)}
