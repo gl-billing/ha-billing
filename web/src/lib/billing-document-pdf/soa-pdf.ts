@@ -309,13 +309,40 @@ function drawAccountSummary(
   return y - 18;
 }
 
+/** Vertical layout for the DETAILED LEDGER title + column header band (PDF baselines). */
+export function soaDetailedLedgerBand(startY: number): {
+  titleY: number;
+  titleRuleY: number;
+  colLabelY: number;
+  colRuleY: number;
+  firstRowY: number;
+} {
+  const titleY = startY;
+  const titleRuleY = titleY - 14;
+  const colLabelY = titleRuleY - 16;
+  const colRuleY = colLabelY - 8;
+  // Keep a clear gap under the column rule so the first data row never shares the header band.
+  const firstRowY = colRuleY - 14;
+  return { titleY, titleRuleY, colLabelY, colRuleY, firstRowY };
+}
+
 /** Draw DETAILED LEDGER title + column labels; returns y for the first data row. */
 function drawLedgerHeader(page: PDFPage, y: number, sansBold: PDFFont): number {
-  const heading = letterSpaceWords("DETAILED LEDGER");
-  page.drawText(heading, { x: LEFT, y, size: 9.8, font: sansBold, color: INK });
-  y -= 12;
-  page.drawLine({ start: { x: LEFT, y }, end: { x: RIGHT, y }, thickness: 1.2, color: INK });
-  y -= 16;
+  const band = soaDetailedLedgerBand(y);
+
+  page.drawText(letterSpaceWords("DETAILED LEDGER"), {
+    x: LEFT,
+    y: band.titleY,
+    size: 9.8,
+    font: sansBold,
+    color: INK
+  });
+  page.drawLine({
+    start: { x: LEFT, y: band.titleRuleY },
+    end: { x: RIGHT, y: band.titleRuleY },
+    thickness: 1.2,
+    color: INK
+  });
 
   const labels = [
     { text: "DATE", x: COL.date },
@@ -326,10 +353,22 @@ function drawLedgerHeader(page: PDFPage, y: number, sansBold: PDFFont): number {
     { text: "BALANCE", x: COL.balance }
   ];
   for (const label of labels) {
-    page.drawText(label.text, { x: label.x, y, size: 7.5, font: sansBold, color: MUTED });
+    page.drawText(label.text, {
+      x: label.x,
+      y: band.colLabelY,
+      size: 7.5,
+      font: sansBold,
+      color: MUTED
+    });
   }
-  page.drawLine({ start: { x: LEFT, y: y - 6 }, end: { x: RIGHT, y: y - 6 }, thickness: 0.35, color: LINE });
-  return y - 18;
+  page.drawLine({
+    start: { x: LEFT, y: band.colRuleY },
+    end: { x: RIGHT, y: band.colRuleY },
+    thickness: 0.35,
+    color: LINE
+  });
+
+  return band.firstRowY;
 }
 
 function ledgerRowLineCount(row: SoaLedgerRow, serif: PDFFont): number {
@@ -343,8 +382,13 @@ function ledgerRowLineCount(row: SoaLedgerRow, serif: PDFFont): number {
   return Math.max(1, typeLines.length, descLines.length);
 }
 
+/** Vertical advance from one ledger row baseline to the next (includes separator gap). */
+function ledgerRowAdvance(lineCount: number): number {
+  return Math.max(1, lineCount) * 11 + 10;
+}
+
 function ledgerRowHeight(lineCount: number): number {
-  return 12 + Math.max(0, lineCount - 1) * 10 + 10;
+  return ledgerRowAdvance(lineCount);
 }
 
 /** Draw one ledger row; returns the y position for the next row. */
@@ -370,7 +414,7 @@ function drawLedgerDataRow(
   typeLines.forEach((line, index) => {
     page.drawText(line, {
       x: COL.type,
-      y: y - index * 10,
+      y: y - index * 11,
       size: 8,
       font: serif,
       color: INK
@@ -380,7 +424,7 @@ function drawLedgerDataRow(
   descLines.forEach((line, index) => {
     page.drawText(line, {
       x: COL.desc,
-      y: y - index * 10,
+      y: y - index * 11,
       size: 8.5,
       font: serif,
       color: INK
@@ -391,10 +435,10 @@ function drawLedgerDataRow(
   if (row.payment > 0) drawRightAmount(page, COL.balance - 8, y, row.payment, amountFont, 8.5);
   drawRightAmount(page, RIGHT - 6, y, row.balance, amountFont, 8.5);
 
-  const nextY = y - ledgerRowHeight(lineCount) + 10;
+  const nextY = y - ledgerRowAdvance(lineCount);
   page.drawLine({
-    start: { x: LEFT, y: nextY + 4 },
-    end: { x: RIGHT, y: nextY + 4 },
+    start: { x: LEFT, y: nextY + 6 },
+    end: { x: RIGHT, y: nextY + 6 },
     thickness: 0.25,
     color: LINE
   });

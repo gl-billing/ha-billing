@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { StandardFonts, PDFDocument } from "pdf-lib";
 import { wrapText } from "@/lib/billing-document-pdf/common";
 import { displayLedgerDescription, receiptPaymentForLabel, soaLedgerDescription } from "@/lib/ledger-display";
-import { formatSoaDateShort, buildSoaPdf, soaPdfFilename } from "@/lib/billing-document-pdf/soa-pdf";
+import { formatSoaDateShort, buildSoaPdf, soaPdfFilename, soaDetailedLedgerBand } from "@/lib/billing-document-pdf/soa-pdf";
 
 describe("displayLedgerDescription", () => {
   it("strips filing prep checklists and event ids from client-facing text", () => {
@@ -37,6 +37,16 @@ describe("soaLedgerDescription", () => {
         "Pleading Fee"
       )
     ).toBe("Drafting pleading fee");
+  });
+});
+
+describe("soaDetailedLedgerBand", () => {
+  it("places the first data row clearly below the column labels", () => {
+    const band = soaDetailedLedgerBand(500);
+    expect(band.colLabelY).toBeLessThan(band.titleY);
+    expect(band.colRuleY).toBeLessThan(band.colLabelY);
+    expect(band.firstRowY).toBeLessThanOrEqual(band.colLabelY - 16);
+    expect(band.firstRowY).toBeLessThan(band.colRuleY);
   });
 });
 
@@ -99,6 +109,12 @@ describe("buildSoaPdf", () => {
 
     expect(bytes.byteLength).toBeGreaterThan(5000);
     expect(String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3])).toBe("%PDF");
+  });
+
+  it("keeps column headers above the first ledger data baseline", () => {
+    const band = soaDetailedLedgerBand(640);
+    // Label glyph height (~7.5) + padding must clear before data baseline.
+    expect(band.firstRowY).toBeLessThanOrEqual(band.colLabelY - 20);
   });
 
   it("names SOA files with invoice and client code", () => {
