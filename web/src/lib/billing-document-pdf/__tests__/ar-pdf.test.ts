@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { arPdfFilename, buildArPdf } from "@/lib/billing-document-pdf/ar-pdf";
 
 describe("buildArPdf", () => {
-  it("builds a premium acknowledgment receipt PDF", async () => {
+  it("builds a premium acknowledgment receipt PDF with a short payment-for label", async () => {
     const bytes = await buildArPdf({
       receiptNumber: "AR-SAMPLE-2026-001",
       receiptDate: "2026-06-07",
@@ -10,7 +10,8 @@ describe("buildArPdf", () => {
       clientName: "Sample Client",
       clientAddress: "Davao City",
       caseTitle: "Sample v. Sample",
-      paymentFor: "Professional fees",
+      paymentFor:
+        "Drafting pleading fee — File a Comment Filing prep: Review received pleading · Responsive pleading · due 2026-07-25 (JIM-EVT-0001)",
       amount: 15000,
       balanceAfter: 5000,
       paymentMethod: "GCash",

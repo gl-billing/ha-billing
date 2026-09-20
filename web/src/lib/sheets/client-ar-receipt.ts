@@ -17,7 +17,7 @@ import { uploadPdfToDriveFolder } from "@/lib/sheets/drive-outbound-pdf";
 import { getOrCreateArFolderId } from "@/lib/sheets/drive-ar-folder";
 import { buildHyperlinkFormula } from "@/lib/sheets/hyperlinks";
 import { updateSingleClientStatus } from "@/lib/sheets/ledger";
-import { displayLedgerDescription } from "@/lib/ledger-display";
+import { receiptPaymentForLabel } from "@/lib/ledger-display";
 import { getClientDetail } from "@/lib/sheets/master";
 import { runPostSendSheetStep, withPostSendSheetWarning } from "@/lib/sheets/post-send-sheet";
 import { readSettingsMap } from "@/lib/sheets/settings";
@@ -102,7 +102,7 @@ export async function generateClientArReceiptNative(
 
   const settings = await readSettingsMap(accessToken);
   const receivedBy = settings.get("Firm Name")?.trim() || "Hernandez & Associates";
-  const paymentForLabel = displayLedgerDescription(description);
+  const paymentForLabel = receiptPaymentForLabel(description);
 
   await updateSheetValues(accessToken, `'${clientCode}'!D${sheetRow}:I${sheetRow}`, [
     [description, rowValues[4] || "", amount, rowValues[6] || "", method, details]

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { displayLedgerDescription } from "@/lib/ledger-display";
+import { displayLedgerDescription, receiptPaymentForLabel } from "@/lib/ledger-display";
 import { formatSoaDateShort, buildSoaPdf, soaPdfFilename } from "@/lib/billing-document-pdf/soa-pdf";
 
 describe("displayLedgerDescription", () => {
@@ -9,6 +9,18 @@ describe("displayLedgerDescription", () => {
     expect(displayLedgerDescription(raw)).toBe(
       "Drafting pleading fee — File a Comment · Responsive pleading"
     );
+  });
+});
+
+describe("receiptPaymentForLabel", () => {
+  it("keeps only the fee type for acknowledgment receipts", () => {
+    expect(
+      receiptPaymentForLabel(
+        "Drafting pleading fee — File a Comment Filing prep: Review received pleading; Confirm deadline · Responsive pleading · due 2026-07-25 (JIM-EVT-0001)"
+      )
+    ).toBe("Drafting pleading fee");
+    expect(receiptPaymentForLabel("Appearance fee — RTC Branch 45 hearing")).toBe("Appearance fee");
+    expect(receiptPaymentForLabel("Professional Fee")).toBe("Professional Fee");
   });
 });
 

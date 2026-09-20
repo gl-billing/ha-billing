@@ -46,6 +46,26 @@ export function displayLedgerDescription(description: string): string {
     .trim();
 }
 
+/**
+ * Short client-facing label for AR / receipt “In payment of”.
+ * Keeps the fee type only, e.g. "Drafting pleading fee — File a Comment …" → "Drafting pleading fee".
+ */
+export function receiptPaymentForLabel(description: string, category?: string): string {
+  const cleaned = displayLedgerDescription(description);
+  const beforeDash = cleaned.split(/\s+[—–-]\s+/)[0]?.trim() || "";
+  if (beforeDash && /fee|payment|retainer|deposit|acceptance|appearance|pleading|filing|notarial/i.test(beforeDash)) {
+    return beforeDash;
+  }
+
+  const fromCategory = displayLedgerDescription(category || "").trim();
+  if (fromCategory && !/^payment$/i.test(fromCategory)) {
+    return fromCategory;
+  }
+
+  const firstClause = cleaned.split(/[·•;]/)[0]?.trim() || "";
+  return firstClause || cleaned || "Payment received";
+}
+
 /** Hide internal open-charge link from payment reference / details fields. */
 export function displayLedgerDetails(details: string): string {
   return String(details || "")

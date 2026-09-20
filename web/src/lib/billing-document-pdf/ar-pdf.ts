@@ -1,6 +1,9 @@
+import fontkit from "@pdf-lib/fontkit";
+import fs from "fs";
+import path from "path";
 import { PDFDocument, StandardFonts, type PDFFont, type PDFImage, type PDFPage, rgb } from "pdf-lib";
 import { amountToWords } from "@/lib/amount-to-words";
-import { BILLING_DOC_RGB, formatBillingDate, formatBillingPesoPdf } from "@/lib/billing-document-design";
+import { BILLING_DOC_RGB, formatBillingDate, formatBillingPeso } from "@/lib/billing-document-design";
 import { drawWrappedText, embedFirmLogo, wrapText } from "@/lib/billing-document-pdf/common";
 import {
   formatLetterheadFooterAddressLines,
@@ -14,6 +17,7 @@ import {
   FIRM_LETTER_SPACED_CAPS_SUBTITLE
 } from "@/lib/firm-letterhead-html";
 import { FIRM_FOOTER_NAME } from "@/lib/firm-footer-name";
+import { displayLedgerDetails, receiptPaymentForLabel } from "@/lib/ledger-display";
 
 export type ArPdfInput = {
   receiptNumber: string;
@@ -34,25 +38,27 @@ export type ArPdfInput = {
 const PAGE_WIDTH = (127 / 25.4) * 72;
 const PAGE_HEIGHT = (203 / 25.4) * 72;
 
-const MARGIN = { left: 26, right: 26, top: 20, bottom: 22 };
+const MARGIN = { left: 28, right: 28, top: 22, bottom: 20 };
 
-/** HA monochrome palette — matches billing document design (no gold). */
 const AR = {
   ink: rgb(BILLING_DOC_RGB.ink.r, BILLING_DOC_RGB.ink.g, BILLING_DOC_RGB.ink.b),
-  gold: rgb(BILLING_DOC_RGB.gold.r, BILLING_DOC_RGB.gold.g, BILLING_DOC_RGB.gold.b),
-  goldLight: rgb(BILLING_DOC_RGB.goldLight.r, BILLING_DOC_RGB.goldLight.g, BILLING_DOC_RGB.goldLight.b),
-  goldPale: rgb(BILLING_DOC_RGB.goldPale.r, BILLING_DOC_RGB.goldPale.g, BILLING_DOC_RGB.goldPale.b),
-  cream: rgb(BILLING_DOC_RGB.cream.r, BILLING_DOC_RGB.cream.g, BILLING_DOC_RGB.cream.b),
   muted: rgb(BILLING_DOC_RGB.muted.r, BILLING_DOC_RGB.muted.g, BILLING_DOC_RGB.muted.b),
   line: rgb(BILLING_DOC_RGB.line.r, BILLING_DOC_RGB.line.g, BILLING_DOC_RGB.line.b),
+  pale: rgb(BILLING_DOC_RGB.goldPale.r, BILLING_DOC_RGB.goldPale.g, BILLING_DOC_RGB.goldPale.b),
   white: rgb(BILLING_DOC_RGB.white.r, BILLING_DOC_RGB.white.g, BILLING_DOC_RGB.white.b)
 };
+
+const NOTO_SANS_PATH = path.join(process.cwd(), "public/fonts/NotoSans-Regular.ttf");
+
+async function embedAmountFont(pdf: PDFDocument): Promise<PDFFont> {
+  pdf.registerFontkit(fontkit);
+  return pdf.embedFont(fs.readFileSync(NOTO_SANS_PATH));
+}
 
 function drawCenteredText(
   page: PDFPage,
   text: string,
   y: number,
-  pageWidth: number,
   font: PDFFont,
   size: number,
   color: ReturnType<typeof rgb>,
@@ -60,7 +66,7 @@ function drawCenteredText(
 ): number {
   const width = font.widthOfTextAtSize(text, size);
   page.drawText(text, {
-    x: (pageWidth - width) / 2,
+    x: (PAGE_WIDTH - width) / 2,
     y,
     size,
     font,
@@ -69,67 +75,47 @@ function drawCenteredText(
   return y - size - lineGap;
 }
 
-function drawHeritageMasthead(page: PDFPage, x1: number, x2: number, y: number) {
-  page.drawLine({ start: { x: x1, y }, end: { x: x2, y }, thickness: 2, color: AR.ink });
+function drawHairline(page: PDFPage, x1: number, x2: number, y: number, thickness = 0.6) {
   page.drawLine({
-    start: { x: x1, y: y - 3.5 },
-    end: { x: x2, y: y - 3.5 },
-    thickness: 0.9,
-    color: AR.goldLight
+    start: { x: x1, y },
+    end: { x: x2, y },
+    thickness,
+    color: AR.line
   });
 }
 
-function drawClosingRule(page: PDFPage, x1: number, x2: number, y: number): number {
-  page.drawLine({ start: { x: x1, y }, end: { x: x2, y }, thickness: 0.9, color: AR.goldLight });
-  const mid = (x1 + x2) / 2;
-  page.drawCircle({
-    x: mid,
-    y,
-    size: 2,
-    borderColor: AR.goldLight,
-    borderWidth: 0.75,
-    color: AR.cream
-  });
-  return y - 8;
-}
-
-function drawPremiumFrame(page: PDFPage) {
-  const inset = 10;
+function drawFrame(page: PDFPage) {
+  const inset = 11;
   page.drawRectangle({
     x: inset,
     y: inset,
     width: PAGE_WIDTH - inset * 2,
     height: PAGE_HEIGHT - inset * 2,
-    borderColor: AR.gold,
-    borderWidth: 1.4,
-    color: AR.cream
+    borderColor: AR.ink,
+    borderWidth: 1.1,
+    color: AR.white
   });
   page.drawRectangle({
-    x: inset + 4,
-    y: inset + 4,
-    width: PAGE_WIDTH - inset * 2 - 8,
-    height: PAGE_HEIGHT - inset * 2 - 8,
-    borderColor: AR.goldPale,
-    borderWidth: 0.5,
-    color: undefined
+    x: inset + 3.5,
+    y: inset + 3.5,
+    width: PAGE_WIDTH - inset * 2 - 7,
+    height: PAGE_HEIGHT - inset * 2 - 7,
+    borderColor: AR.pale,
+    borderWidth: 0.45
   });
 }
 
-function drawPremiumLetterhead(
-  page: PDFPage,
-  bold: PDFFont,
-  regular: PDFFont,
-  logo: PDFImage | null
-): number {
+function drawLetterhead(page: PDFPage, bold: PDFFont, regular: PDFFont, logo: PDFImage | null): number {
   const x1 = MARGIN.left;
   const x2 = PAGE_WIDTH - MARGIN.right;
   let y = PAGE_HEIGHT - MARGIN.top;
 
-  drawHeritageMasthead(page, x1, x2, y);
-  y -= 22;
+  drawHairline(page, x1, x2, y, 1.4);
+  drawHairline(page, x1, x2, y - 3, 0.45);
+  y -= 18;
 
   if (logo) {
-    const logoWidth = 78;
+    const logoWidth = 64;
     const scaled = logo.scale(logoWidth / logo.width);
     page.drawImage(logo, {
       x: (PAGE_WIDTH - scaled.width) / 2,
@@ -140,171 +126,148 @@ function drawPremiumLetterhead(
     y -= scaled.height + 8;
   }
 
-  y = drawCenteredText(page, FIRM_LETTER_SPACED_CAPS_NAME, y, PAGE_WIDTH, bold, 6.75, AR.ink, 2);
-  y = drawCenteredText(page, FIRM_LETTER_SPACED_CAPS_SUBTITLE, y, PAGE_WIDTH, regular, 5.75, AR.gold, 6);
-  y = drawClosingRule(page, x1, x2, y);
-  return y - 6;
-}
-
-function drawDocumentTitle(page: PDFPage, y: number, bold: PDFFont): number {
-  const x1 = MARGIN.left + 24;
-  const x2 = PAGE_WIDTH - MARGIN.right - 24;
-  page.drawLine({ start: { x: x1, y }, end: { x: x2, y }, thickness: 0.6, color: AR.goldPale });
-  y -= 10;
-  y = drawCenteredText(page, "ACKNOWLEDGMENT RECEIPT", y, PAGE_WIDTH, bold, 10.5, AR.gold, 0);
-  y -= 10;
-  page.drawLine({ start: { x: x1, y }, end: { x: x2, y }, thickness: 0.6, color: AR.goldPale });
+  y = drawCenteredText(page, FIRM_LETTER_SPACED_CAPS_NAME, y, bold, 6.5, AR.ink, 2);
+  y = drawCenteredText(page, FIRM_LETTER_SPACED_CAPS_SUBTITLE, y, regular, 5.5, AR.muted, 8);
+  drawHairline(page, x1 + 36, x2 - 36, y, 0.55);
   return y - 14;
 }
 
-function drawMetaPanel(
-  page: PDFPage,
-  y: number,
-  input: ArPdfInput,
-  bold: PDFFont,
-  regular: PDFFont,
-  contentWidth: number
-): number {
-  const panelHeight = 34;
-  page.drawRectangle({
-    x: MARGIN.left,
-    y: y - panelHeight,
-    width: contentWidth,
-    height: panelHeight,
-    color: AR.white,
-    borderColor: AR.goldPale,
-    borderWidth: 0.7
-  });
-
-  const col1 = MARGIN.left + 10;
-  const col2 = MARGIN.left + contentWidth * 0.42;
-  const col3 = MARGIN.left + contentWidth * 0.72;
-  const labelY = y - 12;
-  const valueY = y - 24;
-
-  const drawMeta = (label: string, value: string, x: number) => {
-    page.drawText(label, { x, y: labelY, size: 6.5, font: bold, color: AR.muted });
-    page.drawText(value, { x, y: valueY, size: 8.25, font: bold, color: AR.ink });
-  };
-
-  drawMeta("RECEIPT NO.", input.receiptNumber, col1);
-  drawMeta("DATE ISSUED", formatBillingDate(input.receiptDate), col2);
-  drawMeta("PAYMENT DATE", formatBillingDate(input.paymentDate), col3);
-
-  return y - panelHeight - 14;
+function drawTitle(page: PDFPage, y: number, bold: PDFFont): number {
+  y = drawCenteredText(page, "ACKNOWLEDGMENT RECEIPT", y, bold, 11, AR.ink, 0);
+  return y - 16;
 }
 
-function drawAmountVault(
+function drawMetaRow(
+  page: PDFPage,
+  label: string,
+  value: string,
+  y: number,
+  labelFont: PDFFont,
+  valueFont: PDFFont,
+  contentWidth: number
+): number {
+  page.drawText(label, {
+    x: MARGIN.left,
+    y,
+    size: 7,
+    font: labelFont,
+    color: AR.muted
+  });
+  const valueWidth = valueFont.widthOfTextAtSize(value, 8.5);
+  page.drawText(value, {
+    x: MARGIN.left + contentWidth - valueWidth,
+    y,
+    size: 8.5,
+    font: valueFont,
+    color: AR.ink
+  });
+  drawHairline(page, MARGIN.left, MARGIN.left + contentWidth, y - 5, 0.35);
+  return y - 16;
+}
+
+function drawAmountBlock(
   page: PDFPage,
   y: number,
   amount: number,
   bold: PDFFont,
-  regular: PDFFont,
   italic: PDFFont,
+  amountFont: PDFFont,
   contentWidth: number
 ): number {
-  const vaultHeight = 58;
+  const height = 54;
   page.drawRectangle({
     x: MARGIN.left,
-    y: y - vaultHeight,
+    y: y - height,
     width: contentWidth,
-    height: vaultHeight,
-    color: AR.white,
-    borderColor: AR.gold,
-    borderWidth: 1
-  });
-  page.drawLine({
-    start: { x: MARGIN.left + 8, y: y - 3 },
-    end: { x: MARGIN.left + contentWidth - 8, y: y - 3 },
-    thickness: 0.5,
-    color: AR.goldPale
+    height,
+    borderColor: AR.ink,
+    borderWidth: 0.9,
+    color: AR.white
   });
 
   page.drawText("AMOUNT RECEIVED", {
     x: MARGIN.left + 12,
-    y: y - 16,
+    y: y - 14,
     size: 6.5,
     font: bold,
-    color: AR.gold
-  });
-  page.drawText(formatBillingPesoPdf(amount), {
-    x: MARGIN.left + 12,
-    y: y - 36,
-    size: 19,
-    font: bold,
-    color: AR.gold
+    color: AR.muted
   });
 
-  const words = `${amountToWords(amount)} Pesos Only`;
+  const amountText = formatBillingPeso(amount);
+  page.drawText(amountText, {
+    x: MARGIN.left + 12,
+    y: y - 34,
+    size: 18,
+    font: amountFont,
+    color: AR.ink
+  });
+
   drawWrappedText({
     page,
-    text: words,
+    text: `${amountToWords(amount)} Pesos Only`,
     x: MARGIN.left + 12,
-    y: y - 50,
+    y: y - 46,
     maxWidth: contentWidth - 24,
     font: italic,
-    size: 7.5,
-    color: AR.ink,
-    lineGap: 9
+    size: 7,
+    color: AR.muted,
+    lineGap: 8
   });
 
-  return y - vaultHeight - 12;
+  return y - height - 14;
 }
 
-function methodChecks(method: string): { cash: boolean; bank: boolean; check: boolean } {
-  const lower = String(method || "").toLowerCase();
-  return {
-    cash: lower.includes("cash"),
-    bank: /bank|transfer|gcash|maya|online/.test(lower),
-    check: /check|cheque/.test(lower)
-  };
-}
-
-function drawPaymentMethod(
+function drawLabeledValue(
   page: PDFPage,
+  label: string,
+  value: string,
   y: number,
-  method: string,
-  regular: PDFFont
+  bold: PDFFont,
+  regular: PDFFont,
+  contentWidth: number,
+  valueSize = 10
 ): number {
-  const checks = methodChecks(method);
-  page.drawText("PAYMENT METHOD", {
+  page.drawText(label, {
     x: MARGIN.left,
     y,
     size: 6.5,
-    font: regular,
+    font: bold,
     color: AR.muted
   });
-  y -= 14;
+  y -= 12;
+  y = drawWrappedText({
+    page,
+    text: value,
+    x: MARGIN.left,
+    y,
+    maxWidth: contentWidth,
+    font: regular,
+    size: valueSize,
+    color: AR.ink,
+    lineGap: 11
+  });
+  return y - 8;
+}
 
-  const drawOption = (x: number, checked: boolean, label: string) => {
-    page.drawCircle({
-      x: x + 4,
-      y: y - 3,
-      size: 3.5,
-      borderColor: AR.gold,
-      borderWidth: 0.65,
-      color: checked ? AR.gold : AR.white
-    });
-    page.drawText(label, { x: x + 12, y: y - 6, size: 8, font: regular, color: AR.ink });
-  };
-
-  drawOption(MARGIN.left, checks.cash, "Cash");
-  drawOption(MARGIN.left + 72, checks.bank, "Bank / GCash / Maya");
-  drawOption(MARGIN.left + 210, checks.check, "Check");
-  return y - 18;
+function formatMethodLabel(method: string): string {
+  const trimmed = String(method || "").trim();
+  if (!trimmed) return "—";
+  const lower = trimmed.toLowerCase();
+  if (lower.includes("gcash")) return "GCash";
+  if (lower.includes("maya")) return "Maya";
+  if (/bank|transfer|online/.test(lower)) return "Bank transfer";
+  if (/check|cheque/.test(lower)) return "Check";
+  if (lower.includes("cash")) return "Cash";
+  return trimmed;
 }
 
 function drawArFooter(page: PDFPage, regular: PDFFont, bold: PDFFont) {
   const contact = getFirmLetterheadContact();
-  const x1 = MARGIN.left;
-  const x2 = PAGE_WIDTH - MARGIN.right;
   const contentWidth = PAGE_WIDTH - MARGIN.left - MARGIN.right;
-  let y = MARGIN.bottom + 42;
+  let y = MARGIN.bottom + 40;
 
-  drawHeritageMasthead(page, x1, x2, y);
-  y -= 12;
-
-  const nameSize = 6.75;
+  drawHairline(page, MARGIN.left, PAGE_WIDTH - MARGIN.right, y, 0.7);
+  y -= 11;
 
   const drawCenteredLine = (
     text: string,
@@ -340,17 +303,15 @@ function drawArFooter(page: PDFPage, regular: PDFFont, bold: PDFFont) {
     y -= size + 2;
   };
 
-  drawCenteredLine(FIRM_FOOTER_NAME, nameSize, bold, AR.ink);
+  drawCenteredLine(FIRM_FOOTER_NAME, 6.5, bold, AR.ink);
   y = drawFooterNameDivider(page, PAGE_WIDTH, y);
   for (const addressLine of formatLetterheadFooterAddressLines(contact)) {
-    drawCenteredLine(addressLine, 6, regular, AR.muted, true);
+    drawCenteredLine(addressLine, 5.75, regular, AR.muted, true);
   }
-
   const phoneLine = formatLetterheadFooterPhoneLine(contact);
-  if (phoneLine) drawCenteredLine(phoneLine, 6, regular, AR.muted, true);
-
+  if (phoneLine) drawCenteredLine(phoneLine, 5.75, regular, AR.muted, true);
   const digitalLine = formatLetterheadFooterDigitalLine(contact);
-  if (digitalLine) drawCenteredLine(digitalLine, 6, regular, AR.gold, true);
+  if (digitalLine) drawCenteredLine(digitalLine, 5.75, regular, AR.muted, true);
 }
 
 export async function buildArPdf(input: ArPdfInput): Promise<Uint8Array> {
@@ -358,20 +319,24 @@ export async function buildArPdf(input: ArPdfInput): Promise<Uint8Array> {
   const regular = await pdf.embedFont(StandardFonts.TimesRoman);
   const bold = await pdf.embedFont(StandardFonts.TimesRomanBold);
   const italic = await pdf.embedFont(StandardFonts.TimesRomanItalic);
-
+  const amountFont = await embedAmountFont(pdf);
   const page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   const contentWidth = PAGE_WIDTH - MARGIN.left - MARGIN.right;
 
-  drawPremiumFrame(page);
+  drawFrame(page);
 
-  let y = drawPremiumLetterhead(page, bold, regular, await embedFirmLogo(pdf));
-  y = drawDocumentTitle(page, y, bold);
-  y = drawMetaPanel(page, y, input, bold, regular, contentWidth);
+  let y = drawLetterhead(page, bold, regular, await embedFirmLogo(pdf));
+  y = drawTitle(page, y, bold);
+
+  y = drawMetaRow(page, "RECEIPT NO.", input.receiptNumber, y, bold, bold, contentWidth);
+  y = drawMetaRow(page, "DATE ISSUED", formatBillingDate(input.receiptDate), y, bold, regular, contentWidth);
+  y = drawMetaRow(page, "PAYMENT DATE", formatBillingDate(input.paymentDate), y, bold, regular, contentWidth);
+  y -= 4;
 
   page.drawText("Received from", {
     x: MARGIN.left,
     y,
-    size: 7,
+    size: 6.5,
     font: italic,
     color: AR.muted
   });
@@ -379,7 +344,7 @@ export async function buildArPdf(input: ArPdfInput): Promise<Uint8Array> {
   page.drawText(input.clientName, {
     x: MARGIN.left,
     y,
-    size: 11.5,
+    size: 12,
     font: bold,
     color: AR.ink
   });
@@ -404,7 +369,7 @@ export async function buildArPdf(input: ArPdfInput): Promise<Uint8Array> {
       page,
       text: input.caseTitle.trim(),
       x: MARGIN.left,
-      y: y - 3,
+      y: y - 2,
       maxWidth: contentWidth,
       font: italic,
       size: 8,
@@ -413,73 +378,41 @@ export async function buildArPdf(input: ArPdfInput): Promise<Uint8Array> {
     });
   }
 
-  y -= 10;
-  y = drawAmountVault(page, y, input.amount, bold, regular, italic, contentWidth);
+  y -= 12;
+  y = drawAmountBlock(page, y, input.amount, bold, italic, amountFont, contentWidth);
 
-  page.drawText("In payment of", {
-    x: MARGIN.left,
-    y,
-    size: 6.5,
-    font: bold,
-    color: AR.muted
-  });
-  y -= 11;
-  y = drawWrappedText({
+  const paymentFor = receiptPaymentForLabel(input.paymentFor);
+  y = drawLabeledValue(page, "In payment of", paymentFor, y, bold, bold, contentWidth, 10.5);
+
+  y = drawLabeledValue(
     page,
-    text: input.paymentFor,
-    x: MARGIN.left,
+    "Payment method",
+    formatMethodLabel(input.paymentMethod || ""),
     y,
-    maxWidth: contentWidth,
-    font: regular,
-    size: 9,
-    color: AR.ink,
-    lineGap: 10
-  });
-  y -= 4;
+    bold,
+    regular,
+    contentWidth,
+    9.5
+  );
 
-  y = drawPaymentMethod(page, y, input.paymentMethod || "", regular);
-
-  if (input.paymentDetails?.trim()) {
-    page.drawText("Reference / details", {
-      x: MARGIN.left,
-      y,
-      size: 6.5,
-      font: bold,
-      color: AR.muted
-    });
-    y -= 10;
-    y = drawWrappedText({
-      page,
-      text: input.paymentDetails.trim(),
-      x: MARGIN.left,
-      y,
-      maxWidth: contentWidth,
-      font: regular,
-      size: 8,
-      color: AR.ink,
-      lineGap: 9
-    });
-    y -= 2;
+  const reference = displayLedgerDetails(input.paymentDetails || "").trim();
+  if (reference) {
+    y = drawLabeledValue(page, "Reference", reference, y, bold, regular, contentWidth, 9);
   }
 
   if (input.balanceAfter !== undefined && input.balanceAfter > 0) {
-    page.drawText(`Remaining balance: ${formatBillingPesoPdf(input.balanceAfter)}`, {
+    page.drawText(`Remaining balance  ${formatBillingPeso(input.balanceAfter)}`, {
       x: MARGIN.left,
-      y: y - 2,
-      size: 8.25,
-      font: regular,
+      y,
+      size: 8.5,
+      font: amountFont,
       color: AR.ink
     });
     y -= 16;
   }
 
-  y -= 6;
-  page.drawLine({
-    start: { x: MARGIN.left, y },
-    end: { x: MARGIN.left + 168, y },
-    thickness: 0.7,
-    color: AR.gold
-  });
+  y -= 4;
+  drawHairline(page, MARGIN.left, MARGIN.left + 150, y, 0.8);
   y -= 12;
   page.drawText("Received by", {
     x: MARGIN.left,
@@ -492,11 +425,11 @@ export async function buildArPdf(input: ArPdfInput): Promise<Uint8Array> {
   page.drawText(input.receivedBy?.trim() || "Authorized Firm Representative", {
     x: MARGIN.left,
     y,
-    size: 9,
+    size: 9.5,
     font: bold,
     color: AR.ink
   });
-  y -= 10;
+  y -= 11;
   page.drawText("For and on behalf of the firm", {
     x: MARGIN.left,
     y,
@@ -506,7 +439,6 @@ export async function buildArPdf(input: ArPdfInput): Promise<Uint8Array> {
   });
 
   drawArFooter(page, regular, bold);
-
   return pdf.save();
 }
 
