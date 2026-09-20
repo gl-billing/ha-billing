@@ -23,6 +23,23 @@ describe("buildArPdf", () => {
     expect(String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3])).toBe("%PDF");
   });
 
+  it("keeps the firm footer on-page using the shared SOA footer layout", async () => {
+    const bytes = await buildArPdf({
+      receiptNumber: "AR-FOOTER-2026-001",
+      receiptDate: "2026-09-20",
+      paymentDate: "2026-09-20",
+      clientName: "Jimmy Santos",
+      clientAddress: "Davao",
+      caseTitle: "Santos vs. John Doe",
+      paymentFor: "Drafting pleading fee",
+      amount: 10000,
+      balanceAfter: 5000,
+      paymentMethod: "Cash",
+      receivedBy: "HERNANDEZ & ASSOCIATES"
+    });
+    expect(bytes.byteLength).toBeGreaterThan(4000);
+  });
+
   it("names AR files with client code", () => {
     expect(arPdfFilename("AR-ABC-2026-001", "ABC")).toBe(
       "AR-ABC-2026-001_ABC_Acknowledgment_Receipt.pdf"

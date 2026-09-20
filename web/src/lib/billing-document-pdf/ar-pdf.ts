@@ -4,19 +4,13 @@ import path from "path";
 import { PDFDocument, StandardFonts, type PDFFont, type PDFImage, type PDFPage, rgb } from "pdf-lib";
 import { amountToWords } from "@/lib/amount-to-words";
 import { BILLING_DOC_RGB, formatBillingDate, formatBillingPeso } from "@/lib/billing-document-design";
-import { drawWrappedText, embedFirmLogo, wrapText } from "@/lib/billing-document-pdf/common";
-import {
-  formatLetterheadFooterAddressLines,
-  formatLetterheadFooterDigitalLine,
-  formatLetterheadFooterPhoneLine,
-  getFirmLetterheadContact
-} from "@/lib/firm-contact";
-import { drawFooterNameDivider } from "@/lib/firm-letterhead";
+import { drawWrappedText, embedFirmLogo } from "@/lib/billing-document-pdf/common";
+import { drawFirmPageFooterPdf, firmPageFooterReservePt } from "@/lib/firm-letterhead";
 import {
   FIRM_LETTER_SPACED_CAPS_NAME,
   FIRM_LETTER_SPACED_CAPS_SUBTITLE
 } from "@/lib/firm-letterhead-html";
-import { FIRM_FOOTER_NAME } from "@/lib/firm-footer-name";
+import { getFirmPageSpec, type FirmPageSpec } from "@/lib/firm-page-sizes";
 import { displayLedgerDetails, receiptPaymentForLabel } from "@/lib/ledger-display";
 
 export type ArPdfInput = {
@@ -38,7 +32,19 @@ export type ArPdfInput = {
 const PAGE_WIDTH = (127 / 25.4) * 72;
 const PAGE_HEIGHT = (203 / 25.4) * 72;
 
-const MARGIN = { left: 28, right: 28, top: 22, bottom: 20 };
+/** Same firm footer band as SOA, sized for the AR receipt page. */
+const PAGE_SPEC: FirmPageSpec = {
+  ...getFirmPageSpec("a4"),
+  label: "Acknowledgment Receipt (127 × 203 mm)",
+  widthPt: PAGE_WIDTH,
+  heightPt: PAGE_HEIGHT,
+  widthCss: "127mm",
+  heightCss: "203mm",
+  margins: { top: 22, right: 28, bottom: 24, left: 28 }
+};
+
+const MARGIN = PAGE_SPEC.margins;
+const FOOTER_RESERVE = firmPageFooterReservePt(PAGE_SPEC);
 
 const AR = {
   ink: rgb(BILLING_DOC_RGB.ink.r, BILLING_DOC_RGB.ink.g, BILLING_DOC_RGB.ink.b),
@@ -261,64 +267,13 @@ function formatMethodLabel(method: string): string {
   return trimmed;
 }
 
-function drawArFooter(page: PDFPage, regular: PDFFont, bold: PDFFont) {
-  const contact = getFirmLetterheadContact();
-  const contentWidth = PAGE_WIDTH - MARGIN.left - MARGIN.right;
-  let y = MARGIN.bottom + 40;
-
-  drawHairline(page, MARGIN.left, PAGE_WIDTH - MARGIN.right, y, 0.7);
-  y -= 11;
-
-  const drawCenteredLine = (
-    text: string,
-    size: number,
-    font: PDFFont,
-    color: ReturnType<typeof rgb>,
-    wrap = false
-  ) => {
-    if (!text.trim()) return;
-    if (wrap) {
-      const lines = wrapText(text, contentWidth, font, size);
-      for (const line of lines) {
-        const width = font.widthOfTextAtSize(line, size);
-        page.drawText(line, {
-          x: (PAGE_WIDTH - width) / 2,
-          y: y - size,
-          size,
-          font,
-          color
-        });
-        y -= size + 1.5;
-      }
-      return;
-    }
-    const width = font.widthOfTextAtSize(text, size);
-    page.drawText(text, {
-      x: (PAGE_WIDTH - width) / 2,
-      y: y - size,
-      size,
-      font,
-      color
-    });
-    y -= size + 2;
-  };
-
-  drawCenteredLine(FIRM_FOOTER_NAME, 6.5, bold, AR.ink);
-  y = drawFooterNameDivider(page, PAGE_WIDTH, y);
-  for (const addressLine of formatLetterheadFooterAddressLines(contact)) {
-    drawCenteredLine(addressLine, 5.75, regular, AR.muted, true);
-  }
-  const phoneLine = formatLetterheadFooterPhoneLine(contact);
-  if (phoneLine) drawCenteredLine(phoneLine, 5.75, regular, AR.muted, true);
-  const digitalLine = formatLetterheadFooterDigitalLine(contact);
-  if (digitalLine) drawCenteredLine(digitalLine, 5.75, regular, AR.muted, true);
-}
-
 export async function buildArPdf(input: ArPdfInput): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const regular = await pdf.embedFont(StandardFonts.TimesRoman);
   const bold = await pdf.embedFont(StandardFonts.TimesRomanBold);
   const italic = await pdf.embedFont(StandardFonts.TimesRomanItalic);
+  const sans = await pdf.embedFont(StandardFonts.Helvetica);
+  const sansBold = await pdf.embedFont(StandardFonts.HelveticaBold);
   const amountFont = await embedAmountFont(pdf);
   const page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   const contentWidth = PAGE_WIDTH - MARGIN.left - MARGIN.right;
@@ -411,6 +366,11 @@ export async function buildArPdf(input: ArPdfInput): Promise<Uint8Array> {
     y -= 16;
   }
 
+  // Keep signature block clear of the shared firm footer band (same as SOA).
+  if (y < FOOTER_RESERVE + 48) {
+    y = FOOTER_RESERVE + 48;
+  }
+
   y -= 4;
   drawHairline(page, MARGIN.left, MARGIN.left + 150, y, 0.8);
   y -= 12;
@@ -438,7 +398,13 @@ export async function buildArPdf(input: ArPdfInput): Promise<Uint8Array> {
     color: AR.muted
   });
 
-  drawArFooter(page, regular, bold);
+  drawFirmPageFooterPdf({
+    page,
+    pageWidth: PAGE_WIDTH,
+    pageSpec: PAGE_SPEC,
+    regular: sans,
+    bold: sansBold
+  });
   return pdf.save();
 }
 
