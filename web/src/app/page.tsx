@@ -10,5 +10,5 @@ export default async function HomePage() {
     redirect("/login");
   }
 
-  redirect(resolvePostLoginPath(session.user?.email));
+  redirect(resolvePostLoginPath(session.user?.email, session.user?.officeAccess === true));
 }

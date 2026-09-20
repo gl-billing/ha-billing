@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
     pathname === "/privacy" ||
     pathname === "/terms";
 
-  if (email && !isStaffEmail(email) && !publicPath) {
+  if (email && !isStaffEmail(email) && token?.officeAccess !== true && !publicPath) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }

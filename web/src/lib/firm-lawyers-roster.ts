@@ -1,3 +1,4 @@
+import { allowlistHasEmail } from "@/lib/email-allowlist";
 import { DEFAULT_FIRM_LAWYERS_ROSTER, MANAGING_PARTNER } from "@/lib/firm-team-config";
 
 export const FIRM_LAWYERS_ROSTER_SETTING_KEY = "Firm Lawyers Roster";
@@ -94,8 +95,7 @@ export function isManagingPartnerRosterEntry(entry: FirmLawyerRosterEntry): bool
   if (name === MANAGING_PARTNER.displayName.trim().toLowerCase()) return true;
   const norm = name.replace(/^atty\.?\s*/i, "");
   if (norm.includes("robert") && norm.includes("hernandez")) return true;
-  const email = entry.email.trim().toLowerCase();
-  return MANAGING_PARTNER.emails.some((value) => value.toLowerCase() === email);
+  return allowlistHasEmail(MANAGING_PARTNER.emails, entry.email);
 }
 
 /**

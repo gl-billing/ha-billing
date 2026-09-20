@@ -1,5 +1,6 @@
-/** Display name for header / Office Hub greeting. */
+import { normalizeAllowlistEmail } from "@/lib/email-allowlist";
 
+/** Display name for header / Office Hub greeting. */
 function parseDisplayNameMap(): Map<string, string> {
   const raw = process.env.USER_DISPLAY_NAMES?.trim();
   if (!raw) return new Map();
@@ -20,6 +21,7 @@ function parseDisplayNameMap(): Map<string, string> {
 /** Default greeting labels by sign-in email (env USER_DISPLAY_NAMES overrides these). */
 const DEFAULT_STAFF_GREETING_BY_EMAIL: Record<string, string> = {
   "atty.rahernandez@gmail.com": "Atty. Robert",
+  "attyrahernandez@gmail.com": "Atty. Robert",
   "rahernandez@gmail.com": "Atty. Robert",
   "jlppasagui@gmail.com": "Atty. Jeff",
   "legal@hernandezlaw.info": "Shiela",
@@ -40,7 +42,16 @@ function greetingForEmail(emailKey: string): string | null {
   if (displayNameByEmail.has(emailKey)) {
     return displayNameByEmail.get(emailKey)!;
   }
-  return DEFAULT_STAFF_GREETING_BY_EMAIL[emailKey] ?? null;
+  const exact = DEFAULT_STAFF_GREETING_BY_EMAIL[emailKey];
+  if (exact) return exact;
+  const needle = normalizeAllowlistEmail(emailKey);
+  for (const [known, label] of Object.entries(DEFAULT_STAFF_GREETING_BY_EMAIL)) {
+    if (normalizeAllowlistEmail(known) === needle) return label;
+  }
+  for (const [known, label] of displayNameByEmail) {
+    if (normalizeAllowlistEmail(known) === needle) return label;
+  }
+  return null;
 }
 
 export function formatStaffDisplayName(

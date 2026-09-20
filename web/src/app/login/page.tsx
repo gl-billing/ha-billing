@@ -30,7 +30,7 @@ export default async function LoginPage({ searchParams }: Props) {
   }
 
   if (session?.user?.email) {
-    const destination = resolvePostLoginPath(session.user.email);
+    const destination = resolvePostLoginPath(session.user.email, session.user.officeAccess === true);
     // Denied accounts must not redirect back to /login (infinite 307 loop).
     if (!destination.startsWith("/login")) {
       redirect(destination);

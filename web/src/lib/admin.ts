@@ -1,4 +1,5 @@
 import { canEditDeskBilling } from "@/lib/app-access";
+import { allowlistHasEmail } from "@/lib/email-allowlist";
 import { defaultAdminEmails, isFirmOwnerEmail } from "@/lib/firm-team-config";
 
 function parseEmailList(raw: string | undefined): string[] {
@@ -20,12 +21,10 @@ export function getAdminEmails(): string[] {
 export function isAdminEmail(email: string | null | undefined): boolean {
   if (!email) return false;
   if (isFirmOwnerEmail(email)) return true;
-  const normalized = email.trim().toLowerCase();
   const admins = getAdminEmails();
-  if (admins.length) return admins.includes(normalized);
+  if (admins.length) return allowlistHasEmail(admins, email);
   // Small-team default: anyone allowed to sign in when ADMIN_EMAILS is unset.
-  const allowed = parseEmailList(process.env.ALLOWED_EMAILS);
-  return allowed.includes(normalized);
+  return allowlistHasEmail(parseEmailList(process.env.ALLOWED_EMAILS), email);
 }
 
 /** Staff attendance register — firm admins (owner + managing partner by default). */
@@ -57,8 +56,7 @@ export function getTeamRosterAdminEmails(): string[] {
 export function canManageTeamRoster(email: string | null | undefined): boolean {
   if (!email) return false;
   if (isFirmOwnerEmail(email)) return true;
-  const normalized = email.trim().toLowerCase();
-  return getTeamRosterAdminEmails().includes(normalized);
+  return allowlistHasEmail(getTeamRosterAdminEmails(), email);
 }
 
 export function requireTeamRosterAdmin(email: string | null | undefined): void {
@@ -76,9 +74,8 @@ export function requireTeamRosterAdmin(email: string | null | undefined): void {
 export function canDeleteNotarizations(email: string | null | undefined): boolean {
   if (!email) return false;
   if (canEditDeskBilling(email)) return true;
-  const normalized = email.trim().toLowerCase();
   const admins = getAdminEmails();
-  if (admins.length) return admins.includes(normalized);
+  if (admins.length) return allowlistHasEmail(admins, email);
   return isAdminEmail(email);
 }
 

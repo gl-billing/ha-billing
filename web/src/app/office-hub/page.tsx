@@ -23,7 +23,7 @@ export default async function OfficeHubPage({
 
   const email = session.user.email;
 
-  if (!canAccessOfficeHub(email)) {
+  if (!canAccessOfficeHub(email, session.user.officeAccess === true)) {
     redirect("/login?error=AccessDenied");
   }
 

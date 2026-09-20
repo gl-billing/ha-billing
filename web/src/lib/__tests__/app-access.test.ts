@@ -115,9 +115,25 @@ describe("app-access", () => {
     delete process.env.ADMIN_EMAILS;
 
     expect(isAdminEmail("atty.rahernandez@gmail.com")).toBe(true);
+    expect(isAdminEmail("attyrahernandez@gmail.com")).toBe(true);
     expect(isAdminEmail("atty.hernandez@hernandezlaw.info")).toBe(true);
     expect(canManageTeamRoster("atty.rahernandez@gmail.com")).toBe(true);
+    expect(canManageTeamRoster("attyrahernandez@gmail.com")).toBe(true);
     expect(canAccessBilling("atty.rahernandez@gmail.com")).toBe(true);
+    expect(isStaffEmail("attyrahernandez@gmail.com")).toBe(true);
+  });
+
+  it("lets Employees-sheet staff into Office Hub via the officeAccess session flag", () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+    process.env.ALLOWED_EMAILS = "staff@example.com";
+    process.env.NODE_ENV = "production";
+
+    expect(canAccessOfficeHub("sheet-staff@gmail.com")).toBe(false);
+    expect(canAccessOfficeHub("sheet-staff@gmail.com", true)).toBe(true);
+    expect(resolvePostLoginPath("sheet-staff@gmail.com")).toBe("/login?error=AccessDenied");
+    expect(resolvePostLoginPath("sheet-staff@gmail.com", true)).toBe("/office-hub");
+
+    process.env.NODE_ENV = originalNodeEnv;
   });
 
   it("treats the firm owner as full admin with all billing tabs", () => {

@@ -1,3 +1,4 @@
+import { allowlistHasEmail } from "@/lib/email-allowlist";
 import type { FirmLawyerRosterEntry } from "@/lib/firm-lawyers-roster";
 import type { StaffPayrollRosterEntry } from "@/lib/staff-payroll-roster";
 import { DEFAULT_STAFF_MONTHLY_ALLOWANCE, STAFF_PAYROLL_BANK } from "@/lib/staff-salary";
@@ -13,20 +14,21 @@ export const FIRM_OWNER_EMAILS = [
 ] as const;
 
 export function isFirmOwnerEmail(email: string | null | undefined): boolean {
-  if (!email) return false;
-  const normalized = email.trim().toLowerCase();
-  return FIRM_OWNER_EMAILS.some((owner) => owner.toLowerCase() === normalized);
+  return allowlistHasEmail(FIRM_OWNER_EMAILS, email);
 }
 
 export const MANAGING_PARTNER = {
   displayName: "Atty. Robert Hernandez",
-  emails: ["atty.hernandez@hernandezlaw.info", "atty.rahernandez@gmail.com", "rahernandez@gmail.com"] as const
+  emails: [
+    "atty.hernandez@hernandezlaw.info",
+    "atty.rahernandez@gmail.com",
+    "attyrahernandez@gmail.com",
+    "rahernandez@gmail.com"
+  ] as const
 };
 
 export function isManagingPartnerEmail(email: string | null | undefined): boolean {
-  if (!email) return false;
-  const normalized = email.trim().toLowerCase();
-  return MANAGING_PARTNER.emails.some((value) => value.toLowerCase() === normalized);
+  return allowlistHasEmail(MANAGING_PARTNER.emails, email);
 }
 
 /** Acceptance fee sharing — 20% firm, 40% Atty. Hernandez, 40% other lawyer on the matter. */

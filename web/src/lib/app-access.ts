@@ -2,6 +2,7 @@ import { FIRM_OWNER_EMAILS, isFirmOwnerEmail, FIRM_SECRETARIES, MANAGING_PARTNER
 import { DEFAULT_FIRM_SENDER_EMAIL } from "@/lib/firm-sender";
 import { STAFF_GOOGLE_PROVIDER_ID } from "@/lib/guest-oauth";
 import { getAdminEmails, isAdminEmail } from "@/lib/admin";
+import { allowlistHasEmail } from "@/lib/email-allowlist";
 
 function parseEmailList(raw: string | undefined): string[] {
   return raw?.split(",").map((e) => e.trim().toLowerCase()).filter(Boolean) ?? [];
@@ -14,19 +15,19 @@ function uniqueEmails(emails: string[]): string[] {
 /** Firm staff with access to Office Hub, tasks, and billing. */
 export function isStaffEmail(email: string | null | undefined): boolean {
   if (!email) return false;
-  const normalized = email.trim().toLowerCase();
 
-  if (FIRM_OWNER_EMAILS.some((owner) => owner.toLowerCase() === normalized)) return true;
+  if (allowlistHasEmail(FIRM_OWNER_EMAILS, email)) return true;
 
-  if (getTasksOnlyEmails().includes(normalized)) return true;
-  if (getSecretaryNavEmails().includes(normalized)) return true;
-  if (getAdminEmails().includes(normalized)) return true;
-  if (getAssociateLawyerEmails().includes(normalized)) return true;
-  if (getLiaisonEmails().includes(normalized)) return true;
+  if (allowlistHasEmail(getTasksOnlyEmails(), email)) return true;
+  if (allowlistHasEmail(getSecretaryNavEmails(), email)) return true;
+  if (allowlistHasEmail(getAdminEmails(), email)) return true;
+  if (allowlistHasEmail(getAssociateLawyerEmails(), email)) return true;
+  if (allowlistHasEmail(getLiaisonEmails(), email)) return true;
 
   const allowedList = parseEmailList(process.env.ALLOWED_EMAILS);
-  if (allowedList.includes(normalized)) return true;
+  if (allowlistHasEmail(allowedList, email)) return true;
 
+  const normalized = email.trim().toLowerCase();
   const domain = process.env.ALLOWED_EMAIL_DOMAIN?.trim().toLowerCase();
   if (domain && normalized.endsWith(`@${domain}`)) return true;
 
@@ -50,14 +51,18 @@ export function warnProductionAllowlistUnset(): void {
   }
 }
 
-export function canAccessOfficeHub(email: string | null | undefined): boolean {
-  return isStaffEmail(email);
+export function canAccessOfficeHub(
+  email: string | null | undefined,
+  officeAccess = false
+): boolean {
+  return officeAccess === true || isStaffEmail(email);
 }
 
 export function resolvePostLoginPath(
-  email: string | null | undefined
+  email: string | null | undefined,
+  officeAccess = false
 ): "/office-hub" | "/login?error=AccessDenied" {
-  return canAccessOfficeHub(email) ? "/office-hub" : "/login?error=AccessDenied";
+  return canAccessOfficeHub(email, officeAccess) ? "/office-hub" : "/login?error=AccessDenied";
 }
 
 export function getStaffEmails(): string[] {
@@ -107,10 +112,8 @@ export function isLiaisonStaffName(name: string | null | undefined): boolean {
 }
 
 export function isLiaisonEmail(email: string | null | undefined): boolean {
-  if (!email) return false;
-  const normalized = email.trim().toLowerCase();
   const list = getLiaisonEmails();
-  return list.length > 0 && list.includes(normalized);
+  return list.length > 0 && allowlistHasEmail(list, email);
 }
 
 export function canViewLiaisonTab(options: {
@@ -126,10 +129,9 @@ export function canViewLiaisonTab(options: {
 
 export function isAssociateLawyerEmail(email: string | null | undefined): boolean {
   if (!email) return false;
-  const normalized = email.trim().toLowerCase();
   if (isAdminEmail(email)) return false;
-  if (MANAGING_PARTNER.emails.some((value) => value.toLowerCase() === normalized)) return false;
-  return getAssociateLawyerEmails().includes(normalized);
+  if (allowlistHasEmail(MANAGING_PARTNER.emails, email)) return false;
+  return allowlistHasEmail(getAssociateLawyerEmails(), email);
 }
 
 const DEFAULT_DESK_BILLING_EDITOR_EMAILS = [DEFAULT_FIRM_SENDER_EMAIL.toLowerCase()] as const;
@@ -143,21 +145,19 @@ export function getDeskBillingEditorEmails(): string[] {
 export function canEditDeskBilling(email: string | null | undefined): boolean {
   if (!email || !canAccessBilling(email)) return false;
   if (isFirmOwnerEmail(email)) return true;
-  return getDeskBillingEditorEmails().includes(email.trim().toLowerCase());
+  return allowlistHasEmail(getDeskBillingEditorEmails(), email);
 }
 
 export function isSecretaryNavUser(email: string | null | undefined): boolean {
-  if (!email) return false;
   const list = getSecretaryNavEmails();
   if (!list.length) return false;
-  return list.includes(email.trim().toLowerCase());
+  return allowlistHasEmail(list, email);
 }
 
 export function isTasksOnlyEmail(email: string | null | undefined): boolean {
-  if (!email) return false;
   const list = getTasksOnlyEmails();
   if (!list.length) return false;
-  return list.includes(email.trim().toLowerCase());
+  return allowlistHasEmail(list, email);
 }
 
 export function isTasksOnlyStaff(email: string | null | undefined): boolean {
@@ -184,10 +184,9 @@ export function resolveStaffSignIn(
   email: string | null | undefined,
   provider: string | null | undefined
 ): boolean {
-  const normalized = email?.trim().toLowerCase();
-  if (!normalized) return false;
+  if (!email?.trim()) return false;
   if (provider && provider !== STAFF_GOOGLE_PROVIDER_ID) return false;
-  return isStaffEmail(normalized);
+  return isStaffEmail(email);
 }
 
 const BILLING_API_PREFIXES = [

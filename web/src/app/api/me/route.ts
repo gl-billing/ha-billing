@@ -22,7 +22,7 @@ export async function GET() {
       tasksOnly: !billingAccess,
       secretaryNav,
       deskBillingEdit,
-      officeAccess: isStaffEmail(session.user.email)
+      officeAccess: isStaffEmail(session.user.email) || session.user.officeAccess === true
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to load profile.";

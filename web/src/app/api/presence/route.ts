@@ -66,7 +66,7 @@ export async function POST(request: Request) {
   try {
     const session = await getSafeServerSession();
     const email = session?.user?.email;
-    if (!email || !isStaffEmail(email)) {
+    if (!email || !(isStaffEmail(email) || session.user?.officeAccess === true)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

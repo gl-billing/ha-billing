@@ -4,6 +4,7 @@ import { formatStaffDisplayName } from "@/lib/user-display";
 describe("formatStaffDisplayName", () => {
   it("uses firm greeting names for known staff emails", () => {
     expect(formatStaffDisplayName(null, "atty.rahernandez@gmail.com")).toBe("Atty. Robert");
+    expect(formatStaffDisplayName(null, "attyrahernandez@gmail.com")).toBe("Atty. Robert");
     expect(formatStaffDisplayName(null, "rahernandez@gmail.com")).toBe("Atty. Robert");
     expect(formatStaffDisplayName(null, "jlppasagui@gmail.com")).toBe("Atty. Jeff");
     expect(formatStaffDisplayName("Google User", "legal@hernandezlaw.info")).toBe("Shiela");

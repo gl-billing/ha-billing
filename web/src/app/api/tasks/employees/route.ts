@@ -7,7 +7,10 @@ import {
   getEmployeeDirectory,
   upsertEmployee
 } from "@/lib/office-tasks/sheets/employees";
+import { invalidateTasksDataCache } from "@/lib/office-tasks/tasks-cache";
 import { isQuotaError, quotaErrorMessage } from "@/lib/sheets/cache";
+import { shareFirmWorkbooksWithStaff } from "@/lib/sheets/share-workbooks";
+import { invalidateSheetStaffAllowlist } from "@/lib/staff-sheet-allowlist";
 
 /** Staff roster from the HA Employees sheet. */
 export async function GET() {
@@ -62,13 +65,35 @@ async function handleUpsert(request: Request) {
     rowNumber: body.rowNumber != null ? Number(body.rowNumber) : undefined
   });
 
+  invalidateTasksDataCache(accessToken);
+  invalidateSheetStaffAllowlist();
+
+  const share =
+    result.employee.active === false
+      ? { shared: [] as string[], failed: [] as string[], warning: undefined as string | undefined }
+      : await shareFirmWorkbooksWithStaff(accessToken, result.employee.email).catch((error) => ({
+          shared: [] as string[],
+          failed: [] as string[],
+          warning:
+            error instanceof Error
+              ? error.message
+              : "Could not share firm workbooks with this staff email."
+        }));
+
+  const addedMessage = result.created
+    ? `Added ${result.employee.name} to the Employees sheet.`
+    : `Updated ${result.employee.name} on the Employees sheet.`;
+  const signInMessage = result.created
+    ? " They can sign in with that Google email without a separate allowlist update."
+    : "";
+
   return NextResponse.json({
     ok: true,
     created: result.created,
     employee: result.employee,
-    message: result.created
-      ? `Added ${result.employee.name} to the Employees sheet.`
-      : `Updated ${result.employee.name} on the Employees sheet.`
+    sharedWorkbooks: share.shared.length,
+    message: `${addedMessage}${signInMessage}${share.warning ? ` ${share.warning}` : ""}`.trim(),
+    warning: share.warning
   });
 }
 

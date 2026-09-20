@@ -11,6 +11,7 @@ import {
 import { canManageTeamRoster, isAdminEmail } from "@/lib/admin";
 import { STAFF_GOOGLE_PROVIDER_ID } from "@/lib/guest-oauth";
 import { getGoogleOAuthConfig, getNextAuthSecret, isGoogleOAuthConfigured } from "@/lib/auth-env";
+import { isActiveSheetStaffEmail } from "@/lib/staff-sheet-allowlist";
 import { formatStaffDisplayName } from "@/lib/user-display";
 
 const STAFF_SCOPES = [
@@ -190,13 +191,16 @@ export const authOptions: NextAuthOptions = {
       return `${base}/auth/continue`;
     },
     async signIn({ user, account }) {
-      return resolveStaffSignIn(user.email, account?.provider);
+      if (resolveStaffSignIn(user.email, account?.provider)) return true;
+      if (account?.provider && account.provider !== STAFF_GOOGLE_PROVIDER_ID) return false;
+      return isActiveSheetStaffEmail(user.email);
     },
     async jwt({ token, account, user }) {
       const email =
         user?.email ?? (typeof token.email === "string" ? token.email.trim() : "");
       if (email) {
-        token.officeAccess = isStaffEmail(email);
+        const sheetStaff = user ? await isActiveSheetStaffEmail(email) : token.officeAccess === true;
+        token.officeAccess = isStaffEmail(email) || sheetStaff;
         token.isAdmin = isAdminEmail(email);
         token.canManageTeamRoster = canManageTeamRoster(email);
       }

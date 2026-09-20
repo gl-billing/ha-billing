@@ -14,7 +14,7 @@ export default async function AuthContinuePage() {
     redirect("/login");
   }
 
-  const destination = resolvePostLoginPath(session.user.email);
+  const destination = resolvePostLoginPath(session.user.email, session.user.officeAccess === true);
   if (destination.startsWith("/login")) {
     redirect(destination);
   }

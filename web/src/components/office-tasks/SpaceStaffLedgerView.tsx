@@ -126,7 +126,7 @@ export function SpaceStaffLedgerView() {
         <input className={nativeMobile ? undefined : "field mt-1"} value={name} required disabled={saving} onChange={(e) => setName(e.target.value)} />
       </label>
       <label className={nativeMobile ? undefined : "block text-xs text-muted"}>
-        {nativeMobile ? <span>Email</span> : "Email"}
+        {nativeMobile ? <span>Email</span> : "Google sign-in email"}
         <input
           className={nativeMobile ? undefined : "field mt-1"}
           type="email"
@@ -194,7 +194,7 @@ export function SpaceStaffLedgerView() {
             <h2 className="text-lg font-semibold text-ink">Firm roster</h2>
             <p className="mt-1 text-sm text-muted">
               {canEdit
-                ? "Active staff from the HA Employees sheet. Admins can add or update rows here."
+                ? "Add people here or on the Employees sheet. They can sign in with that Google email — no separate allowlist approval."
                 : "Active staff from the HA Employees sheet."}
             </p>
           </div>
@@ -243,7 +243,7 @@ export function SpaceStaffLedgerView() {
             directory.length
               ? "Try a different search."
               : canEdit
-                ? "Add a staff member here, or enter names on the Employees sheet in the HA tasks workbook."
+                ? "Add a staff member here, or enter names on the Employees sheet. They can sign in without a separate allowlist update."
                 : "Ask an admin to add names on the Employees sheet."
           }
           action={
