@@ -14,6 +14,7 @@ import {
 } from "@/lib/sheets/client";
 import { findMasterRow, updateClientAccountStatus } from "@/lib/sheets/master";
 import { isLedgerDateInClosedMonth, parseLedgerMonthToken } from "@/lib/firm-allocation";
+import { formatPaymentDetailsWithChargeRow } from "@/lib/ledger-display";
 import { readSettingsMap } from "@/lib/sheets/settings";
 
 async function getNextLedgerRow(accessToken: string, clientCode: string): Promise<number> {
@@ -121,6 +122,13 @@ export async function addLedgerEntry(
 
   const nextRow = await getNextLedgerRow(accessToken, clientCode);
   const dateValue = entry.date || new Date().toISOString().slice(0, 10);
+  const appliedChargeRow = Number(entry.appliedChargeRow) || 0;
+  const paymentDetails =
+    isPayment && appliedChargeRow > 0
+      ? formatPaymentDetailsWithChargeRow(entry.details || "", appliedChargeRow)
+      : isPayment
+        ? entry.details || ""
+        : "";
 
   await updateSheetValues(accessToken, `'${clientCode}'!A${nextRow}:L${nextRow}`, [
     [
@@ -132,7 +140,7 @@ export async function addLedgerEntry(
       isPayment ? amount : "",
       "",
       method,
-      isPayment ? entry.details || "" : "",
+      paymentDetails,
       "",
       "",
       ""

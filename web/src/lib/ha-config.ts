@@ -1107,6 +1107,8 @@ export type LedgerEntryPayload = {
   payment?: number | string;
   method?: string;
   details?: string;
+  /** When set, payment is linked to this charge sheet row for open-balance tracking. */
+  appliedChargeRow?: number;
 };
 
 export function filterClientsByQuery(clients: ClientSummary[], query: string): ClientSummary[] {

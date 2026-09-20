@@ -270,7 +270,8 @@ export function MatterInlineLedger({
                   details,
                   category: paymentFields.category,
                   description: paymentFields.description,
-                  payment: Number(paymentAmount)
+                  payment: Number(paymentAmount),
+                  appliedChargeRow: selectedChargeRow || undefined
                 },
                 "Payment saved."
               );

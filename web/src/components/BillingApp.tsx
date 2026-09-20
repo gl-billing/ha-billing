@@ -1408,7 +1408,8 @@ export function BillingApp() {
                       category: paymentFields.category,
                       description: paymentFields.description,
                       method: paymentMethod,
-                      details
+                      details,
+                      appliedChargeRow: selectedChargeRow || undefined
                     },
                     "Payment added."
                   );
@@ -1434,7 +1435,8 @@ export function BillingApp() {
                       category: paymentFields.category,
                       description: paymentFields.description,
                       method: paymentMethod,
-                      details
+                      details,
+                      appliedChargeRow: selectedChargeRow || undefined
                     },
                     "Payment added.",
                     true
