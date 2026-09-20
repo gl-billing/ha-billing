@@ -15,6 +15,7 @@ import { getOrCreateSoaFolderId } from "@/lib/sheets/drive-soa-folder";
 import { buildHyperlinkFormula } from "@/lib/sheets/hyperlinks";
 import { getClientLedger } from "@/lib/sheets/ledger-read";
 import { updateSingleClientStatus } from "@/lib/sheets/ledger";
+import { displayLedgerDescription } from "@/lib/ledger-display";
 import { findMasterRow, getClientDetail } from "@/lib/sheets/master";
 import { runPostSendSheetStep, withPostSendSheetWarning } from "@/lib/sheets/post-send-sheet";
 import { readSettingsMap } from "@/lib/sheets/settings";
@@ -152,8 +153,8 @@ export async function generateClientSoaNative(
     remittance: resolveSoaRemittance(settings),
     ledger: entries.map((entry) => ({
       date: entry.date,
-      type: entry.category || entry.type,
-      description: entry.description || entry.category || entry.type,
+      type: displayLedgerDescription(entry.category || entry.type),
+      description: displayLedgerDescription(entry.description || entry.category || entry.type),
       charge: entry.charge,
       payment: entry.payment,
       balance: entry.balance

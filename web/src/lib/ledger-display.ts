@@ -36,7 +36,13 @@ export function displayLedgerDescription(description: string): string {
     .replace(EVENT_LEDGER_CHARGE_SUFFIX_RE, " ")
     .replace(INTAKE_ACCEPTANCE_FEE_SUFFIX_RE, " ")
     .replace(SPOT_BILLING_MARKER_SUFFIX_RE, " ")
+    // Event billing often embeds filing/hearing prep checklists — never show those on SOA/AR.
+    .replace(/\s*(?:Filing|Hearing)\s+prep\s*:\s*[^·•]*/gi, " ")
+    .replace(/\s*[·•]\s*due\s+\d{4}-\d{2}-\d{2}\b/gi, "")
+    .replace(/\s*\(([A-Z]{2,}-[A-Z0-9-]+)\)\s*$/i, "")
+    .replace(/\s*[·•]\s*[·•]\s*/g, " · ")
     .replace(/\s{2,}/g, " ")
+    .replace(/\s*[·•]\s*$/g, "")
     .trim();
 }
 

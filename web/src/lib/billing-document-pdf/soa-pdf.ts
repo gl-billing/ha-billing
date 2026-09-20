@@ -3,10 +3,11 @@ import fs from "fs";
 import path from "path";
 import { PDFDocument, StandardFonts, type PDFImage, type PDFFont, type PDFPage, rgb } from "pdf-lib";
 import { formatBillingDate, FIRM_NAME } from "@/lib/billing-document-design";
-import { drawWrappedText, embedFirmCoverBanner } from "@/lib/billing-document-pdf/common";
+import { drawWrappedText, embedFirmCoverBanner, wrapText } from "@/lib/billing-document-pdf/common";
 import { getFirmLetterheadContact } from "@/lib/firm-contact";
 import { drawFirmPageFooterPdf, firmPageFooterReservePt } from "@/lib/firm-letterhead";
 import { getFirmPageSpec } from "@/lib/firm-page-sizes";
+import { displayLedgerDescription } from "@/lib/ledger-display";
 
 export type SoaLedgerRow = {
   date: string;
@@ -56,11 +57,17 @@ const REMIT_X = META_X + 8;
 
 const COL = {
   date: LEFT + 7,
-  type: LEFT + 78,
-  desc: LEFT + 127,
-  charge: LEFT + 256,
-  payment: LEFT + 328,
+  type: LEFT + 72,
+  desc: LEFT + 132,
+  charge: LEFT + 268,
+  payment: LEFT + 338,
   balance: LEFT + 413
+};
+
+const COL_WIDTH = {
+  date: COL.type - COL.date - 4,
+  type: COL.desc - COL.type - 4,
+  desc: COL.charge - COL.desc - 8
 };
 
 const INK = rgb(0.08, 0.07, 0.06);
@@ -80,12 +87,22 @@ function letterSpaceWords(text: string): string {
     .join("  ");
 }
 
-function formatSoaDateShort(value: string | Date): string {
-  const date =
-    value instanceof Date
-      ? value
-      : new Date(`${String(value).trim().slice(0, 10)}T12:00:00`);
-  if (Number.isNaN(date.getTime())) return String(value || "");
+/** Parse ledger dates whether they arrive as ISO (`2026-07-25`) or long display (`July 25, 2026`). */
+export function parseSoaLedgerDate(value: string | Date): Date | null {
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
+    const iso = new Date(`${raw.slice(0, 10)}T12:00:00`);
+    return Number.isNaN(iso.getTime()) ? null : iso;
+  }
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+export function formatSoaDateShort(value: string | Date): string {
+  const date = parseSoaLedgerDate(value);
+  if (!date) return String(value || "");
   const mm = String(date.getMonth() + 1).padStart(2, "0");
   const dd = String(date.getDate()).padStart(2, "0");
   const yyyy = date.getFullYear();
@@ -313,22 +330,83 @@ function drawLedgerHeader(page: PDFPage, y: number, sansBold: PDFFont) {
   page.drawLine({ start: { x: LEFT, y: y - 6 }, end: { x: RIGHT, y: y - 6 }, thickness: 0.35, color: LINE });
 }
 
+function ledgerRowLineCount(row: SoaLedgerRow, serif: PDFFont): number {
+  const typeLines = wrapText(
+    displayLedgerDescription(String(row.type || "")),
+    COL_WIDTH.type,
+    serif,
+    8
+  );
+  const descLines = wrapText(
+    displayLedgerDescription(String(row.description || "")),
+    COL_WIDTH.desc,
+    serif,
+    8.5
+  );
+  return Math.max(1, typeLines.length, descLines.length);
+}
+
+function ledgerRowHeight(lineCount: number): number {
+  return 12 + Math.max(0, lineCount - 1) * 10 + 10;
+}
+
+/** Draw one ledger row; returns the y position for the next row. */
 function drawLedgerDataRow(
   page: PDFPage,
   row: SoaLedgerRow,
   y: number,
   serif: PDFFont,
   amountFont: PDFFont
-) {
-  page.drawText(formatSoaDateShort(row.date), { x: COL.date, y, size: 9, font: serif, color: INK });
-  page.drawText(String(row.type || "").slice(0, 12), { x: COL.type, y, size: 9, font: serif, color: INK });
-  page.drawText(String(row.description || "").slice(0, 42), { x: COL.desc, y, size: 9, font: serif, color: INK });
+): number {
+  const dateText = formatSoaDateShort(row.date);
+  const typeLines = wrapText(
+    displayLedgerDescription(String(row.type || "")),
+    COL_WIDTH.type,
+    serif,
+    8
+  );
+  const descLines = wrapText(
+    displayLedgerDescription(String(row.description || "")),
+    COL_WIDTH.desc,
+    serif,
+    8.5
+  );
+  const lineCount = Math.max(1, typeLines.length, descLines.length);
 
-  if (row.charge > 0) drawRightAmount(page, COL.charge + 48, y, row.charge, amountFont, 9);
-  if (row.payment > 0) drawRightAmount(page, COL.payment + 48, y, row.payment, amountFont, 9);
-  drawRightAmount(page, RIGHT - 6, y, row.balance, amountFont, 9);
+  page.drawText(dateText, { x: COL.date, y, size: 8.5, font: serif, color: INK });
 
-  page.drawLine({ start: { x: LEFT, y: y - 6 }, end: { x: RIGHT, y: y - 6 }, thickness: 0.25, color: LINE });
+  typeLines.forEach((line, index) => {
+    page.drawText(line, {
+      x: COL.type,
+      y: y - index * 10,
+      size: 8,
+      font: serif,
+      color: INK
+    });
+  });
+
+  descLines.forEach((line, index) => {
+    page.drawText(line, {
+      x: COL.desc,
+      y: y - index * 10,
+      size: 8.5,
+      font: serif,
+      color: INK
+    });
+  });
+
+  if (row.charge > 0) drawRightAmount(page, COL.charge + 52, y, row.charge, amountFont, 8.5);
+  if (row.payment > 0) drawRightAmount(page, COL.payment + 52, y, row.payment, amountFont, 8.5);
+  drawRightAmount(page, RIGHT - 6, y, row.balance, amountFont, 8.5);
+
+  const nextY = y - ledgerRowHeight(lineCount) + 10;
+  page.drawLine({
+    start: { x: LEFT, y: nextY + 4 },
+    end: { x: RIGHT, y: nextY + 4 },
+    thickness: 0.25,
+    color: LINE
+  });
+  return nextY;
 }
 
 function drawNotesAndRemittance(
@@ -437,9 +515,9 @@ export async function buildSoaPdf(input: SoaPdfInput): Promise<Uint8Array> {
   y -= 24;
 
   for (const row of input.ledger) {
-    ensureSpace(24);
-    drawLedgerDataRow(page, row, y, serif, amountFont);
-    y -= 22;
+    const needed = ledgerRowHeight(ledgerRowLineCount(row, serif));
+    ensureSpace(needed);
+    y = drawLedgerDataRow(page, row, y, serif, amountFont);
   }
 
   ensureSpace(130);
