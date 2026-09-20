@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { displayLedgerDescription, receiptPaymentForLabel } from "@/lib/ledger-display";
+import { StandardFonts, PDFDocument } from "pdf-lib";
+import { wrapText } from "@/lib/billing-document-pdf/common";
+import { displayLedgerDescription, receiptPaymentForLabel, soaLedgerDescription } from "@/lib/ledger-display";
 import { formatSoaDateShort, buildSoaPdf, soaPdfFilename } from "@/lib/billing-document-pdf/soa-pdf";
 
 describe("displayLedgerDescription", () => {
@@ -27,6 +29,17 @@ describe("receiptPaymentForLabel", () => {
   });
 });
 
+describe("soaLedgerDescription", () => {
+  it("collapses long event charge text to the fee label", () => {
+    expect(
+      soaLedgerDescription(
+        "Drafting pleading fee — File a Comment Filing prep: Review received pleading · Responsive pleading · due 2026-07-25 (JIM-EVT-0001)",
+        "Pleading Fee"
+      )
+    ).toBe("Drafting pleading fee");
+  });
+});
+
 describe("formatSoaDateShort", () => {
   it("formats ISO and long display dates as mm/dd/yyyy", () => {
     expect(formatSoaDateShort("2026-07-25")).toBe("07/25/2026");
@@ -34,18 +47,30 @@ describe("formatSoaDateShort", () => {
   });
 });
 
+describe("wrapText", () => {
+  it("hard-breaks oversized words so ledger columns do not overflow", async () => {
+    const pdf = await PDFDocument.create();
+    const font = await pdf.embedFont(StandardFonts.Helvetica);
+    const lines = wrapText("Supercalifragilisticexpialidocious", 40, font, 9);
+    expect(lines.length).toBeGreaterThan(1);
+    for (const line of lines) {
+      expect(font.widthOfTextAtSize(line, 9)).toBeLessThanOrEqual(40.5);
+    }
+  });
+});
+
 describe("buildSoaPdf", () => {
-  it("builds a statement of account matching the firm SOA layout", async () => {
+  it("builds a statement with matching summary and compact ledger text", async () => {
     const bytes = await buildSoaPdf({
-      clientCode: "AIDEN",
-      clientName: "Aiden Paul",
-      invoiceNumber: "INV-402386",
-      invoiceDate: "2026-03-31",
+      clientCode: "SANTOS",
+      clientName: "Jimmy Santos",
+      invoiceNumber: "INV-SANTOS-2026-002",
+      invoiceDate: "2026-09-20",
       prevBalance: 0,
-      newCharges: 1_000_000,
-      payments: 300_000,
+      newCharges: 15_000,
+      payments: 10_000,
       depositBalance: 0,
-      totalDue: 700_000,
+      totalDue: 5_000,
       remittance: {
         bankName: "PS Bank",
         accountName: "Robert Hernandez",
@@ -62,12 +87,12 @@ describe("buildSoaPdf", () => {
           balance: 15_000
         },
         {
-          date: "2026-03-25",
-          type: "Payment",
-          description: "Payment received",
+          date: "2026-09-20",
+          type: "Pleading Fee",
+          description: "Drafting pleading fee — File a Comment",
           charge: 0,
-          payment: 300_000,
-          balance: 700_000
+          payment: 10_000,
+          balance: 5_000
         }
       ]
     });

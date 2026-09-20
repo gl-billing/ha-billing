@@ -79,6 +79,19 @@ export function receiptPaymentForLabel(description: string, category?: string): 
   return firstClause || cleaned || "Payment received";
 }
 
+/**
+ * SOA detailed-ledger description — clean and compact so columns do not overflow.
+ * Long event/checklist charge text collapses to the fee label.
+ */
+export function soaLedgerDescription(description: string, category?: string): string {
+  const cleaned = displayLedgerDescription(description);
+  if (!cleaned) return displayLedgerDescription(category || "") || "—";
+  if (cleaned.length > 56 || /·/.test(cleaned)) {
+    return receiptPaymentForLabel(description, category);
+  }
+  return cleaned;
+}
+
 /** Hide internal open-charge link from payment reference / details fields. */
 export function displayLedgerDetails(details: string): string {
   return String(details || "")

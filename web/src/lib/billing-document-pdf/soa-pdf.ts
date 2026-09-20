@@ -7,7 +7,7 @@ import { drawWrappedText, embedFirmCoverBanner, wrapText } from "@/lib/billing-d
 import { getFirmLetterheadContact } from "@/lib/firm-contact";
 import { drawFirmPageFooterPdf, firmPageFooterReservePt } from "@/lib/firm-letterhead";
 import { getFirmPageSpec } from "@/lib/firm-page-sizes";
-import { displayLedgerDescription } from "@/lib/ledger-display";
+import { soaLedgerDescription } from "@/lib/ledger-display";
 
 export type SoaLedgerRow = {
   date: string;
@@ -56,12 +56,12 @@ const META_X = LEFT + CONTENT_WIDTH * 0.52;
 const REMIT_X = META_X + 8;
 
 const COL = {
-  date: LEFT + 7,
-  type: LEFT + 72,
-  desc: LEFT + 132,
-  charge: LEFT + 268,
-  payment: LEFT + 338,
-  balance: LEFT + 413
+  date: LEFT + 6,
+  type: LEFT + 62,
+  desc: LEFT + 118,
+  charge: LEFT + 278,
+  payment: LEFT + 348,
+  balance: LEFT + 418
 };
 
 const COL_WIDTH = {
@@ -331,14 +331,9 @@ function drawLedgerHeader(page: PDFPage, y: number, sansBold: PDFFont) {
 }
 
 function ledgerRowLineCount(row: SoaLedgerRow, serif: PDFFont): number {
-  const typeLines = wrapText(
-    displayLedgerDescription(String(row.type || "")),
-    COL_WIDTH.type,
-    serif,
-    8
-  );
+  const typeLines = wrapText(soaLedgerDescription(String(row.type || "")), COL_WIDTH.type, serif, 8);
   const descLines = wrapText(
-    displayLedgerDescription(String(row.description || "")),
+    soaLedgerDescription(String(row.description || ""), row.type),
     COL_WIDTH.desc,
     serif,
     8.5
@@ -359,14 +354,9 @@ function drawLedgerDataRow(
   amountFont: PDFFont
 ): number {
   const dateText = formatSoaDateShort(row.date);
-  const typeLines = wrapText(
-    displayLedgerDescription(String(row.type || "")),
-    COL_WIDTH.type,
-    serif,
-    8
-  );
+  const typeLines = wrapText(soaLedgerDescription(String(row.type || "")), COL_WIDTH.type, serif, 8);
   const descLines = wrapText(
-    displayLedgerDescription(String(row.description || "")),
+    soaLedgerDescription(String(row.description || ""), row.type),
     COL_WIDTH.desc,
     serif,
     8.5
@@ -395,8 +385,8 @@ function drawLedgerDataRow(
     });
   });
 
-  if (row.charge > 0) drawRightAmount(page, COL.charge + 52, y, row.charge, amountFont, 8.5);
-  if (row.payment > 0) drawRightAmount(page, COL.payment + 52, y, row.payment, amountFont, 8.5);
+  if (row.charge > 0) drawRightAmount(page, COL.payment - 8, y, row.charge, amountFont, 8.5);
+  if (row.payment > 0) drawRightAmount(page, COL.balance - 8, y, row.payment, amountFont, 8.5);
   drawRightAmount(page, RIGHT - 6, y, row.balance, amountFont, 8.5);
 
   const nextY = y - ledgerRowHeight(lineCount) + 10;

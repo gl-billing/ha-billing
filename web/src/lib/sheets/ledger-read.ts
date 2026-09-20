@@ -140,12 +140,12 @@ export async function getClientTabSummary(
 ): Promise<{ totalDue: number; payments: number; charges: number } | null> {
   if (!(await sheetExists(accessToken, clientCode))) return null;
 
+  // E1:E3 is a column — Sheets returns [[E1],[E2],[E3]], not a single row.
   const values = await getSheetValues(accessToken, `'${clientCode}'!E1:E3`);
-  const row = values[0] || [];
   return {
-    totalDue: Number(row[0]) || 0,
-    payments: Number(row[1]) || 0,
-    charges: Number(row[2]) || 0
+    totalDue: Number(values[0]?.[0]) || 0,
+    payments: Number(values[1]?.[0]) || 0,
+    charges: Number(values[2]?.[0]) || 0
   };
 }
 
@@ -197,13 +197,19 @@ export async function getClientLedger(
   });
 
   const lastBalance = entries.length ? entries[entries.length - 1].balance : 0;
+  // Ledger line totals are authoritative for SOA/account summary. Sheet E1 may still
+  // be used for total due when the running-balance cell is blank.
+  const totalDue =
+    Number.isFinite(lastBalance) && entries.length
+      ? lastBalance
+      : tabSummary?.totalDue || 0;
 
   return {
     entries,
     summary: {
-      totalDue: tabSummary?.totalDue ?? lastBalance,
-      payments: tabSummary?.payments ?? paymentTotal,
-      charges: tabSummary?.charges ?? chargeTotal,
+      totalDue,
+      payments: paymentTotal,
+      charges: chargeTotal,
       entryCount: entries.length,
       chargeCount,
       paymentCount

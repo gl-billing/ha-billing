@@ -16,15 +16,35 @@ export function wrapText(text: string, maxWidth: number, font: PDFFont, fontSize
   const words = String(text || "").trim().split(/\s+/).filter(Boolean);
   if (!words.length) return [""];
 
+  const breakWord = (word: string): string[] => {
+    if (font.widthOfTextAtSize(word, fontSize) <= maxWidth) return [word];
+    const parts: string[] = [];
+    let chunk = "";
+    for (const char of word) {
+      const next = chunk + char;
+      if (chunk && font.widthOfTextAtSize(next, fontSize) > maxWidth) {
+        parts.push(chunk);
+        chunk = char;
+      } else {
+        chunk = next;
+      }
+    }
+    if (chunk) parts.push(chunk);
+    return parts.length ? parts : [word];
+  };
+
   const lines: string[] = [];
   let current = "";
   for (const word of words) {
-    const next = current ? `${current} ${word}` : word;
-    if (font.widthOfTextAtSize(next, fontSize) <= maxWidth) {
-      current = next;
-    } else {
-      if (current) lines.push(current);
-      current = word;
+    const pieces = breakWord(word);
+    for (const piece of pieces) {
+      const next = current ? `${current} ${piece}` : piece;
+      if (!current || font.widthOfTextAtSize(next, fontSize) <= maxWidth) {
+        current = next;
+      } else {
+        lines.push(current);
+        current = piece;
+      }
     }
   }
   if (current) lines.push(current);
