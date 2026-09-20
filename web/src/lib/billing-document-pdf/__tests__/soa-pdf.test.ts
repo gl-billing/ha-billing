@@ -21,6 +21,9 @@ describe("receiptPaymentForLabel", () => {
     ).toBe("Drafting pleading fee");
     expect(receiptPaymentForLabel("Appearance fee — RTC Branch 45 hearing")).toBe("Appearance fee");
     expect(receiptPaymentForLabel("Professional Fee")).toBe("Professional Fee");
+    expect(
+      receiptPaymentForLabel("Partial payment — professional fees and case expenses")
+    ).toBe("professional fees and case expenses");
   });
 });
 

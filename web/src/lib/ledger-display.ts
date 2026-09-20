@@ -52,8 +52,21 @@ export function displayLedgerDescription(description: string): string {
  */
 export function receiptPaymentForLabel(description: string, category?: string): string {
   const cleaned = displayLedgerDescription(description);
-  const beforeDash = cleaned.split(/\s+[—–-]\s+/)[0]?.trim() || "";
-  if (beforeDash && /fee|payment|retainer|deposit|acceptance|appearance|pleading|filing|notarial/i.test(beforeDash)) {
+  const parts = cleaned.split(/\s+[—–-]\s+/).map((part) => part.trim()).filter(Boolean);
+  const beforeDash = parts[0] || "";
+  const afterDash = parts.slice(1).join(" — ");
+
+  if (beforeDash && /fee|retainer|deposit|acceptance|appearance|pleading|filing|notarial/i.test(beforeDash)) {
+    return beforeDash;
+  }
+
+  // "Partial payment — professional fees…" → keep the meaningful after-dash clause
+  if (beforeDash && /^(partial\s+)?payment$/i.test(beforeDash) && afterDash) {
+    const afterShort = afterDash.split(/[·•;]/)[0]?.trim() || afterDash;
+    return afterShort.replace(/^for\s+/i, "").trim() || beforeDash;
+  }
+
+  if (beforeDash && /payment/i.test(beforeDash) && beforeDash.length <= 40) {
     return beforeDash;
   }
 
